@@ -21,4 +21,13 @@ public class Validator {
                     "ConnectSdk.sdkInitialize() first");
         }
     }
+
+    public static void PaymentEnabled() {
+        if (!ConnectSdk.isPaymentEnabled()) {
+            throw new ConnectPaymentNotEnabledException("Connect Payment was not enabled, " +
+                    "enable it by setting " + ConnectSdk.PAYMENT_ENABLED_PROPERTY + "to true in" +
+                    "the application manifest.");
+        }
+    }
+
 }

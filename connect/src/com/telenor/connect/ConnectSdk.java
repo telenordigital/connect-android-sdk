@@ -20,6 +20,7 @@ public final class ConnectSdk {
     private static String sClientId;
     private static ConnectIdService sConnectIdService;
     private static Context sContext;
+    private static boolean sPaymentEnabled = false;
     private static String sRedirectUri;
     private static List<String> sScopes;
     private static boolean sSdkInitialized = false;
@@ -29,6 +30,11 @@ public final class ConnectSdk {
      * The key for the client ID in the Android manifest.
      */
     public static final String CLIENT_ID_PROPERTY = "com.telenor.connect.CLIENT_ID";
+
+    /**
+     * The key to enable payment in the Android manifest.
+     */
+    public static final String PAYMENT_ENABLED_PROPERTY = "com.telenor.connect.PAYMENT_ENABLED";
 
     /**
      * The key for the redirect URI in the Android manifest.
@@ -52,6 +58,10 @@ public final class ConnectSdk {
         ConnectSdk.setAcrValue("1");
         sScopes = new ArrayList<>();
         sScopes.add("profile");
+        if (ConnectSdk.isPaymentEnabled()) {
+            sScopes.add("payment.transactions.read");
+            sScopes.add("payment.transactions.write");
+        }
         sSdkInitialized = true;
     }
 
@@ -107,6 +117,7 @@ public final class ConnectSdk {
 
     public static void initializePayment(Context context) {
         Validator.SdkInitialized();
+        Validator.PaymentEnabled();
 
         Intent intent = new Intent();
         intent.setClass(ConnectSdk.getContext(), ConnectActivity.class);
@@ -118,6 +129,10 @@ public final class ConnectSdk {
 
     public static synchronized boolean isInitialized() {
         return sSdkInitialized;
+    }
+
+    public static synchronized boolean isPaymentEnabled() {
+        return sPaymentEnabled;
     }
 
     public static void logout() {
@@ -158,6 +173,11 @@ public final class ConnectSdk {
                 Log.e("ConnectSdk", "Client Ids cannot be directly placed in the manifest." +
                                 "They must be placed in the string resource file.");
             }
+        }
+
+        Object paymentEnabledObject = ai.metaData.get(PAYMENT_ENABLED_PROPERTY);
+        if (paymentEnabledObject instanceof Boolean) {
+            sPaymentEnabled = (Boolean) paymentEnabledObject;
         }
 
         if (sRedirectUri == null) {
