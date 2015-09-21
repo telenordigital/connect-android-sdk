@@ -8,6 +8,9 @@ import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.id.ConnectIdService;
 
 public class ConnectUtils {
+    public static final String LOGIN_ACTION = "com.telenor.connect.LOGIN_ACTION";
+    public static final String PAYMENT_ACTION = "com.telenor.connect.PAYMENT_ACTION";
+
     public static String parseAuthCode(String callbackUrl) {
         Validator.notNullOrEmpty(callbackUrl, "callbackUrl");
 

@@ -10,6 +10,7 @@ import android.util.Log;
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.ui.ConnectActivity;
+import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
 import java.util.ArrayList;
@@ -48,6 +49,9 @@ public final class ConnectSdk {
 
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
+
+    public static final String EXTRA_PAYMENT_LOCATION =
+            "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
 
     public static synchronized void sdkInitialize(Context context) {
         Validator.notNull(context, "context");
@@ -115,13 +119,14 @@ public final class ConnectSdk {
         return sScopes;
     }
 
-    public static void initializePayment(Context context) {
+    public static void initializePayment(Context context, String transactionLocation) {
         Validator.SdkInitialized();
         Validator.PaymentEnabled();
 
         Intent intent = new Intent();
         intent.setClass(ConnectSdk.getContext(), ConnectActivity.class);
-        intent.setAction("PAYMENT");
+        intent.putExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION, transactionLocation);
+        intent.setAction(ConnectUtils.PAYMENT_ACTION);
 
         Activity activity = (Activity) context;
         activity.startActivityForResult(intent, 1);

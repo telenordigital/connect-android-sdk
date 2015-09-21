@@ -7,7 +7,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
+import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.utils.ConnectUtils;
 
 public class ConnectActivity extends FragmentActivity {
 
@@ -26,11 +28,14 @@ public class ConnectActivity extends FragmentActivity {
         String action = intent.getAction();
 
         if (fragment == null) {
-            if (action.equals("LOGIN")) {
-                fragment = new ConnectIdFragment();
-            } else if (action.equals("PAYMENT")) {
-                fragment = new ConnectPaymentFragment();
+            fragment = new ConnectWebFragment();
+            Bundle b = new Bundle();
+            b.putString(ConnectWebFragment.ACTION_ARGUMENT, action);
+            if (action.equals(ConnectUtils.PAYMENT_ACTION)) {
+                b.putString(ConnectWebFragment.URL_ARGUMENT,
+                        intent.getStringExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION));
             }
+            fragment.setArguments(b);
             fragment.setRetainInstance(true);
             manager.beginTransaction()
                     .add(R.id.com_telenor_connect_fragment_container, fragment, FRAGMENT_TAG)

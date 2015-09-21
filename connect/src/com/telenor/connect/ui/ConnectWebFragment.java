@@ -26,13 +26,16 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class ConnectIdFragment extends Fragment {
+public class ConnectWebFragment extends Fragment {
     private Uri url;
     private static View sLoadingView;
-    private static WebView sWebView;
+    protected static WebView sWebView;
     private static Callback<ConnectTokens> sTokensCallback;
 
-    public ConnectIdFragment() {
+    public static final String ACTION_ARGUMENT = "com.telenor.connect.ACTION_ARGUMENT";
+    public static final String URL_ARGUMENT = "com.telenor.connect.URL_ARGUMENT";
+
+    public ConnectWebFragment() {
         this.sTokensCallback = new Callback<ConnectTokens>() {
             @Override
             public void success(ConnectTokens connectTokens, Response response) {
@@ -70,7 +73,7 @@ public class ConnectIdFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             sWebView.setWebContentsDebuggingEnabled(true);
         }
-        sWebView.loadUrl(getAuthorizeUri());
+        sWebView.loadUrl(getPageUrl());
         CookieManager.getInstance().setAcceptCookie(true);
         return view;
     }
@@ -86,6 +89,15 @@ public class ConnectIdFragment extends Fragment {
                 .appendQueryParameter("scope", TextUtils.join(" ", ConnectSdk.getScopes()))
                 .appendQueryParameter("acr_values", ConnectSdk.getAcrValue());
         return builder.build().toString();
+    }
+
+    private String getPageUrl() {
+        if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.LOGIN_ACTION)) {
+            return getAuthorizeUri();
+        } else if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.PAYMENT_ACTION)) {
+            return getArguments().getString(URL_ARGUMENT);
+        }
+        throw new IllegalStateException();
     }
 
     private class ConnectIdWebViewClient extends WebViewClient {

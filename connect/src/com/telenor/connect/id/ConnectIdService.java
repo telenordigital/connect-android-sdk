@@ -143,7 +143,9 @@ public class ConnectIdService {
     }
 
     public void startConnectAuthentication(Activity activity) {
-        activity.startActivityForResult(getConnectActivityIntent(), 1);
+        Intent intent = getConnectActivityIntent();
+        intent.setAction(ConnectUtils.LOGIN_ACTION);
+        activity.startActivityForResult(intent, 1);
     }
 
     public static void storeTokens(ConnectTokens tokens) {
@@ -190,7 +192,6 @@ public class ConnectIdService {
     private Intent getConnectActivityIntent() {
         Intent intent = new Intent();
         intent.setClass(ConnectSdk.getContext(), ConnectActivity.class);
-        intent.setAction("LOGIN");
 
         return intent;
     }
