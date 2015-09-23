@@ -7,11 +7,11 @@ import android.view.View;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
 
-public class ConnectLoginButton extends ConnectButtonBase {
+public class ConnectLoginButton extends ConnectButton {
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
-        setInternalOnClickListener(new LoginClickListener());
+        setOnClickListener(new LoginClickListener());
     }
 
     private class LoginClickListener implements OnClickListener {

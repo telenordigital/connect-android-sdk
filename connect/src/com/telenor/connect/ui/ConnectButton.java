@@ -11,17 +11,12 @@ import android.widget.Button;
 import com.telenor.connect.R;
 import com.telenor.connect.utils.ConnectException;
 
-public abstract class ConnectButtonBase extends Button {
+public class ConnectButton extends Button {
     private OnClickListener internalOnClickListener;
 
-    protected ConnectButtonBase(final Context context, final AttributeSet attributeSet) {
+    public ConnectButton(final Context context, final AttributeSet attributeSet) {
         super(context, attributeSet);
         setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
-        addOnClickListener();
-    }
-
-    public void setInternalOnClickListener(OnClickListener internalOnClickListener) {
-        this.internalOnClickListener = internalOnClickListener;
     }
 
     protected Activity getActivity() {
@@ -34,16 +29,5 @@ public abstract class ConnectButtonBase extends Button {
             return (Activity) context;
         }
         throw new ConnectException("Unable to get Activity.");
-    }
-
-    private void addOnClickListener() {
-        super.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ConnectButtonBase.this.internalOnClickListener != null) {
-                    ConnectButtonBase.this.internalOnClickListener.onClick(v);
-                }
-            }
-        });
     }
 }
