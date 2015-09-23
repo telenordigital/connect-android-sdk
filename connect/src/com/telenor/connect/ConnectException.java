@@ -1,4 +1,4 @@
-package com.telenor.connect.utils;
+package com.telenor.connect;
 
 public class ConnectException extends RuntimeException{
     static final long serialVersionUID = 1;

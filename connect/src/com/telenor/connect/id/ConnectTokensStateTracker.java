@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
 public abstract class ConnectTokensStateTracker {
@@ -72,7 +73,7 @@ public abstract class ConnectTokensStateTracker {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ConnectSdk.ACTION_LOGIN_STATE_CHANGED.equals(intent.getAction())) {
-                boolean newState = intent.getBooleanExtra(ConnectIdService.EXTRA_LOGIN_STATE, false);
+                boolean newState = intent.getBooleanExtra(ConnectUtils.LOGIN_STATE, false);
                 onTokenStateChanged(newState);
             }
         }

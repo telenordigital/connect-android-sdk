@@ -5,11 +5,9 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.Button;
 
-import com.telenor.connect.R;
-import com.telenor.connect.utils.ConnectException;
+import com.telenor.connect.ConnectException;
 
 public class ConnectButton extends Button {
     private OnClickListener internalOnClickListener;

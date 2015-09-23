@@ -19,11 +19,9 @@ import java.util.List;
 public final class ConnectSdk {
     private static String sAcrValue;
     private static String sClientId;
-    private static ConnectIdService sConnectIdService;
     private static Context sContext;
     private static boolean sPaymentEnabled = false;
     private static String sRedirectUri;
-    private static List<String> sScopes;
     private static boolean sSdkInitialized = false;
     private static boolean sUseStaging = false;
 
@@ -58,25 +56,12 @@ public final class ConnectSdk {
         ConnectSdk.sContext = context;
         ConnectSdk.loadConnectConfig(ConnectSdk.sContext);
 
-        ConnectSdk.sConnectIdService = new ConnectIdService();
         ConnectSdk.setAcrValue("1");
-        sScopes = new ArrayList<>();
-        sScopes.add("profile");
-        if (ConnectSdk.isPaymentEnabled()) {
-            sScopes.add("payment.transactions.read");
-            sScopes.add("payment.transactions.write");
-        }
         sSdkInitialized = true;
     }
 
     public static synchronized String getAccessToken() {
-        return getConnectIdService().getAccessToken();
-    }
-
-    public static void addScope(String scope) {
-        Validator.SdkInitialized();
-
-        sScopes.add(scope);
+        return ConnectIdService.getInstance().getAccessToken();
     }
 
     public static String getAcrValue() {
@@ -94,11 +79,6 @@ public final class ConnectSdk {
         return builder.build();
     }
 
-    public static ConnectIdService getConnectIdService() {
-        Validator.SdkInitialized();
-        return sConnectIdService;
-    }
-
     public static Context getContext() {
         Validator.SdkInitialized();
         return sContext;
@@ -112,11 +92,6 @@ public final class ConnectSdk {
     public static String getRedirectUri() {
         Validator.SdkInitialized();
         return sRedirectUri;
-    }
-
-    public static List<String> getScopes() {
-        Validator.SdkInitialized();
-        return sScopes;
     }
 
     public static void initializePayment(Context context, String transactionLocation) {
@@ -141,7 +116,7 @@ public final class ConnectSdk {
     }
 
     public static void logout() {
-        getConnectIdService().revokeTokens();
+        ConnectIdService.getInstance().revokeTokens();
     }
 
     public static void setAcrValue(String value) {
@@ -149,7 +124,7 @@ public final class ConnectSdk {
     }
 
     public static void updateTokens() {
-        getConnectIdService().updateTokens();
+        ConnectIdService.getInstance().updateTokens();
     }
 
     private static void loadConnectConfig(Context context) {
