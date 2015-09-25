@@ -52,6 +52,10 @@ public final class ConnectSdk {
             "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
 
     public static synchronized void sdkInitialize(Context context) {
+        if (sSdkInitialized == true) {
+            return;
+        }
+
         Validator.notNull(context, "context");
         ConnectSdk.sContext = context;
         ConnectSdk.loadConnectConfig(ConnectSdk.sContext);
