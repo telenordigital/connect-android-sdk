@@ -1,1 +1,6 @@
+// Connect SDK
 include ':connect'
+
+// Tests
+include 'tests'
+project(':tests').projectDir = new File('connect/tests')
