@@ -12,20 +12,7 @@ android {
     dependencies {
         compile project(':connect')
         testCompile 'junit:junit:4.12'
-        testCompile "org.robolectric:robolectric:3.0"
+        testCompile "org.robolectric:robolectric:3.0-rc3"
         testCompile 'org.robolectric:shadows-support-v4:3.0-rc3'
-    }
-
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            res.srcDirs = ['res']
-        }
-
-        androidTest {
-            java.srcDirs = ['src']
-            res.srcDirs = ['res']
-        }
     }
 }
