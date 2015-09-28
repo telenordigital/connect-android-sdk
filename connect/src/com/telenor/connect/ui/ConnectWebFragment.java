@@ -124,6 +124,18 @@ public class ConnectWebFragment extends Fragment {
                 });
                 return true;
             }
+            if (ConnectSdk.isPaymentEnabled()) {
+                if (url.startsWith(ConnectSdk.getPaymentCancelUri())) {
+                    getActivity().setResult(Activity.RESULT_CANCELED);
+                    getActivity().finish();
+                    return true;
+                }
+                if (url.startsWith(ConnectSdk.getPaymentSuccessUri())) {
+                    getActivity().setResult(Activity.RESULT_OK);
+                    getActivity().finish();
+                    return true;
+                }
+            }
             return false;
         }
 

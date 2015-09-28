@@ -21,6 +21,8 @@ public final class ConnectSdk {
     private static String sClientId;
     private static Context sContext;
     private static boolean sPaymentEnabled = false;
+    private static String sPaymentCancelUri;
+    private static String sPaymentSuccessUri;
     private static String sRedirectUri;
     private static boolean sSdkInitialized = false;
     private static boolean sUseStaging = false;
@@ -34,6 +36,16 @@ public final class ConnectSdk {
      * The key to enable payment in the Android manifest.
      */
     public static final String PAYMENT_ENABLED_PROPERTY = "com.telenor.connect.PAYMENT_ENABLED";
+
+    /**
+     * The key to for the payment cancel URI in the Android manifest.
+     */
+    public static final String PAYMENT_CANCEL_URI_PROPERTY = "com.telenor.connect.PAYMENT_CANCEL_URI";
+
+    /**
+     * The key to for the payment success URI in the Android manifest.
+     */
+    public static final String PAYMENT_SUCCESS_URI_PROPERTY = "com.telenor.connect.PAYMENT_SUCCESS_URI";
 
     /**
      * The key for the redirect URI in the Android manifest.
@@ -91,6 +103,16 @@ public final class ConnectSdk {
     public static String getClientId() {
         Validator.SdkInitialized();
         return sClientId;
+    }
+
+    public static String getPaymentCancelUri() {
+        Validator.SdkInitialized();
+        return sPaymentCancelUri;
+    }
+
+    public static String getPaymentSuccessUri() {
+        Validator.SdkInitialized();
+        return sPaymentSuccessUri;
     }
 
     public static String getRedirectUri() {
@@ -164,6 +186,30 @@ public final class ConnectSdk {
             sPaymentEnabled = (Boolean) paymentEnabledObject;
         }
 
+        if (isPaymentEnabled()) {
+            if (sPaymentCancelUri == null) {
+                Object paymentCancelUriObject = ai.metaData.get(PAYMENT_CANCEL_URI_PROPERTY);
+                if (paymentCancelUriObject instanceof String) {
+                    String paymentCancelUriString = (String) paymentCancelUriObject;
+                    sPaymentCancelUri = paymentCancelUriString;
+                } else {
+                    Log.e("ConnectSdk", "Payment Cancel URIs cannot be directly placed in the manifest." +
+                            "They must be placed in the string resource file.");
+                }
+            }
+
+            if (sPaymentSuccessUri == null) {
+                Object paymentSuccessUriObject = ai.metaData.get(PAYMENT_SUCCESS_URI_PROPERTY);
+                if (paymentSuccessUriObject instanceof String) {
+                    String paymentSuccessUriString = (String) paymentSuccessUriObject;
+                    sPaymentSuccessUri = paymentSuccessUriString;
+                } else {
+                    Log.e("ConnectSdk", "Payment Success URIs cannot be directly placed in the manifest." +
+                            "They must be placed in the string resource file.");
+                }
+            }
+        }
+
         if (sRedirectUri == null) {
             Object redirectUriObject = ai.metaData.get(REDIRECT_URI_PROPERTY);
             if (redirectUriObject instanceof String) {
@@ -174,7 +220,6 @@ public final class ConnectSdk {
                         "They must be placed in the string resource file.");
             }
         }
-
 
         Object useStagingObject = ai.metaData.get(USE_STAGING_PROPERTY);
         if (useStagingObject instanceof Boolean) {
