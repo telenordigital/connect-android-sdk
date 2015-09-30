@@ -43,7 +43,7 @@ public class ConnectWebFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.com_telenor_connect_id_fragment, container, false);
+        final View view = inflater.inflate(R.layout.com_telenor_connect_web_fragment, container, false);
         sLoadingView = view.findViewById(R.id.com_telenor_connect_loading_view);
         sWebView = (WebView) view.findViewById(R.id.com_telenor_connect_fragment_webview);
         sWebView.setWebViewClient(new ConnectWebViewClient());
