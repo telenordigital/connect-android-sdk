@@ -33,6 +33,11 @@ public class ConnectActivity extends FragmentActivity {
             Bundle b = new Bundle();
             b.putString(ConnectWebFragment.ACTION_ARGUMENT, action);
             if (action.equals(ConnectUtils.LOGIN_ACTION)) {
+                if (intent.getStringArrayListExtra(ConnectUtils.LOGIN_ACR_VALUES) != null) {
+                    b.putStringArrayList(ConnectUtils.LOGIN_ACR_VALUES,
+                            intent.getStringArrayListExtra(ConnectUtils.LOGIN_ACR_VALUES));
+                }
+
                 if (intent.getStringArrayListExtra(ConnectUtils.LOGIN_SCOPE_TOKENS) == null ||
                         intent.getStringArrayListExtra(ConnectUtils.LOGIN_SCOPE_TOKENS).isEmpty()) {
                     throw new ConnectException("Cannot log in without scope tokens.");

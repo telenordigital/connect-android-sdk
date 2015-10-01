@@ -61,6 +61,13 @@ public class ConnectWebFragment extends Fragment {
         return view;
     }
 
+    private ArrayList<String> getAcrValues() {
+        if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.LOGIN_ACTION)) {
+            return getArguments().getStringArrayList(ConnectUtils.LOGIN_ACR_VALUES);
+        }
+        return null;
+    }
+
     private String getAuthorizeUri() {
         Uri.Builder builder = new Uri.Builder();
         builder.encodedPath(ConnectSdk.getConnectApiUrl().toString())
@@ -69,9 +76,18 @@ public class ConnectWebFragment extends Fragment {
                 .appendQueryParameter("response_type", "code")
                 .appendQueryParameter("client_id", ConnectSdk.getClientId())
                 .appendQueryParameter("redirect_uri", ConnectSdk.getRedirectUri())
-                .appendQueryParameter("scope", TextUtils.join(" ", getLoginScopeTokens()))
-                .appendQueryParameter("acr_values", ConnectSdk.getAcrValue());
+                .appendQueryParameter("scope", TextUtils.join(" ", getLoginScopeTokens()));
+        if (getAcrValues() != null) {
+            builder.appendQueryParameter("acr_values", TextUtils.join(" ", getAcrValues()));
+        }
         return builder.build().toString();
+    }
+
+    private ArrayList<String> getLoginScopeTokens() {
+        if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.LOGIN_ACTION)) {
+            return getArguments().getStringArrayList(ConnectUtils.LOGIN_SCOPE_TOKENS);
+        }
+        throw new IllegalStateException("Cannot log in without scope tokens.");
     }
 
     private String getPageUrl() {
@@ -81,13 +97,6 @@ public class ConnectWebFragment extends Fragment {
             return getArguments().getString(URL_ARGUMENT);
         }
         throw new IllegalStateException();
-    }
-
-    private ArrayList<String> getLoginScopeTokens() {
-        if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.LOGIN_ACTION)) {
-            return getArguments().getStringArrayList(ConnectUtils.LOGIN_SCOPE_TOKENS);
-        }
-        throw new IllegalStateException("Cannot log in without scope tokens.");
     }
 
     private class ConnectWebViewClient extends WebViewClient {

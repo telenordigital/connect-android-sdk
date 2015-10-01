@@ -162,9 +162,13 @@ public class ConnectIdService {
         ConnectUtils.sendTokenStateChanged(false);
     }
 
-    public void startConnectAuthentication(Activity activity, ArrayList<String> scopeTokens) {
+    public void startConnectAuthentication(
+            Activity activity, ArrayList<String> acrValues, ArrayList<String> scopeTokens) {
         Intent intent = getConnectActivityIntent();
         intent.setAction(ConnectUtils.LOGIN_ACTION);
+        if (acrValues != null) {
+            intent.putStringArrayListExtra(ConnectUtils.LOGIN_ACR_VALUES, acrValues);
+        }
         intent.putStringArrayListExtra(ConnectUtils.LOGIN_SCOPE_TOKENS, scopeTokens);
         activity.startActivityForResult(intent, 1);
     }

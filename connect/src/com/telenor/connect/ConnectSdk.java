@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ConnectSdk {
-    private static String sAcrValue;
     private static String sClientId;
     private static Context sContext;
     private static boolean sPaymentEnabled = false;
@@ -72,18 +71,11 @@ public final class ConnectSdk {
         ConnectSdk.sContext = context;
         ConnectSdk.loadConnectConfig(ConnectSdk.sContext);
 
-        ConnectSdk.setAcrValue("1");
         sSdkInitialized = true;
     }
 
     public static synchronized String getAccessToken() {
         return ConnectIdService.getInstance().getAccessToken();
-    }
-
-    public static String getAcrValue() {
-        Validator.SdkInitialized();
-
-        return sAcrValue;
     }
 
     public static HttpUrl getConnectApiUrl() {
@@ -143,10 +135,6 @@ public final class ConnectSdk {
 
     public static void logout() {
         ConnectIdService.getInstance().revokeTokens();
-    }
-
-    public static void setAcrValue(String value) {
-        sAcrValue = value;
     }
 
     public static void updateTokens() {

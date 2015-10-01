@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class ConnectUtils {
     public static final String LOG_TAG = "ConnectSDK";
+    public static final String LOGIN_ACR_VALUES = "com.telenor.connect.LOGIN_ACR_VALUES";
     public static final String LOGIN_ACTION = "com.telenor.connect.LOGIN_ACTION";
     public static final String LOGIN_SCOPE_TOKENS = "com.telenor.connect.LOGIN_SCOPE_TOKENS";
     public static final String LOGIN_STATE = "com.telenor.connect.LOGIN_STATE";
