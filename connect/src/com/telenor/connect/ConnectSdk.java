@@ -14,11 +14,14 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public final class ConnectSdk {
     private static String sClientId;
     private static Context sContext;
+    private static ArrayList<Locale> sLocales;
     private static boolean sPaymentEnabled = false;
     private static String sPaymentCancelUri;
     private static String sPaymentSuccessUri;
@@ -97,6 +100,11 @@ public final class ConnectSdk {
         return sClientId;
     }
 
+    public static ArrayList<Locale> getLocales() {
+        Validator.SdkInitialized();
+        return sLocales;
+    }
+
     public static String getPaymentCancelUri() {
         Validator.SdkInitialized();
         return sPaymentCancelUri;
@@ -135,6 +143,14 @@ public final class ConnectSdk {
 
     public static void logout() {
         ConnectIdService.getInstance().revokeTokens();
+    }
+
+    public static void setLocales(Locale... locales) {
+        sLocales = new ArrayList<Locale>(Arrays.asList(locales));
+    }
+
+    public static void setLocales(ArrayList<Locale> locales) {
+        sLocales = locales;
     }
 
     public static void updateTokens() {

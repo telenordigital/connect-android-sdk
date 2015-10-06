@@ -26,6 +26,7 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ConnectWebFragment extends Fragment {
     private Uri url;
@@ -76,7 +77,8 @@ public class ConnectWebFragment extends Fragment {
                 .appendQueryParameter("response_type", "code")
                 .appendQueryParameter("client_id", ConnectSdk.getClientId())
                 .appendQueryParameter("redirect_uri", ConnectSdk.getRedirectUri())
-                .appendQueryParameter("scope", TextUtils.join(" ", getLoginScopeTokens()));
+                .appendQueryParameter("scope", TextUtils.join(" ", getLoginScopeTokens()))
+                .appendQueryParameter("ui_locales", TextUtils.join(" ", getUiLocales()));
         if (getAcrValues() != null) {
             builder.appendQueryParameter("acr_values", TextUtils.join(" ", getAcrValues()));
         }
@@ -97,6 +99,19 @@ public class ConnectWebFragment extends Fragment {
             return getArguments().getString(URL_ARGUMENT);
         }
         throw new IllegalStateException();
+    }
+
+    private ArrayList<String> getUiLocales() {
+        ArrayList<String> locales = new ArrayList<>();
+        if (ConnectSdk.getLocales() != null && !ConnectSdk.getLocales().isEmpty()) {
+            for (Locale locale : ConnectSdk.getLocales()) {
+                locales.add(locale.toString());
+                locales.add(locale.getLanguage());
+            }
+        }
+        locales.add(Locale.getDefault().toString());
+        locales.add(Locale.getDefault().getLanguage());
+        return locales;
     }
 
     private class ConnectWebViewClient extends WebViewClient {
