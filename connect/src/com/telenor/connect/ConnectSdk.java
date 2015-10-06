@@ -171,7 +171,7 @@ public final class ConnectSdk {
         }
 
         if (ai == null || ai.metaData == null) {
-            return;
+            throw new ConnectException("No application metadata was found.");
         }
 
         if (sClientId == null) {
@@ -180,8 +180,8 @@ public final class ConnectSdk {
                 String clientIdString = (String) clientIdObject;
                 sClientId = clientIdString;
             } else {
-                Log.e("ConnectSdk", "Client Ids cannot be directly placed in the manifest." +
-                                "They must be placed in the string resource file.");
+                throw new ConnectException("Client Ids cannot be directly placed in the " +
+                        "manifest. They must be placed in the string resource file.");
             }
         }
 
@@ -197,8 +197,8 @@ public final class ConnectSdk {
                     String paymentCancelUriString = (String) paymentCancelUriObject;
                     sPaymentCancelUri = paymentCancelUriString;
                 } else {
-                    Log.e("ConnectSdk", "Payment Cancel URIs cannot be directly placed in the manifest." +
-                            "They must be placed in the string resource file.");
+                    throw new ConnectException("Payment Cancel URIs cannot be directly placed in " +
+                            "the manifest. They must be placed in the string resource file.");
                 }
             }
 
@@ -208,8 +208,8 @@ public final class ConnectSdk {
                     String paymentSuccessUriString = (String) paymentSuccessUriObject;
                     sPaymentSuccessUri = paymentSuccessUriString;
                 } else {
-                    Log.e("ConnectSdk", "Payment Success URIs cannot be directly placed in the manifest." +
-                            "They must be placed in the string resource file.");
+                    throw new ConnectException("Payment Success URIs cannot be directly placed " +
+                            "in the manifest. They must be placed in the string resource file.");
                 }
             }
         }
@@ -220,8 +220,8 @@ public final class ConnectSdk {
                 String redirectUriString = (String) redirectUriObject;
                 sRedirectUri = redirectUriString;
             } else {
-                Log.e("ConnectSdk", "Redirect URIs cannot be directly placed in the manifest." +
-                        "They must be placed in the string resource file.");
+                throw new ConnectException("Redirect URIs cannot be directly placed in the " +
+                        "manifest. They must be placed in the string resource file.");
             }
         }
 
