@@ -5,7 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
+import android.net.Uri;
+import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
@@ -15,7 +16,6 @@ import com.telenor.connect.utils.Validator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 public final class ConnectSdk {
@@ -65,20 +65,46 @@ public final class ConnectSdk {
     public static final String EXTRA_PAYMENT_LOCATION =
             "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
 
-    public static synchronized void sdkInitialize(Context context) {
-        if (sSdkInitialized == true) {
-            return;
-        }
+    public static synchronized void authenticate(Activity activity, String... scopeTokens) {
+        authenticate(activity, new ArrayList<>(Arrays.asList(scopeTokens)), null);
+    }
 
-        Validator.notNull(context, "context");
-        ConnectSdk.sContext = context;
-        ConnectSdk.loadConnectConfig(ConnectSdk.sContext);
-
-        sSdkInitialized = true;
+    public static synchronized void authenticate(
+            Activity activity,
+            ArrayList<String> scopeTokens,
+            ArrayList<String> acrValues) {
+        Intent intent = new Intent();
+        intent.setClass(getContext(), ConnectActivity.class);
+        intent.setAction(ConnectUtils.LOGIN_ACTION);
+        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI,
+                getAuthorizeUri(scopeTokens, acrValues).toString());
+        activity.startActivityForResult(intent, 1);
     }
 
     public static synchronized String getAccessToken() {
         return ConnectIdService.getInstance().getAccessToken();
+    }
+
+    public static synchronized Uri getAuthorizeUri(
+            ArrayList<String> scopeTokens,
+            ArrayList<String> acrValues) {
+        if (scopeTokens == null) {
+            throw new IllegalStateException("Cannot log in without scope tokens.");
+        }
+
+        Uri.Builder builder = new Uri.Builder();
+        builder.encodedPath(getConnectApiUrl().toString())
+                .appendPath("oauth")
+                .appendPath("authorize")
+                .appendQueryParameter("response_type", "code")
+                .appendQueryParameter("client_id", ConnectSdk.getClientId())
+                .appendQueryParameter("redirect_uri", ConnectSdk.getRedirectUri())
+                .appendQueryParameter("scope", TextUtils.join(" ", scopeTokens))
+                .appendQueryParameter("ui_locales", TextUtils.join(" ", getUiLocales()));
+        if (acrValues != null) {
+            builder.appendQueryParameter("acr_values", TextUtils.join(" ", acrValues));
+        }
+        return builder.build();
     }
 
     public static HttpUrl getConnectApiUrl() {
@@ -120,6 +146,19 @@ public final class ConnectSdk {
         return sRedirectUri;
     }
 
+    private static ArrayList<String> getUiLocales() {
+        ArrayList<String> locales = new ArrayList<>();
+        if (ConnectSdk.getLocales() != null && !ConnectSdk.getLocales().isEmpty()) {
+            for (Locale locale : ConnectSdk.getLocales()) {
+                locales.add(locale.toString());
+                locales.add(locale.getLanguage());
+            }
+        }
+        locales.add(Locale.getDefault().toString());
+        locales.add(Locale.getDefault().getLanguage());
+        return locales;
+    }
+
     public static void initializePayment(Context context, String transactionLocation) {
         Validator.SdkInitialized();
         Validator.PaymentEnabled();
@@ -143,6 +182,18 @@ public final class ConnectSdk {
 
     public static void logout() {
         ConnectIdService.getInstance().revokeTokens();
+    }
+
+    public static synchronized void sdkInitialize(Context context) {
+        if (sSdkInitialized == true) {
+            return;
+        }
+
+        Validator.notNull(context, "context");
+        ConnectSdk.sContext = context;
+        ConnectSdk.loadConnectConfig(ConnectSdk.sContext);
+
+        sSdkInitialized = true;
     }
 
     public static void setLocales(Locale... locales) {

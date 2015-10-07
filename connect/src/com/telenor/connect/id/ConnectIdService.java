@@ -1,8 +1,6 @@
 package com.telenor.connect.id;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
@@ -11,10 +9,8 @@ import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.OkHttpClient;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.utils.ConnectUtils;
 
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import retrofit.Callback;
@@ -162,17 +158,6 @@ public class ConnectIdService {
         ConnectUtils.sendTokenStateChanged(false);
     }
 
-    public void startConnectAuthentication(
-            Activity activity, ArrayList<String> acrValues, ArrayList<String> scopeTokens) {
-        Intent intent = getConnectActivityIntent();
-        intent.setAction(ConnectUtils.LOGIN_ACTION);
-        if (acrValues != null) {
-            intent.putStringArrayListExtra(ConnectUtils.LOGIN_ACR_VALUES, acrValues);
-        }
-        intent.putStringArrayListExtra(ConnectUtils.LOGIN_SCOPE_TOKENS, scopeTokens);
-        activity.startActivityForResult(intent, 1);
-    }
-
     public static void storeTokens(ConnectTokens tokens) {
         SharedPreferences prefs = ConnectSdk.getContext()
                 .getSharedPreferences(ConnectUtils.PREFERENCES_FILE, Context.MODE_PRIVATE);
@@ -212,13 +197,6 @@ public class ConnectIdService {
                 .getSharedPreferences(ConnectUtils.PREFERENCES_FILE, Context.MODE_PRIVATE)
                 .edit().clear().commit();
         sCurrentTokens = null;
-    }
-
-    private Intent getConnectActivityIntent() {
-        Intent intent = new Intent();
-        intent.setClass(ConnectSdk.getContext(), ConnectActivity.class);
-
-        return intent;
     }
 
     private static ConnectTokens retrieveTokens() {

@@ -4,8 +4,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
-import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.utils.Validator;
 
 import java.util.ArrayList;
@@ -51,8 +51,7 @@ public class ConnectLoginButton extends ConnectButton {
         public void onClick(View v) {
             Validator.SdkInitialized();
 
-            ConnectIdService.getInstance().startConnectAuthentication(getActivity(), getAcrValues(),
-                    getLoginScopeTokens());
+            ConnectSdk.authenticate(getActivity(), getLoginScopeTokens(), getAcrValues());
         }
     }
 }

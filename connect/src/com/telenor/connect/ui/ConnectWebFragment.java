@@ -62,56 +62,21 @@ public class ConnectWebFragment extends Fragment {
         return view;
     }
 
-    private ArrayList<String> getAcrValues() {
-        if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.LOGIN_ACTION)) {
-            return getArguments().getStringArrayList(ConnectUtils.LOGIN_ACR_VALUES);
-        }
-        return null;
-    }
-
-    private String getAuthorizeUri() {
-        Uri.Builder builder = new Uri.Builder();
-        builder.encodedPath(ConnectSdk.getConnectApiUrl().toString())
-                .appendPath("oauth")
-                .appendPath("authorize")
-                .appendQueryParameter("response_type", "code")
-                .appendQueryParameter("client_id", ConnectSdk.getClientId())
-                .appendQueryParameter("redirect_uri", ConnectSdk.getRedirectUri())
-                .appendQueryParameter("scope", TextUtils.join(" ", getLoginScopeTokens()))
-                .appendQueryParameter("ui_locales", TextUtils.join(" ", getUiLocales()));
-        if (getAcrValues() != null) {
-            builder.appendQueryParameter("acr_values", TextUtils.join(" ", getAcrValues()));
-        }
-        return builder.build().toString();
-    }
-
-    private ArrayList<String> getLoginScopeTokens() {
-        if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.LOGIN_ACTION)) {
-            return getArguments().getStringArrayList(ConnectUtils.LOGIN_SCOPE_TOKENS);
-        }
-        throw new IllegalStateException("Cannot log in without scope tokens.");
-    }
-
     private String getPageUrl() {
-        if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.LOGIN_ACTION)) {
-            return getAuthorizeUri();
-        } else if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.PAYMENT_ACTION)) {
+        if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.PAYMENT_ACTION)) {
             return getArguments().getString(URL_ARGUMENT);
-        }
-        throw new IllegalStateException();
-    }
-
-    private ArrayList<String> getUiLocales() {
-        ArrayList<String> locales = new ArrayList<>();
-        if (ConnectSdk.getLocales() != null && !ConnectSdk.getLocales().isEmpty()) {
-            for (Locale locale : ConnectSdk.getLocales()) {
-                locales.add(locale.toString());
-                locales.add(locale.getLanguage());
+        } else if (getArguments().getString(ACTION_ARGUMENT).equals(ConnectUtils.LOGIN_ACTION)) {
+            if (getActivity() == null
+                    || getActivity().getIntent() == null
+                    || getActivity().getIntent()
+                            .getStringExtra(ConnectUtils.LOGIN_AUTH_URI) == null
+                    || getActivity().getIntent()
+                            .getStringExtra(ConnectUtils.LOGIN_AUTH_URI).isEmpty()) {
+                throw new IllegalStateException("Required data missing for Login Action.");
             }
+            return getActivity().getIntent().getStringExtra(ConnectUtils.LOGIN_AUTH_URI);
         }
-        locales.add(Locale.getDefault().toString());
-        locales.add(Locale.getDefault().getLanguage());
-        return locales;
+        throw new IllegalStateException("An invalid action was used to start a Connect Activity.");
     }
 
     private class ConnectWebViewClient extends WebViewClient {
