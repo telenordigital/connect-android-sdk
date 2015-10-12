@@ -1,5 +1,6 @@
 package com.telenor.connect.utils;
 
+import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectPaymentNotEnabledException;
 import com.telenor.connect.ConnectSdk;
@@ -31,6 +32,15 @@ public class Validator {
         if (!ConnectSdk.isInitialized()) {
             throw new ConnectNotInitializedException("The SDK was not initialized, call " +
                     "ConnectSdk.sdkInitialize() first");
+        }
+    }
+
+    public static void ValidateAuthenticationState(String state) {
+        if (ConnectSdk.getLastAuthenticationState() != null &&
+                !ConnectSdk.getLastAuthenticationState().isEmpty() &&
+                !ConnectSdk.getLastAuthenticationState().equals(state)) {
+            throw new ConnectException("The state parameter was changed between authentication " +
+                    "and now.");
         }
     }
 

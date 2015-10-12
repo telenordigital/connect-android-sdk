@@ -17,10 +17,12 @@ import com.telenor.connect.utils.Validator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.UUID;
 
 public final class ConnectSdk {
     private static String sClientId;
     private static Context sContext;
+    private static String sLastAuthState;
     private static ArrayList<Locale> sLocales;
     private static boolean sPaymentEnabled = false;
     private static String sPaymentCancelUri;
@@ -66,18 +68,19 @@ public final class ConnectSdk {
             "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
 
     public static synchronized void authenticate(Activity activity, String... scopeTokens) {
-        authenticate(activity, new ArrayList<>(Arrays.asList(scopeTokens)), null);
+        authenticate(activity, new ArrayList<>(Arrays.asList(scopeTokens)), null, null);
     }
 
     public static synchronized void authenticate(
             Activity activity,
             ArrayList<String> scopeTokens,
-            ArrayList<String> acrValues) {
+            ArrayList<String> acrValues,
+            String state) {
         Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI,
-                getAuthorizeUri(scopeTokens, acrValues).toString());
+                getAuthorizeUri(scopeTokens, acrValues, state).toString());
         activity.startActivityForResult(intent, 1);
     }
 
@@ -87,10 +90,16 @@ public final class ConnectSdk {
 
     public static synchronized Uri getAuthorizeUri(
             ArrayList<String> scopeTokens,
-            ArrayList<String> acrValues) {
+            ArrayList<String> acrValues,
+            String state) {
         if (scopeTokens == null) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
         }
+
+        if (state == null || state.isEmpty()) {
+            state = UUID.randomUUID().toString();
+        }
+        sLastAuthState = state;
 
         Uri.Builder builder = new Uri.Builder();
         builder.encodedPath(getConnectApiUrl().toString())
@@ -100,6 +109,7 @@ public final class ConnectSdk {
                 .appendQueryParameter("client_id", ConnectSdk.getClientId())
                 .appendQueryParameter("redirect_uri", ConnectSdk.getRedirectUri())
                 .appendQueryParameter("scope", TextUtils.join(" ", scopeTokens))
+                .appendQueryParameter("state", state)
                 .appendQueryParameter("ui_locales", TextUtils.join(" ", getUiLocales()));
         if (acrValues != null) {
             builder.appendQueryParameter("acr_values", TextUtils.join(" ", acrValues));
@@ -124,6 +134,11 @@ public final class ConnectSdk {
     public static String getClientId() {
         Validator.SdkInitialized();
         return sClientId;
+    }
+
+    public static String getLastAuthenticationState() {
+        Validator.SdkInitialized();
+        return sLastAuthState;
     }
 
     public static ArrayList<Locale> getLocales() {

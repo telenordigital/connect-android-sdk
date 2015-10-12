@@ -22,6 +22,7 @@ public class ConnectUtils {
         Validator.notNullOrEmpty(callbackUrl, "callbackUrl");
 
         Uri uri = Uri.parse(callbackUrl);
+        Validator.ValidateAuthenticationState(uri.getQueryParameter("state"));
         if (uri.getQueryParameter("error") != null) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("error", uri.getQueryParameter("error"));

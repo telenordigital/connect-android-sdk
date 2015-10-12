@@ -51,7 +51,7 @@ public class ConnectLoginButton extends ConnectButton {
         public void onClick(View v) {
             Validator.SdkInitialized();
 
-            ConnectSdk.authenticate(getActivity(), getLoginScopeTokens(), getAcrValues());
+            ConnectSdk.authenticate(getActivity(), getLoginScopeTokens(), getAcrValues(), null);
         }
     }
 }
