@@ -11,7 +11,7 @@ public final class ConnectTokens {
     public final long expiresIn;
 
     @SerializedName("id_token")
-    public final String idToken;
+    public final IdToken idToken;
 
     @SerializedName("refresh_token")
     public final String refreshToken;
@@ -28,7 +28,7 @@ public final class ConnectTokens {
     public static final String SCOPE_STRING = "SCOPE_STRING";
     public static final String TOKEN_TYPE_STRING = "TOKEN_TYPE_STRING";
 
-    public ConnectTokens(String accessToken, long expiresIn, String idToken, String refreshToken, String scope, String tokenType) {
+    public ConnectTokens(String accessToken, long expiresIn, IdToken idToken, String refreshToken, String scope, String tokenType) {
         Validator.notNullOrEmpty(accessToken, "access_token");
         Validator.notNull(expiresIn, "expires_in");
         Validator.notNullOrEmpty(refreshToken, "refresh_token");

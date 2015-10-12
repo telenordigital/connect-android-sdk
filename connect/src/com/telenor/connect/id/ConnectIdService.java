@@ -10,6 +10,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.utils.ConnectUtils;
+import com.telenor.connect.utils.Validator;
 
 import java.util.concurrent.TimeUnit;
 
@@ -75,7 +76,9 @@ public class ConnectIdService {
         sHttpClient.setReadTimeout(10, TimeUnit.SECONDS);
         sHttpClient.setWriteTimeout(10, TimeUnit.SECONDS);
 
-        sGson = new GsonBuilder().create();
+        sGson = new GsonBuilder()
+                .registerTypeAdapter(IdToken.class, new IdTokenDeserializer())
+                .create();
 
         sConnectRetroFitInterceptor = new RequestInterceptor() {
             @Override
@@ -116,6 +119,7 @@ public class ConnectIdService {
                 ConnectSdk.getClientId(), new Callback<ConnectTokens>() {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
+                        Validator.ValidateTokens(connectTokens);
                         storeTokens(connectTokens);
                         ConnectUtils.sendTokenStateChanged(true);
                         callback.onSuccess(connectTokens.accessToken);
@@ -140,10 +144,12 @@ public class ConnectIdService {
     public static void revokeTokens() {
         getConnectApi().revokeToken(ConnectSdk.getClientId(), getAccessToken(), new ResponseCallback() {
             @Override
-            public void success(Response response) {}
+            public void success(Response response) {
+            }
 
             @Override
-            public void failure(RetrofitError error) {}
+            public void failure(RetrofitError error) {
+            }
         });
         getConnectApi().revokeToken(ConnectSdk.getClientId(), getRefreshToken(), new ResponseCallback() {
             @Override
@@ -164,10 +170,12 @@ public class ConnectIdService {
         SharedPreferences.Editor e = prefs.edit();
         e.putString(ConnectTokens.ACCESS_TOKEN_STRING, tokens.accessToken);
         e.putLong(ConnectTokens.EXPIRES_IN_LONG, tokens.expiresIn);
-        e.putString(ConnectTokens.ID_TOKEN_STRING, tokens.idToken);
         e.putString(ConnectTokens.REFRESH_TOKEN_STRING, tokens.refreshToken);
         e.putString(ConnectTokens.SCOPE_STRING, tokens.scope);
         e.putString(ConnectTokens.TOKEN_TYPE_STRING, tokens.tokenType);
+        if (tokens.idToken != null) {
+            e.putString(ConnectTokens.ID_TOKEN_STRING, tokens.idToken.toString());
+        }
         e.apply();
         sCurrentTokens = tokens;
     }
@@ -177,6 +185,7 @@ public class ConnectIdService {
                 ConnectSdk.getClientId(), new Callback<ConnectTokens>() {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
+                        Validator.ValidateTokens(connectTokens);
                         storeTokens(connectTokens);
                         ConnectUtils.sendTokenStateChanged(true);
                     }
@@ -207,7 +216,7 @@ public class ConnectIdService {
                 sCurrentTokens = new ConnectTokens(
                         prefs.getString(ConnectTokens.ACCESS_TOKEN_STRING, null),
                         prefs.getLong(ConnectTokens.EXPIRES_IN_LONG, 0),
-                        prefs.getString(ConnectTokens.ID_TOKEN_STRING, null),
+                        new IdToken(prefs.getString(ConnectTokens.ID_TOKEN_STRING, null)),
                         prefs.getString(ConnectTokens.REFRESH_TOKEN_STRING, null),
                         prefs.getString(ConnectTokens.SCOPE_STRING, null),
                         prefs.getString(ConnectTokens.TOKEN_TYPE_STRING, null));
