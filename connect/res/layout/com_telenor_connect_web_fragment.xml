@@ -9,15 +9,51 @@
 
     <RelativeLayout
         android:id="@+id/com_telenor_connect_loading_view"
+        android:background="@color/com_telenor_connect_dark_color"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/com_telenor_connect_dark_color" >
+        android:visibility="gone" >
         <ProgressBar
             android:indeterminate="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             style="?android:attr/progressBarStyle" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="7dp"
+            android:src="@drawable/connect_by_telenordigital" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/com_telenor_connect_error_view"
+        android:background="@color/com_telenor_connect_dark_color"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:visibility="gone" >
+        <LinearLayout
+            android:gravity="center"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="20dp"
+                android:src="@drawable/warning_sign" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/com_telenor_connect_error_text"
+                android:textColor="@color/com_telenor_connect_light_color"
+                android:textSize="16sp" />
+        </LinearLayout>
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

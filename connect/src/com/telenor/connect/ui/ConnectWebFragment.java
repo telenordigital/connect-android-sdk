@@ -30,6 +30,7 @@ import java.util.Locale;
 
 public class ConnectWebFragment extends Fragment {
     private Uri url;
+    private static View sErrorView;
     private static View sLoadingView;
     protected static WebView sWebView;
 
@@ -45,7 +46,11 @@ public class ConnectWebFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.com_telenor_connect_web_fragment, container, false);
+        sErrorView = view.findViewById(R.id.com_telenor_connect_error_view);
+
         sLoadingView = view.findViewById(R.id.com_telenor_connect_loading_view);
+        sLoadingView.setVisibility(View.VISIBLE);
+
         sWebView = (WebView) view.findViewById(R.id.com_telenor_connect_fragment_webview);
         sWebView.setWebViewClient(new ConnectWebViewClient());
         sWebView.setVerticalScrollBarEnabled(true);
@@ -132,6 +137,7 @@ public class ConnectWebFragment extends Fragment {
         public void onReceivedError(WebView view, int errorCode,
                                     String description, String failingUrl) {
             super.onReceivedError(view, errorCode, description, failingUrl);
+            sErrorView.setVisibility(View.VISIBLE);
         }
 
         @Override
