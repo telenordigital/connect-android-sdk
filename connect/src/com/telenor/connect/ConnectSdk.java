@@ -16,7 +16,9 @@ import com.telenor.connect.utils.Validator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 public final class ConnectSdk {
@@ -68,19 +70,19 @@ public final class ConnectSdk {
             "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
 
     public static synchronized void authenticate(Activity activity, String... scopeTokens) {
-        authenticate(activity, new ArrayList<>(Arrays.asList(scopeTokens)), null, null);
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("scope", TextUtils.join(" ", scopeTokens));
+        authenticate(activity, parameters);
     }
 
     public static synchronized void authenticate(
             Activity activity,
-            ArrayList<String> scopeTokens,
-            ArrayList<String> acrValues,
-            String state) {
+            Map<String, String> parameters) {
         Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI,
-                getAuthorizeUri(scopeTokens, acrValues, state).toString());
+                getAuthorizeUri(parameters).toString());
         activity.startActivityForResult(intent, 1);
     }
 
@@ -88,31 +90,30 @@ public final class ConnectSdk {
         return ConnectIdService.getInstance().getAccessToken();
     }
 
-    public static synchronized Uri getAuthorizeUri(
-            ArrayList<String> scopeTokens,
-            ArrayList<String> acrValues,
-            String state) {
-        if (scopeTokens == null) {
+    public static synchronized Uri getAuthorizeUri(Map<String, String> parameters) {
+        if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
         }
 
-        if (state == null || state.isEmpty()) {
-            state = UUID.randomUUID().toString();
+        if (parameters.get("state") == null || parameters.get("state").isEmpty()) {
+            parameters.put("state", UUID.randomUUID().toString());
         }
-        sLastAuthState = state;
+        sLastAuthState = parameters.get("state");
+
+        Map<String, String> authParameters = new HashMap<String, String>();
+        authParameters.put("response_type", "code");
+        authParameters.put("client_id", ConnectSdk.getClientId());
+        authParameters.put("redirect_uri", ConnectSdk.getRedirectUri());
+        authParameters.put("ui_locales", TextUtils.join(" ", getUiLocales()));
+
+        authParameters.putAll(parameters);
 
         Uri.Builder builder = new Uri.Builder();
         builder.encodedPath(getConnectApiUrl().toString())
                 .appendPath("oauth")
-                .appendPath("authorize")
-                .appendQueryParameter("response_type", "code")
-                .appendQueryParameter("client_id", ConnectSdk.getClientId())
-                .appendQueryParameter("redirect_uri", ConnectSdk.getRedirectUri())
-                .appendQueryParameter("scope", TextUtils.join(" ", scopeTokens))
-                .appendQueryParameter("state", state)
-                .appendQueryParameter("ui_locales", TextUtils.join(" ", getUiLocales()));
-        if (acrValues != null) {
-            builder.appendQueryParameter("acr_values", TextUtils.join(" ", acrValues));
+                .appendPath("authorize");
+        for (Map.Entry<String, String> entry : authParameters.entrySet()) {
+            builder.appendQueryParameter(entry.getKey(), entry.getValue());
         }
         return builder.build();
     }

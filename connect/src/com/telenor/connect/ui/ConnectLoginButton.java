@@ -1,6 +1,7 @@
 package com.telenor.connect.ui;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -10,9 +11,12 @@ import com.telenor.connect.utils.Validator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConnectLoginButton extends ConnectButton {
     private static ArrayList<String> sAcrValues;
+    private static Map<String, String> sLoginParameters;
     private static ArrayList<String> sLoginScopeTokens;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
@@ -23,6 +27,10 @@ public class ConnectLoginButton extends ConnectButton {
 
     public ArrayList<String> getAcrValues() {
         return sAcrValues;
+    }
+
+    public Map<String, String> getLoginParameters() {
+        return sLoginParameters;
     }
 
     public ArrayList<String> getLoginScopeTokens() {
@@ -45,13 +53,29 @@ public class ConnectLoginButton extends ConnectButton {
         sLoginScopeTokens = scopeTokens;
     }
 
+    public void setLoginParameters(Map<String, String> parameters) {
+        sLoginParameters = parameters;
+    }
+
     private class LoginClickListener implements OnClickListener {
 
         @Override
         public void onClick(View v) {
             Validator.SdkInitialized();
 
-            ConnectSdk.authenticate(getActivity(), getLoginScopeTokens(), getAcrValues(), null);
+            Map<String, String> parameters = new HashMap<>();
+            if (getAcrValues() != null && !getAcrValues().isEmpty()) {
+                parameters.put("acr_values", TextUtils.join(" ", getAcrValues()));
+            }
+            if (getLoginScopeTokens() != null && !getLoginScopeTokens().isEmpty()) {
+                parameters.put("scope", TextUtils.join(" ", getLoginScopeTokens()));
+            }
+
+            if (getLoginParameters() != null && !getLoginParameters().isEmpty()){
+                parameters.putAll(getLoginParameters());
+            }
+
+            ConnectSdk.authenticate(getActivity(), parameters);
         }
     }
 }
