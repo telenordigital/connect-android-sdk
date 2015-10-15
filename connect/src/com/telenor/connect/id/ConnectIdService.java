@@ -180,14 +180,14 @@ public class ConnectIdService {
         sCurrentTokens = tokens;
     }
 
-    public void updateTokens() {
+    public void updateTokens(final ConnectCallback callback) {
         getConnectApi().refreshAccessTokens("refresh_token", getRefreshToken(),
                 ConnectSdk.getClientId(), new Callback<ConnectTokens>() {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
                         Validator.ValidateTokens(connectTokens);
                         storeTokens(connectTokens);
-                        ConnectUtils.sendTokenStateChanged(true);
+                        callback.onSuccess(connectTokens);
                     }
 
                     @Override
@@ -195,7 +195,7 @@ public class ConnectIdService {
                         if (error.getResponse().getStatus() >= 400
                                 && error.getResponse().getStatus() < 500) {
                             deleteStoredTokens();
-                            ConnectUtils.sendTokenStateChanged(false);
+                            callback.onError(error);
                         }
                     }
                 });

@@ -220,8 +220,8 @@ public final class ConnectSdk {
         sLocales = locales;
     }
 
-    public static void updateTokens() {
-        ConnectIdService.getInstance().updateTokens();
+    public static void updateTokens(ConnectCallback callback) {
+        ConnectIdService.getInstance().updateTokens(callback);
     }
 
     private static void loadConnectConfig(Context context) {
