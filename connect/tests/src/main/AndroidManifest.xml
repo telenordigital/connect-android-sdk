@@ -12,6 +12,12 @@
             <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="com.telenor.connect.CLIENT_ID"
+            android:value="@string/connect_client_id" />
+        <meta-data
+            android:name="com.telenor.connect.REDIRECT_URI"
+            android:value="@string/connect_redirect_uri" />
     </application>
 
 </manifest>
