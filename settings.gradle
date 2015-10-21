@@ -8,3 +8,6 @@ project(':tests').projectDir = new File('connect/tests')
 // Examples
 include 'id-example'
 project(':id-example').projectDir = new File('connect-id-example')
+
+include 'payment-example'
+project(':payment-example').projectDir = new File('connect-payment-example')
