@@ -192,11 +192,13 @@ public class ConnectIdService {
 
                     @Override
                     public void failure(RetrofitError error) {
-                        if (error.getResponse().getStatus() >= 400
+                        if (error != null
+                                && error.getResponse() != null
+                                && error.getResponse().getStatus() >= 400
                                 && error.getResponse().getStatus() < 500) {
                             deleteStoredTokens();
-                            callback.onError(error);
                         }
+                        callback.onError(error);
                     }
                 });
     }
