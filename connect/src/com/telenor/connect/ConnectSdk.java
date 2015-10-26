@@ -26,7 +26,6 @@ public final class ConnectSdk {
     private static Context sContext;
     private static String sLastAuthState;
     private static ArrayList<Locale> sLocales;
-    private static boolean sPaymentEnabled = false;
     private static String sPaymentCancelUri;
     private static String sPaymentSuccessUri;
     private static String sRedirectUri;
@@ -91,6 +90,13 @@ public final class ConnectSdk {
     }
 
     public static synchronized Uri getAuthorizeUri(Map<String, String> parameters) {
+        if (ConnectSdk.getClientId() == null) {
+            throw new ConnectException("Client ID not specified in application manifest.");
+        }
+        if (ConnectSdk.getRedirectUri() == null) {
+            throw new ConnectException("Redirect URI not specified in application manifest.");
+        }
+
         if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
         }
@@ -177,7 +183,11 @@ public final class ConnectSdk {
 
     public static void initializePayment(Context context, String transactionLocation) {
         Validator.SdkInitialized();
-        Validator.PaymentEnabled();
+        if (ConnectSdk.getPaymentSuccessUri() == null
+                || ConnectSdk.getPaymentCancelUri() == null ) {
+            throw new ConnectException("Payment success or cancel URI not specified in application"
+                    + "manifest.");
+        }
 
         Intent intent = new Intent();
         intent.setClass(ConnectSdk.getContext(), ConnectActivity.class);
@@ -190,10 +200,6 @@ public final class ConnectSdk {
 
     public static synchronized boolean isInitialized() {
         return sSdkInitialized;
-    }
-
-    public static synchronized boolean isPaymentEnabled() {
-        return sPaymentEnabled;
     }
 
     public static void logout() {
@@ -241,60 +247,33 @@ public final class ConnectSdk {
             throw new ConnectException("No application metadata was found.");
         }
 
-        if (sClientId == null) {
-            Object clientIdObject = ai.metaData.get(CLIENT_ID_PROPERTY);
-            if (clientIdObject instanceof String) {
-                String clientIdString = (String) clientIdObject;
-                sClientId = clientIdString;
-            } else {
-                throw new ConnectException("Client Ids cannot be directly placed in the " +
-                        "manifest. They must be placed in the string resource file.");
-            }
+        Object clientIdObject = ai.metaData.get(CLIENT_ID_PROPERTY);
+        if (clientIdObject instanceof String) {
+            String clientIdString = (String) clientIdObject;
+            sClientId = clientIdString;
         }
 
-        Object paymentEnabledObject = ai.metaData.get(PAYMENT_ENABLED_PROPERTY);
-        if (paymentEnabledObject instanceof Boolean) {
-            sPaymentEnabled = (Boolean) paymentEnabledObject;
-        }
-
-        if (isPaymentEnabled()) {
-            if (sPaymentCancelUri == null) {
-                Object paymentCancelUriObject = ai.metaData.get(PAYMENT_CANCEL_URI_PROPERTY);
-                if (paymentCancelUriObject instanceof String) {
-                    String paymentCancelUriString = (String) paymentCancelUriObject;
-                    sPaymentCancelUri = paymentCancelUriString;
-                } else {
-                    throw new ConnectException("Payment Cancel URIs cannot be directly placed in " +
-                            "the manifest. They must be placed in the string resource file.");
-                }
-            }
-
-            if (sPaymentSuccessUri == null) {
-                Object paymentSuccessUriObject = ai.metaData.get(PAYMENT_SUCCESS_URI_PROPERTY);
-                if (paymentSuccessUriObject instanceof String) {
-                    String paymentSuccessUriString = (String) paymentSuccessUriObject;
-                    sPaymentSuccessUri = paymentSuccessUriString;
-                } else {
-                    throw new ConnectException("Payment Success URIs cannot be directly placed " +
-                            "in the manifest. They must be placed in the string resource file.");
-                }
-            }
-        }
-
-        if (sRedirectUri == null) {
-            Object redirectUriObject = ai.metaData.get(REDIRECT_URI_PROPERTY);
-            if (redirectUriObject instanceof String) {
-                String redirectUriString = (String) redirectUriObject;
-                sRedirectUri = redirectUriString;
-            } else {
-                throw new ConnectException("Redirect URIs cannot be directly placed in the " +
-                        "manifest. They must be placed in the string resource file.");
-            }
+        Object redirectUriObject = ai.metaData.get(REDIRECT_URI_PROPERTY);
+        if (redirectUriObject instanceof String) {
+            String redirectUriString = (String) redirectUriObject;
+            sRedirectUri = redirectUriString;
         }
 
         Object useStagingObject = ai.metaData.get(USE_STAGING_PROPERTY);
         if (useStagingObject instanceof Boolean) {
             sUseStaging = (Boolean) useStagingObject;
+        }
+
+        Object paymentCancelUriObject = ai.metaData.get(PAYMENT_CANCEL_URI_PROPERTY);
+        if (paymentCancelUriObject instanceof String) {
+            String paymentCancelUriString = (String) paymentCancelUriObject;
+            sPaymentCancelUri = paymentCancelUriString;
+        }
+
+        Object paymentSuccessUriObject = ai.metaData.get(PAYMENT_SUCCESS_URI_PROPERTY);
+        if (paymentSuccessUriObject instanceof String) {
+            String paymentSuccessUriString = (String) paymentSuccessUriObject;
+            sPaymentSuccessUri = paymentSuccessUriString;
         }
     }
 }

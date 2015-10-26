@@ -87,26 +87,27 @@ public class ConnectWebFragment extends Fragment {
     private class ConnectWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if (url.startsWith(ConnectSdk.getRedirectUri())) {
+            if (ConnectSdk.getRedirectUri() != null
+                    && url.startsWith(ConnectSdk.getRedirectUri())) {
                 ConnectUtils.parseAuthCode(url, new ConnectCallback() {
                     @Override
                     public void onSuccess(Object successData) {
                         Validator.notNullOrEmpty(successData.toString(), "code");
                         ConnectIdService.getAccessTokenFromCode(successData.toString(),
                                 new ConnectCallback() {
-                            @Override
-                            public void onSuccess(Object successData) {
-                                getActivity().setResult(Activity.RESULT_OK);
-                                getActivity().finish();
-                            }
+                                    @Override
+                                    public void onSuccess(Object successData) {
+                                        getActivity().setResult(Activity.RESULT_OK);
+                                        getActivity().finish();
+                                    }
 
-                            @Override
-                            public void onError(Object errorData) {
-                                Log.e(ConnectUtils.LOG_TAG, errorData.toString());
-                                getActivity().setResult(Activity.RESULT_CANCELED);
-                                getActivity().finish();
-                            }
-                        });
+                                    @Override
+                                    public void onError(Object errorData) {
+                                        Log.e(ConnectUtils.LOG_TAG, errorData.toString());
+                                        getActivity().setResult(Activity.RESULT_CANCELED);
+                                        getActivity().finish();
+                                    }
+                                });
                     }
 
                     @Override
@@ -118,17 +119,17 @@ public class ConnectWebFragment extends Fragment {
                 });
                 return true;
             }
-            if (ConnectSdk.isPaymentEnabled()) {
-                if (url.startsWith(ConnectSdk.getPaymentCancelUri())) {
-                    getActivity().setResult(Activity.RESULT_CANCELED);
-                    getActivity().finish();
-                    return true;
-                }
-                if (url.startsWith(ConnectSdk.getPaymentSuccessUri())) {
-                    getActivity().setResult(Activity.RESULT_OK);
-                    getActivity().finish();
-                    return true;
-                }
+            if (ConnectSdk.getPaymentCancelUri() != null
+                    && url.startsWith(ConnectSdk.getPaymentCancelUri())) {
+                getActivity().setResult(Activity.RESULT_CANCELED);
+                getActivity().finish();
+                return true;
+            }
+            if (ConnectSdk.getPaymentSuccessUri() != null
+                    && url.startsWith(ConnectSdk.getPaymentSuccessUri())) {
+                getActivity().setResult(Activity.RESULT_OK);
+                getActivity().finish();
+                return true;
             }
             return false;
         }

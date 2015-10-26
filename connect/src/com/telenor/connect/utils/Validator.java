@@ -2,7 +2,6 @@ package com.telenor.connect.utils;
 
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectNotInitializedException;
-import com.telenor.connect.ConnectPaymentNotEnabledException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.id.ConnectTokens;
 import com.telenor.connect.id.IdToken;
@@ -17,14 +16,6 @@ public class Validator {
     public static void notNullOrEmpty(String var, String name) {
         if (var == null || var.isEmpty()) {
             throw new IllegalArgumentException("Variable '" + name + "' cannot be null or empty");
-        }
-    }
-
-    public static void PaymentEnabled() {
-        if (!ConnectSdk.isPaymentEnabled()) {
-            throw new ConnectPaymentNotEnabledException("Connect Payment was not enabled, " +
-                    "enable it by setting " + ConnectSdk.PAYMENT_ENABLED_PROPERTY + "to true in" +
-                    "the application manifest.");
         }
     }
 
