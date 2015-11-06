@@ -1,7 +1,8 @@
 #Connect SDK for Android
 
-The Connect SDK for Android allows developers to create applications which use Telenor Connect ID
-for sign-in.
+The Connect SDK for Android allows developers to create applications which use Telenor Connect for
+sign-in or payment. More information about Telenor Connect can be found on our
+[partner portal](http://portal.telenordigital.com/).
 
 This is an __alpha__ release. In order to guide the development of the SDK and allow you to freely
 inspect and use the source, we have open-sourced the SDK. The underlying APIs are generally stable,
@@ -9,14 +10,44 @@ however we may make changes to the SDK in response to developer feedback.
 
 ## Prerequisites
 
-Before being able to use Telenor Connect ID in your application you first need to get your
+Before being able to use Telenor Connect in your application you first need to get your
 application registered with Telenor Connect. This can be done using a form on
 [our website](http://docs.telenordigital.com/getting_started.html).
 
-## Application setup
+## Selecting an environment
 
-The Connect SDK requires a Client ID and a redirect URI to work. You have received these when
-registering your application.
+Telenor Connect has 2 [environments](http://docs.telenordigital.com/connect/environments.html)
+which can be used, staging and production. The environment can easily be selected using the
+`com.telenor.connect.USE_STAGING` meta-data property in your AndroidManifest.xml
+
+    <meta-data
+            android:name="com.telenor.connect.USE_STAGING"
+            android:value="true" />
+
+## Styling the buttons
+
+The button controls provided by the SDK are available in a _light_ and a _dark_ theme. The style
+can be selected by specifying a `style` in your application's layout XML files:
+
+    style="@style/com_telenor_ConnectButton.Dark
+
+## Connect ID
+
+### Client types
+
+Connect ID supports two different client types, _public_ and _confidential_. Please see the
+[Native app guide](http://docs.telenordigital.com/connect/id/native_apps.html) to help you make a
+decision.
+
+The SDK is most functional with _public_ clients, the following sections therefore only apply to
+public clients. Please see the section
+[Using the SDK with a confidential client](#using-the-sdk-with-a-confidential-client) if you are
+developing a _confidential_ client.
+
+### Application setup
+
+The Connect ID integration requires a Client ID and a redirect URI to work. You have received these
+when registering your application.
 
 #### Adding the Client ID and redirect URI
 
@@ -56,10 +87,10 @@ And add the `ConnectActivity`, which handles logging in, to the `application` se
     ...
     </application>
 
-## Using the SDK
+### Initializing the SDK
 
 The Connect SDK needs to be initialized before use. This can be done by adding a call to
-`ConnectSdk.sdkInitialize()` in the `onCreate` method in your launch `Activity` or in your
+`ConnectSdk.sdkInitialize()` in the `onCreate` method of your launch `Activity` or in your
 `Application`.
 
     import com.telenor.connect.ConnectSDK
@@ -137,3 +168,21 @@ method. When the token has expired a new set of tokens can be requested using
 
 Access tokens can be used to access resources on your resource server. Please refer to the document
 about [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for more details.
+
+### Using the SDK with a confidential client
+
+Even though it is unsupported to use a `ConnectLoginButton` to manage the Connect ID login flow
+with a confidential client, it is still possible to use a `ConnectButton` to get the benefits of an
+automatically styled and translated UI element to start the Connect ID flow.
+
+    <com.telenor.connect.ui.ConnectButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/com_telenor_connect_login_button_text" />
+
+You can then add an `OnClickListener` to the button where you initialize your own handling of the
+Connect ID flow.
+
+The SDK also provides easy management of Connect ID API endpoints. The
+`ConnectSdk.getConnectApiUrl()` method will return the URL of the currently selected
+[environment](#selecting-an-environment).
