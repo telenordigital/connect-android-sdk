@@ -122,13 +122,17 @@ public class ConnectIdService {
                         Validator.ValidateTokens(connectTokens);
                         storeTokens(connectTokens);
                         ConnectUtils.sendTokenStateChanged(true);
-                        callback.onSuccess(connectTokens.accessToken);
+                        if (callback != null) {
+                            callback.onSuccess(connectTokens.accessToken);
+                        }
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
                         ConnectUtils.sendTokenStateChanged(false);
-                        callback.onError(error.toString());
+                        if (callback != null) {
+                            callback.onError(error.toString());
+                        }
                     }
                 });
     }

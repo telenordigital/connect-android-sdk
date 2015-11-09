@@ -89,6 +89,10 @@ public final class ConnectSdk {
         return ConnectIdService.getInstance().getAccessToken();
     }
 
+    public static synchronized void getAccessTokenFromCode(String code, ConnectCallback callback) {
+        ConnectIdService.getAccessTokenFromCode(code, callback);
+    }
+
     public static synchronized Uri getAuthorizeUri(Map<String, String> parameters) {
         if (ConnectSdk.getClientId() == null) {
             throw new ConnectException("Client ID not specified in application manifest.");
