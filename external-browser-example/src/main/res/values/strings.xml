@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">External Browser Example</string>
+    <string name="connect_client_id">telenordigital-connectexample-android</string>
+    <string name="connect_redirect_uri">telenordigital-connectexample-android://oauth2callback</string>
+</resources>
