@@ -30,7 +30,11 @@ public class ConnectUtils {
             callback.onError(errorParams);
             return;
         }
-        callback.onSuccess(uri.getQueryParameter("code"));
+
+        Map<String, String> successParams = new HashMap<>();
+        successParams.put("code", uri.getQueryParameter("code"));
+        successParams.put("state", uri.getQueryParameter("state"));
+        callback.onSuccess(successParams);
     }
 
     public static void sendTokenStateChanged(boolean state) {

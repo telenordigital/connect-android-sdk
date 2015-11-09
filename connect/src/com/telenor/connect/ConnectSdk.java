@@ -23,6 +23,7 @@ import java.util.UUID;
 
 public final class ConnectSdk {
     private static String sClientId;
+    private static boolean sConfidentialClient = false;
     private static Context sContext;
     private static String sLastAuthState;
     private static ArrayList<Locale> sLocales;
@@ -36,6 +37,11 @@ public final class ConnectSdk {
      * The key for the client ID in the Android manifest.
      */
     public static final String CLIENT_ID_PROPERTY = "com.telenor.connect.CLIENT_ID";
+
+    /**
+     * The key for the client ID in the Android manifest.
+     */
+    public static final String CONFIDENTIAL_CLIENT_PROPERTY = "com.telenor.connect.CONFIDENTIAL_CLIENT";
 
     /**
      * The key to for the payment cancel URI in the Android manifest.
@@ -197,6 +203,10 @@ public final class ConnectSdk {
         activity.startActivityForResult(intent, 1);
     }
 
+    public static synchronized boolean isConfidentialClient() {
+        return sConfidentialClient;
+    }
+
     public static synchronized boolean isInitialized() {
         return sSdkInitialized;
     }
@@ -250,6 +260,11 @@ public final class ConnectSdk {
         if (clientIdObject instanceof String) {
             String clientIdString = (String) clientIdObject;
             sClientId = clientIdString;
+        }
+
+        Object confidentialClientObject = ai.metaData.get(CONFIDENTIAL_CLIENT_PROPERTY);
+        if (confidentialClientObject instanceof Boolean) {
+            sConfidentialClient = (Boolean) confidentialClientObject;
         }
 
         Object redirectUriObject = ai.metaData.get(REDIRECT_URI_PROPERTY);

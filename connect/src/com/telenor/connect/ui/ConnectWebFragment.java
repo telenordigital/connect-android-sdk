@@ -1,6 +1,7 @@
 package com.telenor.connect.ui;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
@@ -27,6 +28,7 @@ import com.telenor.connect.utils.Validator;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Map;
 
 public class ConnectWebFragment extends Fragment {
     private Uri url;
@@ -92,28 +94,48 @@ public class ConnectWebFragment extends Fragment {
                 ConnectUtils.parseAuthCode(url, new ConnectCallback() {
                     @Override
                     public void onSuccess(Object successData) {
-                        Validator.notNullOrEmpty(successData.toString(), "code");
-                        ConnectIdService.getAccessTokenFromCode(successData.toString(),
-                                new ConnectCallback() {
-                                    @Override
-                                    public void onSuccess(Object successData) {
-                                        getActivity().setResult(Activity.RESULT_OK);
-                                        getActivity().finish();
-                                    }
+                        Validator.notNullOrEmpty(successData.toString(), "auth reponse");
 
-                                    @Override
-                                    public void onError(Object errorData) {
-                                        Log.e(ConnectUtils.LOG_TAG, errorData.toString());
-                                        getActivity().setResult(Activity.RESULT_CANCELED);
-                                        getActivity().finish();
-                                    }
-                                });
+                        Map<String, String> authCodeData = (Map<String, String>) successData;
+                        if (ConnectSdk.isConfidentialClient()) {
+                            // When the client is confidential: exit here and return code and state.
+                            Intent intent = new Intent();
+                            for (Map.Entry<String, String> entry : authCodeData.entrySet())
+                            {
+                                intent.putExtra(entry.getKey(), entry.getValue());
+                            }
+                            getActivity().setResult(Activity.RESULT_OK, intent);
+                            getActivity().finish();
+
+                        } else {
+                            ConnectIdService.getAccessTokenFromCode(authCodeData.get("code"),
+                                    new ConnectCallback() {
+                                        @Override
+                                        public void onSuccess(Object successData) {
+                                            getActivity().setResult(Activity.RESULT_OK);
+                                            getActivity().finish();
+                                        }
+
+                                        @Override
+                                        public void onError(Object errorData) {
+                                            Log.e(ConnectUtils.LOG_TAG, errorData.toString());
+                                            getActivity().setResult(Activity.RESULT_CANCELED);
+                                            getActivity().finish();
+                                        }
+                                    });
+                        }
                     }
 
                     @Override
                     public void onError(Object errorData) {
                         Log.e(ConnectUtils.LOG_TAG, errorData.toString());
-                        getActivity().setResult(Activity.RESULT_CANCELED);
+                        Intent intent = new Intent();
+                        Map<String, String> authCodeData = (Map<String, String>) errorData;
+                        for (Map.Entry<String, String> entry : authCodeData.entrySet())
+                        {
+                            intent.putExtra(entry.getKey(), entry.getValue());
+                        }
+                        getActivity().setResult(Activity.RESULT_CANCELED, intent);
                         getActivity().finish();
                     }
                 });
