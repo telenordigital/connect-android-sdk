@@ -38,11 +38,6 @@ public final class ConnectSdk {
     public static final String CLIENT_ID_PROPERTY = "com.telenor.connect.CLIENT_ID";
 
     /**
-     * The key to enable payment in the Android manifest.
-     */
-    public static final String PAYMENT_ENABLED_PROPERTY = "com.telenor.connect.PAYMENT_ENABLED";
-
-    /**
      * The key to for the payment cancel URI in the Android manifest.
      */
     public static final String PAYMENT_CANCEL_URI_PROPERTY = "com.telenor.connect.PAYMENT_CANCEL_URI";
