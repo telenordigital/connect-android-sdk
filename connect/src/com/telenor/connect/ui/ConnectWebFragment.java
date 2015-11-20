@@ -9,13 +9,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.SslErrorHandler;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -26,8 +26,6 @@ import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
-import java.util.ArrayList;
-import java.util.Locale;
 import java.util.Map;
 
 public class ConnectWebFragment extends Fragment {
@@ -59,6 +57,10 @@ public class ConnectWebFragment extends Fragment {
         sWebView.setHorizontalScrollBarEnabled(false);
         sWebView.getSettings().setJavaScriptEnabled(true);
         sWebView.getSettings().setSaveFormData(false);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            sWebView.getSettings()
+                    .setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        }
         sWebView.setFocusable(true);
         sWebView.setFocusableInTouchMode(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
