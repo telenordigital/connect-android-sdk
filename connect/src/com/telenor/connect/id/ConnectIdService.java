@@ -138,6 +138,10 @@ public class ConnectIdService {
     }
 
     private static ConnectAPI getConnectApi() {
+        if (sConnectApi == null) {
+            getInstance();
+        }
+
         return sConnectApi;
     }
 
