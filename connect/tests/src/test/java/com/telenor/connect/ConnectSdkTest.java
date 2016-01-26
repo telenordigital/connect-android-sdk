@@ -1,4 +1,4 @@
-import com.telenor.connect.ConnectSdk;
+package com.telenor.connect;
 
 import org.junit.Before;
 import org.junit.Test;

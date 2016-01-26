@@ -78,6 +78,7 @@ public final class ConnectSdk {
     public static synchronized void authenticate(
             Activity activity,
             Map<String, String> parameters) {
+
         Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);

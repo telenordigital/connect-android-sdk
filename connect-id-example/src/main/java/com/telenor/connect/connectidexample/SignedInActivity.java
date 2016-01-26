@@ -28,7 +28,6 @@ public class SignedInActivity extends Activity {
             }
         });
 
-
         new ConnectTokensStateTracker() {
             @Override
             protected void onTokenStateChanged(boolean hasTokens) {

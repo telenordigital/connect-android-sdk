@@ -1,8 +1,7 @@
-package com.telenor.tests;
+package com.telenor.connect;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 
 import com.telenor.connect.tests.R;
 

@@ -1,4 +1,4 @@
-package com.telenor.ui;
+package com.telenor.connect.ui;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,10 +6,8 @@ import android.content.Intent;
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.tests.R;
-import com.telenor.connect.ui.ConnectActivity;
-import com.telenor.connect.ui.ConnectLoginButton;
 import com.telenor.connect.utils.ConnectUtils;
-import com.telenor.tests.TestActivity;
+import com.telenor.connect.TestActivity;
 
 import org.junit.Before;
 import org.junit.Rule;

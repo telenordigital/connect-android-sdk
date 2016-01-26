@@ -1,14 +1,11 @@
 apply plugin: 'com.android.application'
-
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
-
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 21
+        targetSdkVersion 23
     }
-
     dependencies {
         compile project(':connect')
         testCompile 'org.hamcrest:hamcrest-integration:1.1'
@@ -20,4 +17,10 @@ android {
         testCompile 'org.robolectric:shadows-support-v4:3.0-rc3'
         testCompile 'junit:junit:4.12'
     }
+    productFlavors {
+    }
+    useLibrary 'org.apache.http.legacy'
+}
+
+dependencies {
 }

@@ -6,7 +6,7 @@
     <uses-sdk android:minSdkVersion="15" />
 
     <application>
-        <activity android:name="com.telenor.tests.TestActivity" android:label="tests" >
+        <activity android:name="com.telenor.connect.TestActivity" android:label="tests" >
             <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
