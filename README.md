@@ -17,7 +17,7 @@ application registered with Telenor Connect. This can be done using a form on
 ## Selecting an environment
 
 Telenor Connect has 2 [environments](http://docs.telenordigital.com/connect/environments.html)
-which can be used, staging and production. The environment can easily be selected using the
+which can be used, staging and production. The environment can be selected using the
 `com.telenor.connect.USE_STAGING` meta-data property in your AndroidManifest.xml
 
     <meta-data
@@ -26,8 +26,8 @@ which can be used, staging and production. The environment can easily be selecte
 
 ## Styling the buttons
 
-The button controls provided by the SDK are available in a _light_ and a _dark_ theme. The style
-can be selected by specifying a `style` in your application's layout XML files:
+The button controls are available in a _light_ and a _dark_ theme. The style can be selected by
+specifying a `style` in your application's layout XML files:
 
     style="@style/com_telenor_ConnectButton.Dark
 
@@ -38,11 +38,6 @@ can be selected by specifying a `style` in your application's layout XML files:
 Connect ID supports two different client types, _public_ and _confidential_. Please see the
 [Native app guide](http://docs.telenordigital.com/connect/id/native_apps.html) to help you make a
 decision.
-
-The SDK is most functional with _public_ clients, the following sections therefore only apply to
-public clients. Please see the section
-[Using the SDK with a confidential client](#using-the-sdk-with-a-confidential-client) if you are
-developing a _confidential_ client.
 
 ### Application setup
 
@@ -141,6 +136,10 @@ The `onActivityResult()` method of your `Activity` will be called with `Activity
         }
     }
 
+If you are developing a confidential client you should skip to [Next steps for confidential clients](#next-steps-for-confidential-clients)
+
+### Next steps for public clients
+
 #### Keeping track of the login state
 
 The Connect SDK contains the `ConnectTokensStateTracker` class, which exposes the current login
@@ -169,20 +168,8 @@ method. When the token has expired a new set of tokens can be requested using
 Access tokens can be used to access resources on your resource server. Please refer to the document
 about [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for more details.
 
-### Using the SDK with a confidential client
+### Next steps for confidential clients
 
-Even though it is unsupported to use a `ConnectLoginButton` to manage the Connect ID login flow
-with a confidential client, it is still possible to use a `ConnectButton` to get the benefits of an
-automatically styled and translated UI element to start the Connect ID flow.
-
-    <com.telenor.connect.ui.ConnectButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/com_telenor_connect_login_button_text" />
-
-You can then add an `OnClickListener` to the button where you initialize your own handling of the
-Connect ID flow.
-
-The SDK also provides easy management of Connect ID API endpoints. The
-`ConnectSdk.getConnectApiUrl()` method will return the URL of the currently selected
-[environment](#selecting-an-environment).
+The user's access and refresh tokens are stored in a database controlled by you. The SDK will
+return an `access code` in the `onActivityResult()` function. This access code should be exchanged
+for access and refrsh tokens in your backend system.
