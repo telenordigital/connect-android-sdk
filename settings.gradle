@@ -6,9 +6,6 @@ include 'tests'
 project(':tests').projectDir = new File('connect/tests')
 
 // Examples
-include 'external-browser-example'
-project(':external-browser-example').projectDir = new File('external-browser-example')
-
 include 'id-example'
 project(':id-example').projectDir = new File('connect-id-example')
 
