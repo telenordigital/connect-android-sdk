@@ -15,9 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConnectLoginButton extends ConnectButton {
-    private static ArrayList<String> sAcrValues;
-    private static Map<String, String> sLoginParameters;
-    private static ArrayList<String> sLoginScopeTokens;
+    private ArrayList<String> acrValues;
+    private Map<String, String> loginParameters;
+    private ArrayList<String> loginScopeTokens;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -26,35 +26,35 @@ public class ConnectLoginButton extends ConnectButton {
     }
 
     public ArrayList<String> getAcrValues() {
-        return sAcrValues;
+        return acrValues;
     }
 
     public Map<String, String> getLoginParameters() {
-        return sLoginParameters;
+        return loginParameters;
     }
 
     public ArrayList<String> getLoginScopeTokens() {
-        return sLoginScopeTokens;
+        return loginScopeTokens;
     }
 
     public void setAcrValues(String... acrValues) {
-        sAcrValues = new ArrayList<>(Arrays.asList(acrValues));
+        this.acrValues = new ArrayList<>(Arrays.asList(acrValues));
     }
 
     public void setAcrValues(ArrayList<String> acrValues) {
-        sAcrValues = acrValues;
+        this.acrValues = acrValues;
     }
 
     public void setLoginScopeTokens(String... scopeTokens) {
-        sLoginScopeTokens = new ArrayList<>(Arrays.asList(scopeTokens));
+        loginScopeTokens = new ArrayList<>(Arrays.asList(scopeTokens));
     }
 
     public void setLoginScopeTokens(ArrayList<String> scopeTokens) {
-        sLoginScopeTokens = scopeTokens;
+        loginScopeTokens = scopeTokens;
     }
 
-    public void setLoginParameters(Map<String, String> parameters) {
-        sLoginParameters = parameters;
+    public void addLoginParameters(Map<String, String> parameters) {
+        loginParameters = parameters;
     }
 
     private class LoginClickListener implements OnClickListener {
@@ -67,6 +67,7 @@ public class ConnectLoginButton extends ConnectButton {
             if (getAcrValues() != null && !getAcrValues().isEmpty()) {
                 parameters.put("acr_values", TextUtils.join(" ", getAcrValues()));
             }
+
             if (getLoginScopeTokens() != null && !getLoginScopeTokens().isEmpty()) {
                 parameters.put("scope", TextUtils.join(" ", getLoginScopeTokens()));
             }
