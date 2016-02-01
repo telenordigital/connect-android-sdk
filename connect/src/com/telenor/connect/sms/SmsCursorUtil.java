@@ -25,8 +25,8 @@ public class SmsCursorUtil {
         Uri mUri = smsInboxUri;
         String[] mProjection = new String[] { BODY };
 
-        String mSelectionClause = READ + " = 0 AND "
-                        + ADDRESS + " = ? AND "
+        String mSelectionClause =
+                        ADDRESS + " = ? AND "
                         + DATE + " > ?";
 
         String[] mSelectionArgs = new String[] { sender, String.valueOf(receivedAfter) };
