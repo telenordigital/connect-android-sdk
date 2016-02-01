@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Instruction {
 
-    public static final String PIN_INSTRUCTION_NAME = "$getPinFromSms";
+    public static final String PIN_INSTRUCTION_NAME = "androidSystemCall_getPinFromSms";
 
     private String name;
     private List<Object> arguments;

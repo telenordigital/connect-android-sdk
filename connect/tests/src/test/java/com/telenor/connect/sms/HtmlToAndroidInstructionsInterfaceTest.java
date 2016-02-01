@@ -35,7 +35,7 @@ public class HtmlToAndroidInstructionsInterfaceTest {
             "    ]\n" +
             "  },\n" +
             "  {\n" +
-            "    \"name\": \"$getPinFromSms\",\n" +
+            "    \"name\": \"androidSystemCall_getPinFromSms\",\n" +
             "    \"config\": {\n" +
             "      \"sender\": \"Telenor\",\n" +
             "      \"template\": \"Your verification code is {0} - Connect by Telenor Digital\",\n"+
@@ -56,7 +56,7 @@ public class HtmlToAndroidInstructionsInterfaceTest {
             "    ]" +
             "  }," +
             "  {" +
-            "    \"name\": \"$getPinFromSms\"," +
+            "    \"name\": \"androidSystemCall_getPinFromSms\"," +
             "    \"config\": {" +
             "      \"value_key\": \"{0}\"" +
             "    }," +
@@ -154,7 +154,7 @@ public class HtmlToAndroidInstructionsInterfaceTest {
         instructions.add(addCallbackMethod);
 
         Instruction getPinFromSms = new Instruction();
-        getPinFromSms.setName("$getPinFromSms");
+        getPinFromSms.setName("androidSystemCall_getPinFromSms");
         getPinFromSms.setPinCallbackName("handlePinReceived");
         Instruction.Config config = new Instruction.Config("Telenor",
                 "Your verification code is {0} - Connect by Telenor Digital",

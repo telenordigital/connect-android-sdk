@@ -25,7 +25,7 @@ public class InstructionTest {
     @Test
     public void isValidPinInstructionRequiresCorrectNameAndNonNullConfig() throws Exception {
         Instruction instruction = new Instruction();
-        instruction.setName("$getPinFromSms");
+        instruction.setName("androidSystemCall_getPinFromSms");
         Instruction.Config config = new Instruction.Config("not null", "not null", "not null");
         instruction.setConfig(config);
 
@@ -54,7 +54,7 @@ public class InstructionTest {
     @Test
     public void mustHaveFullConfigIfPinInstruction() throws Exception {
         Instruction instruction = new Instruction();
-        instruction.setName("$getPinFromSms");
+        instruction.setName("androidSystemCall_getPinFromSms");
         Instruction.Config config = new Instruction.Config();
         config.setSender("");
         config.setTemplate("");
