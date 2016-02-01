@@ -41,6 +41,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     private final SmsBroadcastReceiver smsBroadcastReceiver;
     private long pageLoadStarted;
     private Instruction callbackInstruction;
+    private boolean instructionsReceived;
 
     private static final int RACE_CONDITION_DELAY_CHECK_ALREADY_RECEIVED_SMS = 700;
     private static long CHECK_FOR_SMS_BACK_IN_TIME_MILLIS = 2500;
@@ -152,6 +153,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
         pageLoadStarted = System.currentTimeMillis();
+        instructionsReceived = false;
         super.onPageStarted(view, url, favicon);
     }
 
@@ -164,7 +166,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
 
     @Override
     public void givenInstructions(List<Instruction> instructions) {
-        if (!hasPermissionToReadSms()) {
+        if (!hasPermissionToReadSms() || instructionsReceived) {
             return;
         }
 
@@ -175,6 +177,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                 runJavascriptInstruction(instruction);
             }
         }
+        instructionsReceived = true;
     }
 
     private boolean hasPermissionToReadSms() {

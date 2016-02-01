@@ -14,6 +14,8 @@ import java.util.List;
 
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class HtmlToAndroidInstructionsInterfaceTest {
@@ -89,7 +91,7 @@ public class HtmlToAndroidInstructionsInterfaceTest {
     }
 
     @Test
-    public void brokenJsonGivesInstructionHandlerEmptyList() throws Exception {
+    public void brokenJsonDoesNotCallInstructionHandler() throws Exception {
         InstructionHandler instructionHandler = mock(InstructionHandler.class);
 
         HtmlToAndroidInstructionsInterface androidInterface =
@@ -97,18 +99,30 @@ public class HtmlToAndroidInstructionsInterfaceTest {
 
         androidInterface.processInstructions(brokenJson);
 
-        verify(instructionHandler).givenInstructions(Collections.<Instruction>emptyList());
+        verify(instructionHandler, never()).givenInstructions(anyList());
     }
 
     @Test
-    public void emptyInstructionsGivesEmptyList() throws Exception {
+    public void emptyInstructionsDoesNotCallInstructionHandler() throws Exception {
         InstructionHandler instructionHandler = mock(InstructionHandler.class);
 
         HtmlToAndroidInstructionsInterface androidInterface =
                 new HtmlToAndroidInstructionsInterface(instructionHandler);
 
         androidInterface.processInstructions("");
-        verify(instructionHandler).givenInstructions(Collections.<Instruction>emptyList());
+        verify(instructionHandler, never()).givenInstructions(anyList());
+    }
+
+    @Test
+    public void emptyThenFullInstructionsShouldCallInstructionHandlerOnce() throws Exception {
+        InstructionHandler instructionHandler = mock(InstructionHandler.class);
+
+        HtmlToAndroidInstructionsInterface androidInterface =
+                new HtmlToAndroidInstructionsInterface(instructionHandler);
+
+        androidInterface.processInstructions("");
+        androidInterface.processInstructions(validInstructions);
+        verify(instructionHandler, times(1)).givenInstructions(anyList());
     }
 
     @Test

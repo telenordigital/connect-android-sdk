@@ -51,7 +51,9 @@ public class HtmlToAndroidInstructionsInterface {
     @SuppressWarnings("unused")
     public void processInstructions(String content) {
         List<Instruction> instructions = getAllValidInstructions(content);
-        instructionHandler.givenInstructions(instructions);
+        if (!instructions.isEmpty()) {
+            instructionHandler.givenInstructions(instructions);
+        }
     }
 
     /**
