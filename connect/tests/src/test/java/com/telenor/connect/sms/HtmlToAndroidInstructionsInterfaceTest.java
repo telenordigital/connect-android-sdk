@@ -30,8 +30,8 @@ public class HtmlToAndroidInstructionsInterfaceTest {
             "  {\n" +
             "    \"name\": \"eval\",\n" +
             "    \"arguments\": [\n" +
-            "      \"\\\"window['handlePinReceived'] = function(pin) { $('#pin').val(pin); " +
-            "setTimeout(function () { $('#next').click(); }, 2300); }\\\"\"\n" +
+            "      \"\\\"window['handlePinReceived'] = " +
+            "function(pin) { $('#pin').val(pin); }\\\"\"\n" +
             "    ]\n" +
             "  },\n" +
             "  {\n" +
@@ -149,7 +149,7 @@ public class HtmlToAndroidInstructionsInterfaceTest {
         addCallbackMethod.setName("eval");
         ArrayList<Object> addCallbackMethodArguments = new ArrayList<>();
         addCallbackMethodArguments.add("\"window['handlePinReceived'] = function(pin) " +
-                "{ $('#pin').val(pin); setTimeout(function () { $('#next').click(); }, 2300); }\"");
+                "{ $('#pin').val(pin); }\"");
         addCallbackMethod.setArguments(addCallbackMethodArguments);
         instructions.add(addCallbackMethod);
 
