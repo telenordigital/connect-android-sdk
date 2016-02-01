@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 
 public class HtmlToAndroidInstructionsInterfaceTest {
 
-    public final static String validInstructions = "[\n" +
+    private final static String validInstructions = "[\n" +
             "  {\n" +
             "    \"name\": \"eval\",\n" +
             "    \"arguments\": [\n" +
@@ -78,6 +78,25 @@ public class HtmlToAndroidInstructionsInterfaceTest {
             "  }" +
             "]";
 
+    private static final String missingDoubleQuotesOnVarsJson = "[  \n" +
+            "   {  \n" +
+            "      name:\"androidJsCall_waitForSmsWithTimeout\"\n" +
+            "   },\n" +
+            "   {  \n" +
+            "      name:\"androidJsCall_handlePinReceived\"\n" +
+            "   },\n" +
+            "   {  \n" +
+            "      name:\"androidSystemCall_getPinFromSms\",\n" +
+            "      config:{  \n" +
+            "         sender:\"Telenor\",\n" +
+            "         template:\"Your verification code is {0} - Connect by Telenor Digital\",\n" +
+            "         value_key:\"{0}\"\n" +
+            "      },\n" +
+            "      pin_callback_name:\"androidJsCall_handlePinReceived\",\n" +
+            "      timeout:60000\n" +
+            "   }\n" +
+            "]";
+
     @Test
     public void instructionsArePassedToInstructionHandler() throws Exception {
         InstructionHandler instructionHandler = mock(InstructionHandler.class);
@@ -86,6 +105,19 @@ public class HtmlToAndroidInstructionsInterfaceTest {
                 = new HtmlToAndroidInstructionsInterface(instructionHandler);
 
         androidInterface.processInstructions(validInstructions);
+
+        verify(instructionHandler).givenInstructions(anyList());
+    }
+
+    // http://stackoverflow.com/a/4201631/2148380
+    @Test
+    public void missingDoubleQuotesOnVarsJsonWorksAsNormal() throws Exception {
+        InstructionHandler instructionHandler = mock(InstructionHandler.class);
+
+        HtmlToAndroidInstructionsInterface androidInterface
+                = new HtmlToAndroidInstructionsInterface(instructionHandler);
+
+        androidInterface.processInstructions(missingDoubleQuotesOnVarsJson);
 
         verify(instructionHandler).givenInstructions(anyList());
     }
