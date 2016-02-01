@@ -45,15 +45,14 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT >= 19) {
             return Telephony.Sms.Intents.getMessagesFromIntent(intent);
         }
-
-        byte[][] pdus = (byte[][]) bundle.get("pdus");
-        return getSmsMessages(pdus);
+        return getSmsMessages(bundle);
     }
 
-    private static SmsMessage[] getSmsMessages(byte[][] pdus) {
+    private static SmsMessage[] getSmsMessages(Bundle bundle) {
+        Object[] pdus = (Object[]) bundle.get("pdus");
         SmsMessage[] messages = new SmsMessage[pdus.length];
         for (int i = 0; i < messages.length; i++) {
-            messages[i] = SmsMessage.createFromPdu(pdus[i]);
+            messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
         }
         return messages;
     }
