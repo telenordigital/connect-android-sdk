@@ -1,7 +1,6 @@
 package com.telenor.connect.ui;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,8 +9,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -138,16 +135,6 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                                 String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
         errorView.setVisibility(View.VISIBLE);
-    }
-
-    @TargetApi(android.os.Build.VERSION_CODES.M)
-    @Override
-    public void onReceivedError(WebView view, WebResourceRequest req, WebResourceError rerr) {
-        onReceivedError(
-                view,
-                rerr.getErrorCode(),
-                rerr.getDescription().toString(),
-                req.getUrl().toString());
     }
 
     @Override
