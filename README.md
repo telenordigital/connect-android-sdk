@@ -96,7 +96,7 @@ The Connect SDK needs to be initialized before use. This can be done by adding a
         ConnectSdk.sdkInitialize(getApplicationContext());
     }
 
-#### Adding a ConnectLoginButton
+### Adding a ConnectLoginButton
 
 To let the SDK handle Connect ID login a `ConnectLoginButton` can be added to your layout. This is
 a custom `Button` implementation that has the standard Connect button look-and-feel.
@@ -114,10 +114,7 @@ application to the button in the `onCreate()` method of your `Activity` class.
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_splash);
-
+        ...
         ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
         button.setLoginScopeTokens("profile");
     }
@@ -148,12 +145,12 @@ the user.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    ...
-    new ConnectTokensStateTracker() {
-        @Override
-        protected void onTokenStateChanged(boolean hasTokens) {
-            // App code
-        }
+        ...
+        new ConnectTokensStateTracker() {
+            @Override
+            protected void onTokenStateChanged(boolean hasTokens) {
+                // App code
+            }
     };
 
 The `onTokenStateChanged(boolean hasTokens)` method will be called when instantiating the
