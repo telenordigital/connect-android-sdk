@@ -4,11 +4,9 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
 import com.telenor.connect.utils.Validator;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,6 +16,7 @@ public class ConnectLoginButton extends ConnectButton {
     private ArrayList<String> acrValues;
     private Map<String, String> loginParameters;
     private ArrayList<String> loginScopeTokens;
+    private int requestCode = 0xa987;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -35,6 +34,10 @@ public class ConnectLoginButton extends ConnectButton {
 
     public ArrayList<String> getLoginScopeTokens() {
         return loginScopeTokens;
+    }
+
+    public int getRequestCode() {
+        return requestCode;
     }
 
     public void setAcrValues(String... acrValues) {
@@ -57,6 +60,10 @@ public class ConnectLoginButton extends ConnectButton {
         loginParameters = parameters;
     }
 
+    public void setRequestCode(int requestCode) {
+        this.requestCode = requestCode;
+    }
+
     private class LoginClickListener implements OnClickListener {
 
         @Override
@@ -76,7 +83,7 @@ public class ConnectLoginButton extends ConnectButton {
                 parameters.putAll(getLoginParameters());
             }
 
-            ConnectSdk.authenticate(getActivity(), parameters);
+            ConnectSdk.authenticate(getActivity(), parameters, requestCode);
         }
     }
 }

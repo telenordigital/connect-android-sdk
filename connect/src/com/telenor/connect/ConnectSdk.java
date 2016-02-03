@@ -69,22 +69,27 @@ public final class ConnectSdk {
     public static final String EXTRA_PAYMENT_LOCATION =
             "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
 
-    public static synchronized void authenticate(Activity activity, String... scopeTokens) {
+    public static synchronized void authenticate(
+            Activity activity,
+            int requestCode,
+            String... scopeTokens) {
+
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("scope", TextUtils.join(" ", scopeTokens));
-        authenticate(activity, parameters);
+        authenticate(activity, parameters, requestCode);
     }
 
     public static synchronized void authenticate(
             Activity activity,
-            Map<String, String> parameters) {
+            Map<String, String> parameters,
+            int requestCode) {
 
         Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI,
                 getAuthorizeUri(parameters).toString());
-        activity.startActivityForResult(intent, 1);
+        activity.startActivityForResult(intent, requestCode);
     }
 
     public static synchronized String getAccessToken() {

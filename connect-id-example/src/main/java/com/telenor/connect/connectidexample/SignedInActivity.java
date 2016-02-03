@@ -48,7 +48,7 @@ public class SignedInActivity extends Activity {
                 parameters.put("acr_values", "2");
                 parameters.put("scope", "profile email");
 
-                ConnectSdk.authenticate(SignedInActivity.this, parameters);
+                ConnectSdk.authenticate(SignedInActivity.this, parameters, 0);
             }
         });
 
