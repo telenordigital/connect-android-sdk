@@ -170,3 +170,90 @@ about [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for m
 The user's access and refresh tokens are stored in a database controlled by you. The SDK will
 return an `access code` in the `onActivityResult()` function. This access code should be exchanged
 for access and refrsh tokens in your backend system.
+
+## Connect Payment
+
+Connect Payment allows users to pay for content in your app. Connect Payment uses transactions and
+subscriptions (recurring transactions) to manage payments. Transactions and subscriptions are
+created from your app's backend system. Please see the
+[Connect Payment documentation](http://docs.telenordigital.com/connect/payment/) for more details.
+
+### Adding Payment success and cancel URIs
+
+Whenever a payment transaction is completed successfully, or a payment is
+cancelled your backend should redirect to your application. There is a separate redirect for
+a successful or cancelled transaction. The success and cancel redirect URIs should be added to your
+application's `strings.xml` file. Add strings with the names `connect_payment_cancel_uri` and
+`connect_payment_success_uri`.
+
+    <string name="connect_payment_cancel_uri">example-clientid://transactionCancel</string>
+    <string name="connect_payment_success_uri">example-clientid://transactionSuccess</string>
+
+### Editing the application manifest.
+
+Open your application's `AndroidManifest.xml` file and add two `meta-data` entries to the
+`application` section of the manifest.
+
+    <application>
+    ...
+        <meta-data
+            android:name="com.telenor.connect.PAYMENT_CANCEL_URI"
+            android:value="@string/connect_payment_cancel_uri" />
+        <meta-data
+            android:name="com.telenor.connect.PAYMENT_SUCCESS_URI"
+            android:value="@string/connect_payment_success_uri" />
+    ...
+    </application>
+
+If you are not using Connect ID to sign users into your application you should also add the
+permission required to allow your application to access the internet.
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+And add the `ConnectActivity`, which handles logging in, to the `application` section.
+
+    <application>
+    ...
+        <activity
+            android:name="com.telenor.connect.ui.ConnectActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+    ...
+    </application>
+
+### Adding a ConnectPaymentButton
+
+The SDK contains a custom `Button` implementation which contains translations for the Connect
+Payment text. This button can be used by adding a `ConnectPaymentButton` to your layout.
+
+Add the button to your layout XML files using the class name
+`com.telenor.connect.ConnectPaymentButton`:
+
+    <com.telenor.connect.ConnectPaymentButton
+        android:id="@+id/payment_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+### Performing a payment transaction
+
+To perform a transaction you would add a click handler to the payment button in the `onCreate()`
+method of your `Activity` class.
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        ...
+        View paymentButton = findViewById(R.id.payment_button);
+        paymentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // App code
+            }
+        });
+    }
+
+This click handler would call your backend to let the backend create a transaction and you would
+return the [Payment link](http://docs.telenordigital.com/apis/connect/payment/#single-payment-transaction)
+to your application. The Payment link is then used in a call to
+`ConnectSdk.initializePayment(Context, String)`, which opens a `ConnectActivity` where the user can
+perform the transaction.
