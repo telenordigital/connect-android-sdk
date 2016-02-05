@@ -1,5 +1,6 @@
 package com.telenor.connect.ui;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -37,10 +38,20 @@ public class ConnectWebFragment extends Fragment {
         WebView webView = (WebView) view.findViewById(R.id.com_telenor_connect_fragment_webview);
         client = new ConnectWebViewClient(getActivity(), webView, loadingView, errorView);
 
+        acceptAllCookies(webView);
+
         WebViewHelper.setupWebView(webView, client, getPageUrl());
 
-        CookieManager.getInstance().setAcceptCookie(true);
         return view;
+    }
+
+    private void acceptAllCookies(WebView webView) {
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cookieManager.setAcceptThirdPartyCookies(webView, true);
+            // older versions accept third party cookies by default.
+        }
     }
 
     @Override
