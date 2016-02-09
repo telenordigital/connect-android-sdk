@@ -27,10 +27,6 @@ android {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
