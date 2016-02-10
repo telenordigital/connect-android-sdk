@@ -1,23 +1,24 @@
 apply plugin: 'com.android.application'
 android {
-    compileSdkVersion 23
+    compileSdkVersion 22
     buildToolsVersion '23.0.2'
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 23
+        targetSdkVersion 22
     }
     dependencies {
         compile project(':connect')
         testCompile 'org.hamcrest:hamcrest-integration:1.1'
         testCompile 'org.hamcrest:hamcrest-core:1.1'
         testCompile 'org.hamcrest:hamcrest-library:1.1'
-        testCompile 'org.powermock:powermock-module-junit4:1.6.0'
-        testCompile 'org.powermock:powermock-api-mockito:1.6.0'
-        testCompile "org.robolectric:robolectric:3.0-rc3"
-        testCompile 'org.robolectric:shadows-support-v4:3.0-rc3'
+        testCompile 'org.powermock:powermock-module-junit4:1.6.1'
+        testCompile 'org.powermock:powermock-api-mockito:1.6.1'
+        testCompile ("org.robolectric:robolectric:3.0") {
+            exclude module: 'bcprov-jdk16'
+        }
+        testCompile ('org.robolectric:shadows-support-v4:3.0') {
+            exclude module: 'bcprov-jdk16'
+        }
         testCompile 'junit:junit:4.12'
     }
-    productFlavors {
-    }
-    useLibrary 'org.apache.http.legacy'
 }

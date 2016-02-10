@@ -1,14 +1,13 @@
 package com.telenor.connect.id;
 
 public class IdToken {
-    private final String sIdToken;
+    private final String serializedSignedJwt;
 
-    public IdToken(String idToken) {
-        sIdToken = idToken;
+    public IdToken(String serializedSignedJwt) {
+        this.serializedSignedJwt = serializedSignedJwt;
     }
 
-    @Override
-    public String toString() {
-        return sIdToken;
+    public String getSerializedSignedJwt() {
+        return serializedSignedJwt;
     }
 }

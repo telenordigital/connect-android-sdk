@@ -4,7 +4,6 @@ import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.id.ConnectTokens;
-import com.telenor.connect.id.IdToken;
 
 public class Validator {
     public static void notNull(Object var, String name) {
@@ -35,10 +34,6 @@ public class Validator {
         }
     }
 
-    public static void ValidateIdToken(IdToken token) {
-        //TODO Actually validate the JWT token.
-    }
-
     public static void ValidateTokens(ConnectTokens tokens) {
         notNullOrEmpty(tokens.accessToken, "access_token");
         notNull(tokens.expiresIn, "expires_in");
@@ -47,7 +42,7 @@ public class Validator {
         notNullOrEmpty(tokens.tokenType, "token_type");
 
         if (tokens.idToken != null) {
-            ValidateIdToken(tokens.idToken);
+            IdTokenValidator.validate(tokens.idToken);
         }
     }
 }

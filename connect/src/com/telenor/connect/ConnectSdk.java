@@ -69,6 +69,8 @@ public final class ConnectSdk {
     public static final String EXTRA_PAYMENT_LOCATION =
             "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
 
+    public static final String OAUTH_PATH = "oauth";
+
     public static synchronized void authenticate(
             Activity activity,
             int requestCode,
@@ -127,7 +129,7 @@ public final class ConnectSdk {
 
         Uri.Builder builder = new Uri.Builder();
         builder.encodedPath(getConnectApiUrl().toString())
-                .appendPath("oauth")
+                .appendPath(OAUTH_PATH)
                 .appendPath("authorize");
         for (Map.Entry<String, String> entry : authParameters.entrySet()) {
             builder.appendQueryParameter(entry.getKey(), entry.getValue());
