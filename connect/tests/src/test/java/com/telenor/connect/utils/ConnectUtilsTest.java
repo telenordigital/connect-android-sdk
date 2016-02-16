@@ -2,8 +2,10 @@ package com.telenor.connect.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 
 import org.junit.Rule;
@@ -18,6 +20,8 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.Map;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -31,6 +35,32 @@ public class ConnectUtilsTest {
 
     @Rule
     public PowerMockRule rule = new PowerMockRule(); // needed to activate PowerMock
+
+    @Test
+    public void erroneousCallbackUrlCallsCallbackOnErrorWithMap() {
+        PowerMockito.mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
+
+        final String value1 = "something";
+        final String value2 = "something else";
+        String uri = new Uri.Builder()
+                .appendQueryParameter("error", value1)
+                .appendQueryParameter("error_description", value2)
+                .build()
+                .toString();
+
+        ConnectCallback mock = mock(ConnectCallback.class);
+
+        ConnectUtils.parseAuthCode(uri, mock);
+        verify(mock).onError(argThat(new ArgumentMatcher<Object>() {
+            @Override
+            public boolean matches(Object argument) {
+                Map<String, String> stringMap = (Map<String, String>) argument;
+                return stringMap.get("error").equals(value1)
+                        && stringMap.get("error_description").equals(value2);
+            }
+        }));
+    }
 
     @Test
     public void sendTokenStateChangedBroadcastsIntent() {
