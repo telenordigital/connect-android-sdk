@@ -63,6 +63,32 @@ public class ConnectUtilsTest {
     }
 
     @Test
+    public void successfulCallbackUrlCallsCallbackOnSuccessWithMap() {
+        PowerMockito.mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
+
+        final String value1 = "something";
+        final String value2 = "something else";
+        String uri = new Uri.Builder()
+                .appendQueryParameter("code", value1)
+                .appendQueryParameter("state", value2)
+                .build()
+                .toString();
+
+        ConnectCallback mock = mock(ConnectCallback.class);
+
+        ConnectUtils.parseAuthCode(uri, mock);
+        verify(mock).onSuccess(argThat(new ArgumentMatcher<Object>() {
+            @Override
+            public boolean matches(Object argument) {
+                Map<String, String> stringMap = (Map<String, String>) argument;
+                return stringMap.get("code").equals(value1)
+                        && stringMap.get("state").equals(value2);
+            }
+        }));
+    }
+
+    @Test
     public void sendTokenStateChangedBroadcastsIntent() {
         PowerMockito.mockStatic(LocalBroadcastManager.class);
 
