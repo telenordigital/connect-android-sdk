@@ -25,7 +25,7 @@ public abstract class ConnectTokensStateTracker {
      * The constructor.
      */
     public ConnectTokensStateTracker() {
-        Validator.SdkInitialized();
+        Validator.sdkInitialized();
 
         this.receiver = new CurrentTokenStateBroadcastReceiver();
         this.broadcastManager = LocalBroadcastManager.getInstance(

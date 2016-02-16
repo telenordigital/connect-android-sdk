@@ -42,7 +42,7 @@ public class SignedInActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                Validator.SdkInitialized();
+                Validator.sdkInitialized();
 
                 Map<String, String> parameters = new HashMap<>();
                 parameters.put("acr_values", "2");

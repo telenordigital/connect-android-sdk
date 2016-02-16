@@ -119,7 +119,7 @@ public class ConnectIdService {
                 ConnectSdk.getClientId(), new Callback<ConnectTokens>() {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
-                        Validator.ValidateTokens(connectTokens);
+                        Validator.validateTokens(connectTokens);
                         storeTokens(connectTokens);
                         ConnectUtils.sendTokenStateChanged(true);
                         if (callback != null) {
@@ -193,7 +193,7 @@ public class ConnectIdService {
                 ConnectSdk.getClientId(), new Callback<ConnectTokens>() {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
-                        Validator.ValidateTokens(connectTokens);
+                        Validator.validateTokens(connectTokens);
                         storeTokens(connectTokens);
                         callback.onSuccess(connectTokens);
                     }

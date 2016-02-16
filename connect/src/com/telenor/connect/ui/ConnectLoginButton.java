@@ -68,7 +68,7 @@ public class ConnectLoginButton extends ConnectButton {
 
         @Override
         public void onClick(View v) {
-            Validator.SdkInitialized();
+            Validator.sdkInitialized();
 
             Map<String, String> parameters = new HashMap<>();
             if (getAcrValues() != null && !getAcrValues().isEmpty()) {

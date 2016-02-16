@@ -18,14 +18,14 @@ public class Validator {
         }
     }
 
-    public static void SdkInitialized() {
+    public static void sdkInitialized() {
         if (!ConnectSdk.isInitialized()) {
             throw new ConnectNotInitializedException("The SDK was not initialized, call " +
                     "ConnectSdk.sdkInitialize() first");
         }
     }
 
-    public static void ValidateAuthenticationState(String state) {
+    public static void validateAuthenticationState(String state) {
         if (ConnectSdk.getLastAuthenticationState() != null &&
                 !ConnectSdk.getLastAuthenticationState().isEmpty() &&
                 !ConnectSdk.getLastAuthenticationState().equals(state)) {
@@ -34,7 +34,7 @@ public class Validator {
         }
     }
 
-    public static void ValidateTokens(ConnectTokens tokens) {
+    public static void validateTokens(ConnectTokens tokens) {
         notNullOrEmpty(tokens.accessToken, "access_token");
         notNull(tokens.expiresIn, "expires_in");
         notNullOrEmpty(tokens.refreshToken, "refresh_token");

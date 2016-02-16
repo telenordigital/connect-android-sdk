@@ -147,37 +147,37 @@ public final class ConnectSdk {
     }
 
     public static Context getContext() {
-        Validator.SdkInitialized();
+        Validator.sdkInitialized();
         return sContext;
     }
 
     public static String getClientId() {
-        Validator.SdkInitialized();
+        Validator.sdkInitialized();
         return sClientId;
     }
 
     public static String getLastAuthenticationState() {
-        Validator.SdkInitialized();
+        Validator.sdkInitialized();
         return sLastAuthState;
     }
 
     public static ArrayList<Locale> getLocales() {
-        Validator.SdkInitialized();
+        Validator.sdkInitialized();
         return sLocales;
     }
 
     public static String getPaymentCancelUri() {
-        Validator.SdkInitialized();
+        Validator.sdkInitialized();
         return sPaymentCancelUri;
     }
 
     public static String getPaymentSuccessUri() {
-        Validator.SdkInitialized();
+        Validator.sdkInitialized();
         return sPaymentSuccessUri;
     }
 
     public static String getRedirectUri() {
-        Validator.SdkInitialized();
+        Validator.sdkInitialized();
         return sRedirectUri;
     }
 
@@ -195,7 +195,7 @@ public final class ConnectSdk {
     }
 
     public static void initializePayment(Context context, String transactionLocation) {
-        Validator.SdkInitialized();
+        Validator.sdkInitialized();
         if (ConnectSdk.getPaymentSuccessUri() == null
                 || ConnectSdk.getPaymentCancelUri() == null ) {
             throw new ConnectException("Payment success or cancel URI not specified in application"

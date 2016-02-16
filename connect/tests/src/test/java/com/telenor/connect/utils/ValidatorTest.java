@@ -1,0 +1,156 @@
+package com.telenor.connect.utils;
+
+import com.telenor.connect.ConnectException;
+import com.telenor.connect.ConnectNotInitializedException;
+import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.id.ConnectTokens;
+import com.telenor.connect.id.IdToken;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.BDDMockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ConnectSdk.class, IdTokenValidator.class})
+public class ValidatorTest {
+
+    @Test(expected = NullPointerException.class)
+    public void nullArgumentOnNotNullValidationThrows() {
+        Validator.notNull(null, "some var");
+    }
+
+    @Test
+    public void notNullArgumentOnNotNullValidationDoesNothing() {
+        Validator.notNull(new Object(), "some var");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void notNullOrEmptyThrowsOnNull() {
+        Validator.notNullOrEmpty(null, "some var");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void notNullOrEmptyThrowsOnEmpty() {
+        Validator.notNullOrEmpty("", "some var");
+    }
+
+    @Test(expected = ConnectNotInitializedException.class)
+    public void notInitializedSdkThrows() {
+        PowerMockito.mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.isInitialized()).willReturn(false);
+
+        Validator.sdkInitialized();
+    }
+
+    public void initializedSdkDoesNotThrow() {
+        PowerMockito.mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
+
+        Validator.sdkInitialized();
+    }
+
+    @Test(expected = ConnectException.class)
+    public void validateAuthenticationStateThrowsOnUnEqualState() {
+        PowerMockito.mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn("some state");
+
+        Validator.validateAuthenticationState("not same state");
+    }
+
+    public void validateAuthenticationStateDoesNotThrowOnEqualState() {
+        PowerMockito.mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn("some state");
+
+        Validator.validateAuthenticationState("some state");
+    }
+
+    @Test
+    public void validateTokensChecksAllConnectTokensFields() {
+        PowerMockito.mockStatic(IdTokenValidator.class);
+
+        ConnectTokens connectTokens = new ConnectTokens(
+                "access",
+                123,
+                new IdToken("something"),
+                "refresh",
+                "scope",
+                "type");
+
+        Validator.validateTokens(connectTokens);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateTokensMissingAccessTokenThrows() {
+        PowerMockito.mockStatic(IdTokenValidator.class);
+
+        ConnectTokens connectTokens = new ConnectTokens(
+                null,
+                123,
+                new IdToken("something"),
+                "refresh",
+                "scope",
+                "type");
+
+        Validator.validateTokens(connectTokens);
+    }
+
+    public void validateTokensMissingIdTokenIsAllowed() {
+        ConnectTokens connectTokens = new ConnectTokens(
+                "access",
+                123,
+                null,
+                "refresh",
+                "scope",
+                "type");
+
+        Validator.validateTokens(connectTokens);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateTokensMissingRefreshTokenThrows() {
+        PowerMockito.mockStatic(IdTokenValidator.class);
+
+        ConnectTokens connectTokens = new ConnectTokens(
+                "access",
+                123,
+                new IdToken("something"),
+                null,
+                "scope",
+                "type");
+
+        Validator.validateTokens(connectTokens);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateTokensMissingScopeThrows() {
+        PowerMockito.mockStatic(IdTokenValidator.class);
+
+        ConnectTokens connectTokens = new ConnectTokens(
+                "access",
+                123,
+                new IdToken("something"),
+                "refresh",
+                null,
+                "type");
+
+        Validator.validateTokens(connectTokens);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateTokensMissingTokenTypeThrows() {
+        PowerMockito.mockStatic(IdTokenValidator.class);
+
+        ConnectTokens connectTokens = new ConnectTokens(
+                "access",
+                123,
+                new IdToken("something"),
+                "refresh",
+                "scope",
+                null);
+
+        Validator.validateTokens(connectTokens);
+    }
+}
