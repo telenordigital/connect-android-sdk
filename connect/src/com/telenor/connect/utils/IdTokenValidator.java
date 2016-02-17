@@ -28,7 +28,7 @@ public class IdTokenValidator {
 
         final String iss = idTokenClaimsSet.getIssuer();
         final String expectedIssuer
-                = ConnectSdk.getConnectApiUrl().toString() + ConnectSdk.OAUTH_PATH;
+                = ConnectSdk.getConnectApiUrl().toString() + ConnectUrlHelper.OAUTH_PATH;
         if (!expectedIssuer.equals(iss)) {
             throw new ConnectException(
                     "ID token issuer is not the same as the issuer this client is configured with."

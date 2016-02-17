@@ -2,12 +2,21 @@ package com.telenor.connect.utils;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+
+import com.squareup.okhttp.HttpUrl;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -123,4 +132,45 @@ public class ConnectUrlHelperTest {
         ConnectUrlHelper.getPageUrl(arguments, null);
     }
 
+    @Test
+    public void getAuthorizeUriMatchesOauthStandard() {
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("scope", "profile");
+        parameters.put("state", "abc123def456");
+
+        ArrayList<String> locales = new ArrayList<>();
+        locales.add(Locale.ENGLISH.getLanguage());
+
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("connect.telenordigital.com")
+                .build();
+
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(
+                parameters,
+                "client-id-example",
+                "redirect-url://here",
+                locales,
+                url);
+
+        Uri expected
+                = Uri.parse("https://connect.telenordigital.com/oauth/authorize" +
+                "?ui_locales=en" +
+                "&scope=profile" +
+                "&response_type=code" +
+                "&redirect_uri=redirect-url%3A%2F%2Fhere" +
+                "&state=abc123def456" +
+                "&client_id=client-id-example");
+
+        Set<String> expectedQueryParameterNames = expected.getQueryParameterNames();
+
+        for (String query : expectedQueryParameterNames){
+            assertThat(
+                    authorizeUri.getQueryParameter(query), is(expected.getQueryParameter(query)));
+        }
+
+        assertThat(authorizeUri.getScheme(), is(expected.getScheme()));
+        assertThat(authorizeUri.getAuthority(), is(expected.getAuthority()));
+        assertThat(authorizeUri.getPath(), is(expected.getPath()));
+    }
 }

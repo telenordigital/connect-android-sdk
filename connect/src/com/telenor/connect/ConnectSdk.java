@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.ui.ConnectActivity;
+import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
@@ -69,8 +70,6 @@ public final class ConnectSdk {
     public static final String EXTRA_PAYMENT_LOCATION =
             "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
 
-    public static final String OAUTH_PATH = "oauth";
-
     public static synchronized void authenticate(
             Activity activity,
             int requestCode,
@@ -90,7 +89,7 @@ public final class ConnectSdk {
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI,
-                getAuthorizeUri(parameters).toString());
+                getAuthorizeUriAndSetLastAuthState(parameters).toString());
         activity.startActivityForResult(intent, requestCode);
     }
 
@@ -102,7 +101,8 @@ public final class ConnectSdk {
         ConnectIdService.getAccessTokenFromCode(code, callback);
     }
 
-    public static synchronized Uri getAuthorizeUri(Map<String, String> parameters) {
+    public static synchronized Uri getAuthorizeUriAndSetLastAuthState(
+            Map<String, String> parameters) {
         if (ConnectSdk.getClientId() == null) {
             throw new ConnectException("Client ID not specified in application manifest.");
         }
@@ -119,28 +119,18 @@ public final class ConnectSdk {
         }
         sLastAuthState = parameters.get("state");
 
-        Map<String, String> authParameters = new HashMap<String, String>();
-        authParameters.put("response_type", "code");
-        authParameters.put("client_id", ConnectSdk.getClientId());
-        authParameters.put("redirect_uri", ConnectSdk.getRedirectUri());
-        authParameters.put("ui_locales", TextUtils.join(" ", getUiLocales()));
-
-        authParameters.putAll(parameters);
-
-        Uri.Builder builder = new Uri.Builder();
-        builder.encodedPath(getConnectApiUrl().toString())
-                .appendPath(OAUTH_PATH)
-                .appendPath("authorize");
-        for (Map.Entry<String, String> entry : authParameters.entrySet()) {
-            builder.appendQueryParameter(entry.getKey(), entry.getValue());
-        }
-        return builder.build();
+        return ConnectUrlHelper.getAuthorizeUri(
+                parameters,
+                getClientId(),
+                getRedirectUri(),
+                getUiLocales(),
+                getConnectApiUrl());
     }
 
     public static HttpUrl getConnectApiUrl() {
         HttpUrl.Builder builder = new HttpUrl.Builder();
         builder.scheme("https");
-        builder.host(sUseStaging == true
+        builder.host(sUseStaging
                 ? "connect.staging.telenordigital.com"
                 : "connect.telenordigital.com");
         return builder.build();
