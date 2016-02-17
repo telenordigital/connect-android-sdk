@@ -58,41 +58,36 @@ public class ConnectIdService {
                 ResponseCallback callback);
     }
 
-    private static RestAdapter sConnectAdapter;
     private static ConnectAPI sConnectApi;
-    private static RequestInterceptor sConnectRetroFitInterceptor;
-    private static HttpUrl sConnectUrl;
-    private static Gson sGson;
-    private static OkHttpClient sHttpClient;
 
     private static ConnectIdService instance = null;
     private static ConnectTokens sCurrentTokens;
 
     private ConnectIdService() {
-        sConnectUrl = ConnectSdk.getConnectApiUrl();
+        final HttpUrl connectUrl = ConnectSdk.getConnectApiUrl();
 
-        sHttpClient = new OkHttpClient();
-        sHttpClient.setConnectTimeout(10, TimeUnit.SECONDS);
-        sHttpClient.setReadTimeout(10, TimeUnit.SECONDS);
-        sHttpClient.setWriteTimeout(10, TimeUnit.SECONDS);
+        final OkHttpClient httpClient = new OkHttpClient();
+        httpClient.setConnectTimeout(10, TimeUnit.SECONDS);
+        httpClient.setReadTimeout(10, TimeUnit.SECONDS);
+        httpClient.setWriteTimeout(10, TimeUnit.SECONDS);
 
-        sGson = new GsonBuilder()
+        final Gson gson = new GsonBuilder()
                 .registerTypeAdapter(IdToken.class, new IdTokenDeserializer())
                 .create();
 
-        sConnectRetroFitInterceptor = new RequestInterceptor() {
+        final RequestInterceptor sConnectRetroFitInterceptor = new RequestInterceptor() {
             @Override
             public void intercept(RequestFacade request) {
                 request.addHeader("Accept", "application/json");
             }
         };
 
-        sConnectAdapter = new RestAdapter.Builder()
-                .setClient(new OkClient(sHttpClient))
-                .setEndpoint(sConnectUrl.toString())
+        final RestAdapter sConnectAdapter = new RestAdapter.Builder()
+                .setClient(new OkClient(httpClient))
+                .setEndpoint(connectUrl.toString())
                 .setRequestInterceptor(sConnectRetroFitInterceptor)
                 .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setConverter(new GsonConverter(sGson))
+                .setConverter(new GsonConverter(gson))
                 .build();
 
         sConnectApi = sConnectAdapter.create(ConnectAPI.class);
