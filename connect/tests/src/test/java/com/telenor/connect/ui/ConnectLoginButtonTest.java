@@ -5,14 +5,12 @@ import android.content.Intent;
 
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.TestActivity;
 import com.telenor.connect.tests.R;
 import com.telenor.connect.utils.ConnectUtils;
-import com.telenor.connect.TestActivity;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.Robolectric;
@@ -27,24 +25,21 @@ import static org.robolectric.Shadows.shadowOf;
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
 public class ConnectLoginButtonTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void before() {
         Whitebox.setInternalState(ConnectSdk.class, "sSdkInitialized", false);
     }
 
-    @Test
-    public void testLoginButtonClickWithoutInitializingSdk() {
-        thrown.expect(ConnectNotInitializedException.class);
+    @Test(expected = ConnectNotInitializedException.class)
+    public void clickingLoginButtonBeforeInitializingSdkThrows() {
         Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
         ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);
         button.performClick();
     }
 
     @Test
-    public void testLoginButtonClickWithInitializedSdk() {
+    public void clickingLoginButtonWithInitializedSdkStartsConnectActivity() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
         ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);
