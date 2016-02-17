@@ -1,39 +1,48 @@
 package com.telenor.connect;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
+@PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*" })
 public class ConnectSdkTest {
+
+    @Rule
+    public PowerMockRule rule = new PowerMockRule(); // needed to activate PowerMock
+
     @Before
     public void before() {
         Whitebox.setInternalState(ConnectSdk.class, "sSdkInitialized", false);
     }
 
     @Test
-    public void testProductionByDefault() {
-        assertEquals("https://connect.telenordigital.com/",
-                ConnectSdk.getConnectApiUrl().toString());
+    public void getConnectApiUrlReturnsProductionByDefault() {
+        assertThat(ConnectSdk.getConnectApiUrl().toString(),
+                is("https://connect.telenordigital.com/"));
     }
 
     @Test
-    public void testGetClientId() {
+    public void getsClientIdFromApplicationInfoMetaData() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
-        assertEquals("connect-tests", ConnectSdk.getClientId());
+        assertThat(ConnectSdk.getClientId(), is("connect-tests"));
     }
 
     @Test
-    public void testGetRedirectUri() {
+    public void getsRedirectUriFromApplicationInfoMetaData() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
-        assertEquals("connect-tests://oauth2callback", ConnectSdk.getRedirectUri());
+        assertThat(ConnectSdk.getRedirectUri(), is("connect-tests://oauth2callback"));
     }
 
 }
