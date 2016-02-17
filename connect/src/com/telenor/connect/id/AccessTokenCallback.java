@@ -25,30 +25,15 @@ public class AccessTokenCallback implements ConnectCallback {
 
         Map<String, String> authCodeData = (Map<String, String>) successData;
         if (ConnectSdk.isConfidentialClient()) {
-            // When the client is confidential: exit here and return code and state.
             Intent intent = new Intent();
             for (Map.Entry<String, String> entry : authCodeData.entrySet()) {
                 intent.putExtra(entry.getKey(), entry.getValue());
             }
             activity.setResult(Activity.RESULT_OK, intent);
             activity.finish();
-
         } else {
-            ConnectIdService.getAccessTokenFromCode(authCodeData.get("code"),
-                    new ConnectCallback() {
-                        @Override
-                        public void onSuccess(Object successData) {
-                            activity.setResult(Activity.RESULT_OK);
-                            activity.finish();
-                        }
-
-                        @Override
-                        public void onError(Object errorData) {
-                            Log.e(ConnectUtils.LOG_TAG, errorData.toString());
-                            activity.setResult(Activity.RESULT_CANCELED);
-                            activity.finish();
-                        }
-                    });
+            ConnectIdService.getAccessTokenFromCode(
+                    authCodeData.get("code"), new ActivityFinisherConnectCallback(activity));
         }
     }
 
