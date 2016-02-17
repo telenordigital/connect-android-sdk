@@ -2,43 +2,27 @@ package com.telenor.connect.ui;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsCursorUtil;
 import com.telenor.connect.sms.SmsHandler;
 import com.telenor.connect.sms.SmsPinParseUtil;
+import com.telenor.connect.utils.GetAccessTokenConnectCallback;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
-import com.telenor.connect.utils.Validator;
 
 import java.util.List;
-import java.util.Map;
 
 public class ConnectWebViewClient extends WebViewClient implements SmsHandler, InstructionHandler {
-
-    private final IntentFilter SMS_FILTER
-            = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-    private boolean waitingForPinSms = false;
-    private final Activity activity;
-    private final View loadingView;
-    private final View errorView;
-    private final WebView webView;
-    private final SmsBroadcastReceiver smsBroadcastReceiver;
-    private long pageLoadStarted;
-    private Instruction callbackInstruction;
-    private boolean instructionsReceived;
 
     private static final int RACE_CONDITION_DELAY_CHECK_ALREADY_RECEIVED_SMS = 700;
     private static long CHECK_FOR_SMS_BACK_IN_TIME_MILLIS = 2500;
@@ -47,6 +31,19 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             = "javascript:window.AndroidInterface.processInstructions(document.getElementById"
             + "('android-instructions').innerHTML);";
 
+    private final IntentFilter SMS_FILTER
+            = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+    private final Activity activity;
+    private final View loadingView;
+    private final View errorView;
+    private final WebView webView;
+    private final SmsBroadcastReceiver smsBroadcastReceiver;
+    private final ConnectCallback connectCallback;
+
+    private boolean waitingForPinSms = false;
+    private boolean instructionsReceived;
+    private long pageLoadStarted;
+    private Instruction callbackInstruction;
 
     public ConnectWebViewClient(
             Activity activity,
@@ -58,60 +55,14 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         this.loadingView = loadingView;
         this.errorView = errorView;
         this.smsBroadcastReceiver = new SmsBroadcastReceiver(this);
+        this.connectCallback = new GetAccessTokenConnectCallback(activity);
     }
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         if (ConnectSdk.getRedirectUri() != null
                 && url.startsWith(ConnectSdk.getRedirectUri())) {
-            ConnectUtils.parseAuthCode(url, new ConnectCallback() {
-                @Override
-                public void onSuccess(Object successData) {
-                    Validator.notNullOrEmpty(successData.toString(), "auth reponse");
-
-                    Map<String, String> authCodeData = (Map<String, String>) successData;
-                    if (ConnectSdk.isConfidentialClient()) {
-                        // When the client is confidential: exit here and return code and state.
-                        Intent intent = new Intent();
-                        for (Map.Entry<String, String> entry : authCodeData.entrySet())
-                        {
-                            intent.putExtra(entry.getKey(), entry.getValue());
-                        }
-                        activity.setResult(Activity.RESULT_OK, intent);
-                        activity.finish();
-
-                    } else {
-                        ConnectIdService.getAccessTokenFromCode(authCodeData.get("code"),
-                                new ConnectCallback() {
-                                    @Override
-                                    public void onSuccess(Object successData) {
-                                        activity.setResult(Activity.RESULT_OK);
-                                        activity.finish();
-                                    }
-
-                                    @Override
-                                    public void onError(Object errorData) {
-                                        Log.e(ConnectUtils.LOG_TAG, errorData.toString());
-                                        activity.setResult(Activity.RESULT_CANCELED);
-                                        activity.finish();
-                                    }
-                                });
-                    }
-                }
-
-                @Override
-                public void onError(Object errorData) {
-                    Log.e(ConnectUtils.LOG_TAG, errorData.toString());
-                    Intent intent = new Intent();
-                    Map<String, String> authCodeData = (Map<String, String>) errorData;
-                    for (Map.Entry<String, String> entry : authCodeData.entrySet())
-                    {
-                        intent.putExtra(entry.getKey(), entry.getValue());
-                    }
-                    activity.setResult(Activity.RESULT_CANCELED, intent);
-                    activity.finish();
-                }
-            });
+            ConnectUtils.parseAuthCode(url, connectCallback);
             return true;
         }
         if (ConnectSdk.getPaymentCancelUri() != null
