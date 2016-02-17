@@ -9,7 +9,7 @@ import android.webkit.WebView;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.utils.ConnectUtils;
-import com.telenor.connect.utils.GetAccessTokenConnectCallback;
+import com.telenor.connect.id.AccessTokenCallback;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -180,7 +180,7 @@ public class ConnectWebViewClientTest {
 
         mockStatic(ConnectUtils.class);
         doNothing().when(ConnectUtils.class);
-        ConnectUtils.parseAuthCode(eq("redirect-uri"), any(GetAccessTokenConnectCallback.class));
+        ConnectUtils.parseAuthCode(eq("redirect-uri"), any(AccessTokenCallback.class));
 
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
@@ -196,6 +196,6 @@ public class ConnectWebViewClientTest {
 
         assertThat(result, is(true));
         verifyStatic();
-        ConnectUtils.parseAuthCode(eq("redirect-uri"), any(GetAccessTokenConnectCallback.class));
+        ConnectUtils.parseAuthCode(eq("redirect-uri"), any(AccessTokenCallback.class));
     }
 }

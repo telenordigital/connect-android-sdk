@@ -1,4 +1,4 @@
-package com.telenor.connect.utils;
+package com.telenor.connect.id;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,15 +6,16 @@ import android.util.Log;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.id.ConnectIdService;
+import com.telenor.connect.utils.ConnectUtils;
+import com.telenor.connect.utils.Validator;
 
 import java.util.Map;
 
-public class GetAccessTokenConnectCallback implements ConnectCallback {
+public class AccessTokenCallback implements ConnectCallback {
 
     private final Activity activity;
 
-    public GetAccessTokenConnectCallback(final Activity activity) {
+    public AccessTokenCallback(final Activity activity) {
         this.activity = activity;
     }
 

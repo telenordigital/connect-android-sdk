@@ -16,7 +16,7 @@ import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsCursorUtil;
 import com.telenor.connect.sms.SmsHandler;
 import com.telenor.connect.sms.SmsPinParseUtil;
-import com.telenor.connect.utils.GetAccessTokenConnectCallback;
+import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 
@@ -55,7 +55,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         this.loadingView = loadingView;
         this.errorView = errorView;
         this.smsBroadcastReceiver = new SmsBroadcastReceiver(this);
-        this.connectCallback = new GetAccessTokenConnectCallback(activity);
+        this.connectCallback = new AccessTokenCallback(activity);
     }
 
     @Override
