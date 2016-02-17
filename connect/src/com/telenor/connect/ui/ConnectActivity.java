@@ -7,9 +7,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
-import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 
 public class ConnectActivity extends FragmentActivity {
@@ -31,9 +31,9 @@ public class ConnectActivity extends FragmentActivity {
         if (fragment == null) {
             fragment = new ConnectWebFragment();
             Bundle b = new Bundle();
-            b.putString(ConnectWebFragment.ACTION_ARGUMENT, action);
+            b.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
             if (action.equals(ConnectUtils.PAYMENT_ACTION)) {
-                b.putString(ConnectWebFragment.URL_ARGUMENT,
+                b.putString(ConnectUrlHelper.URL_ARGUMENT,
                         intent.getStringExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION));
             }
             fragment.setArguments(b);
