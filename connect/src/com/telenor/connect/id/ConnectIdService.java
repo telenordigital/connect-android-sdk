@@ -2,6 +2,7 @@ package com.telenor.connect.id;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -22,41 +23,11 @@ import retrofit.RetrofitError;
 import retrofit.client.OkClient;
 import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
-import retrofit.http.Field;
-import retrofit.http.FormUrlEncoded;
-import retrofit.http.Headers;
-import retrofit.http.POST;
 
 public class ConnectIdService {
 
-    private interface ConnectAPI {
-        @FormUrlEncoded
-        @Headers("Content-Type: application/x-www-form-urlencoded")
-        @POST("/oauth/token")
-        void getAccessTokens(
-                @Field("grant_type") String grant_type,
-                @Field("code") String code,
-                @Field("redirect_uri") String redirect_uri,
-                @Field("client_id") String client_id,
-                Callback<ConnectTokens> tokens);
-
-        @FormUrlEncoded
-        @Headers("Content-Type: application/x-www-form-urlencoded")
-        @POST("/oauth/token")
-        void refreshAccessTokens(
-                @Field("grant_type") String grant_type,
-                @Field("refresh_token") String refresh_token,
-                @Field("client_id") String client_id,
-                Callback<ConnectTokens> tokens);
-
-        @FormUrlEncoded
-        @Headers("Content-Type: application/x-www-form-urlencoded")
-        @POST("/oauth/revoke")
-        void revokeToken(
-                @Field("client_id") String client_id,
-                @Field("token") String token,
-                ResponseCallback callback);
-    }
+    private static final String PREFERENCE_KEY_CONNECT_TOKENS = "CONNECT_TOKENS";
+    private static final Gson preferencesGson = new Gson();
 
     private static ConnectAPI sConnectApi;
     private static ConnectIdService instance = null;
@@ -118,7 +89,7 @@ public class ConnectIdService {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
                         Validator.validateTokens(connectTokens);
-                        storeTokens(connectTokens);
+                        storeAndSetTokens(connectTokens);
                         ConnectUtils.sendTokenStateChanged(true);
                         if (callback != null) {
                             callback.onSuccess(connectTokens);
@@ -147,42 +118,46 @@ public class ConnectIdService {
     }
 
     public static void revokeTokens() {
-        getConnectApi().revokeToken(ConnectSdk.getClientId(), getAccessToken(), new ResponseCallback() {
+        getConnectApi().revokeToken(
+                ConnectSdk.getClientId(),
+                getAccessToken(),
+                new ResponseCallback() {
             @Override
             public void success(Response response) {
             }
 
             @Override
             public void failure(RetrofitError error) {
+                Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke access token on API", error);
             }
         });
-        getConnectApi().revokeToken(ConnectSdk.getClientId(), getRefreshToken(), new ResponseCallback() {
+        getConnectApi().revokeToken(
+                ConnectSdk.getClientId(),
+                getRefreshToken(),
+                new ResponseCallback() {
             @Override
             public void success(Response response) {
             }
 
             @Override
             public void failure(RetrofitError error) {
+                Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke refresh token on API", error);
             }
         });
         deleteStoredTokens();
         ConnectUtils.sendTokenStateChanged(false);
     }
 
-    public static void storeTokens(ConnectTokens tokens) {
+    public static void storeAndSetTokens(ConnectTokens connectTokens) {
         SharedPreferences prefs = ConnectSdk.getContext()
                 .getSharedPreferences(ConnectUtils.PREFERENCES_FILE, Context.MODE_PRIVATE);
         SharedPreferences.Editor e = prefs.edit();
-        e.putString(ConnectTokens.ACCESS_TOKEN_STRING, tokens.accessToken);
-        e.putLong(ConnectTokens.EXPIRES_IN_LONG, tokens.expiresIn);
-        e.putString(ConnectTokens.REFRESH_TOKEN_STRING, tokens.refreshToken);
-        e.putString(ConnectTokens.SCOPE_STRING, tokens.scope);
-        e.putString(ConnectTokens.TOKEN_TYPE_STRING, tokens.tokenType);
-        if (tokens.idToken != null) {
-            e.putString(ConnectTokens.ID_TOKEN_STRING, tokens.idToken.toString());
-        }
+
+        String jsonConnectTokens = preferencesGson.toJson(connectTokens);
+        e.putString(PREFERENCE_KEY_CONNECT_TOKENS, jsonConnectTokens);
+
         e.apply();
-        sCurrentTokens = tokens;
+        sCurrentTokens = connectTokens;
     }
 
     public void updateTokens(final ConnectCallback callback) {
@@ -191,7 +166,7 @@ public class ConnectIdService {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
                         Validator.validateTokens(connectTokens);
-                        storeTokens(connectTokens);
+                        storeAndSetTokens(connectTokens);
                         callback.onSuccess(connectTokens);
                     }
 
@@ -219,15 +194,10 @@ public class ConnectIdService {
         if (sCurrentTokens == null) {
             SharedPreferences prefs = ConnectSdk.getContext()
                     .getSharedPreferences(ConnectUtils.PREFERENCES_FILE, Context.MODE_PRIVATE);
-            if (prefs.getString(ConnectTokens.ACCESS_TOKEN_STRING, null) != null) {
-                sCurrentTokens = new ConnectTokens(
-                        prefs.getString(ConnectTokens.ACCESS_TOKEN_STRING, null),
-                        prefs.getLong(ConnectTokens.EXPIRES_IN_LONG, 0),
-                        new IdToken(prefs.getString(ConnectTokens.ID_TOKEN_STRING, null)),
-                        prefs.getString(ConnectTokens.REFRESH_TOKEN_STRING, null),
-                        prefs.getString(ConnectTokens.SCOPE_STRING, null),
-                        prefs.getString(ConnectTokens.TOKEN_TYPE_STRING, null));
-            }
+
+            String connectTokensJson = prefs.getString(PREFERENCE_KEY_CONNECT_TOKENS, null);
+            ConnectTokens connectTokens = preferencesGson.fromJson(connectTokensJson, ConnectTokens.class);
+            sCurrentTokens = connectTokens;
         }
         return sCurrentTokens;
     }
