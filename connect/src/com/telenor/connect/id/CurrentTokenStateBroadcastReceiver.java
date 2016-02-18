@@ -9,17 +9,17 @@ import com.telenor.connect.utils.ConnectUtils;
 
 public class CurrentTokenStateBroadcastReceiver extends BroadcastReceiver {
 
-    private final ConnectTokensStateTracker connectTokensStateTracker;
+    private final ConnectTokensStateTracker listener;
 
-    public CurrentTokenStateBroadcastReceiver(ConnectTokensStateTracker connectTokensStateTracker) {
-        this.connectTokensStateTracker = connectTokensStateTracker;
+    public CurrentTokenStateBroadcastReceiver(ConnectTokensStateTracker listener) {
+        this.listener = listener;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (ConnectSdk.ACTION_LOGIN_STATE_CHANGED.equals(intent.getAction())) {
             boolean newState = intent.getBooleanExtra(ConnectUtils.LOGIN_STATE, false);
-            connectTokensStateTracker.onTokenStateChanged(newState);
+            listener.onTokenStateChanged(newState);
         }
     }
 }
