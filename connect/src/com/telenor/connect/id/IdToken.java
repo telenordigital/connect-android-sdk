@@ -1,6 +1,9 @@
 package com.telenor.connect.id;
 
-public class IdToken {
+import java.io.Serializable;
+
+public class IdToken implements Serializable {
+
     private final String serializedSignedJwt;
 
     public IdToken(String serializedSignedJwt) {

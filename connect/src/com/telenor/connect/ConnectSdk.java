@@ -70,6 +70,9 @@ public final class ConnectSdk {
     public static final String EXTRA_PAYMENT_LOCATION =
             "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
 
+    public static final String EXTRA_CONNECT_TOKENS =
+            "com.telenor.connect.EXTRA_CONNECT_TOKENS";
+
     public static synchronized void authenticate(
             Activity activity,
             int requestCode,

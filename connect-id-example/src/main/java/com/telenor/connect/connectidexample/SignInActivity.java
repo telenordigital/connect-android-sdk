@@ -14,13 +14,12 @@ public class SignInActivity extends Activity {
         setContentView(R.layout.activity_sign_in);
 
         ConnectLoginButton loginButton = (ConnectLoginButton) findViewById(R.id.login_button);
-        loginButton.setLoginScopeTokens("profile");
+        loginButton.setLoginScopeTokens("profile openid");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (resultCode == Activity.RESULT_OK) {
             Intent intent = new Intent(getApplicationContext(), SignedInActivity.class);
             startActivity(intent);

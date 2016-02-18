@@ -59,7 +59,6 @@ public class ConnectIdService {
     }
 
     private static ConnectAPI sConnectApi;
-
     private static ConnectIdService instance = null;
     private static ConnectTokens sCurrentTokens;
 
@@ -110,15 +109,19 @@ public class ConnectIdService {
     public static void getAccessTokenFromCode(
             final String authCode,
             final ConnectCallback callback) {
-        getConnectApi().getAccessTokens("authorization_code", authCode, ConnectSdk.getRedirectUri(),
-                ConnectSdk.getClientId(), new Callback<ConnectTokens>() {
+        getConnectApi().getAccessTokens(
+                "authorization_code",
+                authCode,
+                ConnectSdk.getRedirectUri(),
+                ConnectSdk.getClientId(),
+                new Callback<ConnectTokens>() {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
                         Validator.validateTokens(connectTokens);
                         storeTokens(connectTokens);
                         ConnectUtils.sendTokenStateChanged(true);
                         if (callback != null) {
-                            callback.onSuccess(connectTokens.accessToken);
+                            callback.onSuccess(connectTokens);
                         }
                     }
 
@@ -136,7 +139,6 @@ public class ConnectIdService {
         if (sConnectApi == null) {
             getInstance();
         }
-
         return sConnectApi;
     }
 

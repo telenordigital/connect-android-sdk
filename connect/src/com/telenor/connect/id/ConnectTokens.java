@@ -1,9 +1,10 @@
 package com.telenor.connect.id;
 
 import com.google.gson.annotations.SerializedName;
-import com.telenor.connect.utils.Validator;
 
-public final class ConnectTokens {
+import java.io.Serializable;
+
+public final class ConnectTokens implements Serializable {
     @SerializedName("access_token")
     public final String accessToken;
 
@@ -28,13 +29,13 @@ public final class ConnectTokens {
     public static final String SCOPE_STRING = "SCOPE_STRING";
     public static final String TOKEN_TYPE_STRING = "TOKEN_TYPE_STRING";
 
-    public ConnectTokens(String accessToken, long expiresIn, IdToken idToken, String refreshToken, String scope, String tokenType) {
-        Validator.notNullOrEmpty(accessToken, "access_token");
-        Validator.notNull(expiresIn, "expires_in");
-        Validator.notNullOrEmpty(refreshToken, "refresh_token");
-        Validator.notNullOrEmpty(scope, "scope");
-        Validator.notNullOrEmpty(tokenType, "token_type");
-
+    public ConnectTokens(
+            String accessToken,
+            long expiresIn,
+            IdToken idToken,
+            String refreshToken,
+            String scope,
+            String tokenType) {
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
         this.idToken = idToken;

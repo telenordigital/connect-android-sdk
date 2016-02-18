@@ -1,9 +1,11 @@
 package com.telenor.connect.id;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.util.Log;
 
 import com.telenor.connect.ConnectCallback;
+import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.utils.ConnectUtils;
 
 public class ActivityFinisherConnectCallback implements ConnectCallback {
@@ -16,7 +18,10 @@ public class ActivityFinisherConnectCallback implements ConnectCallback {
 
     @Override
     public void onSuccess(Object successData) {
-        activity.setResult(Activity.RESULT_OK);
+        ConnectTokens connectTokens = (ConnectTokens) successData;
+        Intent data = new Intent();
+        data.putExtra(ConnectSdk.EXTRA_CONNECT_TOKENS, connectTokens);
+        activity.setResult(Activity.RESULT_OK, data);
         activity.finish();
     }
 
