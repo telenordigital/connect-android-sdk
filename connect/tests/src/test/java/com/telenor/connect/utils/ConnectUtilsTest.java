@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.BDDMockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
@@ -22,10 +21,10 @@ import org.robolectric.annotation.Config;
 
 import java.util.Map;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
@@ -38,7 +37,7 @@ public class ConnectUtilsTest {
 
     @Test
     public void erroneousCallbackUrlCallsCallbackOnErrorWithMap() {
-        PowerMockito.mockStatic(ConnectSdk.class);
+        mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
 
         final String value1 = "something";
@@ -64,7 +63,7 @@ public class ConnectUtilsTest {
 
     @Test
     public void successfulCallbackUrlCallsCallbackOnSuccessWithMap() {
-        PowerMockito.mockStatic(ConnectSdk.class);
+        mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
 
         final String value1 = "something";
@@ -90,17 +89,16 @@ public class ConnectUtilsTest {
 
     @Test
     public void sendTokenStateChangedBroadcastsIntent() {
-        PowerMockito.mockStatic(LocalBroadcastManager.class);
-
-        PowerMockito.mockStatic(ConnectSdk.class);
+        mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
         Context context = mock(Context.class);
         BDDMockito.given(ConnectSdk.getContext()).willReturn(context);
 
+        mockStatic(LocalBroadcastManager.class);
         LocalBroadcastManager localBroadcastManager = mock(LocalBroadcastManager.class);
-        BDDMockito.given(LocalBroadcastManager.getInstance(any(Context.class)))
+        BDDMockito
+                .given(LocalBroadcastManager.getInstance(context))
                 .willReturn(localBroadcastManager);
-
 
         final boolean newState = true;
         ConnectUtils.sendTokenStateChanged(newState);

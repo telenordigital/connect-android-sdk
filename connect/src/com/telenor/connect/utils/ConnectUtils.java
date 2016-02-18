@@ -40,8 +40,8 @@ public class ConnectUtils {
     public static void sendTokenStateChanged(boolean state) {
         Validator.sdkInitialized();
 
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(
-                ConnectSdk.getContext());
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager
+                .getInstance(ConnectSdk.getContext());
         Intent intent = new Intent(ConnectSdk.ACTION_LOGIN_STATE_CHANGED);
         intent.putExtra(LOGIN_STATE, state);
         localBroadcastManager.sendBroadcast(intent);
