@@ -11,8 +11,13 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
 public abstract class ConnectTokensStateTracker {
+
+    private static final IntentFilter loginStateChangedFilter
+            = new IntentFilter(ConnectSdk.ACTION_LOGIN_STATE_CHANGED);
+
     private final BroadcastReceiver receiver;
     private final LocalBroadcastManager broadcastManager;
+
     private boolean isTracking = false;
 
     /**
@@ -25,8 +30,7 @@ public abstract class ConnectTokensStateTracker {
         Validator.sdkInitialized();
 
         this.receiver = new CurrentTokenStateBroadcastReceiver();
-        this.broadcastManager = LocalBroadcastManager.getInstance(
-                ConnectSdk.getContext());
+        this.broadcastManager = LocalBroadcastManager.getInstance(ConnectSdk.getContext());
 
         startTrackingAccessToken();
     }
@@ -37,10 +41,8 @@ public abstract class ConnectTokensStateTracker {
         }
 
         addBroadcastReceiver();
-
         isTracking = true;
-
-        onTokenStateChanged(ConnectSdk.getAccessToken() == null ? false : true);
+        onTokenStateChanged(ConnectSdk.getAccessToken() != null);
     }
 
     public void stopTrackingAccessToken() {
@@ -71,9 +73,6 @@ public abstract class ConnectTokensStateTracker {
     }
 
     private void addBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectSdk.ACTION_LOGIN_STATE_CHANGED);
-
-        broadcastManager.registerReceiver(receiver, filter);
+        broadcastManager.registerReceiver(receiver, loginStateChangedFilter);
     }
 }
