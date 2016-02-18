@@ -1,13 +1,10 @@
 package com.telenor.connect.id;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
 public abstract class ConnectTokensStateTracker {
@@ -29,7 +26,7 @@ public abstract class ConnectTokensStateTracker {
     public ConnectTokensStateTracker() {
         Validator.sdkInitialized();
 
-        this.receiver = new CurrentTokenStateBroadcastReceiver();
+        this.receiver = new CurrentTokenStateBroadcastReceiver(this);
         this.broadcastManager = LocalBroadcastManager.getInstance(ConnectSdk.getContext());
 
         startTrackingAccessToken();
@@ -59,16 +56,6 @@ public abstract class ConnectTokensStateTracker {
      */
     public boolean isTracking() {
         return isTracking;
-    }
-
-    private class CurrentTokenStateBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (ConnectSdk.ACTION_LOGIN_STATE_CHANGED.equals(intent.getAction())) {
-                boolean newState = intent.getBooleanExtra(ConnectUtils.LOGIN_STATE, false);
-                onTokenStateChanged(newState);
-            }
-        }
     }
 
     private void addBroadcastReceiver() {
