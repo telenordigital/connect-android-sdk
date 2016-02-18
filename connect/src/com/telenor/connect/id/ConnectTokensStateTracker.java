@@ -42,7 +42,6 @@ public abstract class ConnectTokensStateTracker {
 
         addBroadcastReceiver();
         isTracking = true;
-        onTokenStateChanged(ConnectSdk.getAccessToken() != null);
     }
 
     public void stopTrackingAccessToken() {

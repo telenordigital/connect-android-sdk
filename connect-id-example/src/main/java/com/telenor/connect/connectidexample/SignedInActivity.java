@@ -52,10 +52,14 @@ public class SignedInActivity extends Activity {
             }
         });
 
+        if (ConnectSdk.getAccessToken() == null) {
+            goToLogin();
+        }
+
         new ConnectTokensStateTracker() {
             @Override
             protected void onTokenStateChanged(boolean hasTokens) {
-                if (hasTokens == false) {
+                if (!hasTokens) {
                     goToLogin();
                 }
             }

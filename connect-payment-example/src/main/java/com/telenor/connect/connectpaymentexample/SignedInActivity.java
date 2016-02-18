@@ -36,10 +36,14 @@ public class SignedInActivity extends AppCompatActivity {
             }
         });
 
+        if (ConnectSdk.getAccessToken() == null) {
+            goToLogin();
+        }
+
         new ConnectTokensStateTracker() {
             @Override
             protected void onTokenStateChanged(boolean hasTokens) {
-                if (hasTokens == false) {
+                if (!hasTokens) {
                     goToLogin();
                 }
             }
