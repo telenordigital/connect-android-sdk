@@ -21,9 +21,6 @@ public abstract class ConnectTokensStateTracker {
      */
     protected abstract void onTokenStateChanged(boolean hasTokens);
 
-    /**
-     * The constructor.
-     */
     public ConnectTokensStateTracker() {
         Validator.sdkInitialized();
 
@@ -31,13 +28,10 @@ public abstract class ConnectTokensStateTracker {
         this.broadcastManager = LocalBroadcastManager.getInstance(
                 ConnectSdk.getContext());
 
-        startTracking();
+        startTrackingAccessToken();
     }
 
-    /**
-     * Starts tracking the current access token
-     */
-    public void startTracking() {
+    public void startTrackingAccessToken() {
         if (isTracking) {
             return;
         }
@@ -49,10 +43,7 @@ public abstract class ConnectTokensStateTracker {
         onTokenStateChanged(ConnectSdk.getAccessToken() == null ? false : true);
     }
 
-    /**
-     * Stops tracking the current access token.
-     */
-    public void stopTracking() {
+    public void stopTrackingAccessToken() {
         if (!isTracking) {
             return;
         }
