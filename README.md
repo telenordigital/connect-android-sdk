@@ -142,7 +142,7 @@ If you are developing a confidential client you should skip to [Next steps for c
 
 #### Keeping track of the login state
 
-The Connect SDK contains the `ConnectTokensStateTracker` class, which exposes the current login
+The Connect SDK contains the `ConnectTokensStateTracker` class, which tracks the login
 state of the user. This is useful for handling UI changes in your app based on the login state of
 the user.
 
@@ -156,8 +156,7 @@ the user.
             }
     };
 
-The `onTokenStateChanged(boolean hasTokens)` method will be called when instantiating the
-`ConnectTokenStateTracker` class and whenever the token state changes.
+The `onTokenStateChanged(boolean hasTokens)` method will be called whenever the token state changes.
 
 #### Retrieving the access token
 
