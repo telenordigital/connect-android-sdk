@@ -97,7 +97,7 @@ public final class ConnectSdk {
     }
 
     public static synchronized String getAccessToken() {
-        return ConnectIdService.getInstance().getAccessToken();
+        return ConnectIdService.getAccessToken();
     }
 
     public static synchronized void getAccessTokenFromCode(String code, ConnectCallback callback) {
