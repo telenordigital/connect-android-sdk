@@ -222,8 +222,8 @@ public final class ConnectSdk {
         }
 
         Validator.notNull(context, "context");
-        ConnectSdk.sContext = context;
-        ConnectSdk.loadConnectConfig(ConnectSdk.sContext);
+        sContext = context;
+        loadConnectConfig(ConnectSdk.sContext);
 
         sSdkInitialized = true;
     }
@@ -290,5 +290,12 @@ public final class ConnectSdk {
             String paymentSuccessUriString = (String) paymentSuccessUriObject;
             sPaymentSuccessUri = paymentSuccessUriString;
         }
+    }
+
+    /**
+     * @return the subject's ID (sub), if one is signed in. Otherwise {@code null}.
+     */
+    public static String getSubjectId() {
+        return ConnectIdService.getInstance().getSubjectId();
     }
 }

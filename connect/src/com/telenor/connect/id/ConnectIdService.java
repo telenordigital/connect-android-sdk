@@ -29,6 +29,7 @@ public class ConnectIdService {
     private final TokenStore tokenStore;
 
     private ConnectTokens currentTokens;
+    private IdToken idToken;
 
     private ConnectIdService() {
         final OkHttpClient httpClient = new OkHttpClient();
@@ -87,6 +88,7 @@ public class ConnectIdService {
                         Validator.validateTokens(connectTokens);
                         tokenStore.set(connectTokens);
                         currentTokens = connectTokens;
+                        idToken = connectTokens.idToken;
                         ConnectUtils.sendTokenStateChanged(true);
                         if (callback != null) {
                             callback.onSuccess(connectTokens);
@@ -136,6 +138,7 @@ public class ConnectIdService {
         });
         tokenStore.clear();
         currentTokens = null;
+        idToken = null;
         ConnectUtils.sendTokenStateChanged(false);
     }
 
@@ -145,7 +148,7 @@ public class ConnectIdService {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
                         Validator.validateTokens(connectTokens);
-                        tokenStore.set(connectTokens);
+                        tokenStore.update(connectTokens);
                         currentTokens = connectTokens;
                         callback.onSuccess(connectTokens);
                     }
@@ -169,5 +172,13 @@ public class ConnectIdService {
             currentTokens = tokenStore.get();
         }
         return currentTokens;
+    }
+
+    public String getSubjectId() {
+        if (idToken == null) {
+            idToken = tokenStore.getIdToken();
+        }
+
+        return idToken != null ? idToken.getSubject() : null;
     }
 }

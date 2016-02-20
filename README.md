@@ -167,6 +167,11 @@ method. When the token has expired a new set of tokens can be requested using
 Access tokens can be used to access resources on your resource server. Please refer to the document
 about [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for more details.
 
+### Retrieving the logged in user's ID
+
+To get the users logged in Connect ID you can call `ConnectSdk.getSubjectId()`. This will return
+an ID string that uniquely identifies the user.
+
 ### Next steps for confidential clients
 
 The user's access and refresh tokens are stored in a database controlled by you. The SDK will

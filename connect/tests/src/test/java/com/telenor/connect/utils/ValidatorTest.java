@@ -13,6 +13,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.mockito.Mockito.mock;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ConnectSdk.class, IdTokenValidator.class})
 public class ValidatorTest {
@@ -74,7 +76,7 @@ public class ValidatorTest {
         ConnectTokens connectTokens = new ConnectTokens(
                 "access",
                 123,
-                new IdToken("something"),
+                mock(IdToken.class),
                 "refresh",
                 "scope",
                 "type");
@@ -89,7 +91,7 @@ public class ValidatorTest {
         ConnectTokens connectTokens = new ConnectTokens(
                 null,
                 123,
-                new IdToken("something"),
+                mock(IdToken.class),
                 "refresh",
                 "scope",
                 "type");
@@ -116,7 +118,7 @@ public class ValidatorTest {
         ConnectTokens connectTokens = new ConnectTokens(
                 "access",
                 123,
-                new IdToken("something"),
+                mock(IdToken.class),
                 null,
                 "scope",
                 "type");
@@ -131,7 +133,7 @@ public class ValidatorTest {
         ConnectTokens connectTokens = new ConnectTokens(
                 "access",
                 123,
-                new IdToken("something"),
+                mock(IdToken.class),
                 "refresh",
                 null,
                 "type");
@@ -146,7 +148,7 @@ public class ValidatorTest {
         ConnectTokens connectTokens = new ConnectTokens(
                 "access",
                 123,
-                new IdToken("something"),
+                mock(IdToken.class),
                 "refresh",
                 "scope",
                 null);
