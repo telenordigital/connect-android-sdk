@@ -12,11 +12,11 @@ import android.webkit.WebViewClient;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsCursorUtil;
 import com.telenor.connect.sms.SmsHandler;
 import com.telenor.connect.sms.SmsPinParseUtil;
-import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 

@@ -25,7 +25,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
@@ -62,20 +64,17 @@ public class AccessTokenCallbackTest {
         mockStatic(ConnectSdk.class);
         given(ConnectSdk.isInitialized()).willReturn(true);
         given(ConnectSdk.isConfidentialClient()).willReturn(false);
-
-        mockStatic(ConnectIdService.class);
-        final ConnectIdService mock = mock(ConnectIdService.class);
-        given(ConnectIdService.getInstance()).willReturn(mock);
+        doNothing().when(ConnectSdk.class);
+        ConnectSdk.getAccessTokenFromCode(anyString(), isA(ActivityFinisherConnectCallback.class));
 
         Activity activity = mock(Activity.class);
         AccessTokenCallback callback = new AccessTokenCallback(activity);
         Map<String, String> successData = new HashMap<>();
 
-
         callback.onSuccess(successData);
 
-        verify(mock)
-                .getAccessTokenFromCode(anyString(), isA(ActivityFinisherConnectCallback.class));
+        verifyStatic();
+        ConnectSdk.getAccessTokenFromCode(anyString(), isA(ActivityFinisherConnectCallback.class));
     }
 
     @Test

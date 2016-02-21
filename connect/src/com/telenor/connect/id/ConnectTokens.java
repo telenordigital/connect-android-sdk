@@ -4,23 +4,23 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public final class ConnectTokens implements Serializable {
+public class ConnectTokens implements Serializable {
     @SerializedName("access_token")
-    public final String accessToken;
+    private final String accessToken;
 
     @SerializedName("expires_in")
-    public final long expiresIn;
+    private final long expiresIn;
 
     @SerializedName("id_token")
-    public final IdToken idToken;
+    private final IdToken idToken;
 
     @SerializedName("refresh_token")
-    public final String refreshToken;
+    private final String refreshToken;
 
-    public final String scope;
+    private final String scope;
 
     @SerializedName("token_type")
-    public final String tokenType;
+    private final String tokenType;
 
     public ConnectTokens(
             String accessToken,
@@ -35,5 +35,29 @@ public final class ConnectTokens implements Serializable {
         this.refreshToken = refreshToken;
         this.scope = scope;
         this.tokenType = tokenType;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public long getExpiresIn() {
+        return expiresIn;
+    }
+
+    public IdToken getIdToken() {
+        return idToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public String getTokenType() {
+        return tokenType;
     }
 }

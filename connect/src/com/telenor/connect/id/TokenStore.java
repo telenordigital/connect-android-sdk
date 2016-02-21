@@ -19,7 +19,7 @@ public class TokenStore {
 
     public void set(ConnectTokens connectTokens) {
         String jsonConnectTokens = preferencesGson.toJson(connectTokens);
-        String jsonIdToken = preferencesGson.toJson(connectTokens.idToken);
+        String jsonIdToken = preferencesGson.toJson(connectTokens.getIdToken());
         context
                 .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
                 .edit()

@@ -10,9 +10,11 @@ import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
+import com.telenor.connect.id.TokenStore;
 import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
+import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public final class ConnectSdk {
     private static String sRedirectUri;
     private static boolean sSdkInitialized = false;
     private static boolean sUseStaging = false;
+    private static ConnectIdService sConnectIdService;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -97,11 +100,13 @@ public final class ConnectSdk {
     }
 
     public static synchronized String getAccessToken() {
-        return ConnectIdService.getInstance().getAccessToken();
+        Validator.sdkInitialized();
+        return sConnectIdService.getAccessToken();
     }
 
     public static synchronized void getAccessTokenFromCode(String code, ConnectCallback callback) {
-        ConnectIdService.getInstance().getAccessTokenFromCode(code, callback);
+        Validator.sdkInitialized();
+        sConnectIdService.getAccessTokenFromCode(code, callback);
     }
 
     public static synchronized Uri getAuthorizeUriAndSetLastAuthState(
@@ -213,11 +218,12 @@ public final class ConnectSdk {
     }
 
     public static void logout() {
-        ConnectIdService.getInstance().revokeTokens();
+        Validator.sdkInitialized();
+        sConnectIdService.revokeTokens();
     }
 
     public static synchronized void sdkInitialize(Context context) {
-        if (sSdkInitialized == true) {
+        if (sSdkInitialized) {
             return;
         }
 
@@ -226,6 +232,11 @@ public final class ConnectSdk {
         loadConnectConfig(ConnectSdk.sContext);
 
         sSdkInitialized = true;
+        sConnectIdService = new ConnectIdService(
+                new TokenStore(context),
+                RestHelper.getConnectApi(getConnectApiUrl().toString()),
+                sClientId,
+                sRedirectUri);
     }
 
     public static void setLocales(Locale... locales) {
@@ -237,7 +248,8 @@ public final class ConnectSdk {
     }
 
     public static void updateTokens(ConnectCallback callback) {
-        ConnectIdService.getInstance().updateTokens(callback);
+        Validator.sdkInitialized();
+        sConnectIdService.updateTokens(callback);
     }
 
     private static void loadConnectConfig(Context context) {
@@ -296,6 +308,7 @@ public final class ConnectSdk {
      * @return the subject's ID (sub), if one is signed in. Otherwise {@code null}.
      */
     public static String getSubjectId() {
-        return ConnectIdService.getInstance().getSubjectId();
+        Validator.sdkInitialized();
+        return sConnectIdService.getSubjectId();
     }
 }

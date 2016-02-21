@@ -2,76 +2,38 @@ package com.telenor.connect.id;
 
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.squareup.okhttp.OkHttpClient;
 import com.telenor.connect.ConnectCallback;
-import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
-import java.util.concurrent.TimeUnit;
-
 import retrofit.Callback;
-import retrofit.RequestInterceptor;
 import retrofit.ResponseCallback;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
-import retrofit.client.OkClient;
 import retrofit.client.Response;
-import retrofit.converter.GsonConverter;
 
 public class ConnectIdService {
 
-    private static ConnectIdService sInstance = null;
-
     private final ConnectAPI connectApi;
     private final TokenStore tokenStore;
+    private final String redirectUrl;
+    private final String clientId;
 
     private ConnectTokens currentTokens;
     private IdToken idToken;
 
-    private ConnectIdService() {
-        final OkHttpClient httpClient = new OkHttpClient();
-        httpClient.setConnectTimeout(10, TimeUnit.SECONDS);
-        httpClient.setReadTimeout(10, TimeUnit.SECONDS);
-        httpClient.setWriteTimeout(10, TimeUnit.SECONDS);
-
-        final Gson gson = new GsonBuilder()
-                .registerTypeAdapter(IdToken.class, new IdTokenDeserializer())
-                .create();
-
-        final RequestInterceptor connectRetroFitInterceptor = new RequestInterceptor() {
-            @Override
-            public void intercept(RequestFacade request) {
-                request.addHeader("Accept", "application/json");
-            }
-        };
-
-        final RestAdapter sConnectAdapter = new RestAdapter.Builder()
-                .setClient(new OkClient(httpClient))
-                .setEndpoint(ConnectSdk.getConnectApiUrl().toString())
-                .setRequestInterceptor(connectRetroFitInterceptor)
-                .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setConverter(new GsonConverter(gson))
-                .build();
-
-        connectApi = sConnectAdapter.create(ConnectAPI.class);
-        tokenStore = new TokenStore(ConnectSdk.getContext());
-    }
-
-    public static synchronized ConnectIdService getInstance() {
-        if (sInstance == null) {
-            sInstance = new ConnectIdService();
-        }
-        return sInstance;
+    public ConnectIdService(
+            TokenStore tokenStore, ConnectAPI connectApi, String clientId, String redirectUrl) {
+        this.clientId = clientId;
+        this.redirectUrl = redirectUrl;
+        this.connectApi = connectApi;
+        this.tokenStore = tokenStore;
     }
 
     public String getAccessToken() {
         if (retrieveTokens() == null) {
             return null;
         }
-        return retrieveTokens().accessToken;
+        return retrieveTokens().getAccessToken();
     }
 
     public void getAccessTokenFromCode(
@@ -80,15 +42,15 @@ public class ConnectIdService {
         connectApi.getAccessTokens(
                 "authorization_code",
                 authCode,
-                ConnectSdk.getRedirectUri(),
-                ConnectSdk.getClientId(),
+                redirectUrl,
+                clientId,
                 new Callback<ConnectTokens>() {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
                         Validator.validateTokens(connectTokens);
                         tokenStore.set(connectTokens);
                         currentTokens = connectTokens;
-                        idToken = connectTokens.idToken;
+                        idToken = connectTokens.getIdToken();
                         ConnectUtils.sendTokenStateChanged(true);
                         if (callback != null) {
                             callback.onSuccess(connectTokens);
@@ -106,12 +68,12 @@ public class ConnectIdService {
     }
 
     private String getRefreshToken() {
-        return retrieveTokens().refreshToken;
+        return retrieveTokens().getRefreshToken();
     }
 
     public void revokeTokens() {
         connectApi.revokeToken(
-                ConnectSdk.getClientId(),
+                clientId,
                 getAccessToken(),
                 new ResponseCallback() {
             @Override
@@ -124,7 +86,7 @@ public class ConnectIdService {
             }
         });
         connectApi.revokeToken(
-                ConnectSdk.getClientId(),
+                clientId,
                 getRefreshToken(),
                 new ResponseCallback() {
             @Override
@@ -144,7 +106,7 @@ public class ConnectIdService {
 
     public void updateTokens(final ConnectCallback callback) {
         connectApi.refreshAccessTokens("refresh_token", getRefreshToken(),
-                ConnectSdk.getClientId(), new Callback<ConnectTokens>() {
+                clientId, new Callback<ConnectTokens>() {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
                         Validator.validateTokens(connectTokens);

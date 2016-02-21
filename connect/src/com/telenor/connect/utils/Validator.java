@@ -35,14 +35,14 @@ public class Validator {
     }
 
     public static void validateTokens(ConnectTokens tokens) {
-        notNullOrEmpty(tokens.accessToken, "access_token");
-        notNull(tokens.expiresIn, "expires_in");
-        notNullOrEmpty(tokens.refreshToken, "refresh_token");
-        notNullOrEmpty(tokens.scope, "scope");
-        notNullOrEmpty(tokens.tokenType, "token_type");
+        notNullOrEmpty(tokens.getAccessToken(), "access_token");
+        notNull(tokens.getExpiresIn(), "expires_in");
+        notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
+        notNullOrEmpty(tokens.getScope(), "scope");
+        notNullOrEmpty(tokens.getTokenType(), "token_type");
 
-        if (tokens.idToken != null) {
-            IdTokenValidator.validate(tokens.idToken);
+        if (tokens.getIdToken() != null) {
+            IdTokenValidator.validate(tokens.getIdToken());
         }
     }
 }

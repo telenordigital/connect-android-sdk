@@ -16,11 +16,6 @@ import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
@@ -52,20 +47,5 @@ public class ConnectSdkTest {
     public void getsRedirectUriFromApplicationInfoMetaData() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         assertThat(ConnectSdk.getRedirectUri(), is("connect-tests://oauth2callback"));
-    }
-
-    @Test
-    public void getSubjectIdCallsConnectIdService() {
-        mockStatic(ConnectIdService.class);
-
-        final String originalSub = "12345";
-        ConnectIdService mock = mock(ConnectIdService.class);
-        given(ConnectIdService.getInstance()).willReturn(mock);
-        when(mock.getSubjectId()).thenReturn(originalSub);
-
-        String sub = ConnectSdk.getSubjectId();
-        assertThat(sub, is("12345"));
-
-        verify(mock).getSubjectId();
     }
 }
