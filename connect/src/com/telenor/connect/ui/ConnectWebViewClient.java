@@ -99,12 +99,14 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
         loadingView.setVisibility(View.GONE);
-        webView.loadUrl(JAVASCRIPT_PROCESSES_INSTRUCTIONS);
+        if (hasPermissionToReadSms() && !instructionsReceived) {
+            webView.loadUrl(JAVASCRIPT_PROCESSES_INSTRUCTIONS);
+        }
     }
 
     @Override
     public void givenInstructions(List<Instruction> instructions) {
-        if (!hasPermissionToReadSms() || instructionsReceived) {
+        if (instructionsReceived) {
             return;
         }
 
