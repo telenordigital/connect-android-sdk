@@ -1,6 +1,7 @@
 package com.telenor.connect.ui;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -34,7 +35,6 @@ public class ConnectWebFragment extends Fragment {
 
         String pageUrl = ConnectUrlHelper.getPageUrl(getArguments(), getActivity());
         WebViewHelper.setupWebView(webView, client, pageUrl);
-
         return view;
     }
 
@@ -48,5 +48,13 @@ public class ConnectWebFragment extends Fragment {
     public void onResume() {
         super.onResume();
         client.onResume();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        client.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

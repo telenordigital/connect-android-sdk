@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -25,6 +26,9 @@ import java.util.List;
 public class ConnectWebViewClient extends WebViewClient implements SmsHandler, InstructionHandler {
 
     private static final int RACE_CONDITION_DELAY_CHECK_ALREADY_RECEIVED_SMS = 700;
+    private static final int READ_RECEIVE_SMS_REQUEST_CODE = 0x2321;
+    public static final String[] SMS_PERMISSIONS
+            = new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS};
     private static long CHECK_FOR_SMS_BACK_IN_TIME_MILLIS = 2500;
 
     private static final String JAVASCRIPT_PROCESSES_INSTRUCTIONS
@@ -44,6 +48,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     private boolean instructionsReceived;
     private long pageLoadStarted;
     private Instruction callbackInstruction;
+    private List<Instruction> smsPermissionsCallbackInstructions;
 
     public ConnectWebViewClient(
             Activity activity,
@@ -99,7 +104,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
         loadingView.setVisibility(View.GONE);
-        if (hasPermissionToReadSms() && !instructionsReceived) {
+        if (!instructionsReceived) {
             webView.loadUrl(JAVASCRIPT_PROCESSES_INSTRUCTIONS);
         }
     }
@@ -109,15 +114,27 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         if (instructionsReceived) {
             return;
         }
+        instructionsReceived = true;
 
+        if (containsSmsInstruction(instructions)) {
+            if (hasPermissionToReadSms()) {
+                executeInstructions(instructions);
+            } else {
+                smsPermissionsCallbackInstructions = instructions;
+                requestSmsPermissions();
+            }
+        } else {
+            executeInstructions(instructions);
+        }
+    }
+
+    private boolean containsSmsInstruction(List<Instruction> instructions) {
         for (final Instruction instruction : instructions) {
             if (instruction.getName().equals(Instruction.PIN_INSTRUCTION_NAME)) {
-                getPinFromSms(instruction);
-            } else {
-                runJavascriptInstruction(instruction);
+                return true;
             }
         }
-        instructionsReceived = true;
+        return false;
     }
 
     private boolean hasPermissionToReadSms() {
@@ -126,6 +143,24 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
 
         return res1 == PackageManager.PERMISSION_GRANTED
                 && res2 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestSmsPermissions() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return;
+        }
+
+        activity.requestPermissions(SMS_PERMISSIONS, READ_RECEIVE_SMS_REQUEST_CODE);
+    }
+
+    private void executeInstructions(List<Instruction> instructions) {
+        for (final Instruction instruction : instructions) {
+            if (instruction.getName().equals(Instruction.PIN_INSTRUCTION_NAME)) {
+                getPinFromSms(instruction);
+            } else {
+                runJavascriptInstruction(instruction);
+            }
+        }
     }
 
     private void runJavascriptInstruction(final Instruction instruction) {
@@ -218,5 +253,18 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             subscribeToNewSms();
             handleIfSmsAlreadyArrived(callbackInstruction);
         }
+    }
+
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode != READ_RECEIVE_SMS_REQUEST_CODE
+                || grantResults.length != 2
+                || grantResults[0] != PackageManager.PERMISSION_GRANTED
+                || grantResults[1] != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        executeInstructions(smsPermissionsCallbackInstructions);
+        smsPermissionsCallbackInstructions = null;
     }
 }

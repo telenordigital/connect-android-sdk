@@ -3,6 +3,7 @@ package com.telenor.connect.ui;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -14,7 +15,6 @@ import com.telenor.connect.utils.ConnectUtils;
 
 public class ConnectActivity extends FragmentActivity {
 
-    private static String FRAGMENT_TAG = "SingleFragment";
     private Fragment singleFragment;
 
     @Override
@@ -23,7 +23,8 @@ public class ConnectActivity extends FragmentActivity {
         setContentView(R.layout.com_telenor_connect_activity_layout);
 
         FragmentManager manager = getSupportFragmentManager();
-        Fragment fragment = manager.findFragmentByTag(FRAGMENT_TAG);
+        final String fragmentTag = "SingleFragment";
+        Fragment fragment = manager.findFragmentByTag(fragmentTag);
 
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -39,7 +40,7 @@ public class ConnectActivity extends FragmentActivity {
             fragment.setArguments(b);
             fragment.setRetainInstance(true);
             manager.beginTransaction()
-                    .add(R.id.com_telenor_connect_fragment_container, fragment, FRAGMENT_TAG)
+                    .add(R.id.com_telenor_connect_fragment_container, fragment, fragmentTag)
                     .commit();
         }
 
@@ -53,5 +54,13 @@ public class ConnectActivity extends FragmentActivity {
         if (singleFragment != null) {
             singleFragment.onConfigurationChanged(newConfig);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        singleFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
