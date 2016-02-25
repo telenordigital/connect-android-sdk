@@ -1,6 +1,5 @@
 package com.telenor.connect.id;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -24,13 +23,10 @@ import retrofit.converter.GsonConverter;
 
 public class ConnectIdService {
 
-    private static final String PREFERENCES_FILE = "com.telenor.connect.PREFERENCES_FILE";
-    private static final String PREFERENCE_KEY_CONNECT_TOKENS = "CONNECT_TOKENS";
-    private static final Gson preferencesGson = new Gson();
-
     private static ConnectIdService sInstance = null;
 
     private final ConnectAPI connectApi;
+    private final TokenStore tokenStore;
 
     private ConnectTokens currentTokens;
 
@@ -60,6 +56,7 @@ public class ConnectIdService {
                 .build();
 
         connectApi = sConnectAdapter.create(ConnectAPI.class);
+        tokenStore = new TokenStore(ConnectSdk.getContext());
     }
 
     public static synchronized ConnectIdService getInstance() {
@@ -88,7 +85,7 @@ public class ConnectIdService {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
                         Validator.validateTokens(connectTokens);
-                        storeTokens(connectTokens);
+                        tokenStore.set(connectTokens);
                         currentTokens = connectTokens;
                         ConnectUtils.sendTokenStateChanged(true);
                         if (callback != null) {
@@ -104,16 +101,6 @@ public class ConnectIdService {
                         }
                     }
                 });
-    }
-
-    private void storeTokens(ConnectTokens connectTokens) {
-        String jsonConnectTokens = preferencesGson.toJson(connectTokens);
-
-        ConnectSdk.getContext()
-                .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
-                .edit()
-                .putString(PREFERENCE_KEY_CONNECT_TOKENS, jsonConnectTokens)
-                .apply();
     }
 
     private String getRefreshToken() {
@@ -147,17 +134,9 @@ public class ConnectIdService {
                 Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke refresh token on API", error);
             }
         });
-        deleteStoredTokens();
+        tokenStore.clear();
         currentTokens = null;
         ConnectUtils.sendTokenStateChanged(false);
-    }
-
-    private void deleteStoredTokens() {
-        ConnectSdk.getContext()
-                .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
-                .edit()
-                .clear()
-                .commit();
     }
 
     public void updateTokens(final ConnectCallback callback) {
@@ -166,7 +145,7 @@ public class ConnectIdService {
                     @Override
                     public void success(ConnectTokens connectTokens, Response response) {
                         Validator.validateTokens(connectTokens);
-                        storeTokens(connectTokens);
+                        tokenStore.set(connectTokens);
                         currentTokens = connectTokens;
                         callback.onSuccess(connectTokens);
                     }
@@ -177,7 +156,7 @@ public class ConnectIdService {
                                 && error.getResponse() != null
                                 && error.getResponse().getStatus() >= 400
                                 && error.getResponse().getStatus() < 500) {
-                            deleteStoredTokens();
+                            tokenStore.clear();
                             currentTokens = null;
                         }
                         callback.onError(error);
@@ -187,17 +166,8 @@ public class ConnectIdService {
 
     private ConnectTokens retrieveTokens() {
         if (currentTokens == null) {
-            currentTokens = getTokensFromStore();
+            currentTokens = tokenStore.get();
         }
         return currentTokens;
-    }
-
-    private ConnectTokens getTokensFromStore() {
-        String connectTokensJson
-                = ConnectSdk.getContext()
-                .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
-                .getString(PREFERENCE_KEY_CONNECT_TOKENS, null);
-
-        return preferencesGson.fromJson(connectTokensJson, ConnectTokens.class);
     }
 }
