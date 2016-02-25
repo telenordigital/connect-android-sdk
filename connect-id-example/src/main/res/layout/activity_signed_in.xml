@@ -14,26 +14,22 @@
         android:layout_height="wrap_content"
         android:padding="50dp"/>
 
+    <TextView
+        android:text="Signed in user's id is"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"/>
+
+    <TextView
+        android:id="@+id/user_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
     <Button
         android:id="@+id/logout_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="Logout"/>
-
-
-    <com.telenor.connect.ui.ConnectLoginButton
-        android:layout_marginTop="50dp"
-        android:layout_centerInParent="true"
-        android:id="@+id/top_up_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/com_telenor_ConnectButton.Dark"/>
-
-    <Button
-        android:id="@+id/top_up_button2"
-        android:layout_marginTop="50dp"
-        android:text="Top up to LoA2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
 
 </LinearLayout>
