@@ -32,7 +32,7 @@ public class AccessTokenCallback implements ConnectCallback {
             activity.setResult(Activity.RESULT_OK, intent);
             activity.finish();
         } else {
-            ConnectIdService.getAccessTokenFromCode(
+            ConnectIdService.getInstance().getAccessTokenFromCode(
                     authCodeData.get("code"), new ActivityFinisherConnectCallback(activity));
         }
     }

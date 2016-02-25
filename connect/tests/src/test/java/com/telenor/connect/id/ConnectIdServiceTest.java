@@ -1,7 +1,5 @@
 package com.telenor.connect.id;
 
-import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
 import org.junit.Rule;
@@ -15,16 +13,13 @@ import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
 @PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*" })
-@PrepareForTest({
-        ConnectSdk.class,
-        ConnectUtils.class,
-        ConnectUtils.class,
-        Validator.class,
-        ConnectAPI.class})
+@PrepareForTest({Validator.class})
 public class ConnectIdServiceTest {
 
     @Rule
@@ -33,6 +28,9 @@ public class ConnectIdServiceTest {
 
     @Test
     public void getInstanceReturnsInstance() {
+        mockStatic(Validator.class);
+        doNothing().when(Validator.class);
+
         ConnectIdService instance = ConnectIdService.getInstance();
         assertThat(instance, instanceOf(ConnectIdService.class));
     }

@@ -16,7 +16,6 @@ public class ConnectUtils {
     public static final String LOGIN_AUTH_URI = "com.telenor.connect.LOGIN_AUTH_URI";
     public static final String LOGIN_STATE = "com.telenor.connect.LOGIN_STATE";
     public static final String PAYMENT_ACTION = "com.telenor.connect.PAYMENT_ACTION";
-    public static final String PREFERENCES_FILE = "com.telenor.connect.PREFERENCES_FILE";
 
     public static void parseAuthCode(String callbackUrl, ConnectCallback callback) {
         Validator.notNullOrEmpty(callbackUrl, "callbackUrl");

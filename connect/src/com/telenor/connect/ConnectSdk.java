@@ -97,11 +97,11 @@ public final class ConnectSdk {
     }
 
     public static synchronized String getAccessToken() {
-        return ConnectIdService.getAccessToken();
+        return ConnectIdService.getInstance().getAccessToken();
     }
 
     public static synchronized void getAccessTokenFromCode(String code, ConnectCallback callback) {
-        ConnectIdService.getAccessTokenFromCode(code, callback);
+        ConnectIdService.getInstance().getAccessTokenFromCode(code, callback);
     }
 
     public static synchronized Uri getAuthorizeUriAndSetLastAuthState(
