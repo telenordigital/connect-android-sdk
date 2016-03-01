@@ -219,7 +219,7 @@ public final class ConnectSdk {
 
     public static void logout() {
         Validator.sdkInitialized();
-        sConnectIdService.revokeTokens();
+        sConnectIdService.revokeTokens(sContext);
     }
 
     public static synchronized void sdkInitialize(Context context) {

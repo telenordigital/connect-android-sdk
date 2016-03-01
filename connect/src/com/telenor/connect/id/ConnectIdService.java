@@ -1,6 +1,10 @@
 package com.telenor.connect.id;
 
+import android.content.Context;
+import android.os.Build;
 import android.util.Log;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.utils.ConnectUtils;
@@ -71,7 +75,7 @@ public class ConnectIdService {
         return retrieveTokens().getRefreshToken();
     }
 
-    public void revokeTokens() {
+    public void revokeTokens(Context context) {
         connectApi.revokeToken(
                 clientId,
                 getAccessToken(),
@@ -102,6 +106,13 @@ public class ConnectIdService {
         currentTokens = null;
         idToken = null;
         ConnectUtils.sendTokenStateChanged(false);
+        final CookieManager cookieManager = CookieManager.getInstance();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cookieManager.removeAllCookies(null);
+        } else {
+            CookieSyncManager.createInstance(context);
+            cookieManager.removeAllCookie();
+        }
     }
 
     public void updateTokens(final ConnectCallback callback) {
