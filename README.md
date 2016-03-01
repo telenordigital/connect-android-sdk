@@ -176,7 +176,7 @@ an ID string that uniquely identifies the user.
 
 The user's access and refresh tokens are stored in a database controlled by you. The SDK will
 return an `access code` in the `onActivityResult()` function. This access code should be exchanged
-for access and refrsh tokens in your backend system.
+for access and refresh tokens in your backend system.
 
 ## Connect Payment
 
