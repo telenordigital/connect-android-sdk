@@ -48,6 +48,10 @@ public class ConnectLoginButton extends ConnectButton {
         return requestCode;
     }
 
+    public Claims getClaims() {
+        return claims;
+    }
+
     public void setAcrValues(String... acrValues) {
         this.acrValues = new ArrayList<>(Arrays.asList(acrValues));
     }
@@ -74,10 +78,6 @@ public class ConnectLoginButton extends ConnectButton {
 
     public void setClaims(Claims claims) {
         this.claims = claims;
-    }
-
-    public Claims getClaims() {
-        return claims;
     }
 
     private class LoginClickListener implements OnClickListener {
