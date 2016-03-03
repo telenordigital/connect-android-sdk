@@ -1,5 +1,6 @@
 package com.telenor.connect.id;
 
+import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.utils.Validator;
 
 import org.junit.Rule;
@@ -58,5 +59,29 @@ public class ConnectIdServiceTest {
         connectIdService.getAccessToken();
 
         verify(tokenStore, times(1)).get();
+    }
+
+    @Test(expected = ConnectNotInitializedException.class)
+    public void getUserInfoMissingAccessTokenThrows() {
+        TokenStore tokenStore = mock(TokenStore.class);
+        ConnectAPI connectApi = mock(ConnectAPI.class);
+        ConnectIdService connectIdService = new ConnectIdService(tokenStore, connectApi, "", "");
+
+        connectIdService.getUserInfo(null);
+    }
+
+    @Test
+    public void getUserInfoCallsGetUserInfo() {
+        TokenStore tokenStore = mock(TokenStore.class);
+        ConnectTokens connectTokens = mock(ConnectTokens.class);
+        final String value = "access token";
+        when(connectTokens.getAccessToken()).thenReturn(value);
+        when(tokenStore.get()).thenReturn(connectTokens);
+
+        ConnectAPI connectApi = mock(ConnectAPI.class);
+        ConnectIdService connectIdService = new ConnectIdService(tokenStore, connectApi, "", "");
+
+        connectIdService.getUserInfo(null);
+        verify(connectApi).getUserInfo("Bearer access token", null);
     }
 }
