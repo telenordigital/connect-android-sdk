@@ -4,9 +4,16 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.id.Claims;
+import com.telenor.connect.utils.ClaimsParameterFormatter;
 import com.telenor.connect.utils.Validator;
+
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,6 +24,7 @@ public class ConnectLoginButton extends ConnectButton {
     private Map<String, String> loginParameters;
     private ArrayList<String> loginScopeTokens;
     private int requestCode = 0xa987;
+    private Claims claims;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -64,6 +72,14 @@ public class ConnectLoginButton extends ConnectButton {
         this.requestCode = requestCode;
     }
 
+    public void setClaims(Claims claims) {
+        this.claims = claims;
+    }
+
+    public Claims getClaims() {
+        return claims;
+    }
+
     private class LoginClickListener implements OnClickListener {
 
         @Override
@@ -77,6 +93,14 @@ public class ConnectLoginButton extends ConnectButton {
 
             if (getLoginScopeTokens() != null && !getLoginScopeTokens().isEmpty()) {
                 parameters.put("scope", TextUtils.join(" ", getLoginScopeTokens()));
+            }
+
+            if (claims != null && claims.getClaims() != null) {
+                try {
+                    parameters.put("claims", ClaimsParameterFormatter.asJson(claims));
+                } catch (JSONException e) {
+                    throw new ConnectException("Failed to create claims Json. claims="+claims, e);
+                }
             }
 
             if (getLoginParameters() != null && !getLoginParameters().isEmpty()){
