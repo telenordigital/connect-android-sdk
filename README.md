@@ -62,6 +62,12 @@ application to access the internet.
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
+Optionally you can enable the feature that automatically fills in verification PIN codes received
+on SMS by adding the following permissions.
+
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
 Add two `meta-data` entries to the `application` section of the manifest.
 
     <application>
