@@ -7,7 +7,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 import com.telenor.connect.ConnectCallback;
-import com.telenor.connect.ConnectNotInitializedException;
+import com.telenor.connect.ConnectNotSignedInException;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
@@ -157,10 +157,10 @@ public class ConnectIdService {
     }
 
     public void getUserInfo(Callback<UserInfo> userInfoCallback)
-            throws ConnectNotInitializedException {
+            throws ConnectNotSignedInException {
         String accessToken = getAccessToken();
         if (accessToken == null) {
-            throw new ConnectNotInitializedException(
+            throw new ConnectNotSignedInException(
                     "No user is signed in. accessToken="+accessToken);
         }
         final String auth = "Bearer " + accessToken;

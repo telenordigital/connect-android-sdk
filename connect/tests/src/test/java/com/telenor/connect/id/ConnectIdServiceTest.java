@@ -1,6 +1,6 @@
 package com.telenor.connect.id;
 
-import com.telenor.connect.ConnectNotInitializedException;
+import com.telenor.connect.ConnectNotSignedInException;
 import com.telenor.connect.utils.Validator;
 
 import org.junit.Rule;
@@ -61,7 +61,7 @@ public class ConnectIdServiceTest {
         verify(tokenStore, times(1)).get();
     }
 
-    @Test(expected = ConnectNotInitializedException.class)
+    @Test(expected = ConnectNotSignedInException.class)
     public void getUserInfoMissingAccessTokenThrows() {
         TokenStore tokenStore = mock(TokenStore.class);
         ConnectAPI connectApi = mock(ConnectAPI.class);
