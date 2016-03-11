@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.TokenStore;
+import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
@@ -23,6 +24,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+
+import retrofit.Callback;
 
 public final class ConnectSdk {
     private static String sClientId;
@@ -310,5 +313,19 @@ public final class ConnectSdk {
     public static String getSubjectId() {
         Validator.sdkInitialized();
         return sConnectIdService.getSubjectId();
+    }
+
+    /**
+     * Fetches the logged in user's info from the /oauth/userinfo endpoint.
+     * See http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-information
+     * for more details on the scope and claims preconditions needed in order to get the info
+     * needed.
+     *
+     * @param userInfoCallback the callback that will be called on after the response is received
+     * @throws ConnectNotInitializedException if no user is signed in.
+     */
+    public static void getUserInfo(Callback<UserInfo> userInfoCallback) {
+        Validator.sdkInitialized();
+        sConnectIdService.getUserInfo(userInfoCallback);
     }
 }

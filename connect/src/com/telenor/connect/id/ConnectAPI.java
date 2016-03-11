@@ -4,6 +4,8 @@ import retrofit.Callback;
 import retrofit.ResponseCallback;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
+import retrofit.http.GET;
+import retrofit.http.Header;
 import retrofit.http.Headers;
 import retrofit.http.POST;
 
@@ -35,4 +37,8 @@ public interface ConnectAPI {
             @Field("client_id") String client_id,
             @Field("token") String token,
             ResponseCallback callback);
+
+    @Headers("Accept: application/json")
+    @GET("/oauth/userinfo")
+    void getUserInfo(@Header("Authorization") String auth, Callback<UserInfo> userInfoCallback);
 }
