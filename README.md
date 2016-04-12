@@ -145,7 +145,7 @@ The `onActivityResult()` method of your `Activity` will be called with `Activity
 If you are developing a confidential client you should skip to [Next steps for confidential clients](#next-steps-for-confidential-clients)
 
 #### Example: Setting the UI locale
-To set the locale the user sees the flows in this can be done in the following way:
+To set the locale the user sees in the flows this can be done in the following way:
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
