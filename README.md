@@ -144,6 +144,20 @@ The `onActivityResult()` method of your `Activity` will be called with `Activity
 
 If you are developing a confidential client you should skip to [Next steps for confidential clients](#next-steps-for-confidential-clients)
 
+#### Example: Setting the UI locale
+To set the locale the user sees the flows in this can be done in the following way:
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        ...
+        ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
+        button.setLoginScopeTokens("profile");
+        
+        Map<String, String> additionalLoginParams = new HashMap<>();
+        additionalLoginParams.put("ui_locales", "bn en");
+        button.addLoginParameters(additionalLoginParams)
+    }
+
 ### Next steps for public clients
 
 #### Keeping track of the login state
