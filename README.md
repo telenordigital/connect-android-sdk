@@ -144,6 +144,20 @@ The `onActivityResult()` method of your `Activity` will be called with `Activity
 
 If you are developing a confidential client you should skip to [Next steps for confidential clients](#next-steps-for-confidential-clients)
 
+#### Adding claims
+
+To add additional [claims to your Connect request] (http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-authorization)
+you can use the `setClaims` method on the `ConnectLoginButton`.
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        ...
+        ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
+        button.setLoginScopeTokens("profile");
+        button.setClaims(new Claims(Claims.PHONE, Claims.EMAIL));
+    }
+
+
 #### Example: Setting the UI locale
 To set the locale the user sees in the flows this can be done in the following way:
 
@@ -152,7 +166,7 @@ To set the locale the user sees in the flows this can be done in the following w
         ...
         ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
         button.setLoginScopeTokens("profile");
-        
+
         Map<String, String> additionalLoginParams = new HashMap<>();
         additionalLoginParams.put("ui_locales", "bn en");
         button.addLoginParameters(additionalLoginParams)
