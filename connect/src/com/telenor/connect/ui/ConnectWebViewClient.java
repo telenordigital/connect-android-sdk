@@ -96,8 +96,22 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
         pageLoadStarted = System.currentTimeMillis();
+        hideLoadingViewWithDelayIfHEILoading(url);
         instructionsReceived = false;
         super.onPageStarted(view, url, favicon);
+    }
+
+    private void hideLoadingViewWithDelayIfHEILoading(String url) {
+        if (url != null
+                && url.endsWith("/heidetect")
+                && loadingView.getVisibility() == View.VISIBLE) {
+            loadingView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    loadingView.setVisibility(View.GONE);
+                }
+            }, 300);
+        }
     }
 
     @Override
