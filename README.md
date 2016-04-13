@@ -157,6 +157,21 @@ you can use the `setClaims` method on the `ConnectLoginButton`.
         button.setClaims(new Claims(Claims.PHONE, Claims.EMAIL));
     }
 
+
+#### Example: Setting the UI locale
+To set the locale the user sees in the flows this can be done in the following way:
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        ...
+        ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
+        button.setLoginScopeTokens("profile");
+
+        Map<String, String> additionalLoginParams = new HashMap<>();
+        additionalLoginParams.put("ui_locales", "bn en");
+        button.addLoginParameters(additionalLoginParams)
+    }
+
 ### Next steps for public clients
 
 #### Keeping track of the login state
