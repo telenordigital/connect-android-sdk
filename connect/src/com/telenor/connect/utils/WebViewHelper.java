@@ -1,5 +1,6 @@
 package com.telenor.connect.utils;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
@@ -10,6 +11,9 @@ import com.telenor.connect.ui.ConnectWebViewClient;
 
 public class WebViewHelper {
 
+    @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
+    // 1. HtmlToAndroidInstructionsInterface has no public fields.
+    // 2. We need JS for the web page.
     public static void setupWebView(
             WebView webView,
             ConnectWebViewClient client,
@@ -18,11 +22,11 @@ public class WebViewHelper {
         webView.setWebViewClient(client);
         webView.setVerticalScrollBarEnabled(true);
         webView.setHorizontalScrollBarEnabled(false);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setSaveFormData(false);
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            webView.getSettings()
-                    .setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        final WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setSaveFormData(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
         }
         webView.addJavascriptInterface(
                 new HtmlToAndroidInstructionsInterface(client), "AndroidInterface");
