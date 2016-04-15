@@ -85,4 +85,35 @@ public class SmsPinParseUtilTest {
                 actual,
                 is("Your verification code for ''.*'' is (\\w*) - CONNECT by Telenor Digital."));
     }
+
+    @Test
+    public void findsPinInRightToLeftLanguages() {
+        String body = "''Hipstagram'' \u06a9\u06d2 \u0644\u06cc\u06d2 \u0627\u0653\u067e \u06a9\u0627 \u062a\u0635\u062f\u06cc\u0642\u06cc \u06a9\u0648\u0688 3456 \u06c1\u06d2 - Telenor Digital \u06a9\u0627 \u067e\u06cc\u0634 \u06a9\u0631\u062f\u06c1 CONNECT\u06d4";
+        // ''Hipstagram'' کے لیے آپ کا تصدیقی کوڈ 3456 ہے - Telenor Digital کا پیش کردہ CONNECT۔
+
+        Instruction.Config config = new Instruction.Config("",
+                "''{0}'' \u06a9\u06d2 \u0644\u06cc\u06d2 \u0627\u0653\u067e \u06a9\u0627 \u062a\u0635\u062f\u06cc\u0642\u06cc \u06a9\u0648\u0688 {1} \u06c1\u06d2 - Telenor Digital \u06a9\u0627 \u067e\u06cc\u0634 \u06a9\u0631\u062f\u06c1 CONNECT\u06d4",
+                "{1}");
+
+        Instruction instruction = new Instruction();
+        instruction.setConfig(config);
+
+        String actual = SmsPinParseUtil.findPin(body, instruction);
+        assertThat(actual, is("3456"));
+    }
+
+    @Test
+    public void lookingForMissingPinInRightToLeftLanguageReturnsNull() {
+        String body = "\u0627\u0653\u067e \u0646\u06d2 \u063a\u0644\u0637 \u067e\u0627\u0633 \u0648\u0631\u0688 \u062f\u0631\u062c \u06a9\u06cc\u0627 \u06c1\u06d2\u06d4 \u0628\u0631\u0627\u06c1\u0650 \u0645\u06c1\u0631\u0628\u0627\u0646\u06cc \u062f\u0648\u0628\u0627\u0631\u06c1 \u06a9\u0648\u0634\u0634 \u06a9\u0631\u06cc\u06ba \u06cc\u0627 <a href=\"{0}\">\u0627\u067e\u0646\u0627 \u067e\u0627\u0633 \u0648\u0631\u0688 \u062f\u0648\u0628\u0627\u0631\u06c1 \u062a\u0631\u062a\u06cc\u0628 \u062f\u06cc\u06ba</a>\u06d4";
+
+        Instruction.Config config = new Instruction.Config("",
+                "''{0}'' \u06a9\u06d2 \u0644\u06cc\u06d2 \u0627\u0653\u067e \u06a9\u0627 \u062a\u0635\u062f\u06cc\u0642\u06cc \u06a9\u0648\u0688 {1} \u06c1\u06d2 - Telenor Digital \u06a9\u0627 \u067e\u06cc\u0634 \u06a9\u0631\u062f\u06c1 CONNECT\u06d4",
+                "{1}");
+
+        Instruction instruction = new Instruction();
+        instruction.setConfig(config);
+
+        String actual = SmsPinParseUtil.findPin(body, instruction);
+        assertNull(actual);
+    }
 }
