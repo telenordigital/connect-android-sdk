@@ -88,7 +88,6 @@ public class ConnectWebViewClientTest {
     private Instruction getPinInstruction() {
         Instruction instruction = new Instruction();
         instruction.setName(Instruction.PIN_INSTRUCTION_NAME);
-        instruction.setConfig(new Instruction.Config("", "", ""));
         return instruction;
     }
 

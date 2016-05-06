@@ -21,15 +21,13 @@ public class SmsCursorUtil {
             ? Telephony.Sms.Inbox.DEFAULT_SORT_ORDER
             : "date DESC";
 
-    public static Cursor getSmsCursor(Context context, String sender, long receivedAfter) {
+    public static Cursor getSmsCursor(Context context, long receivedAfter) {
         Uri mUri = smsInboxUri;
         String[] mProjection = new String[] { BODY };
 
-        String mSelectionClause =
-                        ADDRESS + " = ? AND "
-                        + DATE + " > ?";
+        String mSelectionClause = DATE + " > ?";
 
-        String[] mSelectionArgs = new String[] { sender, String.valueOf(receivedAfter) };
+        String[] mSelectionArgs = new String[] { String.valueOf(receivedAfter) };
 
         String mSortOrder = DEFAULT_SORT_ORDER;
 

@@ -20,50 +20,26 @@ import static org.mockito.Mockito.verify;
 
 public class HtmlToAndroidInstructionsInterfaceTest {
 
-    private final static String validInstructions = "[\n" +
-            "  {\n" +
-            "    \"name\": \"eval\",\n" +
-            "    \"arguments\": [\n" +
+    private final static String validInstructions = "[  \n" +
+            "  {  \n" +
+            "    \"name\":\"eval\",\n" +
+            "    \"arguments\":[  \n" +
             "      \"\\\"$('#pin').attr('placeholder', 'Waiting for PIN on SMS…');\\\"\"\n" +
             "    ]\n" +
             "  },\n" +
-            "  {\n" +
-            "    \"name\": \"eval\",\n" +
-            "    \"arguments\": [\n" +
-            "      \"\\\"window['handlePinReceived'] = " +
-            "function(pin) { $('#pin').val(pin); }\\\"\"\n" +
+            "  {  \n" +
+            "    \"name\":\"eval\",\n" +
+            "    \"arguments\":[  \n" +
+            "      \"\\\"window['handlePinReceived'] = function(pin) { $('#pin').val(pin); }\\\"\"\n" +
             "    ]\n" +
             "  },\n" +
-            "  {\n" +
-            "    \"name\": \"androidSystemCall_getPinFromSms\",\n" +
-            "    \"config\": {\n" +
-            "      \"sender\": \"Telenor\",\n" +
-            "      \"template\": \"Your verification code is {0} - Connect by Telenor Digital\",\n"+
-            "      \"value_key\": \"{0}\"\n" +
-            "    },\n" +
-            "    \"pin_callback_name\": \"handlePinReceived\",\n" +
-            "    \"timeout\": 60000\n" +
+            "  {  \n" +
+            "    \"name\":\"androidSystemCall_getPinFromSms\",\n" +
+            "    \"pin_callback_name\":\"handlePinReceived\"\n" +
             "  }\n" +
-            "]\n";
+            "]";
 
     private static final String brokenJson = "{ bork bork";
-
-    private static final String missingConfig = "[" +
-            "  {" +
-            "    \"name\": \"eval\"," +
-            "    \"arguments\": [" +
-            "      \"\\\"$('#pin').attr('placeholder', 'Waiting for PIN on SMS…');\\\"\"" +
-            "    ]" +
-            "  }," +
-            "  {" +
-            "    \"name\": \"androidSystemCall_getPinFromSms\"," +
-            "    \"config\": {" +
-            "      \"value_key\": \"{0}\"" +
-            "    }," +
-            "    \"pin_callback_name\": \"handlePinReceived\"," +
-            "    \"timeout\": 60000" +
-            "  }" +
-            "]";
 
     private static final String emptyArgumentsListJs = "[" +
             "  {" +
@@ -87,13 +63,7 @@ public class HtmlToAndroidInstructionsInterfaceTest {
             "   },\n" +
             "   {  \n" +
             "      name:\"androidSystemCall_getPinFromSms\",\n" +
-            "      config:{  \n" +
-            "         sender:\"Telenor\",\n" +
-            "         template:\"Your verification code is {0} - Connect by Telenor Digital\",\n" +
-            "         value_key:\"{0}\"\n" +
-            "      },\n" +
-            "      pin_callback_name:\"androidJsCall_handlePinReceived\",\n" +
-            "      timeout:60000\n" +
+            "      pin_callback_name:\"androidJsCall_handlePinReceived\"\n" +
             "   }\n" +
             "]";
 
@@ -188,12 +158,6 @@ public class HtmlToAndroidInstructionsInterfaceTest {
         Instruction getPinFromSms = new Instruction();
         getPinFromSms.setName("androidSystemCall_getPinFromSms");
         getPinFromSms.setPinCallbackName("handlePinReceived");
-        Instruction.Config config = new Instruction.Config("Telenor",
-                "Your verification code is {0} - Connect by Telenor Digital",
-                "{0}"
-                );
-        getPinFromSms.setConfig(config);
-        getPinFromSms.setTimeout(60000);
         instructions.add(getPinFromSms);
 
         return instructions;
@@ -210,14 +174,6 @@ public class HtmlToAndroidInstructionsInterfaceTest {
     @Test
     public void brokenJsonGivesEmptyList() throws Exception {
         List<Instruction> actual = HtmlToAndroidInstructionsInterface.getAllValidInstructions(brokenJson);
-        List<Instruction> expected = Collections.emptyList();
-
-        Assert.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void missingConfigGivesEmptyList() throws Exception {
-        List<Instruction> actual = HtmlToAndroidInstructionsInterface.getAllValidInstructions(missingConfig);
         List<Instruction> expected = Collections.emptyList();
 
         Assert.assertEquals(expected, actual);
