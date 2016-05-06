@@ -22,6 +22,7 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class ConnectWebViewClient extends WebViewClient implements SmsHandler, InstructionHandler {
 
@@ -32,6 +33,8 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     private static long CHECK_FOR_SMS_BACK_IN_TIME_MILLIS = 2500;
     private static long CHECK_FOR_SMS_TIMEOUT = 60000;
 
+    private static final Pattern TD_HTTPS_PATTERN
+            = Pattern.compile("^https://.*telenordigital.com(?:$|/)");
     private static final String JAVASCRIPT_PROCESSES_INSTRUCTIONS
             = "javascript:window.AndroidInterface.processInstructions(document.getElementById"
             + "('android-instructions').innerHTML);";
@@ -119,9 +122,13 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
         loadingView.setVisibility(View.GONE);
-        if (!instructionsReceived) {
+        if (!instructionsReceived && shouldCheckPageForInstructions(url)) {
             webView.loadUrl(JAVASCRIPT_PROCESSES_INSTRUCTIONS);
         }
+    }
+
+    private boolean shouldCheckPageForInstructions(String url) {
+        return TD_HTTPS_PATTERN.matcher(url).find();
     }
 
     @Override
