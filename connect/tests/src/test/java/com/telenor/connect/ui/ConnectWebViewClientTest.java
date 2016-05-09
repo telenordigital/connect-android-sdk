@@ -31,6 +31,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -49,7 +50,7 @@ public class ConnectWebViewClientTest {
             = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
 
     @Test
-    public void checkForInstructionsIsCalledOnEveryPage() throws Exception {
+    public void checkForInstructionsIsCalledOnAnyTelenorDigitalHttpsPage() throws Exception {
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
@@ -57,9 +58,39 @@ public class ConnectWebViewClientTest {
 
         ConnectWebViewClient connectWebViewClient
                 = new ConnectWebViewClient(activity, webView, loadingView, errorView);
-        connectWebViewClient.onPageFinished(webView, "any");
+        connectWebViewClient.onPageFinished(webView, "https://any.telenordigital.com/something");
 
         verify(webView).loadUrl("javascript:window.AndroidInterface" +
+                ".processInstructions(document.getElementById('android-instructions').innerHTML);");
+    }
+
+    @Test
+    public void checkForInstructionsIsNotCalledOnNonHttpsPages() throws Exception {
+        Activity activity = mock(Activity.class);
+        WebView webView = mock(WebView.class);
+        View loadingView = mock(View.class);
+        View errorView = mock(View.class);
+
+        ConnectWebViewClient connectWebViewClient
+                = new ConnectWebViewClient(activity, webView, loadingView, errorView);
+        connectWebViewClient.onPageFinished(webView, "http://any.telenordigital.com/something");
+
+        verify(webView, never()).loadUrl("javascript:window.AndroidInterface" +
+                ".processInstructions(document.getElementById('android-instructions').innerHTML);");
+    }
+
+    @Test
+    public void checkForInstructionsIsNotCalledOnNonTelenorDigitalPages() throws Exception {
+        Activity activity = mock(Activity.class);
+        WebView webView = mock(WebView.class);
+        View loadingView = mock(View.class);
+        View errorView = mock(View.class);
+
+        ConnectWebViewClient connectWebViewClient
+                = new ConnectWebViewClient(activity, webView, loadingView, errorView);
+        connectWebViewClient.onPageFinished(webView, "https://any.telenordigital.com.fish.biz/foo");
+
+        verify(webView, never()).loadUrl("javascript:window.AndroidInterface" +
                 ".processInstructions(document.getElementById('android-instructions').innerHTML);");
     }
 
@@ -88,7 +119,6 @@ public class ConnectWebViewClientTest {
     private Instruction getPinInstruction() {
         Instruction instruction = new Instruction();
         instruction.setName(Instruction.PIN_INSTRUCTION_NAME);
-        instruction.setConfig(new Instruction.Config("", "", ""));
         return instruction;
     }
 

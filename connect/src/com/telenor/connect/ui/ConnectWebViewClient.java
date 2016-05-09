@@ -22,15 +22,19 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class ConnectWebViewClient extends WebViewClient implements SmsHandler, InstructionHandler {
 
     private static final int RACE_CONDITION_DELAY_CHECK_ALREADY_RECEIVED_SMS = 700;
     private static final int READ_RECEIVE_SMS_REQUEST_CODE = 0x2321;
-    public static final String[] SMS_PERMISSIONS
+    private static final String[] SMS_PERMISSIONS
             = new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS};
     private static long CHECK_FOR_SMS_BACK_IN_TIME_MILLIS = 2500;
+    private static long CHECK_FOR_SMS_TIMEOUT = 60000;
 
+    private static final Pattern TD_HTTPS_PATTERN
+            = Pattern.compile("^https://.*telenordigital.com(?:$|/)");
     private static final String JAVASCRIPT_PROCESSES_INSTRUCTIONS
             = "javascript:window.AndroidInterface.processInstructions(document.getElementById"
             + "('android-instructions').innerHTML);";
@@ -118,9 +122,13 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
         loadingView.setVisibility(View.GONE);
-        if (!instructionsReceived) {
+        if (!instructionsReceived && shouldCheckPageForInstructions(url)) {
             webView.loadUrl(JAVASCRIPT_PROCESSES_INSTRUCTIONS);
         }
+    }
+
+    private boolean shouldCheckPageForInstructions(String url) {
+        return TD_HTTPS_PATTERN.matcher(url).find();
     }
 
     @Override
@@ -193,7 +201,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
 
         subscribeToNewSms();
         handleIfSmsAlreadyArrived(instruction);
-        stopGetPin(instruction.getTimeout());
+        stopGetPin(CHECK_FOR_SMS_TIMEOUT);
     }
 
     private void subscribeToNewSms() {
@@ -225,7 +233,6 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             @Override
             public void run() {
                 Cursor cursor = SmsCursorUtil.getSmsCursor(activity,
-                        instruction.getConfig().getSender(),
                         pageLoadStarted-CHECK_FOR_SMS_BACK_IN_TIME_MILLIS);
                 if (cursor.moveToFirst()) {
                     String body = cursor.getString(0);
@@ -236,7 +243,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     }
 
     private void handlePinFromSmsBodyIfPresent(String body, final Instruction instruction) {
-        final String foundPin = SmsPinParseUtil.findPin(body, instruction);
+        final String foundPin = SmsPinParseUtil.findPin(body);
         if (foundPin != null && instruction.getPinCallbackName() != null) {
             stopGetPin();
             webView.post(new Runnable() {
@@ -253,9 +260,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
 
     @Override
     public void receivedSms(String originatingAddress, String messageBody) {
-        if (callbackInstruction.getConfig().getSender().equals(originatingAddress)) {
-            handlePinFromSmsBodyIfPresent(messageBody, callbackInstruction);
-        }
+        handlePinFromSmsBodyIfPresent(messageBody, callbackInstruction);
     }
 
     public void onPause() {
