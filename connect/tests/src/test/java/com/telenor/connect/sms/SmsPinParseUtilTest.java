@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class SmsPinParseUtilTest {
@@ -22,6 +23,48 @@ public class SmsPinParseUtilTest {
         assertThat(actual, is("3456"));
     }
 
+    @Test
+    public void findsPinInCaptureBrandedSms() {
+        String body = "Capture: 3456 is your verification code for CONNECT";
+        String actual = SmsPinParseUtil.findPin(body);
+        assertThat(actual, is("3456"));
+    }
+
+    @Test
+    public void findsPinInUnbrandedSms() {
+        String body = "Your verification code is 0102 - Connect by Telenor Digital";
+        String actual = SmsPinParseUtil.findPin(body);
+        assertThat(actual, is("0102"));
+    }
+
+    @Test
+    public void findsPinInPrefixedUnbrandedSms() {
+        String body = "RM0.00 Your verification code is 0102 - Connect by Telenor Digital";
+        String actual = SmsPinParseUtil.findPin(body);
+        assertThat(actual, is("0102"));
+    }
+
+    @Test
+    public void findsPinInPrefixedCaptureBrandedSms() {
+        String body = "RM0.00 Capture: 0022 is your verification code for CONNECT";
+        String actual = SmsPinParseUtil.findPin(body);
+        assertThat(actual, is("0022"));
+    }
+
+    @Test
+    public void pinWithoutConnectInItReturnsNull() {
+        String body = "Google: 0022 is your verification code";
+        String actual = SmsPinParseUtil.findPin(body);
+        assertThat(actual, is(nullValue()));
+    }
+
+    @Test
+    public void smsWithNonMatchingPatternReturnsNull() {
+        String body = "RM0.00 Hi. Please click on the link below to change " +
+                "your Connect password: https://s.telenordigital.com/abcde";
+        String actual = SmsPinParseUtil.findPin(body);
+        assertThat(actual, is(nullValue()));
+    }
 
     @Test
     public void findsPinInThaiSms() {
