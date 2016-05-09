@@ -68,6 +68,8 @@ on SMS by adding the following permissions.
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
 
+Note: You should be conscious about the security implications of using this feature. When using this feature your application will load received SMS into memory for up to 60 seconds. Upon finding an SMS with the word `CONNECT` and a PIN-code, the PIN code will be parsed and passed back to a callback JavaScript function. More discussion can be found in the issue [#15](https://github.com/telenordigital/connect-android-sdk/issues/15).
+
 Add two `meta-data` entries to the `application` section of the manifest.
 
     <application>
