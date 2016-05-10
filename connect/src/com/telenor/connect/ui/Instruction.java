@@ -43,7 +43,10 @@ public class Instruction {
     }
 
     public boolean isValidPinInstruction() {
-        return name != null && name.equals(Instruction.PIN_INSTRUCTION_NAME);
+        return name != null
+                && name.equals(Instruction.PIN_INSTRUCTION_NAME)
+                && arguments != null
+                && !arguments.isEmpty();
     }
 
     @Override
