@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
+import com.telenor.connect.BuildConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ public class ConnectUrlHelper {
         authParameters.put("client_id", clientId);
         authParameters.put("redirect_uri", redirectUri);
         authParameters.put("ui_locales", TextUtils.join(" ", locales));
+        authParameters.put("telenordigital_sdk_version", BuildConfig.VERSION_NAME);
 
         authParameters.putAll(parameters);
 
