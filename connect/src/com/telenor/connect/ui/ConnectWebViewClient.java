@@ -243,7 +243,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     }
 
     private void handlePinFromSmsBodyIfPresent(String body, final Instruction instruction) {
-        final String foundPin = SmsPinParseUtil.findPin(body);
+        final String foundPin = SmsPinParseUtil.findPin(body, instruction);
         if (foundPin != null && instruction.getPinCallbackName() != null) {
             stopGetPin();
             webView.post(new Runnable() {

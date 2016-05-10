@@ -24,7 +24,7 @@ public class HtmlToAndroidInstructionsInterfaceTest {
             "  {  \n" +
             "    \"name\":\"eval\",\n" +
             "    \"arguments\":[  \n" +
-            "      \"\\\"$('#pin').attr('placeholder', 'Waiting for PIN on SMS…');\\\"\"\n" +
+            "      \"\\\"$('#pin').attr('placeholder', 'Waiting for PIN on SMS...');\\\"\"\n" +
             "    ]\n" +
             "  },\n" +
             "  {  \n" +
@@ -35,7 +35,12 @@ public class HtmlToAndroidInstructionsInterfaceTest {
             "  },\n" +
             "  {  \n" +
             "    \"name\":\"androidSystemCall_getPinFromSms\",\n" +
-            "    \"pin_callback_name\":\"handlePinReceived\"\n" +
+            "    \"pin_callback_name\":\"handlePinReceived\",\n" +
+            "    \"arguments\":[  \n" +
+            "      \"(?:.* ([0-9]{4}) .*)\",\n" +
+            "      \"(?:.* ([0-9]{4})$)\",\n" +
+            "      \"(?:^([0-9]{4}) )\"\n" +
+            "    ]\n" +
             "  }\n" +
             "]";
 
@@ -54,16 +59,17 @@ public class HtmlToAndroidInstructionsInterfaceTest {
             "  }" +
             "]";
 
-    private static final String missingDoubleQuotesOnVarsJson = "[  \n" +
-            "   {  \n" +
+    private static final String missingDoubleQuotesOnVarsJson = "[\n" +
+            "   {\n" +
             "      name:\"androidJsCall_waitForSmsWithTimeout\"\n" +
             "   },\n" +
-            "   {  \n" +
+            "   {\n" +
             "      name:\"androidJsCall_handlePinReceived\"\n" +
             "   },\n" +
-            "   {  \n" +
+            "   {\n" +
             "      name:\"androidSystemCall_getPinFromSms\",\n" +
-            "      pin_callback_name:\"androidJsCall_handlePinReceived\"\n" +
+            "      pin_callback_name:\"androidJsCall_handlePinReceived\",\n" +
+            "      arguments: [\"some arg\"]\n" +
             "   }\n" +
             "]";
 
@@ -143,7 +149,7 @@ public class HtmlToAndroidInstructionsInterfaceTest {
         Instruction showLoading = new Instruction();
         showLoading.setName("eval");
         ArrayList<Object> showLoadingArguments = new ArrayList<>();
-        showLoadingArguments.add("\"$('#pin').attr('placeholder', 'Waiting for PIN on SMS…');\"");
+        showLoadingArguments.add("\"$('#pin').attr('placeholder', 'Waiting for PIN on SMS...');\"");
         showLoading.setArguments(showLoadingArguments);
         instructions.add(showLoading);
 
@@ -158,6 +164,11 @@ public class HtmlToAndroidInstructionsInterfaceTest {
         Instruction getPinFromSms = new Instruction();
         getPinFromSms.setName("androidSystemCall_getPinFromSms");
         getPinFromSms.setPinCallbackName("handlePinReceived");
+        List<Object> list = new ArrayList<>();
+        list.add("(?:.* ([0-9]{4}) .*)");
+        list.add("(?:.* ([0-9]{4})$)");
+        list.add("(?:^([0-9]{4}) )");
+        getPinFromSms.setArguments(list);
         instructions.add(getPinFromSms);
 
         return instructions;

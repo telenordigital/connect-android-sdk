@@ -1,37 +1,37 @@
 package com.telenor.connect.sms;
 
+import com.telenor.connect.ui.Instruction;
+
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SmsPinParseUtil {
 
-    private static final String TEMPLATE_TO_MATCH
-            = "(?: (\\d+) .*(?:Connect|CONNECT).*)|(?:.*(?:Connect|CONNECT).* (\\d+) )"
-            + "|(?:.*(?:Connect|CONNECT).* (\\d+)$)|(?:^(\\d+) .*(?:Connect|CONNECT).*)";
+    private static final String MUST_CONTAIN = "CONNECT";
 
-    public static String findPin(String body) {
-        Pattern patternToMatch = Pattern.compile(TEMPLATE_TO_MATCH);
-        Matcher matcher = patternToMatch.matcher(body);
-        if (!matcher.find()) {
+    public static String findPin(String body, Instruction instruction) {
+        if (body == null || body.isEmpty() || !body.contains(MUST_CONTAIN)) {
             return null;
         }
 
-        for (int i = 0; i < matcher.groupCount(); i++) {
-            String group = matcher.group(i);
-            if (isNumber(group)) {
-                return group;
+        List<Object> patterns = instruction.getArguments();
+
+        for (Object pattern: patterns) {
+            if (!(pattern instanceof String)) {
+                continue;
             }
+            String p = (String) pattern;
+
+            Pattern patternToMatch = Pattern.compile(p);
+            Matcher matcher = patternToMatch.matcher(body);
+            if (!matcher.find()) {
+                continue;
+            }
+
+            return matcher.group(1);
         }
 
-        throw new RuntimeException("Found match, but then couldn't find it.");
-    }
-
-    private static boolean isNumber(String s) {
-        try {
-            Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        return null;
     }
 }
