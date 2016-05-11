@@ -64,6 +64,6 @@ public class ConnectUrlHelper {
     }
 
     private static String getVersionParam() {
-        return String.format("android_v%s_%s", BuildConfig.VERSION_NAME, Build.VERSION.RELEASE);
+        return String.format("android_%s_%s", BuildConfig.VERSION_NAME, Build.VERSION.RELEASE);
     }
 }
