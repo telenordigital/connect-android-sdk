@@ -2,6 +2,7 @@ package com.telenor.connect.utils;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -46,7 +47,7 @@ public class ConnectUrlHelper {
         authParameters.put("client_id", clientId);
         authParameters.put("redirect_uri", redirectUri);
         authParameters.put("ui_locales", TextUtils.join(" ", locales));
-        authParameters.put("telenordigital_sdk_version", BuildConfig.VERSION_NAME);
+        authParameters.put("telenordigital_sdk_version", getVersionParam());
 
         authParameters.putAll(parameters);
 
@@ -60,5 +61,9 @@ public class ConnectUrlHelper {
             builder.appendQueryParameter(entry.getKey(), entry.getValue());
         }
         return builder.build();
+    }
+
+    private static String getVersionParam() {
+        return String.format("android_v%s_%s", BuildConfig.VERSION_NAME, Build.VERSION.RELEASE);
     }
 }
