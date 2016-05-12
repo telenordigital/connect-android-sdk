@@ -28,11 +28,14 @@ public class ConnectActivity extends FragmentActivity {
 
         Intent intent = getIntent();
         String action = intent.getAction();
+        int loadingScreen = intent.getIntExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA,
+                R.layout.com_telenor_connect_default_loading_view);
 
         if (fragment == null) {
             fragment = new ConnectWebFragment();
             Bundle b = new Bundle();
             b.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
+            b.putInt(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, loadingScreen);
             if (action.equals(ConnectUtils.PAYMENT_ACTION)) {
                 b.putString(ConnectUrlHelper.URL_ARGUMENT,
                         intent.getStringExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION));

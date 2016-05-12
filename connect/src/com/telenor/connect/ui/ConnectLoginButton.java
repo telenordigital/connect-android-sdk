@@ -25,6 +25,7 @@ public class ConnectLoginButton extends ConnectButton {
     private ArrayList<String> loginScopeTokens;
     private int requestCode = 0xa987;
     private Claims claims;
+    private int customLoadingLayout = -1;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -50,6 +51,10 @@ public class ConnectLoginButton extends ConnectButton {
 
     public Claims getClaims() {
         return claims;
+    }
+
+    public int getCustomLoadingLayout() {
+        return customLoadingLayout;
     }
 
     public void setAcrValues(String... acrValues) {
@@ -80,6 +85,10 @@ public class ConnectLoginButton extends ConnectButton {
         this.claims = claims;
     }
 
+    public void setCustomLoadingLayout(int customLoadingLayout) {
+        this.customLoadingLayout = customLoadingLayout;
+    }
+
     private class LoginClickListener implements OnClickListener {
 
         @Override
@@ -107,7 +116,14 @@ public class ConnectLoginButton extends ConnectButton {
                 parameters.putAll(getLoginParameters());
             }
 
-            ConnectSdk.authenticate(getActivity(), parameters, requestCode);
+            if (customLoadingLayout == -1) {
+                ConnectSdk.authenticate(getActivity(), parameters, requestCode);
+            } else {
+                ConnectSdk.authenticate(getActivity(),
+                        parameters,
+                        customLoadingLayout,
+                        requestCode);
+            }
         }
     }
 }

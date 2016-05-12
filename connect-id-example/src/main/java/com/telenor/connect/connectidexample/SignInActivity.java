@@ -14,6 +14,7 @@ public class SignInActivity extends Activity {
         setContentView(R.layout.activity_sign_in);
 
         ConnectLoginButton loginButton = (ConnectLoginButton) findViewById(R.id.login_button);
+        loginButton.setCustomLoadingLayout(R.layout.custom_loading_screen);
         loginButton.setLoginScopeTokens("profile openid");
     }
 
