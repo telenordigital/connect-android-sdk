@@ -10,5 +10,5 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         style="?android:attr/progressBarStyle" />
-    
+
 </RelativeLayout>
