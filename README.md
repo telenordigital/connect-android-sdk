@@ -174,6 +174,19 @@ To set the locale the user sees in the flows this can be done in the following w
         button.addLoginParameters(additionalLoginParams)
     }
 
+#### Customising native loading screen
+One can customise the native loading screen that is shown before the Web View has finished loading
+in the following way:
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        ...
+        ConnectLoginButton loginButton = (ConnectLoginButton) findViewById(R.id.login_button);
+        loginButton.setCustomLoadingLayout(R.layout.custom_loading_screen);
+    }
+
+Where `R.layout.custom_loading_screen` can be any custom layout (.xml) file you have created.
+
 ### Next steps for public clients
 
 #### Keeping track of the login state

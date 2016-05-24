@@ -32,6 +32,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             = new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS};
     private static long CHECK_FOR_SMS_BACK_IN_TIME_MILLIS = 2500;
     private static long CHECK_FOR_SMS_TIMEOUT = 60000;
+    private static final int DELAY_HIDE_NATIVE_LOADING_VIEW = 50;
 
     private static final Pattern TD_HTTPS_PATTERN
             = Pattern.compile("^https://.*telenordigital.com(?:$|/)");
@@ -114,7 +115,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                 public void run() {
                     loadingView.setVisibility(View.GONE);
                 }
-            }, 300);
+            }, DELAY_HIDE_NATIVE_LOADING_VIEW);
         }
     }
 
