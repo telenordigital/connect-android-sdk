@@ -94,11 +94,25 @@ public final class ConnectSdk {
             Map<String, String> parameters,
             int requestCode) {
 
+        Intent intent = getAuthIntent(parameters);
+        activity.startActivityForResult(intent, requestCode);
+    }
+
+    private static Intent getAuthIntent(Map<String, String> parameters) {
         Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI,
                 getAuthorizeUriAndSetLastAuthState(parameters).toString());
+        return intent;
+    }
+
+    public static void authenticate(Activity activity,
+            Map<String, String> parameters,
+            int customLoadingLayout,
+            int requestCode) {
+        Intent intent = getAuthIntent(parameters);
+        intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
         activity.startActivityForResult(intent, requestCode);
     }
 
