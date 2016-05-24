@@ -2,6 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape>
+            <!-- Draws a linear gradient from the top left corner to the bottom right corner -->
             <gradient
                 android:type="linear"
                 android:angle="315"
