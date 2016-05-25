@@ -107,7 +107,7 @@ public final class ConnectSdk {
         return intent;
     }
 
-    public static void authenticate(Activity activity,
+    public static synchronized void authenticate(Activity activity,
             Map<String, String> parameters,
             int customLoadingLayout,
             int requestCode) {
