@@ -22,7 +22,9 @@ public class ConnectUrlHelper {
     public static String getPageUrl(Bundle arguments, Activity activity) {
         if (ConnectUtils.PAYMENT_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
             return arguments.getString(URL_ARGUMENT);
-        } else if (ConnectUtils.LOGIN_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
+        }
+
+        if (ConnectUtils.LOGIN_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
             if (activity == null
                     || activity.getIntent() == null
                     || activity.getIntent()
@@ -64,6 +66,6 @@ public class ConnectUrlHelper {
     }
 
     private static String getVersionParam() {
-        return String.format("android_v%s_%s", BuildConfig.VERSION_NAME, Build.VERSION.RELEASE);
+        return String.format("android_%s_%s", BuildConfig.VERSION_NAME, Build.VERSION.RELEASE);
     }
 }
