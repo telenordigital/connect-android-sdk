@@ -243,9 +243,9 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         }, RACE_CONDITION_DELAY_CHECK_ALREADY_RECEIVED_SMS);
     }
 
-    private void handlePinFromSmsBodyIfPresent(String body, final Instruction instruction) {
+    private synchronized void handlePinFromSmsBodyIfPresent(String body, final Instruction instruction) {
         final String foundPin = SmsPinParseUtil.findPin(body, instruction);
-        if (foundPin != null && instruction.getPinCallbackName() != null) {
+        if (waitingForPinSms && foundPin != null && instruction.getPinCallbackName() != null) {
             stopGetPin();
             webView.post(new Runnable() {
                 @Override
