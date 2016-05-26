@@ -74,6 +74,11 @@ public class IdToken {
         return "IdToken{" +
                 "serializedSignedJwt='" + serializedSignedJwt + '\'' +
                 ", subject='" + subject + '\'' +
+                ", authenticationUsername='" + authenticationUsername + '\'' +
+                ", email='" + email + '\'' +
+                ", emailVerified=" + emailVerified +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", phoneNumberVerified=" + phoneNumberVerified +
                 '}';
     }
 }
