@@ -28,10 +28,8 @@ public class IdToken {
                     "Could not parse saved id token. idToken=" + this, e);
         }
 
-        subject = jwtClaimsSet.getSubject();
         final Map<String, Object> cc = jwtClaimsSet.getCustomClaims();
-
-
+        subject = jwtClaimsSet.getSubject();
         authenticationUsername = cc.containsKey("td_au") ? (String) cc.get("td_au") : null;
         email = cc.containsKey("email") ? (String) cc.get("email") : null;
         emailVerified
