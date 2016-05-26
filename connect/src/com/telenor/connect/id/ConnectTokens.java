@@ -2,9 +2,7 @@ package com.telenor.connect.id;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-
-public class ConnectTokens implements Serializable {
+public class ConnectTokens {
     @SerializedName("access_token")
     private final String accessToken;
 
