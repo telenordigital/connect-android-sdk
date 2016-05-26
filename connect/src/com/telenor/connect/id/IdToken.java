@@ -9,6 +9,12 @@ import java.util.Map;
 
 public class IdToken {
 
+    private static final String AUTHENTICATED_USERNAME = "td_au";
+    private static final String EMAIL = "email";
+    private static final String EMAIL_VERIFIED = "email_verified";
+    private static final String PHONE_NUMBER = "phone_number";
+    private static final String PHONE_NUMBER_VERIFIED = "phone_number_verified";
+
     private final String serializedSignedJwt;
     private final String subject;
     private final String authenticationUsername;
@@ -30,13 +36,14 @@ public class IdToken {
 
         final Map<String, Object> cc = jwtClaimsSet.getCustomClaims();
         subject = jwtClaimsSet.getSubject();
-        authenticationUsername = cc.containsKey("td_au") ? (String) cc.get("td_au") : null;
-        email = cc.containsKey("email") ? (String) cc.get("email") : null;
+        authenticationUsername = cc.containsKey(AUTHENTICATED_USERNAME)
+                ? (String) cc.get(AUTHENTICATED_USERNAME) : null;
+        email = cc.containsKey(EMAIL) ? (String) cc.get(EMAIL) : null;
         emailVerified
-                = cc.containsKey("email_verified") ? (Boolean) cc.get("email_verified") : null;
-        phoneNumber = cc.containsKey("phone_number") ? (String) cc.get("phone_number") : null;
-        phoneNumberVerified = cc.containsKey("phone_number_verified")
-                ? (Boolean) cc.get("phone_number_verified") : null;
+                = cc.containsKey(EMAIL_VERIFIED) ? (Boolean) cc.get(EMAIL_VERIFIED) : null;
+        phoneNumber = cc.containsKey(PHONE_NUMBER) ? (String) cc.get(PHONE_NUMBER) : null;
+        phoneNumberVerified = cc.containsKey(PHONE_NUMBER_VERIFIED)
+                ? (Boolean) cc.get(PHONE_NUMBER_VERIFIED) : null;
     }
 
     public String getSerializedSignedJwt() {
