@@ -218,10 +218,12 @@ about [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for m
 
 ### Retrieving information about the logged in user
 
-If you request email, phone, profile and/or name scope tokens and claims, you can access these
-fields on the user from `ConnectSdk.getIdToken()` after an authorize request, without having to do
-any further requests. Setting the scope will give you access to these fields. Setting the claims
-will make sure that the user has something in these fields if the authorize successfully completes.
+If you request user claims like email, phone, and name using either scope tokens or the claims
+parameter, you can access these fields on the user from `ConnectSdk.getIdToken()` after an authorize
+request, without having to do any further requests. Setting the scope will give you access to these
+fields, setting the claims will make sure that the user has something in these fields, if the
+authorize successfully completes. If both email and phone claims have been requested, we will also
+provided the username used for the authentication in the ID token.
 
 See docs.telenordigital.com/apis/connect/id/authentication.html for more details.
 
