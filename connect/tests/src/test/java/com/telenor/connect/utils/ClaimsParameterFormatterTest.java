@@ -41,13 +41,13 @@ public class ClaimsParameterFormatterTest {
 
     @Test
     public void multipleClaimsIsAccepted() throws Exception {
-        String claimsJson = ClaimsParameterFormatter.asJson(new Claims(Claims.EMAIL, Claims.PHONE));
+        String claimsJson = ClaimsParameterFormatter.asJson(new Claims(Claims.EMAIL, Claims.PHONE_NUMBER));
 
         final String expectedJson = "{\n" +
                 "\t\"userinfo\":\n" +
                 "\t{\n" +
                 "\t\t\"email\": {\"essential\": true},\n" +
-                "\t\t\"phone\": {\"essential\": true}\n" +
+                "\t\t\"phone_number\": {\"essential\": true}\n" +
                 "\t}\n" +
                 "}";
 
