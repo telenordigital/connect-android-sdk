@@ -324,7 +324,9 @@ public final class ConnectSdk {
 
     /**
      * @return the subject's ID (sub), if one is signed in. Otherwise {@code null}.
+     * @deprecated use {@code getIdToken()} instead to access user information.
      */
+    @Deprecated
     public static String getSubjectId() {
         Validator.sdkInitialized();
         IdToken idToken = sConnectIdService.getIdToken();

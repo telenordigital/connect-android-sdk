@@ -216,12 +216,14 @@ method. When the token has expired a new set of tokens can be requested using
 Access tokens can be used to access resources on your resource server. Please refer to the document
 about [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for more details.
 
-### Retrieving the logged in user's ID, email or phone number
+### Retrieving information about the logged in user
 
-If you supply email and phone number as scope and claims you can access these fields on the user
-from `ConnectSdk.getIdToken()` after an authorize request, without having to do any further
-requests. To get the logged users Connect ID you can call the convenience
-method `ConnectSdk.getSubjectId()`.
+If you request email, phone, profile and/or name scope tokens and claims, you can access these
+fields on the user from `ConnectSdk.getIdToken()` after an authorize request, without having to do
+any further requests. Setting the scope will give you access to these fields. Setting the claims
+will make sure that the user has something in these fields if the authorize successfully completes.
+
+See docs.telenordigital.com/apis/connect/id/authentication.html for more details.
 
 
 ### Next steps for confidential clients
