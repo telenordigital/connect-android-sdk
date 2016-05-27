@@ -156,7 +156,7 @@ you can use the `setClaims` method on the `ConnectLoginButton`.
         ...
         ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
         button.setLoginScopeTokens("profile");
-        button.setClaims(new Claims(Claims.PHONE, Claims.EMAIL));
+        button.setClaims(new Claims(Claims.PHONE_NUMBER, Claims.EMAIL));
     }
 
 
