@@ -148,12 +148,11 @@ public class ConnectIdService {
         return currentTokens;
     }
 
-    public String getSubjectId() {
+    public IdToken getIdToken() {
         if (idToken == null) {
             idToken = tokenStore.getIdToken();
         }
-
-        return idToken != null ? idToken.getSubject() : null;
+        return idToken;
     }
 
     public void getUserInfo(Callback<UserInfo> userInfoCallback)

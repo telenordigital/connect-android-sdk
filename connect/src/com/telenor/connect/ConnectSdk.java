@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
+import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.TokenStore;
 import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.ui.ConnectActivity;
@@ -323,10 +324,25 @@ public final class ConnectSdk {
 
     /**
      * @return the subject's ID (sub), if one is signed in. Otherwise {@code null}.
+     * @deprecated use {@code getIdToken()} instead to access user information.
      */
+    @Deprecated
     public static String getSubjectId() {
         Validator.sdkInitialized();
-        return sConnectIdService.getSubjectId();
+        IdToken idToken = sConnectIdService.getIdToken();
+        return idToken != null ? idToken.getSubject() : null;
+    }
+
+    /**
+     * Returns the {@code IdToken} of the signed in user, otherwise {@code null}. The presence of
+     * the fields depend on the scope and claim variables that were given at sign in time.
+     * See http://docs.telenordigital.com/apis/connect/id/authentication.html for more details.
+     *
+     * @return the ID token for the user
+     */
+    public static IdToken getIdToken() {
+        Validator.sdkInitialized();
+        return sConnectIdService.getIdToken();
     }
 
     /**

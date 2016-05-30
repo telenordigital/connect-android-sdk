@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.utils.ConnectUtils;
@@ -11,6 +12,7 @@ import com.telenor.connect.utils.ConnectUtils;
 public class ActivityFinisherConnectCallback implements ConnectCallback {
 
     private final Activity activity;
+    private final Gson gson = new Gson();
 
     public ActivityFinisherConnectCallback(final Activity activity) {
         this.activity = activity;
@@ -20,7 +22,8 @@ public class ActivityFinisherConnectCallback implements ConnectCallback {
     public void onSuccess(Object successData) {
         ConnectTokens connectTokens = (ConnectTokens) successData;
         Intent data = new Intent();
-        data.putExtra(ConnectSdk.EXTRA_CONNECT_TOKENS, connectTokens);
+        String json = gson.toJson(connectTokens);
+        data.putExtra(ConnectSdk.EXTRA_CONNECT_TOKENS, json);
         activity.setResult(Activity.RESULT_OK, data);
         activity.finish();
     }

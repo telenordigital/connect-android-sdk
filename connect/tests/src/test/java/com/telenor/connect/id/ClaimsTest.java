@@ -16,7 +16,7 @@ public class ClaimsTest {
 
     @Test
     public void duplicatesAreEliminated() {
-        Claims claims = new Claims(Claims.PHONE, Claims.PHONE);
+        Claims claims = new Claims(Claims.PHONE_NUMBER, Claims.PHONE_NUMBER);
 
         assertThat(claims.getClaims().size(), is(1));
     }

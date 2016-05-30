@@ -6,11 +6,12 @@ import java.util.Set;
 
 public class Claims {
 
-    public static final String OPENID = "openid";
-    public static final String PROFILE = "profile";
     public static final String EMAIL = "email";
-    public static final String ADDRESS = "address";
-    public static final String PHONE = "phone";
+    public static final String EMAIL_VERIFIED = "email_verified";
+    public static final String NAME = "name";
+    public static final String PHONE_NUMBER = "phone_number";
+    public static final String PHONE_NUMBER_VERIFIED = "phone_number_verified";
+    public static final String SUB = "sub";
 
     private final Set<String> claims;
 
