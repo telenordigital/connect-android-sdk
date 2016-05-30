@@ -30,7 +30,7 @@ public class SignedInActivity extends Activity {
         });
 
         TextView userId = (TextView) findViewById(R.id.user_id);
-        userId.setText(ConnectSdk.getSubjectId());
+        userId.setText(ConnectSdk.getIdToken().getSubject());
 
         if (ConnectSdk.getAccessToken() == null) {
             goToLogin();
