@@ -36,7 +36,8 @@ public class ConnectIdService {
 
     public void getValidAccessToken(final AccessTokenCallback callback) {
         if (retrieveTokens() == null) {
-            throw new ConnectRefreshTokenMissingException("Failed to call retrieveTokens().");
+            throw new ConnectRefreshTokenMissingException("retrieveTokens() returned null. Tokens" +
+                    "are missing.");
         }
 
         if (retrieveTokens().accessTokenHasExpired()) {
