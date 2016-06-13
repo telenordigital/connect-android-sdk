@@ -1,46 +1,38 @@
 package com.telenor.connect.id;
 
-import com.google.gson.annotations.SerializedName;
+import com.telenor.connect.utils.Validator;
+
+import java.util.Calendar;
+import java.util.Date;
 
 public class ConnectTokens {
-    @SerializedName("access_token")
+
     private final String accessToken;
-
-    @SerializedName("expires_in")
-    private final long expiresIn;
-
-    @SerializedName("id_token")
+    private final Date expirationDate;
     private final IdToken idToken;
-
-    @SerializedName("refresh_token")
     private final String refreshToken;
-
     private final String scope;
-
-    @SerializedName("token_type")
     private final String tokenType;
 
-    public ConnectTokens(
-            String accessToken,
-            long expiresIn,
-            IdToken idToken,
-            String refreshToken,
-            String scope,
-            String tokenType) {
-        this.accessToken = accessToken;
-        this.expiresIn = expiresIn;
-        this.idToken = idToken;
-        this.refreshToken = refreshToken;
-        this.scope = scope;
-        this.tokenType = tokenType;
+    public ConnectTokens(ConnectTokensTO connectTokensTO) {
+        Validator.validateTokens(connectTokensTO);
+
+        accessToken = connectTokensTO.getAccessToken();
+        Calendar instance = Calendar.getInstance();
+        instance.add(Calendar.SECOND, (int) connectTokensTO.getExpiresIn());
+        expirationDate = instance.getTime();
+        idToken = connectTokensTO.getIdToken();
+        refreshToken = connectTokensTO.getRefreshToken();
+        scope = connectTokensTO.getScope();
+        tokenType = connectTokensTO.getTokenType();
     }
 
     public String getAccessToken() {
         return accessToken;
     }
 
-    public long getExpiresIn() {
-        return expiresIn;
+    public Date getExpirationDate() {
+        return expirationDate;
     }
 
     public IdToken getIdToken() {
@@ -58,4 +50,9 @@ public class ConnectTokens {
     public String getTokenType() {
         return tokenType;
     }
+
+    public boolean accessTokenHasExpired() {
+        return Calendar.getInstance().getTime().after(expirationDate);
+    }
+
 }

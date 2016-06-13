@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
+import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.TokenStore;
@@ -115,6 +116,20 @@ public final class ConnectSdk {
         Intent intent = getAuthIntent(parameters);
         intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
         activity.startActivityForResult(intent, requestCode);
+    }
+
+    /**
+     * Get a valid Access Token. If a non-expired one is available, that will be given to the
+     * callback {@code onSuccess(String accessToken)} method.
+     *
+     * If it is expired, it will be refreshed and then returned. This requires a network call.
+     *
+     * @param callback callback that will be called on success or failure to update.
+     * @throws ConnectRefreshTokenMissingException if no Request Token is available
+     */
+    public static synchronized void getValidAccessToken(AccessTokenCallback callback) {
+        Validator.sdkInitialized();
+        sConnectIdService.getValidAccessToken(callback);
     }
 
     public static synchronized String getAccessToken() {
@@ -265,7 +280,11 @@ public final class ConnectSdk {
         sLocales = locales;
     }
 
-    public static void updateTokens(ConnectCallback callback) {
+    /**
+     * Manually update the access token.
+     * @param callback callback that will be called on success or failure to update.
+     */
+    public static void updateTokens(AccessTokenCallback callback) {
         Validator.sdkInitialized();
         sConnectIdService.updateTokens(callback);
     }

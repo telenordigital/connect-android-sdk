@@ -33,7 +33,7 @@ import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
 @PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*" })
 @PrepareForTest({ConnectSdk.class, ConnectIdService.class})
-public class AccessTokenCallbackTest {
+public class ParseTokenCallbackTest {
 
     @Rule
     public PowerMockRule rule = new PowerMockRule(); // needed to activate PowerMock
@@ -44,7 +44,7 @@ public class AccessTokenCallbackTest {
         given(ConnectSdk.isInitialized()).willReturn(true);
 
         Activity activity = mock(Activity.class);
-        AccessTokenCallback callback = new AccessTokenCallback(activity);
+        ParseTokenCallback callback = new ParseTokenCallback(activity);
         Map<String, String> errorData = new HashMap<>();
         errorData.put("something", "something else");
 
@@ -68,7 +68,7 @@ public class AccessTokenCallbackTest {
         ConnectSdk.getAccessTokenFromCode(anyString(), isA(ActivityFinisherConnectCallback.class));
 
         Activity activity = mock(Activity.class);
-        AccessTokenCallback callback = new AccessTokenCallback(activity);
+        ParseTokenCallback callback = new ParseTokenCallback(activity);
         Map<String, String> successData = new HashMap<>();
 
         callback.onSuccess(successData);
@@ -84,7 +84,7 @@ public class AccessTokenCallbackTest {
         given(ConnectSdk.isConfidentialClient()).willReturn(true);
 
         Activity activity = mock(Activity.class);
-        AccessTokenCallback callback = new AccessTokenCallback(activity);
+        ParseTokenCallback callback = new ParseTokenCallback(activity);
         Map<String, String> successData = new HashMap<>();
         successData.put("something", "something else");
 

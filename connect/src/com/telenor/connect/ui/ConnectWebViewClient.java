@@ -13,7 +13,7 @@ import android.webkit.WebViewClient;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.id.AccessTokenCallback;
+import com.telenor.connect.id.ParseTokenCallback;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsCursorUtil;
 import com.telenor.connect.sms.SmsHandler;
@@ -65,7 +65,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         this.loadingView = loadingView;
         this.errorView = errorView;
         this.smsBroadcastReceiver = new SmsBroadcastReceiver(this);
-        this.connectCallback = new AccessTokenCallback(activity);
+        this.connectCallback = new ParseTokenCallback(activity);
     }
 
     @Override
