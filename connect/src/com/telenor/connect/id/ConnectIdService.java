@@ -8,8 +8,8 @@ import android.webkit.CookieSyncManager;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectNotSignedInException;
+import com.telenor.connect.ConnectRefreshTokenMissingException;
 import com.telenor.connect.utils.ConnectUtils;
-import com.telenor.connect.utils.Validator;
 
 import retrofit.Callback;
 import retrofit.ResponseCallback;
@@ -34,6 +34,20 @@ public class ConnectIdService {
         this.tokenStore = tokenStore;
     }
 
+    public void getValidAccessToken(final AccessTokenCallback callback) {
+        if (retrieveTokens() == null) {
+            throw new ConnectRefreshTokenMissingException(
+                    "retrieveTokens() returned null. Tokens are missing.");
+        }
+
+        if (retrieveTokens().accessTokenHasExpired()) {
+            updateTokens(callback);
+            return;
+        }
+
+        callback.onSuccess(retrieveTokens().getAccessToken());
+    }
+
     public String getAccessToken() {
         if (retrieveTokens() == null) {
             return null;
@@ -49,10 +63,10 @@ public class ConnectIdService {
                 authCode,
                 redirectUrl,
                 clientId,
-                new Callback<ConnectTokens>() {
+                new Callback<ConnectTokensTO>() {
                     @Override
-                    public void success(ConnectTokens connectTokens, Response response) {
-                        Validator.validateTokens(connectTokens);
+                    public void success(ConnectTokensTO connectTokensTO, Response response) {
+                        ConnectTokens connectTokens = new ConnectTokens(connectTokensTO);
                         tokenStore.set(connectTokens);
                         currentTokens = connectTokens;
                         idToken = connectTokens.getIdToken();
@@ -73,6 +87,9 @@ public class ConnectIdService {
     }
 
     private String getRefreshToken() {
+        if (retrieveTokens() == null) {
+            return null;
+        }
         return retrieveTokens().getRefreshToken();
     }
 
@@ -116,15 +133,20 @@ public class ConnectIdService {
         }
     }
 
-    public void updateTokens(final ConnectCallback callback) {
-        connectApi.refreshAccessTokens("refresh_token", getRefreshToken(),
-                clientId, new Callback<ConnectTokens>() {
+    public void updateTokens(final AccessTokenCallback callback) {
+        final String refreshToken = getRefreshToken();
+        if (refreshToken == null) {
+            throw new ConnectRefreshTokenMissingException("Refresh token missing, " +
+                    "can't update tokens.");
+        }
+        connectApi.refreshAccessTokens("refresh_token", refreshToken,
+                clientId, new Callback<ConnectTokensTO>() {
                     @Override
-                    public void success(ConnectTokens connectTokens, Response response) {
-                        Validator.validateTokens(connectTokens);
+                    public void success(ConnectTokensTO connectTokensTO, Response response) {
+                        ConnectTokens connectTokens = new ConnectTokens(connectTokensTO);
                         tokenStore.update(connectTokens);
                         currentTokens = connectTokens;
-                        callback.onSuccess(connectTokens);
+                        callback.onSuccess(connectTokens.getAccessToken());
                     }
 
                     @Override

@@ -3,7 +3,7 @@ package com.telenor.connect.utils;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.id.ConnectTokens;
+import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.id.IdToken;
 
 import org.junit.Test;
@@ -73,7 +73,7 @@ public class ValidatorTest {
     public void validateTokensChecksAllConnectTokensFields() {
         PowerMockito.mockStatic(IdTokenValidator.class);
 
-        ConnectTokens connectTokens = new ConnectTokens(
+        ConnectTokensTO connectTokensTO = new ConnectTokensTO(
                 "access",
                 123,
                 mock(IdToken.class),
@@ -81,14 +81,14 @@ public class ValidatorTest {
                 "scope",
                 "type");
 
-        Validator.validateTokens(connectTokens);
+        Validator.validateTokens(connectTokensTO);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void validateTokensMissingAccessTokenThrows() {
         PowerMockito.mockStatic(IdTokenValidator.class);
 
-        ConnectTokens connectTokens = new ConnectTokens(
+        ConnectTokensTO connectTokensTO = new ConnectTokensTO(
                 null,
                 123,
                 mock(IdToken.class),
@@ -96,11 +96,11 @@ public class ValidatorTest {
                 "scope",
                 "type");
 
-        Validator.validateTokens(connectTokens);
+        Validator.validateTokens(connectTokensTO);
     }
 
     public void validateTokensMissingIdTokenIsAllowed() {
-        ConnectTokens connectTokens = new ConnectTokens(
+        ConnectTokensTO connectTokensTO = new ConnectTokensTO(
                 "access",
                 123,
                 null,
@@ -108,14 +108,14 @@ public class ValidatorTest {
                 "scope",
                 "type");
 
-        Validator.validateTokens(connectTokens);
+        Validator.validateTokens(connectTokensTO);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void validateTokensMissingRefreshTokenThrows() {
         PowerMockito.mockStatic(IdTokenValidator.class);
 
-        ConnectTokens connectTokens = new ConnectTokens(
+        ConnectTokensTO connectTokensTO = new ConnectTokensTO(
                 "access",
                 123,
                 mock(IdToken.class),
@@ -123,14 +123,14 @@ public class ValidatorTest {
                 "scope",
                 "type");
 
-        Validator.validateTokens(connectTokens);
+        Validator.validateTokens(connectTokensTO);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void validateTokensMissingScopeThrows() {
         PowerMockito.mockStatic(IdTokenValidator.class);
 
-        ConnectTokens connectTokens = new ConnectTokens(
+        ConnectTokensTO connectTokensTO = new ConnectTokensTO(
                 "access",
                 123,
                 mock(IdToken.class),
@@ -138,14 +138,14 @@ public class ValidatorTest {
                 null,
                 "type");
 
-        Validator.validateTokens(connectTokens);
+        Validator.validateTokens(connectTokensTO);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void validateTokensMissingTokenTypeThrows() {
         PowerMockito.mockStatic(IdTokenValidator.class);
 
-        ConnectTokens connectTokens = new ConnectTokens(
+        ConnectTokensTO connectTokensTO = new ConnectTokensTO(
                 "access",
                 123,
                 mock(IdToken.class),
@@ -153,6 +153,6 @@ public class ValidatorTest {
                 "scope",
                 null);
 
-        Validator.validateTokens(connectTokens);
+        Validator.validateTokens(connectTokensTO);
     }
 }

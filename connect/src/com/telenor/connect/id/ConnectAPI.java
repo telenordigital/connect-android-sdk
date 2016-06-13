@@ -19,7 +19,7 @@ public interface ConnectAPI {
             @Field("code") String code,
             @Field("redirect_uri") String redirect_uri,
             @Field("client_id") String client_id,
-            Callback<ConnectTokens> tokens);
+            Callback<ConnectTokensTO> tokens);
 
     @FormUrlEncoded
     @Headers("Content-Type: application/x-www-form-urlencoded")
@@ -28,7 +28,7 @@ public interface ConnectAPI {
             @Field("grant_type") String grant_type,
             @Field("refresh_token") String refresh_token,
             @Field("client_id") String client_id,
-            Callback<ConnectTokens> tokens);
+            Callback<ConnectTokensTO> tokens);
 
     @FormUrlEncoded
     @Headers("Content-Type: application/x-www-form-urlencoded")

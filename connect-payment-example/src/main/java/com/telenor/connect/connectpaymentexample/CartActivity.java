@@ -5,11 +5,10 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 
-import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.id.AccessTokenCallback;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -74,9 +73,9 @@ public class CartActivity extends AppCompatActivity {
 
                     return object;
                 } else if (status == 401) {
-                    ConnectSdk.updateTokens(new ConnectCallback() {
+                    ConnectSdk.updateTokens(new AccessTokenCallback() {
                         @Override
-                        public void onSuccess(Object successData) {
+                        public void onSuccess(String accessToken) {
                             new CreateTransactionTask(activity).execute();
                         }
 
