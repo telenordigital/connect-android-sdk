@@ -27,7 +27,6 @@ public class IdToken {
     private final String phoneNumber;
     private final Boolean phoneNumberVerified;
 
-
     public IdToken(String serializedSignedJwt) {
         this.serializedSignedJwt = serializedSignedJwt;
         ReadOnlyJWTClaimsSet jwtClaimsSet;
