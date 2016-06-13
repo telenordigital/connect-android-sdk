@@ -5,6 +5,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.telenor.connect.ConnectException;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Map;
 
 public class IdToken {
@@ -18,6 +19,7 @@ public class IdToken {
 
     private final String serializedSignedJwt;
     private final String subject;
+    private final Date expirationDate;
     private final String authenticationUsername;
     private final String name;
     private final String email;
@@ -37,6 +39,7 @@ public class IdToken {
         }
 
         subject = jwtClaimsSet.getSubject();
+        expirationDate = jwtClaimsSet.getExpirationTime();
         final Map<String, Object> customClaims = jwtClaimsSet.getCustomClaims();
         authenticationUsername = customClaims.containsKey(AUTHENTICATION_USERNAME)
                 ? (String) customClaims.get(AUTHENTICATION_USERNAME) : null;
@@ -58,6 +61,10 @@ public class IdToken {
 
     public String getSubject() {
         return subject;
+    }
+
+    public Date getExpirationDate() {
+        return expirationDate;
     }
 
     public String getAuthenticationUsername() {
@@ -89,6 +96,7 @@ public class IdToken {
         return "IdToken{" +
                 "serializedSignedJwt='" + serializedSignedJwt + '\'' +
                 ", subject='" + subject + '\'' +
+                ", expirationDate=" + expirationDate +
                 ", authenticationUsername='" + authenticationUsername + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
