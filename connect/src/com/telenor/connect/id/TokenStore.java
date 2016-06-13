@@ -39,7 +39,7 @@ public class TokenStore {
 
     public ConnectTokens get() {
         String connectTokensJson = context
-                .getSharedPreferences(PREFERENCES_FILE,  Context.MODE_PRIVATE)
+                .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
                 .getString(PREFERENCE_KEY_CONNECT_TOKENS, null);
 
         return preferencesGson.fromJson(connectTokensJson, ConnectTokens.class);
