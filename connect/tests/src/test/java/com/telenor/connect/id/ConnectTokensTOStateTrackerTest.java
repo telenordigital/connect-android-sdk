@@ -24,7 +24,7 @@ import static org.mockito.Mockito.mock;
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
 @PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*" })
 @PrepareForTest({ConnectSdk.class, LocalBroadcastManager.class})
-public class ConnectTokensStateTrackerTest {
+public class ConnectTokensTOStateTrackerTest {
 
     @Rule
     public PowerMockRule rule = new PowerMockRule(); // needed to activate PowerMock

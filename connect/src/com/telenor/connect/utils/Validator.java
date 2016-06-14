@@ -3,7 +3,7 @@ package com.telenor.connect.utils;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.id.ConnectTokens;
+import com.telenor.connect.id.ConnectTokensTO;
 
 public class Validator {
     public static void notNull(Object var, String name) {
@@ -34,7 +34,7 @@ public class Validator {
         }
     }
 
-    public static void validateTokens(ConnectTokens tokens) {
+    public static void validateTokens(ConnectTokensTO tokens) {
         notNullOrEmpty(tokens.getAccessToken(), "access_token");
         notNull(tokens.getExpiresIn(), "expires_in");
         notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
