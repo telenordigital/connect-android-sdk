@@ -101,11 +101,11 @@ public final class ConnectSdk {
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
-        Intent intent = new Intent();
+        final Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
-        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI,
-                getAuthorizeUriAndSetLastAuthState(parameters).toString());
+        final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
+        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
         return intent;
     }
 
