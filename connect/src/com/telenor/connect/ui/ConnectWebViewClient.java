@@ -98,6 +98,13 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         errorView.setVisibility(View.VISIBLE);
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+        super.onReceivedError(view, errorCode, description, failingUrl);
+        errorView.setVisibility(View.VISIBLE);
+    }
+
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
         pageLoadStarted = System.currentTimeMillis();
