@@ -100,7 +100,8 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
 
     @SuppressWarnings("deprecation")
     @Override
-    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+    public void onReceivedError(WebView view, int errorCode,
+                                String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
         errorView.setVisibility(View.VISIBLE);
     }
