@@ -1,12 +1,10 @@
 package com.telenor.connect.id;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.telenor.connect.ConnectCallback;
-import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.utils.ConnectUtils;
 
 public class ActivityFinisherConnectCallback implements ConnectCallback {
@@ -20,12 +18,12 @@ public class ActivityFinisherConnectCallback implements ConnectCallback {
 
     @Override
     public void onSuccess(Object successData) {
-        ConnectTokens connectTokens = (ConnectTokens) successData;
+        /*ConnectTokens connectTokens = (ConnectTokens) successData;
         Intent data = new Intent();
         String json = gson.toJson(connectTokens);
         data.putExtra(ConnectSdk.EXTRA_CONNECT_TOKENS, json);
         activity.setResult(Activity.RESULT_OK, data);
-        activity.finish();
+        activity.finish();*/
     }
 
     @Override

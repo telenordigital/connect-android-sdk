@@ -41,7 +41,7 @@ public class ConnectWebFragment extends Fragment {
         WebView webView = (WebView) view.findViewById(R.id.com_telenor_connect_fragment_webview);
         client = new ConnectWebViewClient(getActivity(), webView, loadingView, errorView);
 
-        String pageUrl = ConnectUrlHelper.getPageUrl(getArguments(), getActivity());
+        String pageUrl = ConnectUrlHelper.getPageUrl(getArguments());
         WebViewHelper.setupWebView(webView, client, pageUrl);
         return view;
     }

@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
@@ -15,6 +18,7 @@ import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.TokenStore;
 import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.ui.ConnectActivity;
+import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
@@ -116,6 +120,26 @@ public final class ConnectSdk {
         Intent intent = getAuthIntent(parameters);
         intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
         activity.startActivityForResult(intent, requestCode);
+    }
+
+    public static Fragment preLoadAuthFlow(Map<String, String> parameters,
+                                           FragmentManager supportFragmentManager,
+                                           int placeholder) {
+        Validator.sdkInitialized();
+        final Fragment fragment = new ConnectWebFragment();
+        Intent authIntent = getAuthIntent(parameters);
+        String action = authIntent.getAction();
+        Bundle bundle = new Bundle(authIntent.getExtras());
+
+        bundle.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
+        fragment.setArguments(bundle);
+        fragment.setRetainInstance(true);
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(placeholder, fragment)
+            .commit();
+        return fragment;
     }
 
     /**
@@ -377,4 +401,6 @@ public final class ConnectSdk {
         Validator.sdkInitialized();
         sConnectIdService.getUserInfo(userInfoCallback);
     }
+
+
 }

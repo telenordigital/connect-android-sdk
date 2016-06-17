@@ -1,30 +1,59 @@
 package com.telenor.connect.connectidexample;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
 
-import com.telenor.connect.ui.ConnectLoginButton;
+import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.id.ConnectTokensStateTracker;
+import com.telenor.connect.ui.ConnectButton;
 
-public class SignInActivity extends Activity {
+import java.util.HashMap;
+import java.util.Map;
+
+public class SignInActivity extends FragmentActivity {
+
+    private ConnectButton loginButton;
+    private View webView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        ConnectLoginButton loginButton = (ConnectLoginButton) findViewById(R.id.login_button);
-        loginButton.setLoginScopeTokens("profile openid");
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("scope", "openid profile");
+        ConnectSdk.preLoadAuthFlow(
+                parameters,
+                getSupportFragmentManager(),
+                R.id.web_view_placeholder);
+
+        webView = findViewById(R.id.web_view_placeholder);
+        loginButton = (ConnectButton) findViewById(R.id.login_button);
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                webView.setVisibility(View.VISIBLE);
+                loginButton.setVisibility(View.GONE);
+            }
+        });
+
+        new ConnectTokensStateTracker() {
+            @Override
+            protected void onTokenStateChanged(boolean hasTokens) {
+                if (hasTokens) {
+                    Intent intent = new Intent(SignInActivity.this, SignedInActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        };
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            Intent intent = new Intent(getApplicationContext(), SignedInActivity.class);
-            startActivity(intent);
-            finish();
-        }
+    public void onBackPressed() {
+        webView.setVisibility(View.GONE);
+        loginButton.setVisibility(View.VISIBLE);
     }
-
 }

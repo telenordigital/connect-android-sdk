@@ -33,7 +33,7 @@ public class ConnectActivity extends FragmentActivity {
 
         if (fragment == null) {
             fragment = new ConnectWebFragment();
-            Bundle b = new Bundle();
+            Bundle b = new Bundle(intent.getExtras());
             b.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
             b.putInt(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, loadingScreen);
             if (action.equals(ConnectUtils.PAYMENT_ACTION)) {
