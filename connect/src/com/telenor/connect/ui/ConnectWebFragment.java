@@ -16,7 +16,6 @@ import android.widget.Button;
 import com.telenor.connect.R;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
-import com.telenor.connect.utils.DetectConnection;
 import com.telenor.connect.utils.WebViewHelper;
 
 public class ConnectWebFragment extends Fragment {
@@ -45,7 +44,7 @@ public class ConnectWebFragment extends Fragment {
         loadingView.setVisibility(View.VISIBLE);
         final String pageUrl = ConnectUrlHelper.getPageUrl(getArguments(), getActivity());
         final View errorView = view.findViewById(R.id.com_telenor_connect_error_view);
-        setupErrorView(webView, loadingView, pageUrl, errorView);
+        setupErrorView(webView, loadingView, pageUrl, errorView, view);
 
         client = new ConnectWebViewClient(getActivity(), webView, loadingView, errorView);
 
@@ -53,19 +52,32 @@ public class ConnectWebFragment extends Fragment {
         return view;
     }
 
-    private void setupErrorView(final WebView webView, final ViewStub loadingView, final String pageUrl, final View errorView) {
+    private void setupErrorView(
+            final WebView webView,
+            final ViewStub loadingView,
+            final String pageUrl,
+            final View errorView,
+            final View view) {
+        final View loadingSpinner
+                = errorView.findViewById(R.id.com_telenor_connect_error_view_loading);
         final Button tryAgain
                 = (Button) errorView.findViewById(R.id.com_telenor_connect_error_view_try_again);
         tryAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (DetectConnection.noInternetConnectionForSure(getContext())) {
-                    return;
-                }
+                loadingSpinner.setVisibility(View.VISIBLE);
+                tryAgain.setEnabled(false);
 
-                loadingView.setVisibility(View.VISIBLE);
-                errorView.setVisibility(View.GONE);
-                webView.loadUrl(pageUrl);
+                view.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadingSpinner.setVisibility(View.INVISIBLE);
+                        tryAgain.setEnabled(true);
+                        errorView.setVisibility(View.GONE);
+                        loadingView.setVisibility(View.VISIBLE);
+                        webView.loadUrl(pageUrl);
+                    }
+                }, 1000);
             }
         });
         final Button networkSettings = (Button) errorView
