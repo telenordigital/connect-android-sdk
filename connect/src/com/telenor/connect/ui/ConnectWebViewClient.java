@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.view.View;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -88,6 +90,12 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+        super.onReceivedError(view, request, error);
+        errorView.setVisibility(View.VISIBLE);
     }
 
     @SuppressWarnings("deprecation")
