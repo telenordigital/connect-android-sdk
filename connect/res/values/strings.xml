@@ -1,7 +1,12 @@
 <resources>
     <string name="com_telenor_connect_login_button_text">Sign in with CONNECT</string>
     <string name="com_telenor_connect_payment_button_text">Pay with CONNECT</string>
-    <string name="com_telenor_connect_error_text">
-        There was an error communicating with CONNECT
+    <string name="com_telenor_connect_error_text1">
+        There was an error communicating with CONNECT.
     </string>
+    <string name="com_telenor_connect_error_text2">
+        Please check your network settings or try again later.
+    </string>
+    <string name="com_telenor_connect_try_again">TRY AGAIN</string>
+    <string name="com_telenor_connect_network_settings"><u>Network settings</u></string>
 </resources>
