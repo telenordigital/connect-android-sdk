@@ -24,10 +24,8 @@ public class ConnectUrlHelper {
         }
 
         if (ConnectUtils.LOGIN_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
-            if (arguments
-                    .getString(ConnectUtils.LOGIN_AUTH_URI) == null
-                    || arguments
-                    .getString(ConnectUtils.LOGIN_AUTH_URI).isEmpty()) {
+            if (arguments.getString(ConnectUtils.LOGIN_AUTH_URI) == null
+                    || arguments.getString(ConnectUtils.LOGIN_AUTH_URI, "").isEmpty()) {
                 throw new IllegalStateException("Required data missing for Login Action.");
             }
             return arguments.getString(ConnectUtils.LOGIN_AUTH_URI);

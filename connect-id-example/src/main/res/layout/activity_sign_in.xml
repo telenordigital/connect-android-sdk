@@ -7,7 +7,7 @@
     tools:context="com.telenor.connect.connectidexample.SignInActivity">
 
     <FrameLayout
-        android:id="@+id/web_view_placeholder"
+        android:id="@+id/connect_placeholder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />

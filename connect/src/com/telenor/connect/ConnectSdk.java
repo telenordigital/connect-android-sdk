@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
@@ -122,23 +121,23 @@ public final class ConnectSdk {
         activity.startActivityForResult(intent, requestCode);
     }
 
-    public static Fragment preLoadAuthFlow(Map<String, String> parameters,
-                                           FragmentManager supportFragmentManager,
-                                           int placeholder) {
+    /**
+     * Get a {@code Fragment} that can be used for authorizing and getting a tokens.
+     * {@code Activity} that uses the {@code Fragment} must implement {@code ConnectCallback}.
+     *
+     * @param parameters authorization parameters
+     * @return authorization fragment
+     */
+    public static Fragment getAuthFragment(Map<String, String> parameters) {
         Validator.sdkInitialized();
+
         final Fragment fragment = new ConnectWebFragment();
         Intent authIntent = getAuthIntent(parameters);
         String action = authIntent.getAction();
         Bundle bundle = new Bundle(authIntent.getExtras());
-
         bundle.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
         fragment.setArguments(bundle);
         fragment.setRetainInstance(true);
-
-        supportFragmentManager
-            .beginTransaction()
-            .replace(placeholder, fragment)
-            .commit();
         return fragment;
     }
 
