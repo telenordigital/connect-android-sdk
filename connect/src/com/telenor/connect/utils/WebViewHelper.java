@@ -11,7 +11,7 @@ import com.telenor.connect.ui.ConnectWebViewClient;
 
 public class WebViewHelper {
 
-    private static final int WEB_VIEW_TIMEOUT = 60*1000*10; // 60 seconds * 10 minutes * 1000 millis
+    private static final int WEB_VIEW_TIMEOUT = 60*10*1000; // 60 seconds * 10 minutes * 1000 millis
 
     @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
     // 1. HtmlToAndroidInstructionsInterface has no public fields.
