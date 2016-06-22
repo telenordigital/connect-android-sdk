@@ -28,7 +28,6 @@ public class SignInActivity extends FragmentActivity implements ConnectCallback 
         parameters.put("scope", "openid profile");
 
         connectView = findViewById(R.id.connect_placeholder);
-        connectView.setVisibility(View.GONE);
         final Fragment authFragment = ConnectSdk.getAuthFragment(parameters);
         getSupportFragmentManager()
                 .beginTransaction()

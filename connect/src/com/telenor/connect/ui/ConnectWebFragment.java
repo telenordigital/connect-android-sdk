@@ -34,7 +34,7 @@ public class ConnectWebFragment extends Fragment {
             callback = (ConnectCallback) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
-                    + " must implement OnHeadlineSelectedListener");
+                    + " must implement ConnectCallback");
         }
     }
 
