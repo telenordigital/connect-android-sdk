@@ -25,6 +25,7 @@ public class ParseTokenCallback implements ConnectCallback {
 
         Map<String, String> authCodeData = (Map<String, String>) successData;
         if (ConnectSdk.isConfidentialClient()) {
+            Validator.validateAuthenticationState(authCodeData.get("state"));
             Intent intent = new Intent();
             for (Map.Entry<String, String> entry : authCodeData.entrySet()) {
                 intent.putExtra(entry.getKey(), entry.getValue());
