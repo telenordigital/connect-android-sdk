@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.webkit.WebView;
 
+import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.utils.ConnectUtils;
@@ -51,13 +52,14 @@ public class ConnectWebViewClientTest {
 
     @Test
     public void checkForInstructionsIsCalledOnAnyTelenorDigitalHttpsPage() throws Exception {
+        ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
         View errorView = mock(View.class);
 
         ConnectWebViewClient connectWebViewClient
-                = new ConnectWebViewClient(activity, webView, loadingView, errorView);
+                = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
         connectWebViewClient.onPageFinished(webView, "https://any.telenordigital.com/something");
 
         verify(webView).loadUrl("javascript:window.AndroidInterface" +
@@ -66,13 +68,14 @@ public class ConnectWebViewClientTest {
 
     @Test
     public void checkForInstructionsIsNotCalledOnNonHttpsPages() throws Exception {
+        ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
         View errorView = mock(View.class);
 
         ConnectWebViewClient connectWebViewClient
-                = new ConnectWebViewClient(activity, webView, loadingView, errorView);
+                = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
         connectWebViewClient.onPageFinished(webView, "http://any.telenordigital.com/something");
 
         verify(webView, never()).loadUrl("javascript:window.AndroidInterface" +
@@ -81,13 +84,14 @@ public class ConnectWebViewClientTest {
 
     @Test
     public void checkForInstructionsIsNotCalledOnNonTelenorDigitalPages() throws Exception {
+        ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
         View errorView = mock(View.class);
 
         ConnectWebViewClient connectWebViewClient
-                = new ConnectWebViewClient(activity, webView, loadingView, errorView);
+                = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
         connectWebViewClient.onPageFinished(webView, "https://any.telenordigital.com.fish.biz/foo");
 
         verify(webView, never()).loadUrl("javascript:window.AndroidInterface" +
@@ -97,6 +101,7 @@ public class ConnectWebViewClientTest {
     @Test
     public void activityRegisterReceiverWithSmsReceivedFilterIsCalledOnPinInstruction()
             throws Exception {
+        ConnectCallback callback = mock(ConnectCallback.class);
         Instruction instruction = getPinInstruction();
 
         Activity activity = mock(Activity.class);
@@ -105,7 +110,7 @@ public class ConnectWebViewClientTest {
         View errorView = mock(View.class);
 
         ConnectWebViewClient connectWebViewClient
-                = new ConnectWebViewClient(activity, webView, loadingView, errorView);
+                = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
         List<Instruction> instructions = Collections.singletonList(instruction);
         connectWebViewClient.givenInstructions(instructions);
 
@@ -141,13 +146,14 @@ public class ConnectWebViewClientTest {
         mockStatic(ConnectSdk.class);
         given(ConnectSdk.isInitialized()).willReturn(true);
 
+        ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
         View errorView = mock(View.class);
 
         ConnectWebViewClient connectWebViewClient
-                = new ConnectWebViewClient(activity, webView, loadingView, errorView);
+                = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
 
         boolean result = connectWebViewClient.shouldOverrideUrlLoading(
                 webView,
@@ -162,13 +168,14 @@ public class ConnectWebViewClientTest {
         given(ConnectSdk.isInitialized()).willReturn(true);
         given(ConnectSdk.getPaymentSuccessUri()).willReturn("success-uri");
 
+        ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
         View errorView = mock(View.class);
 
         ConnectWebViewClient connectWebViewClient
-                = new ConnectWebViewClient(activity, webView, loadingView, errorView);
+                = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
 
         boolean result = connectWebViewClient.shouldOverrideUrlLoading(
                 webView,
@@ -185,13 +192,14 @@ public class ConnectWebViewClientTest {
         given(ConnectSdk.isInitialized()).willReturn(true);
         given(ConnectSdk.getPaymentCancelUri()).willReturn("cancel-uri");
 
+        ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
         View errorView = mock(View.class);
 
         ConnectWebViewClient connectWebViewClient
-                = new ConnectWebViewClient(activity, webView, loadingView, errorView);
+                = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
 
         boolean result = connectWebViewClient.shouldOverrideUrlLoading(
                 webView,
@@ -212,13 +220,14 @@ public class ConnectWebViewClientTest {
         doNothing().when(ConnectUtils.class);
         ConnectUtils.parseAuthCode(eq("redirect-uri"), any(ParseTokenCallback.class));
 
+        ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
         View errorView = mock(View.class);
 
         ConnectWebViewClient connectWebViewClient
-                = new ConnectWebViewClient(activity, webView, loadingView, errorView);
+                = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
 
         boolean result = connectWebViewClient.shouldOverrideUrlLoading(
                 webView,
