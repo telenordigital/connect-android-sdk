@@ -1,5 +1,6 @@
 package com.telenor.connect.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -8,13 +9,19 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
+import com.google.gson.Gson;
+import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.id.ConnectTokens;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 
-public class ConnectActivity extends FragmentActivity {
+import java.util.Map;
 
+public class ConnectActivity extends FragmentActivity implements ConnectCallback {
+
+    private final Gson gson = new Gson();
     private Fragment singleFragment;
 
     @Override
@@ -33,14 +40,14 @@ public class ConnectActivity extends FragmentActivity {
 
         if (fragment == null) {
             fragment = new ConnectWebFragment();
-            Bundle b = new Bundle();
-            b.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
-            b.putInt(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, loadingScreen);
+            Bundle bundle = new Bundle(intent.getExtras());
+            bundle.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
+            bundle.putInt(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, loadingScreen);
             if (action.equals(ConnectUtils.PAYMENT_ACTION)) {
-                b.putString(ConnectUrlHelper.URL_ARGUMENT,
+                bundle.putString(ConnectUrlHelper.URL_ARGUMENT,
                         intent.getStringExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION));
             }
-            fragment.setArguments(b);
+            fragment.setArguments(bundle);
             fragment.setRetainInstance(true);
             manager.beginTransaction()
                     .add(R.id.com_telenor_connect_fragment_container, fragment, fragmentTag)
@@ -65,5 +72,36 @@ public class ConnectActivity extends FragmentActivity {
                                            @NonNull int[] grantResults) {
         singleFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onSuccess(Object successData) {
+        if (ConnectSdk.isConfidentialClient()) {
+            Map<String, String> authCodeData = (Map<String, String>) successData;
+            Intent intent = new Intent();
+            for (Map.Entry<String, String> entry : authCodeData.entrySet()) {
+                intent.putExtra(entry.getKey(), entry.getValue());
+            }
+            setResult(Activity.RESULT_OK, intent);
+            finish();
+        } else {
+            ConnectTokens connectTokens = (ConnectTokens) successData;
+            Intent data = new Intent();
+            String json = gson.toJson(connectTokens);
+            data.putExtra(ConnectSdk.EXTRA_CONNECT_TOKENS, json);
+            setResult(Activity.RESULT_OK, data);
+            finish();
+        }
+    }
+
+    @Override
+    public void onError(Object errorData) {
+        Intent intent = new Intent();
+        Map<String, String> authCodeData = (Map<String, String>) errorData;
+        for (Map.Entry<String, String> entry : authCodeData.entrySet()) {
+            intent.putExtra(entry.getKey(), entry.getValue());
+        }
+        setResult(Activity.RESULT_CANCELED, intent);
+        finish();
     }
 }

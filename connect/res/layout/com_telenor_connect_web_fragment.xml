@@ -50,7 +50,7 @@
                 android:layout_marginTop="40dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.AppCompat.ProgressBar"
+                android:theme="@style/ConnectTheme"
                 android:visibility="invisible" />
             <Button
                 android:id="@+id/com_telenor_connect_error_view_try_again"
