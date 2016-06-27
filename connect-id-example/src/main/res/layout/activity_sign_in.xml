@@ -6,9 +6,16 @@
     android:layout_height="match_parent"
     tools:context="com.telenor.connect.connectidexample.SignInActivity">
 
-    <com.telenor.connect.ui.ConnectLoginButton
+    <FrameLayout
+        android:id="@+id/connect_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <com.telenor.connect.ui.ConnectButton
         android:layout_centerInParent="true"
         android:id="@+id/login_button"
+        android:text="@string/com_telenor_connect_login_button_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/com_telenor_ConnectButton.Dark"/>
