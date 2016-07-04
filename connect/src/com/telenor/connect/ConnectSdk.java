@@ -377,4 +377,59 @@ public final class ConnectSdk {
         Validator.sdkInitialized();
         sConnectIdService.getUserInfo(userInfoCallback);
     }
+
+    /**
+     * Checks if the Uri data of an {@code Intent} is the same as the apps registered Redirect Uri,
+     * with state matching the saved state and a code which can be used to get a valid Access Token.
+     * Useful for checking if an {@code Activity} was started by the system calling
+     * your-registeded-app-scheme-url://oauth2callback?state=xyz&code=abc
+     *
+     * @param intent intent to check data element of
+     * @return true if getData() on the intent matches Redirect Uri, has valid state and code
+     * query parameters.
+     */
+    public static boolean intentHasValidRedirectUrlCall(Intent intent) {
+        final Uri data = intent.getData();
+        if (data == null) {
+            return false;
+        }
+
+        final boolean startsWithCorrect = data.toString().startsWith(getRedirectUri());
+        if (!startsWithCorrect) {
+            return false;
+        }
+
+        final String state = data.getQueryParameter("state");
+        if (!Validator.validState(state)) {
+            return false;
+        }
+
+        final String code = data.getQueryParameter("code");
+        if (code == null || code.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * If the intent has a valid Redirect Uri data element the query parameter authorization code
+     * will be passed to the {@code getAccessTokenFromCode} method, with the given
+     * ConnectCallback callback.
+     *
+     * @param intent intent to check data element of
+     * @param callback callback that will be called upon by the getAccessTokenFromCode method
+     *
+     * @see #intentHasValidRedirectUrlCall
+     * @see #getAccessTokenFromCode
+     */
+    public static void checkIntentForAndHandleRedirectUrlCall(
+            Intent intent, ConnectCallback callback) {
+        if (!intentHasValidRedirectUrlCall(intent)) {
+            return;
+        }
+
+        final Uri data = intent.getData();
+        final String code = data.getQueryParameter("code");
+        getAccessTokenFromCode(code, callback);
+    }
 }

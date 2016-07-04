@@ -1,5 +1,8 @@
 package com.telenor.connect;
 
+import android.content.Intent;
+import android.net.Uri;
+
 import com.telenor.connect.id.ConnectIdService;
 
 import org.junit.Before;
@@ -13,6 +16,8 @@ import org.powermock.reflect.Whitebox;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+
+import java.util.HashMap;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,5 +52,61 @@ public class ConnectSdkTest {
     public void getsRedirectUriFromApplicationInfoMetaData() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         assertThat(ConnectSdk.getRedirectUri(), is("connect-tests://oauth2callback"));
+    }
+
+    @Test
+    public void intentHasValidRedirectUrlCallReturnsTrueOnRedirectLink() {
+        ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
+        HashMap<String, String> parameters = new HashMap<>();
+        parameters.put("state", "xyz");
+        parameters.put("scope", "anything");
+        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters);
+
+        Intent intent = new Intent();
+        intent.setData(Uri.parse("connect-tests://oauth2callback?state=xyz&code=abc"));
+
+        assertThat(ConnectSdk.intentHasValidRedirectUrlCall(intent), is(true));
+    }
+
+    @Test
+    public void intentHasValidRedirectUrlCallReturnsFalseOnNotRedirectLink() {
+        ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
+        HashMap<String, String> parameters = new HashMap<>();
+        parameters.put("state", "xyz");
+        parameters.put("scope", "anything");
+        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters);
+
+        Intent intent = new Intent();
+        intent.setData(Uri.parse("something-not-registed://oauth2callback?state=xyz&code=abc"));
+
+        assertThat(ConnectSdk.intentHasValidRedirectUrlCall(intent), is(false));
+    }
+
+    @Test
+    public void intentHasValidRedirectUrlCallReturnsFalseOnWrongState() {
+        ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
+        HashMap<String, String> parameters = new HashMap<>();
+        parameters.put("state", "xyz");
+        parameters.put("scope", "anything");
+        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters);
+
+        Intent intent = new Intent();
+        intent.setData(Uri.parse("something-not-registed://oauth2callback?state=NNN&code=abc"));
+
+        assertThat(ConnectSdk.intentHasValidRedirectUrlCall(intent), is(false));
+    }
+
+    @Test
+    public void intentHasValidRedirectUrlCallReturnsFalseOnMissingCode() {
+        ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
+        HashMap<String, String> parameters = new HashMap<>();
+        parameters.put("state", "xyz");
+        parameters.put("scope", "anything");
+        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters);
+
+        Intent intent = new Intent();
+        intent.setData(Uri.parse("something-not-registed://oauth2callback?state=xyz"));
+
+        assertThat(ConnectSdk.intentHasValidRedirectUrlCall(intent), is(false));
     }
 }

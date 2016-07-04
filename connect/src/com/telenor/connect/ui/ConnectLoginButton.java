@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class ConnectLoginButton extends ConnectButton {
 
-    private static final int NO_CUSTOM_LAYOUT = -1;
+    public static final int NO_CUSTOM_LAYOUT = -1;
 
     private ArrayList<String> acrValues;
     private Map<String, String> loginParameters;
