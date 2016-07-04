@@ -10,7 +10,6 @@ import android.widget.Button;
 import com.telenor.connect.ConnectException;
 
 public class ConnectButton extends Button {
-    private OnClickListener internalOnClickListener;
 
     public ConnectButton(final Context context, final AttributeSet attributeSet) {
         super(context, attributeSet);
