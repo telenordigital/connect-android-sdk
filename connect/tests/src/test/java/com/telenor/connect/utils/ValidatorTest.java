@@ -13,6 +13,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
 @RunWith(PowerMockRunner.class)
@@ -154,5 +156,37 @@ public class ValidatorTest {
                 null);
 
         Validator.validateTokens(connectTokensTO);
+    }
+
+    @Test
+    public void validStateReturnsTrueWhenCurrentStateIsNull() {
+        PowerMockito.mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn(null);
+
+        assertThat(Validator.validState("whatever"), is(true));
+    }
+
+    @Test
+    public void validStateReturnsTrueWhenCurrentStateIsEmpty() {
+        PowerMockito.mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn("");
+
+        assertThat(Validator.validState("whatever"), is(true));
+    }
+
+    @Test
+    public void validStateReturnsTrueWhenCurrentStateMatchesGivenState() {
+        PowerMockito.mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn("abc");
+
+        assertThat(Validator.validState("abc"), is(true));
+    }
+
+    @Test
+    public void validStateReturnsFalseWhenCurrentStateDoesNotMatchGivenState() {
+        PowerMockito.mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn("xyz");
+
+        assertThat(Validator.validState("abc"), is(false));
     }
 }
