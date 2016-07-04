@@ -19,7 +19,7 @@ public class Claims {
         this.claims = new HashSet<>(Arrays.asList(claims));
     }
 
-    public Set<String> getClaims() {
+    public Set<String> getClaimsAsSet() {
         return claims;
     }
 }

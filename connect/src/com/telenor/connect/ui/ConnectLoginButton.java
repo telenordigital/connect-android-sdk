@@ -107,7 +107,7 @@ public class ConnectLoginButton extends ConnectButton {
                 parameters.put("scope", TextUtils.join(" ", getLoginScopeTokens()));
             }
 
-            if (claims != null && claims.getClaims() != null) {
+            if (claims != null && claims.getClaimsAsSet() != null) {
                 try {
                     parameters.put("claims", ClaimsParameterFormatter.asJson(claims));
                 } catch (JSONException e) {
