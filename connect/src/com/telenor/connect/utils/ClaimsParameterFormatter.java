@@ -28,7 +28,7 @@ public class ClaimsParameterFormatter {
         final JSONObject essentialTrue = new JSONObject().put("essential", true);
 
         final JSONObject essentials = new JSONObject();
-        for (String claim : claims.getClaims()) {
+        for (String claim : claims.getClaimsAsSet()) {
             essentials.put(claim, essentialTrue);
         }
 

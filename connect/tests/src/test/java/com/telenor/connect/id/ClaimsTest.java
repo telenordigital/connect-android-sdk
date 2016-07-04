@@ -11,13 +11,13 @@ public class ClaimsTest {
     public void zeroArgumentsClaimsGivesEmptySet() {
         Claims claims = new Claims();
 
-        assertThat(claims.getClaims().size(), is(0));
+        assertThat(claims.getClaimsAsSet().size(), is(0));
     }
 
     @Test
     public void duplicatesAreEliminated() {
         Claims claims = new Claims(Claims.PHONE_NUMBER, Claims.PHONE_NUMBER);
 
-        assertThat(claims.getClaims().size(), is(1));
+        assertThat(claims.getClaimsAsSet().size(), is(1));
     }
 }
