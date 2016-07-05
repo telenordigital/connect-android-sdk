@@ -19,16 +19,20 @@ Telenor Connect has 2 [environments](http://docs.telenordigital.com/connect/envi
 which can be used, staging and production. The environment can be selected using the
 `com.telenor.connect.USE_STAGING` meta-data property in your AndroidManifest.xml
 
-    <meta-data
-            android:name="com.telenor.connect.USE_STAGING"
-            android:value="true" />
+```XML
+<meta-data
+        android:name="com.telenor.connect.USE_STAGING"
+        android:value="true" />
+```
 
 ## Styling the buttons
 
 The button controls are available in a _light_ and a _dark_ theme. The style can be selected by
 specifying a `style` in your application's layout XML files:
 
-    style="@style/com_telenor_ConnectButton.Dark
+```XML
+style="@style/com_telenor_ConnectButton.Dark"
+```
 
 ## Connect ID
 
@@ -48,46 +52,56 @@ when registering your application.
 The Client ID and redirect URI should be added to your `strings.xml` file. Add strings with the
 names `connect_client_id` and `connect_redirect_uri`.
 
-    <string name="connect_client_id">example-clientid</string>
-    <string name="connect_redirect_uri">example-clientid://oauth2callback</string>
+```XML
+<string name="connect_client_id">example-clientid</string>
+<string name="connect_redirect_uri">example-clientid://oauth2callback</string>
+```
 
 #### Editing the application manifest.
 
 Open your application's `AndroidManifest.xml` file and add the permission required to allow your
 application to access the internet.
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+```XML
+<uses-permission android:name="android.permission.INTERNET"/>
+```
 
 Optionally you can enable the feature that automatically fills in verification PIN codes received
 on SMS by adding the following permissions.
 
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.READ_SMS" />
+```XML
+<uses-permission android:name="android.permission.RECEIVE_SMS" />
+<uses-permission android:name="android.permission.READ_SMS" />
+```
 
 Note: You should be conscious about the security implications of using this feature. When using this feature your application will load received SMS into memory for up to 60 seconds. Upon finding an SMS with the word `CONNECT` and a PIN-code, the PIN code will be parsed and passed back to a callback JavaScript function. More discussion can be found in the issue [#15](https://github.com/telenordigital/connect-android-sdk/issues/15).
 
 Add two `meta-data` entries to the `application` section of the manifest.
 
-    <application>
-    ...
-        <meta-data android:name="com.telenor.connect.CLIENT_ID"
-            android:value="@string/connect_client_id" />
-        <meta-data android:name="com.telenor.connect.REDIRECT_URI"
-            android:value="@string/connect_redirect_uri" />
-    ...
-    </application>
+```XML
+<application>
+...
+    <meta-data android:name="com.telenor.connect.CLIENT_ID"
+        android:value="@string/connect_client_id" />
+    <meta-data android:name="com.telenor.connect.REDIRECT_URI"
+        android:value="@string/connect_redirect_uri" />
+...
+</application>
+```
 
 And add the `ConnectActivity`, which handles logging in, to the `application` section.
 
-    <application>
-    ...
-        <activity
-            android:name="com.telenor.connect.ui.ConnectActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
-    ...
-    </application>
+```XML
+<application>
+...
+    <activity
+        android:name="com.telenor.connect.ui.ConnectActivity"
+        android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+...
+</application>
+```
 
 ### Initializing the SDK
 
@@ -95,13 +109,15 @@ The Connect SDK needs to be initialized before use. This can be done by adding a
 `ConnectSdk.sdkInitialize()` in the `onCreate` method of your launch `Activity` or in your
 `Application`.
 
-    import com.telenor.connect.ConnectSDK
-    ...
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        ConnectSdk.sdkInitialize(getApplicationContext());
-    }
+```Java
+import com.telenor.connect.ConnectSDK
+...
+@Override
+public void onCreate() {
+    super.onCreate();
+    ConnectSdk.sdkInitialize(getApplicationContext());
+}
+```
 
 ### Adding a ConnectLoginButton
 
@@ -111,34 +127,40 @@ a custom `Button` implementation that has the standard Connect button look-and-f
 Firstly add a button to your layout XML files using the class name
 `com.telenor.connect.ConnectLoginButton`:
 
-    <com.telenor.connect.ConnectLoginButton
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+```XML
+<com.telenor.connect.ConnectLoginButton
+    android:id="@+id/login_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" />
+```
 
 Then add the required [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for your
 application to the button in the `onCreate()` method of your `Activity` class.
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        ...
-        ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
-        button.setLoginScopeTokens("profile");
-    }
+```Java
+@Override
+public void onCreate(Bundle savedInstanceState) {
+    ...
+    ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
+    button.setLoginScopeTokens("profile");
+}
+```
 
 The `onActivityResult()` method of your `Activity` will be called with `Activity.RESULT_OK` as
 `resultCode` if login was successful or `Activity.RESULT_CANCELED` when there was an error.
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+```Java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == Activity.RESULT_OK) {
-            // App code
-        } else if (resultCode == Activity.RESULT_CANCELED) {
-            // App code
-        }
+    if (resultCode == Activity.RESULT_OK) {
+        // App code
+    } else if (resultCode == Activity.RESULT_CANCELED) {
+        // App code
     }
+}
+```
 
 If you are developing a confidential client you should skip to [Next steps for confidential clients](#next-steps-for-confidential-clients)
 
@@ -147,39 +169,44 @@ If you are developing a confidential client you should skip to [Next steps for c
 To add additional [claims to your Connect request] (http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-authorization)
 you can use the `setClaims` method on the `ConnectLoginButton`.
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        ...
-        ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
-        button.setLoginScopeTokens("profile");
-        button.setClaims(new Claims(Claims.PHONE_NUMBER, Claims.EMAIL));
-    }
-
+```Java
+@Override
+public void onCreate(Bundle savedInstanceState) {
+    ...
+    ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
+    button.setLoginScopeTokens("profile");
+    button.setClaims(new Claims(Claims.PHONE_NUMBER, Claims.EMAIL));
+}
+```
 
 #### Example: Setting the UI locale
 To set the locale the user sees in the flows this can be done in the following way:
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        ...
-        ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
-        button.setLoginScopeTokens("profile");
+```Java
+@Override
+public void onCreate(Bundle savedInstanceState) {
+    ...
+    ConnectLoginButton button = (ConnectLoginButton) findViewById(R.id.login_button);
+    button.setLoginScopeTokens("profile");
 
-        Map<String, String> additionalLoginParams = new HashMap<>();
-        additionalLoginParams.put("ui_locales", "bn en");
-        button.addLoginParameters(additionalLoginParams)
-    }
+    Map<String, String> additionalLoginParams = new HashMap<>();
+    additionalLoginParams.put("ui_locales", "bn en");
+    button.addLoginParameters(additionalLoginParams)
+}
+```
 
 #### Customising native loading screen
 One can customise the native loading screen that is shown before the Web View has finished loading
 in the following way:
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        ...
-        ConnectLoginButton loginButton = (ConnectLoginButton) findViewById(R.id.login_button);
-        loginButton.setCustomLoadingLayout(R.layout.custom_loading_screen);
-    }
+```Java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    ...
+    ConnectLoginButton loginButton = (ConnectLoginButton) findViewById(R.id.login_button);
+    loginButton.setCustomLoadingLayout(R.layout.custom_loading_screen);
+}
+```
 
 Where `R.layout.custom_loading_screen` can be any custom layout (.xml) file you have created.
 
@@ -191,15 +218,17 @@ The Connect SDK contains the `ConnectTokensStateTracker` class, which tracks the
 state of the user. This is useful for handling UI changes in your app based on the login state of
 the user.
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        ...
-        new ConnectTokensStateTracker() {
-            @Override
-            protected void onTokenStateChanged(boolean hasTokens) {
-                // App code
-            }
-    };
+```Java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    ...
+    new ConnectTokensStateTracker() {
+        @Override
+        protected void onTokenStateChanged(boolean hasTokens) {
+            // App code
+        }
+};
+```
 
 The `onTokenStateChanged(boolean hasTokens)` method will be called whenever the token state changes.
 
@@ -245,41 +274,49 @@ a successful or cancelled transaction. The success and cancel redirect URIs shou
 application's `strings.xml` file. Add strings with the names `connect_payment_cancel_uri` and
 `connect_payment_success_uri`.
 
-    <string name="connect_payment_cancel_uri">example-clientid://transactionCancel</string>
-    <string name="connect_payment_success_uri">example-clientid://transactionSuccess</string>
+```XML
+<string name="connect_payment_cancel_uri">example-clientid://transactionCancel</string>
+<string name="connect_payment_success_uri">example-clientid://transactionSuccess</string>
+```
 
 ### Editing the application manifest.
 
 Open your application's `AndroidManifest.xml` file and add two `meta-data` entries to the
 `application` section of the manifest.
 
-    <application>
-    ...
-        <meta-data
-            android:name="com.telenor.connect.PAYMENT_CANCEL_URI"
-            android:value="@string/connect_payment_cancel_uri" />
-        <meta-data
-            android:name="com.telenor.connect.PAYMENT_SUCCESS_URI"
-            android:value="@string/connect_payment_success_uri" />
-    ...
-    </application>
+```XML
+<application>
+...
+    <meta-data
+        android:name="com.telenor.connect.PAYMENT_CANCEL_URI"
+        android:value="@string/connect_payment_cancel_uri" />
+    <meta-data
+        android:name="com.telenor.connect.PAYMENT_SUCCESS_URI"
+        android:value="@string/connect_payment_success_uri" />
+...
+</application>
+```
 
 If you are not using Connect ID to sign users into your application you should also add the
 permission required to allow your application to access the internet.
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+```XML
+<uses-permission android:name="android.permission.INTERNET"/>
+```
 
 And add the `ConnectActivity`, which handles logging in, to the `application` section.
 
-    <application>
-    ...
-        <activity
-            android:name="com.telenor.connect.ui.ConnectActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
-    ...
-    </application>
+```XML
+<application>
+...
+    <activity
+        android:name="com.telenor.connect.ui.ConnectActivity"
+        android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+...
+</application>
+```
 
 ### Adding a ConnectPaymentButton
 
@@ -289,27 +326,31 @@ Payment text. This button can be used by adding a `ConnectPaymentButton` to your
 Add the button to your layout XML files using the class name
 `com.telenor.connect.ConnectPaymentButton`:
 
-    <com.telenor.connect.ConnectPaymentButton
-        android:id="@+id/payment_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+```XML
+<com.telenor.connect.ConnectPaymentButton
+    android:id="@+id/payment_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" />
+```
 
 ### Performing a payment transaction
 
 To perform a transaction you would add a click handler to the payment button in the `onCreate()`
 method of your `Activity` class.
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        ...
-        View paymentButton = findViewById(R.id.payment_button);
-        paymentButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // App code
-            }
-        });
-    }
+```Java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    ...
+    View paymentButton = findViewById(R.id.payment_button);
+    paymentButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            // App code
+        }
+    });
+}
+```
 
 This click handler would call your backend to let the backend create a transaction and you would
 return the [Payment link](http://docs.telenordigital.com/apis/connect/payment/#single-payment-transaction)
