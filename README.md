@@ -1,4 +1,4 @@
-#Connect SDK for Android
+# Connect SDK for Android
 
 The Connect SDK for Android allows developers to create applications which use Telenor Connect for
 sign-in or payment. More information about Telenor Connect can be found on our
@@ -6,10 +6,6 @@ sign-in or payment. More information about Telenor Connect can be found on our
 
 This SDK uses the Connect ID and Connect Payment APIs. Documentation for these APIs can be found at
 [docs.telenordigital.com](http://docs.telenordigital.com).
-
-This is an __alpha__ release. In order to guide the development of the SDK and allow you to freely
-inspect and use the source, we have open-sourced the SDK. The underlying APIs are generally stable,
-however we may make changes to the SDK in response to developer feedback.
 
 ## Prerequisites
 
