@@ -76,17 +76,26 @@ on SMS by adding the following permissions.
 
 Note: You should be conscious about the security implications of using this feature. When using this feature your application will load received SMS into memory for up to 60 seconds. Upon finding an SMS with the word `CONNECT` and a PIN-code, the PIN code will be parsed and passed back to a callback JavaScript function. More discussion can be found in the issue [#15](https://github.com/telenordigital/connect-android-sdk/issues/15).
 
-Add two `meta-data` entries to the `application` section of the manifest.
+Add `meta-data` entries to the `application` section of the manifest.
 
 ```XML
 <application>
-...
-    <meta-data android:name="com.telenor.connect.CLIENT_ID"
-        android:value="@string/connect_client_id" />
-    <meta-data android:name="com.telenor.connect.REDIRECT_URI"
-        android:value="@string/connect_redirect_uri" />
-...
+        ...
+        <meta-data
+                android:name="com.telenor.connect.CLIENT_ID"
+                android:value="@string/connect_client_id" />
+        <meta-data
+                android:name="com.telenor.connect.REDIRECT_URI"
+                android:value="@string/connect_redirect_uri" />
+        ...
 </application>
+```
+
+If it is a confidential client also add
+```XML
+<meta-data
+        android:name="com.telenor.connect.CONFIDENTIAL_CLIENT"
+        android:value="true" />
 ```
 
 And add the `ConnectActivity`, which handles logging in, to the `application` section.
