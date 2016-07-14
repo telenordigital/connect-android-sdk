@@ -1,8 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="com_telenor_connect_dark_color">#444444</color>
-    <color name="com_telenor_connect_light_color">#ffffff</color>
+    <color name="com_telenor_connect_dark_gray">#444</color>
+    <color name="com_telenor_connect_darker_gray">#222</color>
+    <color name="com_telenor_connect_light_color">#fff</color>
 
-    <style name="com_telenor_ConnectButton.Dark" parent="com_telenor_ConnectButton">
+    <style name="com_telenor_ConnectButton.Dark">
         <item name="android:background">@drawable/connect_btn_dark_selector</item>
         <item name="android:textColor">@color/com_telenor_connect_light_color</item>
     </style>
@@ -10,8 +12,12 @@
     <style name="com_telenor_ConnectButton" parent="Theme.AppCompat">
         <item name="android:background">@drawable/connect_btn_light_selector</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:textColor">@color/com_telenor_connect_dark_color</item>
+        <item name="android:textColor">@color/com_telenor_connect_dark_gray</item>
         <item name="android:textSize">16.0sp</item>
+    </style>
+    
+    <style name="ConnectTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorAccent">@color/com_telenor_connect_light_color</item>
     </style>
 
 </resources>

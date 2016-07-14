@@ -18,7 +18,7 @@ import java.util.List;
  * This class works as the interface between the Javascript in a {@link InstructionHandler} and
  * the Connect SDK.
  *
- * The function {@code processInstructions} is a {@link @JavascriptInterface}, and is meant to
+ * The function {@code processInstructions} is a {@link JavascriptInterface}, and is meant to
  * receive a String which hopefully is valid json of a list of {@link Instruction}. If not
  * an empty list is passed on to the {@link InstructionHandler}.
  */

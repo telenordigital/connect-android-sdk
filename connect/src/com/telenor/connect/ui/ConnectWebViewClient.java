@@ -8,12 +8,13 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.view.View;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.id.ParseTokenCallback;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsCursorUtil;
 import com.telenor.connect.sms.SmsHandler;
@@ -59,13 +60,14 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             Activity activity,
             WebView webView,
             View loadingView,
-            View errorView) {
+            View errorView,
+            ConnectCallback callback) {
         this.webView = webView;
         this.activity = activity;
         this.loadingView = loadingView;
         this.errorView = errorView;
+        this.connectCallback = callback;
         this.smsBroadcastReceiver = new SmsBroadcastReceiver(this);
-        this.connectCallback = new ParseTokenCallback(activity);
     }
 
     @Override
@@ -88,6 +90,12 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+        super.onReceivedError(view, request, error);
+        errorView.setVisibility(View.VISIBLE);
     }
 
     @SuppressWarnings("deprecation")
