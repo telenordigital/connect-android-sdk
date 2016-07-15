@@ -36,7 +36,7 @@ public class ConnectUrlHelperTest {
                 "com.telenor.connect.URL_ARGUMENT",
                 "some-url-argument://");
 
-        String pageUrl = ConnectUrlHelper.getPageUrl(arguments, null);
+        String pageUrl = ConnectUrlHelper.getPageUrl(arguments);
         assertThat(pageUrl, is("some-url-argument://"));
     }
 
@@ -47,7 +47,7 @@ public class ConnectUrlHelperTest {
                 "com.telenor.connect.ACTION_ARGUMENT",
                 "com.telenor.connect.LOGIN_ACTION");
 
-        ConnectUrlHelper.getPageUrl(arguments, null);
+        ConnectUrlHelper.getPageUrl(arguments);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -57,9 +57,7 @@ public class ConnectUrlHelperTest {
                 "com.telenor.connect.ACTION_ARGUMENT",
                 "com.telenor.connect.LOGIN_ACTION");
 
-        Activity activity = new Activity();
-
-        ConnectUrlHelper.getPageUrl(arguments, activity);
+        ConnectUrlHelper.getPageUrl(arguments);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -74,7 +72,7 @@ public class ConnectUrlHelperTest {
         intent.putExtras(arguments);
         activity.setIntent(intent);
 
-        ConnectUrlHelper.getPageUrl(arguments, activity);
+        ConnectUrlHelper.getPageUrl(arguments);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -91,7 +89,7 @@ public class ConnectUrlHelperTest {
         intent.putExtras(arguments);
         activity.setIntent(intent);
 
-        ConnectUrlHelper.getPageUrl(arguments, activity);
+        ConnectUrlHelper.getPageUrl(arguments);
     }
 
     @Test
@@ -108,7 +106,7 @@ public class ConnectUrlHelperTest {
         intent.putExtras(arguments);
         activity.setIntent(intent);
 
-        String pageUrl = ConnectUrlHelper.getPageUrl(arguments, activity);
+        String pageUrl = ConnectUrlHelper.getPageUrl(arguments);
         assertThat(pageUrl, is("something not empty"));
     }
 
@@ -119,7 +117,7 @@ public class ConnectUrlHelperTest {
                 "com.telenor.connect.ACTION_ARGUMENT",
                 null);
 
-        ConnectUrlHelper.getPageUrl(arguments, null);
+        ConnectUrlHelper.getPageUrl(arguments);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -129,7 +127,7 @@ public class ConnectUrlHelperTest {
                 "com.telenor.connect.ACTION_ARGUMENT",
                 "not login or payment");
 
-        ConnectUrlHelper.getPageUrl(arguments, null);
+        ConnectUrlHelper.getPageUrl(arguments);
     }
 
     @Test

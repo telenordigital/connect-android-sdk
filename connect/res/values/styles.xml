@@ -15,5 +15,9 @@
         <item name="android:textColor">@color/com_telenor_connect_dark_gray</item>
         <item name="android:textSize">16.0sp</item>
     </style>
+    
+    <style name="ConnectTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorAccent">@color/com_telenor_connect_light_color</item>
+    </style>
 
 </resources>

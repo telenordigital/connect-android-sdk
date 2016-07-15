@@ -1,5 +1,6 @@
 package com.telenor.connect.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -13,14 +14,29 @@ import android.view.ViewStub;
 import android.webkit.WebView;
 import android.widget.Button;
 
+import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.R;
+import com.telenor.connect.id.ParseTokenCallback;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.WebViewHelper;
 
 public class ConnectWebFragment extends Fragment {
 
+    private ConnectCallback callback;
     private ConnectWebViewClient client;
+    private WebView webView;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            callback = (ConnectCallback) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement ConnectCallback");
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,21 +48,26 @@ public class ConnectWebFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         final View view
                 = inflater.inflate(R.layout.com_telenor_connect_web_fragment, container, false);
-        final WebView webView
-                = (WebView) view.findViewById(R.id.com_telenor_connect_fragment_webview);
+        webView = (WebView) view.findViewById(R.id.com_telenor_connect_fragment_webview);
         final ViewStub loadingView
                 = (ViewStub) view.findViewById(R.id.com_telenor_connect_loading_view);
-        final int loadingScreenResource = getArguments()
-                .getInt(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA,
-                        R.layout.com_telenor_connect_default_loading_view);
+        final Bundle arguments = getArguments();
+        final int loadingScreenResource = arguments.getInt(
+                ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA,
+                R.layout.com_telenor_connect_default_loading_view);
         loadingView.setLayoutResource(loadingScreenResource);
         loadingView.inflate();
         loadingView.setVisibility(View.VISIBLE);
-        final String pageUrl = ConnectUrlHelper.getPageUrl(getArguments(), getActivity());
+        final String pageUrl = ConnectUrlHelper.getPageUrl(arguments);
         final View errorView = view.findViewById(R.id.com_telenor_connect_error_view);
         setupErrorView(webView, loadingView, pageUrl, errorView, view);
 
-        client = new ConnectWebViewClient(getActivity(), webView, loadingView, errorView);
+        client = new ConnectWebViewClient(
+                getActivity(),
+                webView,
+                loadingView,
+                errorView,
+                new ParseTokenCallback(callback));
 
         WebViewHelper.setupWebView(webView, client, pageUrl);
         return view;
@@ -94,12 +115,14 @@ public class ConnectWebFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        webView.onPause();
         client.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        webView.onResume();
         client.onResume();
     }
 
@@ -108,6 +131,5 @@ public class ConnectWebFragment extends Fragment {
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         client.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

@@ -18,6 +18,10 @@ android {
         }
     }
     useLibrary  'org.apache.http.legacy'
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
 }
 
 dependencies {

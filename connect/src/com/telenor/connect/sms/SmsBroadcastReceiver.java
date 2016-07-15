@@ -1,5 +1,6 @@
 package com.telenor.connect.sms;
 
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -41,6 +42,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
         smsHandler.receivedSms(originatingAddress, messageBody);
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private static SmsMessage[] getSmsMessages(Intent intent, Bundle bundle) {
         if (Build.VERSION.SDK_INT >= 19) {
             return Telephony.Sms.Intents.getMessagesFromIntent(intent);
