@@ -406,7 +406,7 @@ public final class ConnectSdk {
      * Checks if the Uri data of an {@code Intent} is the same as the apps registered Redirect Uri,
      * with state matching the saved state and a code which can be used to get a valid Access Token.
      * Useful for checking if an {@code Activity} was started by the system calling
-     * your-registeded-app-scheme-url://oauth2callback?state=xyz&code=abc
+     * example-clientid://oauth2callback?state=xyz&code=abc
      *
      * @param intent intent to check data element of
      * @return true if getData() on the intent matches Redirect Uri, has valid state and code
