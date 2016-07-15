@@ -24,4 +24,8 @@ android {
         testCompile 'junit:junit:4.12'
     }
     useLibrary 'org.apache.http.legacy'
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
 }

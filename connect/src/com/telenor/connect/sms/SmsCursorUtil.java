@@ -1,10 +1,13 @@
 package com.telenor.connect.sms;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Telephony;
 
+@TargetApi(Build.VERSION_CODES.KITKAT)
 public class SmsCursorUtil {
 
     private static final boolean CAN_USE_API
@@ -13,8 +16,6 @@ public class SmsCursorUtil {
             ? Telephony.Sms.Inbox.CONTENT_URI
             : Uri.parse("content://sms/inbox");
     private static final String BODY = CAN_USE_API ? Telephony.Sms.Inbox.BODY : "body";
-    private static final String READ = CAN_USE_API ? Telephony.Sms.Inbox.READ : "read";
-    private static final String ADDRESS = CAN_USE_API ? Telephony.Sms.Inbox.ADDRESS : "address";
     private static final String DATE = CAN_USE_API ? Telephony.Sms.Inbox.DATE : "date";
 
     private static final String DEFAULT_SORT_ORDER = CAN_USE_API

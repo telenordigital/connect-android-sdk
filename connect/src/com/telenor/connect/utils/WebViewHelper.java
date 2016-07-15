@@ -1,6 +1,7 @@
 package com.telenor.connect.utils;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
@@ -13,9 +14,10 @@ public class WebViewHelper {
 
     private static final int WEB_VIEW_TIMEOUT = 60*10*1000; // 60 seconds * 10 minutes * 1000 millis
 
-    @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
     // 1. HtmlToAndroidInstructionsInterface has no public fields.
     // 2. We need JS for the web page.
+    @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static void setupWebView(
             final WebView webView,
             ConnectWebViewClient client,
