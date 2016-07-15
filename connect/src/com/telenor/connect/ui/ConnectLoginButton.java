@@ -111,15 +111,15 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         return parameters;
     }
 
-    private boolean contextIntentFilterMatchesRedirectUri() {
+    private static boolean contextIntentFilterMatchesRedirectUri(Context context) {
         final Uri parse = Uri.parse(ConnectSdk.getRedirectUri());
         final Intent intent = new Intent().setData(parse);
-        final PackageManager manager = getContext().getPackageManager();
+        final PackageManager manager = context.getPackageManager();
         final ComponentName componentName = intent.resolveActivity(manager);
         if (componentName == null) {
             return false;
         }
-        return getContext().getClass().getName().equals(componentName.getClassName());
+        return context.getClass().getName().equals(componentName.getClassName());
     }
 
     private class LoginClickListener implements OnClickListener {
@@ -127,7 +127,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         @Override
         public void onClick(View v) {
             Validator.sdkInitialized();
-            if (!customTabsSupported || !contextIntentFilterMatchesRedirectUri()) {
+            if (!customTabsSupported || !contextIntentFilterMatchesRedirectUri(getContext())) {
                 int customLoadingLayout = getCustomLoadingLayout();
                 if (customLoadingLayout == NO_CUSTOM_LAYOUT) {
                     ConnectSdk.authenticate(getActivity(), getParameters(), getRequestCode());
