@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.telenor.connect.connectidexample.SignInActivity">
 
-    <com.telenor.connect.ui.ConnectLoginChromeTabButton
+    <com.telenor.connect.ui.ConnectLoginButton
         android:layout_centerInParent="true"
         android:id="@+id/login_button"
         android:layout_width="wrap_content"

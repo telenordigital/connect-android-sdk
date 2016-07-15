@@ -7,6 +7,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
@@ -451,8 +452,20 @@ public final class ConnectSdk {
             return;
         }
 
-        final Uri data = intent.getData();
-        final String code = data.getQueryParameter("code");
+        final String code = getCodeFromIntent(intent);
         getAccessTokenFromCode(code, callback);
+    }
+
+    /**
+     * Helper method to get the <b>code</b> parameter from an Intent's data Uri.
+     * Example: An Intent with a data Uri of
+     * example-clientid://oauth2callback?code=123&state=xyz will return "123".
+     *
+     * @param intent the Intent to get the code from.
+     * @return code parameter of an Intent
+     */
+    public static String getCodeFromIntent(@NonNull Intent intent) {
+        final Uri data = intent.getData();
+        return data.getQueryParameter("code");
     }
 }
