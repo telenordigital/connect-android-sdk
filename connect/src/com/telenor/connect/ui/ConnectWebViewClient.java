@@ -38,8 +38,9 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     private static final Pattern TD_HTTPS_PATTERN
             = Pattern.compile("^https://.*telenordigital.com(?:$|/)");
     private static final String JAVASCRIPT_PROCESSES_INSTRUCTIONS
-            = "javascript:window.AndroidInterface.processInstructions(document.getElementById"
-            + "('android-instructions').innerHTML);";
+            = "javascript:if (document.getElementById('android-instructions')) {" +
+            "window.AndroidInterface.processInstructions(document.getElementById('android-instructions').innerHTML)" +
+            "}";
 
     private final IntentFilter SMS_FILTER
             = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
