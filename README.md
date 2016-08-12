@@ -222,6 +222,28 @@ If it is a confidential client add the following to the manifest:
 	android:value="true" />
 ```
 
+Then the `onActivityResult(…)` method will have to be changed to send the authorization code to
+the server-side part of the client:
+```Java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (resultCode != Activity.RESULT_OK) {
+        return;
+    }
+
+    final String authorizationCode = data.getStringExtra("code");
+    Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_LONG).show();
+
+    // send the authorizationCode to the server-side of the client as described in the docs
+    // on confidential clients: http://docs.telenordigital.com/connect/id/native_apps.html
+    // This can done by for example Android AsyncTask or using the Retrofit library.
+    // The server-side of the client should send back a session ID that the native app code
+    // needs to store. Further requests go directly to the server-side of the client with the
+    // ID to identify the correct tokens the server-side should use.
+}
+```
+
 ### Adding the Client ID and redirect URI
 
 The Connect ID integration requires a Client ID and a redirect URI to work. You should receive these when registering your application.
