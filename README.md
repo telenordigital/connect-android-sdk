@@ -17,7 +17,6 @@
   * [Adding a ConnectLoginButton](#adding-a-connectloginbutton)
   * [Next steps for public clients](#next-steps-for-public-clients)
   * [Retrieving information about the logged in user](#retrieving-information-about-the-logged-in-user)
-  * [Next steps for confidential clients](#next-steps-for-confidential-clients)
 * [Connect Payment](#connect-payment)
 
 The Connect SDK for Android allows developers to create applications that use Telenor Connect for
@@ -363,8 +362,6 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     }
 }
 ```
-
-If you are developing a confidential client you should skip to [Next steps for confidential clients](#next-steps-for-confidential-clients)
 
 #### Adding claims
 
