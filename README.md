@@ -220,7 +220,7 @@ decision.
 The SDK will return an _authorization code_ in the `onActivityResult()` method. This authorization
 code must be sent to the server-side part of your client.
 
-If it is a confidential client add the following to the manifest:
+Add the following to the manifest:
 ```XML
 <meta-data
 	android:name="com.telenor.connect.CONFIDENTIAL_CLIENT"
@@ -242,7 +242,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     // Debug line:
     Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_LONG).show();
 
-    // send the authorizationCode to the server-side of the client as described in the docs
+    // Send the authorizationCode to the server-side of the client as described in the docs
     // on confidential clients: http://docs.telenordigital.com/connect/id/native_apps.html
     // This can done by for example Android AsyncTask or using the Retrofit library.
     // The server-side of the client must send back a session ID that the native app code
