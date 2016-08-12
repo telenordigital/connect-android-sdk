@@ -215,6 +215,11 @@ Connect ID supports two different client types: _public_ and _confidential_. Ple
 [Native app guide](http://docs.telenordigital.com/connect/id/native_apps.html) to help you make a
 decision.
 
+#### Confidential clients
+
+The SDK will return an _authorization code_ in the `onActivityResult()` method. This authorization
+code must be sent to the server-side part of your client.
+
 If it is a confidential client add the following to the manifest:
 ```XML
 <meta-data
@@ -233,16 +238,24 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     }
 
     final String authorizationCode = data.getStringExtra("code");
+
+    // Debug line:
     Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_LONG).show();
 
     // send the authorizationCode to the server-side of the client as described in the docs
     // on confidential clients: http://docs.telenordigital.com/connect/id/native_apps.html
     // This can done by for example Android AsyncTask or using the Retrofit library.
-    // The server-side of the client should send back a session ID that the native app code
-    // needs to store. Further requests go directly to the server-side of the client with the
-    // ID to identify the correct tokens the server-side should use.
+    // The server-side of the client must send back a session ID that the native app code
+    // stores. Further requests go directly to the server-side of the client with the
+    // ID to identify the correct tokens for the server-side.
 }
 ```
+
+#### Public clients
+
+Either not include the `meta-data` for `com.telenor.connect.CONFIDENTIAL_CLIENT` or explicitly set
+it to `false` (this is the default).
+
 
 ### Adding the Client ID and redirect URI
 
@@ -440,13 +453,6 @@ authorize successfully completes. If both email and phone claims have been reque
 provide the username used for the authentication in the ID token.
 
 See docs.telenordigital.com/apis/connect/id/authentication.html for more details.
-
-
-### Next steps for confidential clients
-
-The user's access and refresh tokens are stored in a database controlled by you. The SDK will
-return an `access code` in the `onActivityResult()` function. This access code should be exchanged
-for access and refresh tokens in your backend system.
 
 ## Connect Payment
 
