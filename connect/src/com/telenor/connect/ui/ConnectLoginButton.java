@@ -31,6 +31,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     private Uri uri;
     private CustomTabsClient customTabsClient;
     private CustomTabsSession customTabsSession;
+    private CustomTabsServiceConnection connection;
     private boolean shouldPreLoad = false;
     private boolean customTabsSupported = false;
 
@@ -38,7 +39,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
 
-        final CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
+        connection = new CustomTabsServiceConnection() {
             @Override
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
                 customTabsClient = client;
@@ -118,6 +119,15 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
             return false;
         }
         return context.getClass().getName().equals(componentName.getClassName());
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (connection != null) {
+            getContext().unbindService(connection);
+            connection = null;
+        }
     }
 
     private class LoginClickListener implements OnClickListener {
