@@ -32,14 +32,13 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     private CustomTabsClient customTabsClient;
     private CustomTabsSession customTabsSession;
     private boolean shouldPreLoad = false;
-    private boolean serviceConnected = false;
     private boolean customTabsSupported = false;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
 
-        CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
+        final CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
             @Override
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
                 customTabsClient = client;
@@ -48,16 +47,15 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
                 if (shouldPreLoad && customTabsSession != null) {
                     customTabsSession.mayLaunchUrl(uri, null, null);
                 }
-                serviceConnected = true;
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                serviceConnected = false;
+                customTabsClient = null;
             }
         };
 
-        if (!serviceConnected) {
+        if (customTabsClient == null) {
             customTabsSupported = CustomTabsClient.bindCustomTabsService(
                     getContext(), "com.android.chrome", connection);
         }
