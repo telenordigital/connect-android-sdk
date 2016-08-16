@@ -86,7 +86,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
     @NonNull
     private Map<String, String> getParameters() {
-        Map<String, String> parameters = new HashMap<>();
+        final Map<String, String> parameters = new HashMap<>();
         if (getAcrValues() != null && !getAcrValues().isEmpty()) {
             parameters.put("acr_values", TextUtils.join(" ", getAcrValues()));
         }
