@@ -17,7 +17,6 @@
   * [Adding a ConnectLoginButton](#adding-a-connectloginbutton)
   * [Next steps for public clients](#next-steps-for-public-clients)
   * [Retrieving information about the logged in user](#retrieving-information-about-the-logged-in-user)
-  * [Next steps for confidential clients](#next-steps-for-confidential-clients)
 * [Connect Payment](#connect-payment)
 
 The Connect SDK for Android allows developers to create applications that use Telenor Connect for
@@ -215,12 +214,47 @@ Connect ID supports two different client types: _public_ and _confidential_. Ple
 [Native app guide](http://docs.telenordigital.com/connect/id/native_apps.html) to help you make a
 decision.
 
-If it is a confidential client add the following to the manifest:
+#### Confidential clients
+
+The SDK will return an _authorization code_ in the `onActivityResult()` method. This authorization
+code must be sent to the server-side part of your client.
+
+Add the following to the manifest:
 ```XML
 <meta-data
 	android:name="com.telenor.connect.CONFIDENTIAL_CLIENT"
 	android:value="true" />
 ```
+
+Then the `onActivityResult(…)` method will have to be changed to send the authorization code to
+the server-side part of the client:
+```Java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (resultCode != Activity.RESULT_OK) {
+        return;
+    }
+
+    final String authorizationCode = data.getStringExtra("code");
+
+    // Debug line:
+    Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_LONG).show();
+
+    // Send the authorizationCode to the server-side of the client as described in the docs
+    // on confidential clients: http://docs.telenordigital.com/connect/id/native_apps.html
+    // This can done by for example Android AsyncTask or using the Retrofit library.
+    // The server-side of the client must send back a session ID that the native app code
+    // stores. Further requests go directly to the server-side of the client with the
+    // session ID to identify the correct tokens for the server-side.
+}
+```
+
+#### Public clients
+
+Either not include the `meta-data` for `com.telenor.connect.CONFIDENTIAL_CLIENT` or explicitly set
+it to `false` (this is the default).
+
 
 ### Adding the Client ID and redirect URI
 
@@ -329,8 +363,6 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 }
 ```
 
-If you are developing a confidential client you should skip to [Next steps for confidential clients](#next-steps-for-confidential-clients)
-
 #### Adding claims
 
 To add additional [claims to your Connect request] (http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-authorization),
@@ -418,13 +450,6 @@ authorize successfully completes. If both email and phone claims have been reque
 provide the username used for the authentication in the ID token.
 
 See docs.telenordigital.com/apis/connect/id/authentication.html for more details.
-
-
-### Next steps for confidential clients
-
-The user's access and refresh tokens are stored in a database controlled by you. The SDK will
-return an `access code` in the `onActivityResult()` function. This access code should be exchanged
-for access and refresh tokens in your backend system.
 
 ## Connect Payment
 
