@@ -246,7 +246,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     // This can done by for example Android AsyncTask or using the Retrofit library.
     // The server-side of the client must send back a session ID that the native app code
     // stores. Further requests go directly to the server-side of the client with the
-    // ID to identify the correct tokens for the server-side.
+    // session ID to identify the correct tokens for the server-side.
 }
 ```
 
