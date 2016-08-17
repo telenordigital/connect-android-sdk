@@ -43,6 +43,9 @@
         <meta-data
             android:name="com.telenor.connect.USE_STAGING"
             android:value="true" />
+        <meta-data
+            android:name="com.telenor.connect.USE_CHROME_CUSTOM_TAB"
+            android:value="true" />
     </application>
 
 </manifest>

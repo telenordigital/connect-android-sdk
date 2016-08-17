@@ -45,6 +45,7 @@ public final class ConnectSdk {
     private static boolean sSdkInitialized = false;
     private static boolean sUseStaging = false;
     private static ConnectIdService sConnectIdService;
+    private static boolean sUseChromeCustomTab = true;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -75,6 +76,12 @@ public final class ConnectSdk {
      * The key to enable the staging environment in the Android manifest.
      */
     public static final String USE_STAGING_PROPERTY = "com.telenor.connect.USE_STAGING";
+
+    /**
+     * The key to disable the use of Chrome Custom Tab for authentication.
+     */
+    public static final String USE_CHROME_CUSTOM_TAB_PROPERTY
+            = "com.telenor.connect.USE_CHROME_CUSTOM_TAB";
 
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
@@ -270,6 +277,10 @@ public final class ConnectSdk {
         return sConfidentialClient;
     }
 
+    public static synchronized boolean shouldUseChromeCustomTab() {
+        return sUseChromeCustomTab;
+    }
+
     public static synchronized boolean isInitialized() {
         return sSdkInitialized;
     }
@@ -362,6 +373,11 @@ public final class ConnectSdk {
         if (paymentSuccessUriObject instanceof String) {
             String paymentSuccessUriString = (String) paymentSuccessUriObject;
             sPaymentSuccessUri = paymentSuccessUriString;
+        }
+
+        Object useChromeCustomTabObject = ai.metaData.get(USE_CHROME_CUSTOM_TAB_PROPERTY);
+        if (useChromeCustomTabObject instanceof Boolean) {
+            sUseChromeCustomTab = (Boolean) useChromeCustomTabObject;
         }
     }
 

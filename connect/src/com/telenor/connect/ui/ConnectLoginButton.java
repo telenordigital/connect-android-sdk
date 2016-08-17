@@ -135,7 +135,9 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         @Override
         public void onClick(View v) {
             Validator.sdkInitialized();
-            if (!customTabsSupported || !contextIntentFilterMatchesRedirectUri(getContext())) {
+            if (!ConnectSdk.shouldUseChromeCustomTab()
+                    || !customTabsSupported
+                    || !contextIntentFilterMatchesRedirectUri(getContext())) {
                 int customLoadingLayout = getCustomLoadingLayout();
                 if (customLoadingLayout == NO_CUSTOM_LAYOUT) {
                     ConnectSdk.authenticate(getActivity(), getParameters(), getRequestCode());
