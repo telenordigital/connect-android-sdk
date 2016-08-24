@@ -11,8 +11,8 @@
 * [Setup](#setup)
   * [Set Staging or Production Environment](#set-staging-or-production-environment)
   * [Select Client type](#select-client-type)
-  * [Adding the Client ID and Redirect URI](#adding-the-client-id-and-redirect-uri)
-  * [Handling the Redirect URI](#handling-the-redirect-ui)
+  * [Adding the Client ID and redirect URI](#adding-the-client-id-and-redirect-uri)
+  * [Handling the redirect URI](#handling-the-redirect-ui)
   * [Adding permissions](adding-permissions)
 * [Detailed Usage](#detailed-usage)
   * [Adding a ConnectLoginButton](#adding-a-connectloginbutton)
@@ -40,7 +40,7 @@ The binaries are included on JCenter, so the SDK can be added by including a lin
 ```gradle
 dependencies {
     // ...
-    compile 'com.telenor.connect:connect-android-sdk:0.7.0' // add this line
+    compile 'com.telenor.connect:connect-android-sdk:1.0.0' // add this line
 }
 ```
 

@@ -9,7 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 23
-        versionName "0.7.0"
+        versionName "1.0.0"
     }
     sourceSets {
         main {
@@ -43,5 +43,5 @@ publish {
     userOrg = 'telenordigital'
     groupId = project.group
     artifactId = 'connect-android-sdk'
-    publishVersion = '0.7.0'
+    publishVersion = '1.0.0'
 }
