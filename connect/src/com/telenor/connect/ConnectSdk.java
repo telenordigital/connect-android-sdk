@@ -108,7 +108,8 @@ public final class ConnectSdk {
         final Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
-        final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
+        final String url
+                = getAuthorizeUriAndSetLastAuthState(parameters, BrowserType.WEB_VIEW).toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
         return intent;
     }
@@ -167,7 +168,7 @@ public final class ConnectSdk {
     }
 
     public static synchronized Uri getAuthorizeUriAndSetLastAuthState(
-            Map<String, String> parameters) {
+            Map<String, String> parameters, BrowserType browserType) {
         if (ConnectSdk.getClientId() == null) {
             throw new ConnectException("Client ID not specified in application manifest.");
         }
@@ -189,7 +190,8 @@ public final class ConnectSdk {
                 getClientId(),
                 getRedirectUri(),
                 getUiLocales(),
-                getConnectApiUrl());
+                getConnectApiUrl(),
+                browserType);
     }
 
     public static HttpUrl getConnectApiUrl() {

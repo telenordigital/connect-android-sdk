@@ -60,7 +60,7 @@ public class ConnectSdkTest {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters);
+        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters, null);
 
         Intent intent = new Intent();
         intent.setData(Uri.parse("connect-tests://oauth2callback?state=xyz&code=abc"));
@@ -74,7 +74,7 @@ public class ConnectSdkTest {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters);
+        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters, null);
 
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=xyz&code=abc"));
@@ -88,7 +88,7 @@ public class ConnectSdkTest {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters);
+        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters, null);
 
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=NNN&code=abc"));
@@ -102,7 +102,7 @@ public class ConnectSdkTest {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters);
+        ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters, null);
 
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=xyz"));

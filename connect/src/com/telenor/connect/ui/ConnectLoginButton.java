@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.telenor.connect.BrowserType;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
@@ -34,6 +35,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     private CustomTabsServiceConnection connection;
     private boolean shouldPreLoad = false;
     private boolean customTabsSupported = false;
+    private BrowserType browserType;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -58,7 +60,10 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
         if (customTabsClient == null) {
             customTabsSupported = CustomTabsClient.bindCustomTabsService(
-                    getContext(), "com.android.chrome", connection);
+                    getContext(), "com.android.chrome", connection)
+                    && contextIntentFilterMatchesRedirectUri(getContext());
+            browserType
+                    = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
         }
         onClickListener = new LoginClickListener();
         setOnClickListener(onClickListener);
@@ -81,7 +86,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
     private Uri getAuthorizeUriAndSetLastAuthState() {
         final Map<String, String> parameters = getParameters();
-        return ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters);
+        return ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters, browserType);
     }
 
     @NonNull
@@ -135,7 +140,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         @Override
         public void onClick(View v) {
             Validator.sdkInitialized();
-            if (!customTabsSupported || !contextIntentFilterMatchesRedirectUri(getContext())) {
+            if (!customTabsSupported) {
                 int customLoadingLayout = getCustomLoadingLayout();
                 if (customLoadingLayout == NO_CUSTOM_LAYOUT) {
                     ConnectSdk.authenticate(getActivity(), getParameters(), getRequestCode());
