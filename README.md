@@ -317,7 +317,7 @@ application to access the internet.
 ```
 
 Optionally you can enable the feature that automatically fills in verification PIN codes received
-on SMS by adding the following permissions.
+on SMS by adding the following permissions, when you are not using the Chrome Custom Tab feature.
 
 ```XML
 <uses-permission android:name="android.permission.RECEIVE_SMS" />
