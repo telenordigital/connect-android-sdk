@@ -18,7 +18,6 @@
   * [Adding a ConnectLoginButton](#adding-a-connectloginbutton)
   * [Next steps for public clients](#next-steps-for-public-clients)
   * [Retrieving information about the logged in user](#retrieving-information-about-the-logged-in-user)
-  * [Next steps for confidential clients](#next-steps-for-confidential-clients)
 * [Connect Payment](#connect-payment)
 
 The Connect SDK for Android allows developers to create applications that use Telenor Connect for
@@ -241,14 +240,49 @@ Connect ID supports two different client types: _public_ and _confidential_. Ple
 [Native app guide](http://docs.telenordigital.com/connect/id/native_apps.html) to help you make a
 decision.
 
-If it is a confidential client add the following to the manifest:
+#### Confidential clients
+
+The SDK will return an _authorization code_ in the `onActivityResult()` method. This authorization
+code must be sent to the server-side part of your client.
+
+Add the following to the manifest:
 ```xml
 <meta-data
 	android:name="com.telenor.connect.CONFIDENTIAL_CLIENT"
 	android:value="true" />
 ```
 
-### Adding the Client ID and Redirect URI
+Then the `onActivityResult(…)` method will have to be changed to send the authorization code to
+the server-side part of the client:
+```java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (resultCode != Activity.RESULT_OK) {
+        return;
+    }
+
+    final String authorizationCode = data.getStringExtra("code");
+
+    // Debug line:
+    Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_LONG).show();
+
+    // Send the authorizationCode to the server-side of the client as described in the docs
+    // on confidential clients: http://docs.telenordigital.com/connect/id/native_apps.html
+    // This can done by for example Android AsyncTask or using the Retrofit library.
+    // The server-side of the client must send back a session ID that the native app code
+    // stores. Further requests go directly to the server-side of the client with the
+    // session ID to identify the correct tokens for the server-side.
+}
+```
+
+#### Public clients
+
+Either not include the `meta-data` for `com.telenor.connect.CONFIDENTIAL_CLIENT` or explicitly set
+it to `false` (this is the default).
+
+
+### Adding the Client ID and redirect URI
 
 The Connect ID integration requires a Client ID and a redirect URI to work. You should receive these when registering your application.
 
@@ -296,16 +330,6 @@ If you do not wish to use the Chrome Custom Tab feature do not add this to the m
 If the app is a public client this `Activity` should call `ConnectSdk.handleRedirectUrlCallIfPresent`, as in the [example above](#authenticating-a-user-and-authorizing-app).
 
 #### Confidential Client
-
-A confidential client can access the **code** parameter from the `Intent` as well. The helper method `ConnectSdk.intentHasValidRedirectUrlCall(Intent intent)` will return `true` if a valid code is present in the `Activity`'s `Intent`. The helper method `ConnectSdk.getCodeFromIntent(Intent intent)` can then be used to get the **code**:
-
-```java
-Intent intent = getIntent();
-if (ConnectSdk.intentHasValidRedirectUrlCall(intent)) {
-	String code = ConnectSdk.getCodeFromIntent(intent);
-	// App code using code
-}
-```
 
 ### Adding permissions
 
@@ -408,7 +432,6 @@ ConnectSdk.handleRedirectUrlCallIfPresent(getIntent(), new ConnectCallback() {
 
 ```
 
-
 #### Adding claims
 
 To add additional [claims to your Connect request] (http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-authorization),
@@ -487,15 +510,6 @@ authorize successfully completes. If both email and phone claims have been reque
 provide the username used for the authentication in the ID token.
 
 See docs.telenordigital.com/apis/connect/id/authentication.html for more details.
-
-
-### Next steps for confidential clients
-
-The user's access and refresh tokens are stored in a database controlled by you. The SDK will
-return an _authorization code_ in the `onActivityResult()` function. If the Chrome Custom Tab
-feature is enabled you can find the authorization code with the `intentHasValidRedirectUrlCall`
-function. This authorization code should be exchanged for access and refresh tokens in your backend
-system.
 
 ## Connect Payment
 
