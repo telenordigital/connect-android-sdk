@@ -84,7 +84,7 @@ public class SignInActivity extends Activity {
         // code and state, for example example-clientid://oauth2callback?code=123&state=xyz ,
         // with a callback, which has a onSuccess and onError function.
         // If it is a success we have tokens, and can transition to SignedInActivity.
-        ConnectSdk.checkIntentForAndHandleRedirectUrlCall(getIntent(), new ConnectCallback() {
+        ConnectSdk.handleRedirectUrlCallIfPresent(getIntent(), new ConnectCallback() {
             @Override
             public void onSuccess(Object successData) {
                 goToSignedInActivity();

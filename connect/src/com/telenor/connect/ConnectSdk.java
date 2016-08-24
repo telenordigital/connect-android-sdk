@@ -462,7 +462,7 @@ public final class ConnectSdk {
      * @see #intentHasValidRedirectUrlCall
      * @see #getAccessTokenFromCode
      */
-    public static void checkIntentForAndHandleRedirectUrlCall(
+    public static void handleRedirectUrlCallIfPresent(
             Intent intent, ConnectCallback callback) {
         if (!intentHasValidRedirectUrlCall(intent)) {
             return;

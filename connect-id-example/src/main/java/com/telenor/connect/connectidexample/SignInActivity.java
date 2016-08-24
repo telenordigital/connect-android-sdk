@@ -47,7 +47,7 @@ public class SignInActivity extends Activity {
             }
         });
 
-        ConnectSdk.checkIntentForAndHandleRedirectUrlCall(getIntent(), new ConnectCallback() {
+        ConnectSdk.handleRedirectUrlCallIfPresent(getIntent(), new ConnectCallback() {
             @Override
             public void onSuccess(Object successData) {
                 goToSignedInActivity();
