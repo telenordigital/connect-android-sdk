@@ -477,15 +477,6 @@ protected void onCreate(Bundle savedInstanceState) {
 
 The `onTokenStateChanged(boolean hasTokens)` method will be called whenever the token state changes.
 
-#### Retrieving the access token
-
-The current Connect ID access token can be retrieved using the `ConnectSdk.getAccessToken()`
-method. When the token has expired a new set of tokens can be requested using
-`ConnectSdk.updateTokens()`.
-
-Access tokens can be used to access resources on your resource server. Please refer to the document
-about [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for more details.
-
 ### Retrieving information about the logged in user
 
 If you request user claims like email, phone, and name, using either scope tokens or the claims
@@ -501,8 +492,10 @@ See docs.telenordigital.com/apis/connect/id/authentication.html for more details
 ### Next steps for confidential clients
 
 The user's access and refresh tokens are stored in a database controlled by you. The SDK will
-return an `access code` in the `onActivityResult()` function. This access code should be exchanged
-for access and refresh tokens in your backend system.
+return an _authorization code_ in the `onActivityResult()` function. If the Chrome Custom Tab
+feature is enabled you can find the authorization code with the `intentHasValidRedirectUrlCall`
+function. This authorization code should be exchanged for access and refresh tokens in your backend
+system.
 
 ## Connect Payment
 
