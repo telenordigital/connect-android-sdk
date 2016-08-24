@@ -329,7 +329,7 @@ Note: You should be conscious about the security implications of using this feat
 
 #### Add ConnectActivity for Sign In
 
-The `ConnectActivity` needs to be added to the manifest in order for the Sdk to work on older devices. Also if the `intent-filter` is missing the Sdk will fall back to use this `Activity`. Add it to the `application` section.
+The `ConnectActivity` needs to be added to the manifest in order for the Sdk to work on devices not using the Chrome Custom Tab feature. Also if the `intent-filter` is missing the Sdk will fall back to use this `Activity`. Add it to the `application` section.
 
 ```xml
 <application>
