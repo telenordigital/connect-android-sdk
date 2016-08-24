@@ -81,9 +81,9 @@ public class SignInActivity extends Activity {
         // When users have clicked the loginButton and signed in, this method call will check
         // that, and transition the app.
         // It checks if the Activity was started by a valid call to the redirect uri with a
-        // code and state, for example example-clientid://oauth2callback?code=123&state=xyz ,
-        // with a callback, which has a onSuccess and onError function.
-        // If it is a success we have tokens, and can transition to SignedInActivity.
+        // code and state, for example example-clientid://oauth2callback?code=123&state=xyz .
+        // It also takes a callback that has a onSuccess and onError function.
+        // If it is a success we have stored tokens, and can go to SignedInActivity.
         ConnectSdk.handleRedirectUrlCallIfPresent(getIntent(), new ConnectCallback() {
             @Override
             public void onSuccess(Object successData) {
