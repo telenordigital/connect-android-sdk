@@ -278,7 +278,7 @@ Add `meta-data` entries to the `application` section of the manifest.
 
 For your app to respond to calls to the redirect uri you need to add an `intent-filter` to your `Activity` to register this in the Android system. This will allow the [Chrome Custom Tab](https://developer.chrome.com/multidevice/android/customtabs) used by `ConnectLoginButton` and external browsers to get back to your app.
 
-If you do not wish to use the Chrome Custom Tab feature do not add this to the manifest, and the default Android Web View will used instead.
+If you do not wish to use the Chrome Custom Tab feature do not add this to the manifest, and the default Android Web View will be used instead.
 
 ```xml
 <activity android:name=".SignInActivity" >
