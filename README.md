@@ -104,8 +104,8 @@ public class SignInActivity extends Activity {
     }
 
     // Overriding onActivityResult here serves the same purpose as
-    // checkIntentForAndHandleRedirectUrlCall further up. It is needed on older devices,
-    // which doesn't support Chrome Custom Tabs, or if the intent-filter for the redirect uri
+    // handleRedirectUrlCallIfPresent further up. It is needed on older devices
+    // that don't support Chrome Custom Tabs, or if the intent-filter for the redirect uri
     // to this activity is missing.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -293,7 +293,7 @@ If you do not wish to use the Chrome Custom Tab feature do not add this to the m
 
 #### Public Client
 
-If the app is a public client this `Activity` should call `ConnectSdk.checkIntentForAndHandleRedirectUrlCall`, as in the [example above](#authenticating-a-user-and-authorizing-app).
+If the app is a public client this `Activity` should call `ConnectSdk.handleRedirectUrlCallIfPresent`, as in the [example above](#authenticating-a-user-and-authorizing-app).
 
 #### Confidential Client
 
