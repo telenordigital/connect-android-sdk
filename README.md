@@ -388,9 +388,26 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // App code
     }
 }
+
 ```
 
-If you are developing a confidential client you should skip to [Next steps for confidential clients](#next-steps-for-confidential-clients)
+Or if the Chrome Custom Tab feature is used, in a `ConnectCallback` in the Activity that has the
+`intent-filter` with `connect_client_id` in your AndroidManifest:
+```java
+ConnectSdk.handleRedirectUrlCallIfPresent(getIntent(), new ConnectCallback() {
+    @Override
+    public void onSuccess(Object successData) {
+        // App code
+    }
+
+    @Override
+    public void onError(Object errorData) {
+        // App code
+    }
+});
+
+```
+
 
 #### Adding claims
 
