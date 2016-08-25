@@ -323,27 +323,37 @@ For your app to respond to calls to the redirect uri you need to add an `intent-
 </activity>
 ```
 
-If you do not wish to use the Chrome Custom Tab feature do not add this to the manifest, and the default Android Web View will be used instead.
+If you do not wish to use the Chrome Custom Tab feature do not add this to the manifest, and the default Android WebView will be used instead.
 
 #### Public Client
 
-If the app is a public client this `Activity` should call `ConnectSdk.handleRedirectUrlCallIfPresent`, as in the [example above](#authenticating-a-user-and-authorizing-app).
+If the app is a public client this `Activity` should call `ConnectSdk.handleRedirectUrlCallIfPresent`, as in the [example above](#authenticating-a-user-and-authorizing-app). // TODO: add non-cct info here
 
 #### Confidential Client
+
+A confidential client can access the **code** parameter from the `Intent` as well. The helper method `ConnectSdk.intentHasValidRedirectUrlCall(Intent intent)` will return `true` if a valid code is present in the `Activity`'s `Intent`. The helper method `ConnectSdk.getCodeFromIntent(Intent intent)` can then be used to get the **code**: // TODO: add non-cct info here
+
+```java
+Intent intent = getIntent();
+if (ConnectSdk.intentHasValidRedirectUrlCall(intent)) {
+	String code = ConnectSdk.getCodeFromIntent(intent);
+	// App code using code
+}
+```
 
 ### Adding permissions
 
 Open your application's `AndroidManifest.xml` file and add the permission required to allow your
 application to access the internet.
 
-```XML
+```xml
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 
 Optionally you can enable the feature that automatically fills in verification PIN codes received
 on SMS by adding the following permissions, when you are not using the Chrome Custom Tab feature.
 
-```XML
+```xml
 <uses-permission android:name="android.permission.RECEIVE_SMS" />
 <uses-permission android:name="android.permission.READ_SMS" />
 ```
@@ -389,7 +399,7 @@ Firstly add a button to your layout XML files using the class name
 Then add the required [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for your
 application to the button in the `onCreate()` method of your `Activity` class.
 
-```Java
+```java
 @Override
 public void onCreate(Bundle savedInstanceState) {
     ...
@@ -401,7 +411,7 @@ public void onCreate(Bundle savedInstanceState) {
 The `onActivityResult()` method of your `Activity` will be called with `Activity.RESULT_OK` as
 `resultCode` if the login was successful or `Activity.RESULT_CANCELED` when there was an error.
 
-```Java
+```java
 @Override
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
@@ -434,7 +444,7 @@ ConnectSdk.handleRedirectUrlCallIfPresent(getIntent(), new ConnectCallback() {
 
 #### Adding claims
 
-To add additional [claims to your Connect request] (http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-authorization),
+To add additional [claims to your Connect request](http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-authorization),
 you can use the `setClaims` method on the `ConnectLoginButton`.
 
 ```java
@@ -464,7 +474,7 @@ public void onCreate(Bundle savedInstanceState) {
 ```
 
 #### Customising native loading screen
-One can customise the native loading screen that is shown before the Web View has finished loading when the Chrome Custom Tab isn't used
+One can customise the native loading screen that is shown before the WebView has finished loading when the Chrome Custom Tab isn't used
 in the following way:
 
 ```java
