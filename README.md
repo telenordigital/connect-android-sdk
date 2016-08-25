@@ -11,7 +11,7 @@
   * [Set Staging or Production environment](#set-staging-or-production-environment)
   * [Adding the Client ID and redirect URI](#adding-the-client-id-and-redirect-uri)
   * [Select client type and handle the redirect URI](#select-client-type-and-handle-the-redirect-uri)
-  * [Adding permissions](adding-permissions)
+  * [Adding permissions](#adding-permissions)
 * [Detailed usage](#detailed-usage)
   * [Adding a ConnectLoginButton](#adding-a-connectloginbutton)
   * [Next steps for public clients](#next-steps-for-public-clients)
