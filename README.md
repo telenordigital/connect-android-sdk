@@ -282,7 +282,7 @@ For your app to respond to calls to the redirect uri you need to add an `intent-
 
 #### Public clients
 
-If the app is a public client you need an `Activity` that calls `ConnectSdk.handleRedirectUrlCallIfPresent`, as in the [#authenticating example above](#authenticating-a-user-and-authorizing-app).
+If the app is a public client you need an `Activity` that calls `ConnectSdk.handleRedirectUrlCallIfPresent`, as in the [authenticating example above](#authenticating-a-user-and-authorizing-app).
 
 If the app is not using the Chrome Custom Tab Feature you only need to override the
 `onActivityResult(…)`, also as in the
