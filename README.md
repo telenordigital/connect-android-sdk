@@ -2,19 +2,17 @@
 
 * [Prerequisites](#prerequisites)
 * [Install](#install)
-* [Basic Usage](#basic-usage)
-  * [Authenticating a User and Authorizing App](#authenticating-a-user-and-authorizing-app)
-  * [Getting a Valid Access Token](#getting-a-valid-access-token)
-  * [Access User Information](#access-user-information)
-  * [Accessing User Information by getUserInfo(…)](#accessing-user-information-by-getuserinfo)
-* [Example App](#example-app)
+* [Basic usage](#basic-usage)
+  * [Authenticating a user and authorizing app](#authenticating-a-user-and-authorizing-app)
+  * [Getting a valid Access Token](#getting-a-valid-access-token)
+  * [Access user information](#access-user-information)
+* [Example app](#example-app)
 * [Setup](#setup)
-  * [Set Staging or Production Environment](#set-staging-or-production-environment)
-  * [Select Client type](#select-client-type)
+  * [Set Staging or Production environment](#set-staging-or-production-environment)
   * [Adding the Client ID and redirect URI](#adding-the-client-id-and-redirect-uri)
-  * [Handling the redirect URI](#handling-the-redirect-ui)
+  * [Select client type and handle the redirect URI](#select-client-type-and-handle-the-redirect-uri)
   * [Adding permissions](adding-permissions)
-* [Detailed Usage](#detailed-usage)
+* [Detailed usage](#detailed-usage)
   * [Adding a ConnectLoginButton](#adding-a-connectloginbutton)
   * [Next steps for public clients](#next-steps-for-public-clients)
   * [Retrieving information about the logged in user](#retrieving-information-about-the-logged-in-user)
@@ -53,11 +51,11 @@ allprojects {
 }
 ```
 
-## Basic Usage
+## Basic usage
 
 Notice: The AndroidManifest.xml needs to be [setup](#setup) before you can use the SDK.
 
-### Authenticating a User and Authorizing App
+### Authenticating a user and authorizing app
 
 You can authenticate the user and authorize your application by using a `ConnectLoginButton`:
 
@@ -138,7 +136,7 @@ Where `activity_sign_in.xml` looks like this:
 
 ```
 
-### Getting a Valid Access Token
+### Getting a valid Access Token
 
 Once the user is signed in you can get a valid Access Token by calling `ConnectSdk.getValidAccessToken(…)`:
 
@@ -188,7 +186,7 @@ And access user information by calling for example:
 String email = idToken.getEmail();
 ```
 
-### Accessing User Information by getUserInfo(…)
+#### Accessing User Information by getUserInfo(…)
 
 You can also access user information by making a network call using `getUserInfo(…)`:
 
@@ -206,7 +204,7 @@ ConnectSdk.getUserInfo(new Callback<UserInfo>() {
 });
 ```
 
-## Example App
+## Example app
 
 For a full example, which includes both the setup in `AndroidManifest.xml` and sign in, see the [`connect-id-example` app](https://github.com/telenordigital/connect-android-sdk/tree/master/connect-id-example).
 
@@ -234,54 +232,6 @@ that can be used, staging and production. The environment can be selected using 
 
 Set this to `false` if you want to use the production environment.
 
-### Select Client type
-
-Connect ID supports two different client types: _public_ and _confidential_. Please see the
-[Native app guide](http://docs.telenordigital.com/connect/id/native_apps.html) to help you make a
-decision.
-
-#### Confidential clients
-
-The SDK will return an _authorization code_ in the `onActivityResult()` method. This authorization
-code must be sent to the server-side part of your client.
-
-Add the following to the manifest:
-```xml
-<meta-data
-	android:name="com.telenor.connect.CONFIDENTIAL_CLIENT"
-	android:value="true" />
-```
-
-Then the `onActivityResult(…)` method will have to be changed to send the authorization code to
-the server-side part of the client:
-```java
-@Override
-protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (resultCode != Activity.RESULT_OK) {
-        return;
-    }
-
-    final String authorizationCode = data.getStringExtra("code");
-
-    // Debug line:
-    Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_LONG).show();
-
-    // Send the authorizationCode to the server-side of the client as described in the docs
-    // on confidential clients: http://docs.telenordigital.com/connect/id/native_apps.html
-    // This can done by for example Android AsyncTask or using the Retrofit library.
-    // The server-side of the client must send back a session ID that the native app code
-    // stores. Further requests go directly to the server-side of the client with the
-    // session ID to identify the correct tokens for the server-side.
-}
-```
-
-#### Public clients
-
-Either not include the `meta-data` for `com.telenor.connect.CONFIDENTIAL_CLIENT` or explicitly set
-it to `false` (this is the default).
-
-
 ### Adding the Client ID and redirect URI
 
 The Connect ID integration requires a Client ID and a redirect URI to work. You should receive these when registering your application.
@@ -308,8 +258,13 @@ Add `meta-data` entries to the `application` section of the manifest.
 </application>
 ```
 
-### Handling the Redirect URI
+### Select client type and handle the redirect URI
 
+Connect ID supports two different client types: _public_ and _confidential_. Please see the
+[Native app guide](http://docs.telenordigital.com/connect/id/native_apps.html) to help you make a
+decision.
+
+#### Registering the redirect URI in Android
 For your app to respond to calls to the redirect uri you need to add an `intent-filter` to your `Activity` to register this in the Android system. This will allow the [Chrome Custom Tab](https://developer.chrome.com/multidevice/android/customtabs) used by `ConnectLoginButton` and external browsers to get back to your app.
 
 ```xml
@@ -323,21 +278,61 @@ For your app to respond to calls to the redirect uri you need to add an `intent-
 </activity>
 ```
 
-If you do not wish to use the Chrome Custom Tab feature do not add this to the manifest, and the default Android WebView will be used instead.
+**Note**: If you do not wish to use the Chrome Custom Tab feature do not add this to the manifest, and the default Android WebView will be used instead.
 
-#### Public Client
+#### Public clients
 
-If the app is a public client this `Activity` should call `ConnectSdk.handleRedirectUrlCallIfPresent`, as in the [example above](#authenticating-a-user-and-authorizing-app). // TODO: add non-cct info here
+If the app is a public client you need an `Activity` that calls `ConnectSdk.handleRedirectUrlCallIfPresent`, as in the [#authenticating example above](#authenticating-a-user-and-authorizing-app).
 
-#### Confidential Client
+If the app is not using the Chrome Custom Tab Feature you only need to override the
+`onActivityResult(…)`, also as in the
+[authenticating example above](#authenticating-a-user-and-authorizing-app).
 
-A confidential client can access the **code** parameter from the `Intent` as well. The helper method `ConnectSdk.intentHasValidRedirectUrlCall(Intent intent)` will return `true` if a valid code is present in the `Activity`'s `Intent`. The helper method `ConnectSdk.getCodeFromIntent(Intent intent)` can then be used to get the **code**: // TODO: add non-cct info here
+#### Confidential clients
+
+Add the following to the manifest:
+```xml
+<meta-data
+	android:name="com.telenor.connect.CONFIDENTIAL_CLIENT"
+	android:value="true" />
+```
+
+A confidential client can access the **code** parameter from the `Intent` of the Activity with the [intent-filter](#registering-the-redirect-uri-in-android), or the `onActivityResult()` method. This is the _authorization code_. This authorization code must be sent to the server-side part of your client.
+
+The helper method `ConnectSdk.intentHasValidRedirectUrlCall(Intent intent)` will return `true` if a valid code is present in the `Activity`'s `Intent`. The helper method `ConnectSdk.getCodeFromIntent(Intent intent)` can then be used to get the **code**:
 
 ```java
 Intent intent = getIntent();
 if (ConnectSdk.intentHasValidRedirectUrlCall(intent)) {
-	String code = ConnectSdk.getCodeFromIntent(intent);
+	String authorizationCode = ConnectSdk.getCodeFromIntent(intent);
 	// App code using code
+
+    // Debug line:
+    Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_LONG).show();
+}
+```
+
+The `onActivityResult(…)` method will have to be changed to send the authorization code to
+the server-side part of the client:
+```java
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (resultCode != Activity.RESULT_OK) {
+        return;
+    }
+
+    String authorizationCode = data.getStringExtra("code");
+
+    // Debug line:
+    Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_LONG).show();
+
+    // Send the authorizationCode to the server-side of the client as described in the docs
+    // on confidential clients: http://docs.telenordigital.com/connect/id/native_apps.html
+    // This can done by for example Android AsyncTask or using the Retrofit library.
+    // The server-side of the client must send back a session ID that the native app code
+    // stores. Further requests go directly to the server-side of the client with the
+    // session ID to identify the correct tokens for the server-side.
 }
 ```
 
@@ -361,7 +356,7 @@ on SMS by adding the following permissions, when you are not using the Chrome Cu
 Note: You should be conscious about the security implications of using this feature. When using this feature your application will load received SMS into memory for up to 60 seconds. Upon finding an SMS with the word `CONNECT` and a PIN-code, the PIN code will be parsed and passed back to a callback JavaScript function. More discussion can be found in issue [#15](https://github.com/telenordigital/connect-android-sdk/issues/15).
 
 
-#### Add ConnectActivity for Sign In
+#### Add ConnectActivity for sign in
 
 The `ConnectActivity` needs to be added to the manifest in order for the Sdk to work on devices not using the Chrome Custom Tab feature. Also if the `intent-filter` is missing the Sdk will fall back to use this `Activity`. Add it to the `application` section.
 
@@ -377,9 +372,8 @@ The `ConnectActivity` needs to be added to the manifest in order for the Sdk to 
 </application>
 ```
 
-####
 
-## Detailed Usage
+## Detailed usage
 
 ### Adding a ConnectLoginButton
 
