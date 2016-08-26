@@ -468,8 +468,8 @@ public void onCreate(Bundle savedInstanceState) {
 ```
 
 #### Customising native loading screen
-One can customise the native loading screen that is shown before the WebView has finished loading when the Chrome Custom Tab isn't used
-in the following way:
+One can customise the native loading screen that is shown before the WebView has finished loading
+when the Chrome Custom Tab feature isn't used in the following way:
 
 ```java
 @Override
