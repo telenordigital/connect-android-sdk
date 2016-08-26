@@ -19,7 +19,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -194,11 +193,9 @@ public class ConnectUrlHelperTest {
                 url,
                 null);
 
-        assertTrue(
-                authorizeUri
-                        .getQueryParameter("telenordigital_sdk_version")
-                        .endsWith("not-defined")
-        );
+        assertThat(authorizeUri
+                .getQueryParameter("telenordigital_sdk_version")
+                .endsWith("not-defined"), is(true));
     }
 
     @Test
@@ -220,11 +217,10 @@ public class ConnectUrlHelperTest {
                 url,
                 BrowserType.CHROME_CUSTOM_TAB);
 
-        assertTrue(
+        assertThat(
                 authorizeUri
                         .getQueryParameter("telenordigital_sdk_version")
-                        .endsWith("chrome-custom-tab")
-        );
+                        .endsWith("chrome-custom-tab"), is(true));
     }
 
     @Test
@@ -246,10 +242,9 @@ public class ConnectUrlHelperTest {
                 url,
                 BrowserType.WEB_VIEW);
 
-        assertTrue(
+        assertThat(
                 authorizeUri
                         .getQueryParameter("telenordigital_sdk_version")
-                        .endsWith("web-view")
-        );
+                        .endsWith("web-view"), is(true));
     }
 }
