@@ -33,7 +33,6 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     private CustomTabsClient customTabsClient;
     private CustomTabsSession customTabsSession;
     private CustomTabsServiceConnection connection;
-    private boolean shouldPreLoad = false;
     private boolean customTabsSupported = false;
     private BrowserType browserType;
 
@@ -47,9 +46,10 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
                 customTabsClient = client;
                 customTabsClient.warmup(0);
                 customTabsSession = customTabsClient.newSession(null);
-                if (shouldPreLoad && customTabsSession != null) {
-                    customTabsSession.mayLaunchUrl(uri, null, null);
+                if (uri == null) {
+                    uri = getAuthorizeUriAndSetLastAuthState();
                 }
+                customTabsSession.mayLaunchUrl(uri, null, null);
             }
 
             @Override
@@ -71,17 +71,6 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
     public OnClickListener getOnClickListener() {
         return onClickListener;
-    }
-
-    public void preLoad() {
-        if (uri == null) {
-            uri = getAuthorizeUriAndSetLastAuthState();
-        }
-        if (customTabsSession == null) {
-            shouldPreLoad = true;
-        } else {
-            customTabsSession.mayLaunchUrl(uri, null, null);
-        }
     }
 
     private Uri getAuthorizeUriAndSetLastAuthState() {
@@ -150,10 +139,6 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
                 }
 
                 return;
-            }
-
-            if (uri == null) {
-                uri = getAuthorizeUriAndSetLastAuthState();
             }
 
             new CustomTabsIntent.Builder()

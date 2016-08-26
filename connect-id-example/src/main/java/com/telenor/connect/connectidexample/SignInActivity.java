@@ -25,7 +25,6 @@ public class SignInActivity extends Activity {
         } else {
             progressBar.setVisibility(View.GONE);
             loginButton.setEnabled(true);
-            loginButton.preLoad();
         }
     }
 
