@@ -202,7 +202,7 @@ public class ConnectUrlHelperTest {
     }
 
     @Test
-    public void chromeCustomTabBrowserTypeOnGetAuthorizeUriReturnsNotDefinedVersionParam() {
+    public void chromeCustomTabBrowserTypeOnGetAuthorizeUriReturnsChromeCustomTabParam() {
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host("connect.telenordigital.com")
@@ -228,7 +228,7 @@ public class ConnectUrlHelperTest {
     }
 
     @Test
-    public void webViewBrowserTypeOnGetAuthorizeUriReturnsNotDefinedVersionParam() {
+    public void webViewBrowserTypeOnGetAuthorizeUriReturnsWebViewParam() {
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host("connect.telenordigital.com")
