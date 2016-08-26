@@ -62,8 +62,11 @@ public class ConnectWebViewClientTest {
                 = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
         connectWebViewClient.onPageFinished(webView, "https://any.telenordigital.com/something");
 
-        verify(webView).loadUrl("javascript:window.AndroidInterface" +
-                ".processInstructions(document.getElementById('android-instructions').innerHTML);");
+        String expected = "javascript:if (document.getElementById('android-instructions') !== null) {" +
+                "window.AndroidInterface.processInstructions(document.getElementById('android-instructions').innerHTML)" +
+                "}";
+
+        verify(webView).loadUrl(expected);
     }
 
     @Test
