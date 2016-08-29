@@ -58,9 +58,10 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
             }
         };
 
-        customTabsSupported = CustomTabsClient.bindCustomTabsService(
-                getContext(), "com.android.chrome", connection)
-                && contextIntentFilterMatchesRedirectUri(getContext());
+        final boolean serviceBound = CustomTabsClient.bindCustomTabsService(
+                getContext(), "com.android.chrome", connection);
+        final boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
+        customTabsSupported = serviceBound && correctIntentFilter;
         browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
         onClickListener = new LoginClickListener();
         setOnClickListener(onClickListener);
