@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
-import android.support.customtabs.CustomTabsSession;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -29,9 +28,7 @@ import java.util.Map;
 public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
     private OnClickListener onClickListener;
-    private Uri uri;
     private CustomTabsClient customTabsClient;
-    private CustomTabsSession customTabsSession;
     private CustomTabsServiceConnection connection;
     private boolean customTabsSupported = false;
     private BrowserType browserType;
@@ -45,11 +42,6 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
                 customTabsClient = client;
                 customTabsClient.warmup(0);
-                customTabsSession = customTabsClient.newSession(null);
-                if (uri == null) {
-                    uri = getAuthorizeUriAndSetLastAuthState();
-                }
-                customTabsSession.mayLaunchUrl(uri, null, null);
             }
 
             @Override
@@ -141,7 +133,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
             new CustomTabsIntent.Builder()
                     .build()
-                    .launchUrl(getActivity(), uri);
+                    .launchUrl(getActivity(), getAuthorizeUriAndSetLastAuthState());
         }
     }
 }
