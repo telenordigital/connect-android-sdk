@@ -6,6 +6,7 @@ import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.id.IdToken;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
@@ -69,15 +70,36 @@ public class IdTokenValidator {
                             + " idTokenClaimsSet=" + idTokenClaimsSet.toJSONObject());
         }
 
-        if (idTokenClaimsSet.getExpirationTime() == null
-                || idTokenClaimsSet.getExpirationTime().before(new Date())) {
+        final Date expirationTime = idTokenClaimsSet.getExpirationTime();
+        if (!isValidExpirationTime(expirationTime, new Date())) {
             throw new ConnectException("ID token has expired."
                     + " idTokenClaimsSet=" + idTokenClaimsSet.toJSONObject());
         }
+
 
         if (idTokenClaimsSet.getIssueTime() == null) {
             throw new ConnectException("ID token is missing the \"iat\" claim."
                     + " idTokenClaimsSet=" + idTokenClaimsSet.toJSONObject());
         }
+    }
+
+    public static boolean isValidExpirationTime(Date expirationTime, Date currentDate) {
+        if (expirationTime == null) {
+            return false;
+        }
+
+        if (expirationTime.before(currentDate)) {
+            final Date internetDate;
+            try {
+                internetDate = InternetTime.getInternetDate();
+            } catch (ParseException|IOException e) {
+                return false;
+            }
+
+            if (expirationTime.before(internetDate)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
