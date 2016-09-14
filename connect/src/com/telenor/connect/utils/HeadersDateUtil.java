@@ -25,7 +25,7 @@ public class HeadersDateUtil {
                 try {
                     return DATE_FORMAT.parse(header.getValue());
                 } catch (ParseException e) {
-                    Log.e(ConnectUtils.LOG_TAG, "Failed to call parse Date from headers. " +
+                    Log.w(ConnectUtils.LOG_TAG, "Failed to call parse Date from headers. " +
                             "headers=" + headers, e);
                     return null;
                 }
