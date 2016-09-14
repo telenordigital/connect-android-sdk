@@ -70,7 +70,7 @@ public class ConnectIdService {
                     @Override
                     public void success(ConnectTokensTO connectTokensTO, Response response) {
                         Date serverTimestamp
-                                = HeadersDateUtil.get(response.getHeaders());
+                                = HeadersDateUtil.extractDate(response.getHeaders());
                         ConnectTokens connectTokens
                                 = new ConnectTokens(connectTokensTO, serverTimestamp);
                         tokenStore.set(connectTokens);
@@ -150,7 +150,7 @@ public class ConnectIdService {
                     @Override
                     public void success(ConnectTokensTO connectTokensTO, Response response) {
                         Date serverTimestamp
-                                = HeadersDateUtil.get(response.getHeaders());
+                                = HeadersDateUtil.extractDate(response.getHeaders());
                         ConnectTokens connectTokens
                                 = new ConnectTokens(connectTokensTO, serverTimestamp);
                         tokenStore.update(connectTokens);

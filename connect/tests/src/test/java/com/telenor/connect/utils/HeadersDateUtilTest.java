@@ -19,12 +19,12 @@ public class HeadersDateUtilTest {
 
     @Test(expected = NullPointerException.class)
     public void getThrowsOnNull() {
-        HeadersDateUtil.get(null);
+        HeadersDateUtil.extractDate(null);
     }
 
     @Test
     public void getReturnsNullOnEmptyList() {
-        Date actual = HeadersDateUtil.get(new ArrayList<Header>());
+        Date actual = HeadersDateUtil.extractDate(new ArrayList<Header>());
 
         assertThat(actual, is(nullValue()));
     }
@@ -36,7 +36,7 @@ public class HeadersDateUtilTest {
         headers.add(new Header("Not-Date", "Tue, 15 Nov 1264 08:12:31 GMT"));
         headers.add(new Header("Date", "Tue, 15 Nov 1994 08:12:31 GMT"));
 
-        Date actual = HeadersDateUtil.get(headers);
+        Date actual = HeadersDateUtil.extractDate(headers);
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(TimeZone.getTimeZone("GMT"));

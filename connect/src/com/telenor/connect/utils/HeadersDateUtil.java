@@ -18,22 +18,17 @@ public class HeadersDateUtil {
             = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 
     @Nullable
-    public static Date get(@NonNull List<Header> headers) {
+    public static Date extractDate(@NonNull List<Header> headers) {
         try {
-            return getDate(headers);
+            for (Header header : headers) {
+                if (header.getName().equalsIgnoreCase("Date")) {
+                    return DATE_FORMAT.parse(header.getValue());
+                }
+            }
         } catch (ParseException e) {
             e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Nullable
-    private static Date getDate(@NonNull List<Header> headers) throws ParseException {
-        for (Header header : headers) {
-            if (header.getName().equalsIgnoreCase("Date")) {
-                return DATE_FORMAT.parse(header.getValue());
-            }
         }
         return null;
     }
+
 }
