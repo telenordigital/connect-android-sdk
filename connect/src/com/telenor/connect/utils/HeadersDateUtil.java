@@ -3,6 +3,7 @@ package com.telenor.connect.utils;
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,14 +20,16 @@ public class HeadersDateUtil {
 
     @Nullable
     public static Date extractDate(@NonNull List<Header> headers) {
-        try {
-            for (Header header : headers) {
-                if (header.getName().equalsIgnoreCase("Date")) {
+        for (Header header : headers) {
+            if (header.getName().equalsIgnoreCase("Date")) {
+                try {
                     return DATE_FORMAT.parse(header.getValue());
+                } catch (ParseException e) {
+                    Log.e(ConnectUtils.LOG_TAG, "Failed to call parse Date from headers. " +
+                            "headers=" + headers, e);
+                    return null;
                 }
             }
-        } catch (ParseException e) {
-            e.printStackTrace();
         }
         return null;
     }
