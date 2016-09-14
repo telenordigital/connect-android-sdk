@@ -19,7 +19,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,7 +27,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ConnectSdk.class, InternetTime.class})
+@PrepareForTest({ConnectSdk.class, HeadersDateUtil.class})
 public class IdTokenValidatorTest {
 
     private static IdToken normalSerializedSignedJwt;
@@ -56,7 +55,7 @@ public class IdTokenValidatorTest {
 
     @Test(expected = ConnectException.class)
     public void brokenJwtThrowsConnectException() {
-        IdTokenValidator.validate(new IdToken("<not correct>"));
+        IdTokenValidator.validate(new IdToken("<not correct>"), null);
     }
 
     @Test
@@ -65,7 +64,7 @@ public class IdTokenValidatorTest {
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
 
-        IdTokenValidator.validate(normalSerializedSignedJwt);
+        IdTokenValidator.validate(normalSerializedSignedJwt, null);
     }
 
     @Test(expected = ConnectException.class)
@@ -74,7 +73,7 @@ public class IdTokenValidatorTest {
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com.fishyou.biz"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
 
-        IdTokenValidator.validate(normalSerializedSignedJwt);
+        IdTokenValidator.validate(normalSerializedSignedJwt, null);
     }
 
     @Test(expected = ConnectException.class)
@@ -83,7 +82,7 @@ public class IdTokenValidatorTest {
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("something-else");
 
-        IdTokenValidator.validate(normalSerializedSignedJwt);
+        IdTokenValidator.validate(normalSerializedSignedJwt, null);
     }
 
     @Test(expected = ConnectException.class)
@@ -107,7 +106,7 @@ public class IdTokenValidatorTest {
         IdToken idToken = new IdToken(signedJWT.serialize());
 
 
-        IdTokenValidator.validate(idToken);
+        IdTokenValidator.validate(idToken, null);
     }
 
     @Test(expected = ConnectException.class)
@@ -115,8 +114,6 @@ public class IdTokenValidatorTest {
         BDDMockito.given(ConnectSdk.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
-        PowerMockito.mockStatic(InternetTime.class);
-        BDDMockito.given(InternetTime.getInternetDate()).willReturn(new Date());
 
 
         JWTClaimsSet claimsSet = new JWTClaimsSet();
@@ -131,7 +128,7 @@ public class IdTokenValidatorTest {
         signedJWT.sign(new ECDSASigner(new BigInteger("123")));
         IdToken idToken = new IdToken(signedJWT.serialize());
 
-        IdTokenValidator.validate(idToken);
+        IdTokenValidator.validate(idToken, null);
     }
 
     @Test(expected = ConnectException.class)
@@ -152,74 +149,71 @@ public class IdTokenValidatorTest {
         signedJWT.sign(new ECDSASigner(new BigInteger("123")));
         IdToken idToken = new IdToken(signedJWT.serialize());
 
-        IdTokenValidator.validate(idToken);
+        IdTokenValidator.validate(idToken, null);
     }
 
     @Test
-    public void isValidExpirationTimeReturnsFalseOnNullDate() {
-        boolean actual = IdTokenValidator.isValidExpirationTime(null, new Date());
+    public void isValidExpirationTimeReturnsFalseOnNullExpDate() {
+        boolean actual = IdTokenValidator.isValidExpirationTime(null, new Date(), null);
         assertThat(actual, is(false));
     }
 
     @Test
-    public void isValidExpirationTimeChecksInternetDateOnExpiredToken() throws Exception {
-        PowerMockito.mockStatic(InternetTime.class);
-        BDDMockito.given(InternetTime.getInternetDate()).willReturn(new Date());
-
+    public void isValidExpirationTimeReturnsTrueWhenExpDateIsAfterCurrentDate() {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, -2);
-        boolean actual = IdTokenValidator.isValidExpirationTime(calendar.getTime(), new Date());
-        assertThat(actual, is(false));
+        Date localTime = calendar.getTime();
+        calendar.add(Calendar.HOUR, 1);
+        Date future = calendar.getTime();
 
-        PowerMockito.verifyStatic();
-        InternetTime.getInternetDate();
-    }
-
-    @Test
-    public void isValidExpirationTimeDoesNotCheckInternetDateOnValidToken() throws Exception {
-        PowerMockito.mockStatic(InternetTime.class);
-        BDDMockito.given(InternetTime.getInternetDate()).willReturn(new Date());
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 2);
-        boolean actual = IdTokenValidator.isValidExpirationTime(calendar.getTime(), new Date());
+        boolean actual = IdTokenValidator.isValidExpirationTime(future, localTime, null);
         assertThat(actual, is(true));
-
-        PowerMockito.verifyStatic(BDDMockito.never());
-        InternetTime.getInternetDate();
     }
 
     @Test
-    public void isValidExpirationTimeReturnsFalseOnIOExceptionWhenCheckingInternetTime()
-            throws Exception {
-        PowerMockito.mockStatic(InternetTime.class);
-        BDDMockito.given(InternetTime.getInternetDate()).willThrow(new IOException());
-
+    public void isValidExpirationTimeReturnsFalseWhenCurrentTimeIsAfterExpAndServerTimestampIsMissing() {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, -2);
-        boolean actual = IdTokenValidator.isValidExpirationTime(calendar.getTime(), new Date());
-        assertThat(actual, is(false));
+        calendar.add(Calendar.HOUR, 1);
+        Date localTime = calendar.getTime();
 
-        PowerMockito.verifyStatic();
-        InternetTime.getInternetDate();
+        calendar.setTime(new Date());
+        Date now = calendar.getTime();
+
+        boolean actual = IdTokenValidator.isValidExpirationTime(now, localTime, null);
+        assertThat(actual, is(false));
     }
 
-    @Test public void isValidExpirationTimeReturnsTrueOnIncorrectSystemTimeButValidExpirationTime()
-            throws Exception {
-        PowerMockito.mockStatic(InternetTime.class);
-        Date actualCurrentTime = new Date();
-        BDDMockito.given(InternetTime.getInternetDate()).willReturn(actualCurrentTime);
-
+    @Test
+    public void isValidExpirationTimeReturnsTrueWhenCurrentTimeIsAfterExpButServerTimestampIsBefore() {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 2);
-        Date expirationTime = calendar.getTime();
-        calendar.add(Calendar.HOUR, 100);
-        Date futureTime = calendar.getTime();
-        boolean actual = IdTokenValidator.isValidExpirationTime(expirationTime, futureTime);
-        assertThat(actual, is(true));
+        calendar.add(Calendar.YEAR, 10);
+        Date localTime = calendar.getTime();
 
-        PowerMockito.verifyStatic();
-        InternetTime.getInternetDate();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.HOUR, 1);
+        Date exp = calendar.getTime();
+
+        calendar.setTime(new Date());
+        Date now = calendar.getTime();
+
+        boolean actual = IdTokenValidator.isValidExpirationTime(exp, localTime, now);
+        assertThat(actual, is(true));
+    }
+
+    @Test
+    public void isValidExpirationTimeReturnsFalseWhenTokenActuallyIsExpired() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, 10);
+        Date localTime = calendar.getTime();
+
+        calendar.setTime(new Date());
+        calendar.add(Calendar.HOUR, -2);
+        Date exp = calendar.getTime();
+
+        calendar.setTime(new Date());
+        Date now = calendar.getTime();
+
+        boolean actual = IdTokenValidator.isValidExpirationTime(exp, localTime, now);
+        assertThat(actual, is(false));
     }
 
 }
