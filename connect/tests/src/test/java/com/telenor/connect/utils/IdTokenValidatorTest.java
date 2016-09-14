@@ -27,7 +27,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ConnectSdk.class, HeadersDateUtil.class})
+@PrepareForTest(ConnectSdk.class)
 public class IdTokenValidatorTest {
 
     private static IdToken normalSerializedSignedJwt;
