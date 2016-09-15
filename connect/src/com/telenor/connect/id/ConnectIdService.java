@@ -10,6 +10,9 @@ import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectNotSignedInException;
 import com.telenor.connect.ConnectRefreshTokenMissingException;
 import com.telenor.connect.utils.ConnectUtils;
+import com.telenor.connect.utils.HeadersDateUtil;
+
+import java.util.Date;
 
 import retrofit.Callback;
 import retrofit.ResponseCallback;
@@ -66,7 +69,10 @@ public class ConnectIdService {
                 new Callback<ConnectTokensTO>() {
                     @Override
                     public void success(ConnectTokensTO connectTokensTO, Response response) {
-                        ConnectTokens connectTokens = new ConnectTokens(connectTokensTO);
+                        Date serverTimestamp
+                                = HeadersDateUtil.extractDate(response.getHeaders());
+                        ConnectTokens connectTokens
+                                = new ConnectTokens(connectTokensTO, serverTimestamp);
                         tokenStore.set(connectTokens);
                         currentTokens = connectTokens;
                         idToken = connectTokens.getIdToken();
@@ -143,7 +149,10 @@ public class ConnectIdService {
                 clientId, new Callback<ConnectTokensTO>() {
                     @Override
                     public void success(ConnectTokensTO connectTokensTO, Response response) {
-                        ConnectTokens connectTokens = new ConnectTokens(connectTokensTO);
+                        Date serverTimestamp
+                                = HeadersDateUtil.extractDate(response.getHeaders());
+                        ConnectTokens connectTokens
+                                = new ConnectTokens(connectTokensTO, serverTimestamp);
                         tokenStore.update(connectTokens);
                         currentTokens = connectTokens;
                         callback.onSuccess(connectTokens.getAccessToken());

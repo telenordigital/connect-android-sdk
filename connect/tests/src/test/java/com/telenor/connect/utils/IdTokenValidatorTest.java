@@ -23,21 +23,37 @@ import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ConnectSdk.class)
 public class IdTokenValidatorTest {
 
     private static IdToken normalSerializedSignedJwt;
+    private static Date oneHourIntoFuture;
+    private static Date now;
+    private static Date tenYearsIntoFuture;
+    private static Date twoHoursAgo;
 
     @BeforeClass
     public static void setUp() throws Exception {
+        Calendar calendar = Calendar.getInstance();
+        now = calendar.getTime();
+        calendar.add(Calendar.HOUR, 1);
+        oneHourIntoFuture = calendar.getTime();
+        calendar.setTime(now);
+        calendar.add(Calendar.YEAR, 10);
+        tenYearsIntoFuture = calendar.getTime();
+        calendar.setTime(now);
+        calendar.add(Calendar.HOUR, -2);
+        twoHoursAgo = calendar.getTime();
+
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
         claimsSet.setAudience("connect-tests");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 1);
-        claimsSet.setExpirationTime(calendar.getTime());
-        claimsSet.setIssueTime(new Date());
+        claimsSet.setExpirationTime(oneHourIntoFuture);
+        claimsSet.setIssueTime(now);
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
         signedJWT.sign(new ECDSASigner(new BigInteger("123")));
@@ -52,7 +68,7 @@ public class IdTokenValidatorTest {
 
     @Test(expected = ConnectException.class)
     public void brokenJwtThrowsConnectException() {
-        IdTokenValidator.validate(new IdToken("<not correct>"));
+        IdTokenValidator.validate(new IdToken("<not correct>"), null);
     }
 
     @Test
@@ -61,7 +77,7 @@ public class IdTokenValidatorTest {
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
 
-        IdTokenValidator.validate(normalSerializedSignedJwt);
+        IdTokenValidator.validate(normalSerializedSignedJwt, null);
     }
 
     @Test(expected = ConnectException.class)
@@ -70,7 +86,7 @@ public class IdTokenValidatorTest {
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com.fishyou.biz"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
 
-        IdTokenValidator.validate(normalSerializedSignedJwt);
+        IdTokenValidator.validate(normalSerializedSignedJwt, null);
     }
 
     @Test(expected = ConnectException.class)
@@ -79,7 +95,7 @@ public class IdTokenValidatorTest {
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("something-else");
 
-        IdTokenValidator.validate(normalSerializedSignedJwt);
+        IdTokenValidator.validate(normalSerializedSignedJwt, null);
     }
 
     @Test(expected = ConnectException.class)
@@ -92,10 +108,8 @@ public class IdTokenValidatorTest {
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
         claimsSet.setAudience("connect-tests");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 1);
-        claimsSet.setExpirationTime(calendar.getTime());
-        claimsSet.setIssueTime(new Date());
+        claimsSet.setExpirationTime(oneHourIntoFuture);
+        claimsSet.setIssueTime(now);
         claimsSet.setCustomClaim("azp", "NOT connect-tests");
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
@@ -103,7 +117,7 @@ public class IdTokenValidatorTest {
         IdToken idToken = new IdToken(signedJWT.serialize());
 
 
-        IdTokenValidator.validate(idToken);
+        IdTokenValidator.validate(idToken, null);
     }
 
     @Test(expected = ConnectException.class)
@@ -116,16 +130,14 @@ public class IdTokenValidatorTest {
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
         claimsSet.setAudience("connect-tests");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, -1); // this bit is changed from normal
-        claimsSet.setExpirationTime(calendar.getTime());
-        claimsSet.setIssueTime(new Date());
+        claimsSet.setExpirationTime(twoHoursAgo);
+        claimsSet.setIssueTime(now);
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
         signedJWT.sign(new ECDSASigner(new BigInteger("123")));
         IdToken idToken = new IdToken(signedJWT.serialize());
 
-        IdTokenValidator.validate(idToken);
+        IdTokenValidator.validate(idToken, null);
     }
 
     @Test(expected = ConnectException.class)
@@ -138,15 +150,42 @@ public class IdTokenValidatorTest {
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
         claimsSet.setAudience("connect-tests");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 1);
-        claimsSet.setExpirationTime(calendar.getTime());
+        claimsSet.setExpirationTime(oneHourIntoFuture);
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
         signedJWT.sign(new ECDSASigner(new BigInteger("123")));
         IdToken idToken = new IdToken(signedJWT.serialize());
 
-        IdTokenValidator.validate(idToken);
+        IdTokenValidator.validate(idToken, null);
+    }
+
+    @Test
+    public void isValidExpirationTimeReturnsFalseOnNullExpDate() {
+        assertThat(IdTokenValidator.isValidExpirationTime(null, now, null), is(false));
+    }
+
+    @Test
+    public void isValidExpirationTimeReturnsTrueWhenExpDateIsAfterCurrentDate() {
+        assertThat(IdTokenValidator.isValidExpirationTime(oneHourIntoFuture, now, null), is(true));
+    }
+
+    @Test
+    public void isValidExpirationTimeReturnsFalseWhenCurrentTimeIsAfterExpAndServerTimestampIsMissing() {
+        assertThat(IdTokenValidator.isValidExpirationTime(now, oneHourIntoFuture, null), is(false));
+    }
+
+    @Test
+    public void isValidExpirationTimeReturnsTrueWhenCurrentTimeIsAfterExpButServerTimestampIsBefore() {
+        assertThat(
+                IdTokenValidator.isValidExpirationTime(oneHourIntoFuture, tenYearsIntoFuture, now),
+                is(true));
+    }
+
+    @Test
+    public void isValidExpirationTimeReturnsFalseWhenTokenActuallyIsExpired() {
+        assertThat(
+                IdTokenValidator.isValidExpirationTime(twoHoursAgo, tenYearsIntoFuture, now),
+                is(false));
     }
 
 }

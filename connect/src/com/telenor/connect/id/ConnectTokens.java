@@ -1,5 +1,7 @@
 package com.telenor.connect.id;
 
+import android.support.annotation.Nullable;
+
 import com.telenor.connect.utils.Validator;
 
 import java.util.Calendar;
@@ -14,8 +16,8 @@ public class ConnectTokens {
     private final String scope;
     private final String tokenType;
 
-    public ConnectTokens(ConnectTokensTO connectTokensTO) {
-        Validator.validateTokens(connectTokensTO);
+    public ConnectTokens(ConnectTokensTO connectTokensTO, @Nullable Date serverTimestamp) {
+        Validator.validateTokens(connectTokensTO, serverTimestamp);
 
         accessToken = connectTokensTO.getAccessToken();
         Calendar instance = Calendar.getInstance();
