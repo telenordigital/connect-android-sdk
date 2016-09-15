@@ -167,7 +167,7 @@ public class IdTokenValidatorTest {
 
     @Test
     public void isValidExpirationTimeReturnsFalseOnNullExpDate() {
-        assertThat(IdTokenValidator.isValidExpirationTime(null, new Date(), null), is(false));
+        assertThat(IdTokenValidator.isValidExpirationTime(null, now, null), is(false));
     }
 
     @Test
