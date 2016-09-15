@@ -53,7 +53,7 @@ public class IdTokenValidatorTest {
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
         claimsSet.setAudience("connect-tests");
         claimsSet.setExpirationTime(oneHourIntoFuture);
-        claimsSet.setIssueTime(new Date());
+        claimsSet.setIssueTime(now);
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
         signedJWT.sign(new ECDSASigner(new BigInteger("123")));
@@ -108,10 +108,8 @@ public class IdTokenValidatorTest {
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
         claimsSet.setAudience("connect-tests");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 1);
-        claimsSet.setExpirationTime(calendar.getTime());
-        claimsSet.setIssueTime(new Date());
+        claimsSet.setExpirationTime(oneHourIntoFuture);
+        claimsSet.setIssueTime(now);
         claimsSet.setCustomClaim("azp", "NOT connect-tests");
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
@@ -132,10 +130,8 @@ public class IdTokenValidatorTest {
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
         claimsSet.setAudience("connect-tests");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, -2); // this bit is changed from normal
-        claimsSet.setExpirationTime(calendar.getTime());
-        claimsSet.setIssueTime(new Date());
+        claimsSet.setExpirationTime(twoHoursAgo);
+        claimsSet.setIssueTime(now);
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
         signedJWT.sign(new ECDSASigner(new BigInteger("123")));
@@ -154,9 +150,7 @@ public class IdTokenValidatorTest {
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
         claimsSet.setAudience("connect-tests");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 1);
-        claimsSet.setExpirationTime(calendar.getTime());
+        claimsSet.setExpirationTime(oneHourIntoFuture);
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
         signedJWT.sign(new ECDSASigner(new BigInteger("123")));
