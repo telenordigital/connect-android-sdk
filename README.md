@@ -4,12 +4,12 @@
 * [Install](#install)
 * [Basic usage](#basic-usage)
   * [Authenticating a user and authorizing app](#authenticating-a-user-and-authorizing-app)
-  * [Getting a valid Access Token](#getting-a-valid-access-token)
+  * [Getting a valid access token](#getting-a-valid-access-token)
   * [Access user information](#access-user-information)
 * [Example app](#example-app)
 * [Setup](#setup)
   * [Set Staging or Production environment](#set-staging-or-production-environment)
-  * [Adding the Client ID and redirect URI](#adding-the-client-id-and-redirect-uri)
+  * [Adding the client ID and redirect URI](#adding-the-client-id-and-redirect-uri)
   * [Select client type and handle the redirect URI](#select-client-type-and-handle-the-redirect-uri)
   * [Adding permissions](#adding-permissions)
 * [Detailed usage](#detailed-usage)
@@ -76,12 +76,12 @@ public class SignInActivity extends Activity {
         loginButton.setLoginScopeTokens("profile openid");
 
         // When users have clicked the loginButton and signed in, this method call will check
-        // that, and transition the app.
+        // that, and run the success callback method.
         // It checks if the Activity was started by a valid call to the redirect uri with a
         // code and state, for example example-clientid://oauth2callback?code=123&state=xyz .
         // It also takes a callback that has a onSuccess and onError function.
         // If it is a success we have stored tokens, and can go to SignedInActivity.
-        ConnectSdk.handleRedirectUrlCallIfPresent(getIntent(), new ConnectCallback() {
+        ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
             @Override
             public void onSuccess(Object successData) {
                 goToSignedInActivity();
@@ -101,7 +101,7 @@ public class SignInActivity extends Activity {
     }
 
     // Overriding onActivityResult here serves the same purpose as
-    // handleRedirectUrlCallIfPresent further up. It is needed on older devices
+    // handleRedirectUriCallIfPresent further up. It is needed on older devices
     // that don't support Chrome Custom Tabs, or if the intent-filter for the redirect uri
     // to this activity is missing.
     @Override
@@ -136,7 +136,7 @@ Where `activity_sign_in.xml` looks like this:
 
 ```
 
-### Getting a valid Access Token
+### Getting a valid access token
 
 Once the user is signed in you can get a valid Access Token by calling `ConnectSdk.getValidAccessToken(…)`:
 
@@ -232,11 +232,11 @@ that can be used, staging and production. The environment can be selected using 
 
 Set this to `false` if you want to use the production environment.
 
-### Adding the Client ID and redirect URI
+### Adding the client ID and redirect URI
 
-The Connect ID integration requires a Client ID and a redirect URI to work. You should receive these when registering your application.
+The Connect ID integration requires a client ID and a redirect URI to work. You should receive these when registering your application.
 
-The Client ID and redirect URI should be added to your `strings.xml` file. Add strings with the names `connect_client_id` and `connect_redirect_uri`.
+The client ID and redirect URI should be added to your `strings.xml` file. Add strings with the names `connect_client_id` and `connect_redirect_uri`.
 
 ```xml
 <string name="connect_client_id">example-clientid</string>
@@ -265,7 +265,7 @@ Connect ID supports two different client types: _public_ and _confidential_. Ple
 decision.
 
 #### Registering the redirect URI in Android
-For your app to respond to calls to the redirect uri you need to add an `intent-filter` to your `Activity` to register this in the Android system. This will allow the [Chrome Custom Tab](https://developer.chrome.com/multidevice/android/customtabs) used by `ConnectLoginButton` and external browsers to get back to your app.
+For your app to respond to calls to the redirect URI you need to add an `intent-filter` to your `Activity` to register this in the Android system. This will allow the [Chrome Custom Tab](https://developer.chrome.com/multidevice/android/customtabs) used by `ConnectLoginButton` and external browsers to get back to your app.
 
 ```xml
 <activity android:name=".SignInActivity" >
@@ -282,7 +282,7 @@ For your app to respond to calls to the redirect uri you need to add an `intent-
 
 #### Public clients
 
-If the app is a public client you need an `Activity` that calls `ConnectSdk.handleRedirectUrlCallIfPresent`, as in the [authenticating example above](#authenticating-a-user-and-authorizing-app).
+If the app is a public client you need an `Activity` that calls `ConnectSdk.handleRedirectUriCallIfPresent`, as in the [authenticating example above](#authenticating-a-user-and-authorizing-app).
 
 If the app is not using the Chrome Custom Tab Feature you only need to override the
 `onActivityResult(…)`, also as in the
@@ -299,11 +299,11 @@ Add the following to the manifest:
 
 A confidential client can access the **code** parameter from the `Intent` of the Activity with the [intent-filter](#registering-the-redirect-uri-in-android), or the `onActivityResult()` method. This is the _authorization code_. This authorization code must be sent to the server-side part of your client.
 
-The helper method `ConnectSdk.intentHasValidRedirectUrlCall(Intent intent)` will return `true` if a valid code is present in the `Activity`'s `Intent`. The helper method `ConnectSdk.getCodeFromIntent(Intent intent)` can then be used to get the **code**:
+The helper method `ConnectSdk.hasValidRedirectUrlCall(Intent intent)` will return `true` if a valid code is present in the `Activity`'s `Intent`. The helper method `ConnectSdk.getCodeFromIntent(Intent intent)` can then be used to get the **code**:
 
 ```java
 Intent intent = getIntent();
-if (ConnectSdk.intentHasValidRedirectUrlCall(intent)) {
+if (ConnectSdk.hasValidRedirectUrlCall(intent)) {
 	String authorizationCode = ConnectSdk.getCodeFromIntent(intent);
 	// App code using code
 
@@ -358,7 +358,7 @@ Note: You should be conscious about the security implications of using this feat
 
 #### Add ConnectActivity for sign in
 
-The `ConnectActivity` needs to be added to the manifest in order for the Sdk to work on devices not using the Chrome Custom Tab feature. Also if the `intent-filter` is missing the Sdk will fall back to use this `Activity`. Add it to the `application` section.
+The `ConnectActivity` needs to be added to the manifest in order for the SDK to work on devices not using the Chrome Custom Tab feature. Also if the `intent-filter` is missing the SDK will fall back to use this `Activity`. Add it to the `application` section.
 
 ```xml
 <application>
@@ -422,7 +422,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 Or if the Chrome Custom Tab feature is used, in a `ConnectCallback` in the Activity that has the
 `intent-filter` with `connect_client_id` in your AndroidManifest:
 ```java
-ConnectSdk.handleRedirectUrlCallIfPresent(getIntent(), new ConnectCallback() {
+ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
     @Override
     public void onSuccess(Object successData) {
         // App code

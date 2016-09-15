@@ -55,7 +55,7 @@ public class ConnectSdkTest {
     }
 
     @Test
-    public void intentHasValidRedirectUrlCallReturnsTrueOnRedirectLink() {
+    public void hasValidRedirectUrlCallReturnsTrueOnRedirectLink() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
@@ -65,11 +65,11 @@ public class ConnectSdkTest {
         Intent intent = new Intent();
         intent.setData(Uri.parse("connect-tests://oauth2callback?state=xyz&code=abc"));
 
-        assertThat(ConnectSdk.intentHasValidRedirectUrlCall(intent), is(true));
+        assertThat(ConnectSdk.hasValidRedirectUrlCall(intent), is(true));
     }
 
     @Test
-    public void intentHasValidRedirectUrlCallReturnsFalseOnNotRedirectLink() {
+    public void hasValidRedirectUrlCallReturnsFalseOnNotRedirectLink() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
@@ -79,11 +79,11 @@ public class ConnectSdkTest {
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=xyz&code=abc"));
 
-        assertThat(ConnectSdk.intentHasValidRedirectUrlCall(intent), is(false));
+        assertThat(ConnectSdk.hasValidRedirectUrlCall(intent), is(false));
     }
 
     @Test
-    public void intentHasValidRedirectUrlCallReturnsFalseOnWrongState() {
+    public void hasValidRedirectUrlCallReturnsFalseOnWrongState() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
@@ -93,11 +93,11 @@ public class ConnectSdkTest {
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=NNN&code=abc"));
 
-        assertThat(ConnectSdk.intentHasValidRedirectUrlCall(intent), is(false));
+        assertThat(ConnectSdk.hasValidRedirectUrlCall(intent), is(false));
     }
 
     @Test
-    public void intentHasValidRedirectUrlCallReturnsFalseOnMissingCode() {
+    public void hasValidRedirectUrlCallReturnsFalseOnMissingCode() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
@@ -107,6 +107,6 @@ public class ConnectSdkTest {
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=xyz"));
 
-        assertThat(ConnectSdk.intentHasValidRedirectUrlCall(intent), is(false));
+        assertThat(ConnectSdk.hasValidRedirectUrlCall(intent), is(false));
     }
 }

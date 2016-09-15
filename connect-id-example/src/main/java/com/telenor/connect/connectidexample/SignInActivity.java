@@ -19,7 +19,7 @@ public class SignInActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (ConnectSdk.intentHasValidRedirectUrlCall(getIntent())) {
+        if (ConnectSdk.hasValidRedirectUrlCall(getIntent())) {
             progressBar.setVisibility(View.VISIBLE);
             loginButton.setEnabled(false);
         } else {
@@ -46,7 +46,7 @@ public class SignInActivity extends Activity {
             }
         });
 
-        ConnectSdk.handleRedirectUrlCallIfPresent(getIntent(), new ConnectCallback() {
+        ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
             @Override
             public void onSuccess(Object successData) {
                 goToSignedInActivity();

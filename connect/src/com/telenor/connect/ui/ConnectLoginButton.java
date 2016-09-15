@@ -84,7 +84,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
                 parameters.put("claims", ClaimsParameterFormatter.asJson(getClaims()));
             } catch (JSONException e) {
                 throw new ConnectException(
-                        "Failed to create claims Json. claims="+getClaims(), e);
+                        "Failed to create claims Json. claims=" + getClaims(), e);
             }
         }
 

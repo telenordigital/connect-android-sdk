@@ -414,7 +414,7 @@ public final class ConnectSdk {
      * @return true if getData() on the intent matches Redirect Uri, has valid state and code
      * query parameters.
      */
-    public static boolean intentHasValidRedirectUrlCall(Intent intent) {
+    public static boolean hasValidRedirectUrlCall(Intent intent) {
         final Uri data = intent.getData();
         if (data == null) {
             return false;
@@ -445,12 +445,12 @@ public final class ConnectSdk {
      * @param intent intent to check data element of
      * @param callback callback that will be called upon by the getAccessTokenFromCode method
      *
-     * @see #intentHasValidRedirectUrlCall
+     * @see #hasValidRedirectUrlCall
      * @see #getAccessTokenFromCode
      */
-    public static void handleRedirectUrlCallIfPresent(
+    public static void handleRedirectUriCallIfPresent(
             Intent intent, ConnectCallback callback) {
-        if (!intentHasValidRedirectUrlCall(intent)) {
+        if (!hasValidRedirectUrlCall(intent)) {
             return;
         }
 
