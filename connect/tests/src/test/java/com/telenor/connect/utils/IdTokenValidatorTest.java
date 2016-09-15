@@ -31,15 +31,28 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class IdTokenValidatorTest {
 
     private static IdToken normalSerializedSignedJwt;
+    private static Date oneHourIntoFuture;
+    private static Date now;
+    private static Date tenYearsIntoFuture;
+    private static Date twoHoursAgo;
 
     @BeforeClass
     public static void setUp() throws Exception {
+        Calendar calendar = Calendar.getInstance();
+        now = calendar.getTime();
+        calendar.add(Calendar.HOUR, 1);
+        oneHourIntoFuture = calendar.getTime();
+        calendar.setTime(now);
+        calendar.add(Calendar.YEAR, 10);
+        tenYearsIntoFuture = calendar.getTime();
+        calendar.setTime(now);
+        calendar.add(Calendar.HOUR, -2);
+        twoHoursAgo = calendar.getTime();
+
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
         claimsSet.setAudience("connect-tests");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 1);
-        claimsSet.setExpirationTime(calendar.getTime());
+        claimsSet.setExpirationTime(oneHourIntoFuture);
         claimsSet.setIssueTime(new Date());
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
@@ -154,66 +167,31 @@ public class IdTokenValidatorTest {
 
     @Test
     public void isValidExpirationTimeReturnsFalseOnNullExpDate() {
-        boolean actual = IdTokenValidator.isValidExpirationTime(null, new Date(), null);
-        assertThat(actual, is(false));
+        assertThat(IdTokenValidator.isValidExpirationTime(null, new Date(), null), is(false));
     }
 
     @Test
     public void isValidExpirationTimeReturnsTrueWhenExpDateIsAfterCurrentDate() {
-        Calendar calendar = Calendar.getInstance();
-        Date localTime = calendar.getTime();
-        calendar.add(Calendar.HOUR, 1);
-        Date future = calendar.getTime();
-
-        boolean actual = IdTokenValidator.isValidExpirationTime(future, localTime, null);
-        assertThat(actual, is(true));
+        assertThat(IdTokenValidator.isValidExpirationTime(oneHourIntoFuture, now, null), is(true));
     }
 
     @Test
     public void isValidExpirationTimeReturnsFalseWhenCurrentTimeIsAfterExpAndServerTimestampIsMissing() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 1);
-        Date localTime = calendar.getTime();
-
-        calendar.setTime(new Date());
-        Date now = calendar.getTime();
-
-        boolean actual = IdTokenValidator.isValidExpirationTime(now, localTime, null);
-        assertThat(actual, is(false));
+        assertThat(IdTokenValidator.isValidExpirationTime(now, oneHourIntoFuture, null), is(false));
     }
 
     @Test
     public void isValidExpirationTimeReturnsTrueWhenCurrentTimeIsAfterExpButServerTimestampIsBefore() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.YEAR, 10);
-        Date localTime = calendar.getTime();
-
-        calendar.setTime(new Date());
-        calendar.add(Calendar.HOUR, 1);
-        Date exp = calendar.getTime();
-
-        calendar.setTime(new Date());
-        Date now = calendar.getTime();
-
-        boolean actual = IdTokenValidator.isValidExpirationTime(exp, localTime, now);
-        assertThat(actual, is(true));
+        assertThat(
+                IdTokenValidator.isValidExpirationTime(oneHourIntoFuture, tenYearsIntoFuture, now),
+                is(true));
     }
 
     @Test
     public void isValidExpirationTimeReturnsFalseWhenTokenActuallyIsExpired() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.YEAR, 10);
-        Date localTime = calendar.getTime();
-
-        calendar.setTime(new Date());
-        calendar.add(Calendar.HOUR, -2);
-        Date exp = calendar.getTime();
-
-        calendar.setTime(new Date());
-        Date now = calendar.getTime();
-
-        boolean actual = IdTokenValidator.isValidExpirationTime(exp, localTime, now);
-        assertThat(actual, is(false));
+        assertThat(
+                IdTokenValidator.isValidExpirationTime(twoHoursAgo, tenYearsIntoFuture, now),
+                is(false));
     }
 
 }
