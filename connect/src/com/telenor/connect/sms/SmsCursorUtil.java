@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Telephony;
+import android.support.annotation.Nullable;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 public class SmsCursorUtil {
@@ -22,6 +23,7 @@ public class SmsCursorUtil {
             ? Telephony.Sms.Inbox.DEFAULT_SORT_ORDER
             : "date DESC";
 
+    @Nullable
     public static Cursor getSmsCursor(Context context, long receivedAfter) {
         Uri mUri = smsInboxUri;
         String[] mProjection = new String[] { BODY };

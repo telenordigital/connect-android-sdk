@@ -38,8 +38,9 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     private static final Pattern TD_HTTPS_PATTERN
             = Pattern.compile("^https://.*telenordigital.com(?:$|/)");
     private static final String JAVASCRIPT_PROCESSES_INSTRUCTIONS
-            = "javascript:window.AndroidInterface.processInstructions(document.getElementById"
-            + "('android-instructions').innerHTML);";
+            = "javascript:if (document.getElementById('android-instructions') !== null) {" +
+            "window.AndroidInterface.processInstructions(document.getElementById('android-instructions').innerHTML)" +
+            "}";
 
     private final IntentFilter SMS_FILTER
             = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
@@ -243,10 +244,16 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             public void run() {
                 Cursor cursor = SmsCursorUtil.getSmsCursor(activity,
                         pageLoadStarted-CHECK_FOR_SMS_BACK_IN_TIME_MILLIS);
-                if (cursor.moveToFirst()) {
-                    String body = cursor.getString(0);
-                    handlePinFromSmsBodyIfPresent(body, instruction);
+                if (cursor == null) {
+                    return;
                 }
+
+                if (!cursor.moveToFirst()) {
+                    return;
+                }
+
+                String body = cursor.getString(0);
+                handlePinFromSmsBodyIfPresent(body, instruction);
             }
         }, RACE_CONDITION_DELAY_CHECK_ALREADY_RECEIVED_SMS);
     }

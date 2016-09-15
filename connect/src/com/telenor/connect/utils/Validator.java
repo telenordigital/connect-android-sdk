@@ -5,6 +5,8 @@ import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.id.ConnectTokensTO;
 
+import java.util.Date;
+
 public class Validator {
     public static void notNull(Object var, String name) {
         if (var == null) {
@@ -26,15 +28,19 @@ public class Validator {
     }
 
     public static void validateAuthenticationState(String state) {
-        if (ConnectSdk.getLastAuthenticationState() != null &&
-                !ConnectSdk.getLastAuthenticationState().isEmpty() &&
-                !ConnectSdk.getLastAuthenticationState().equals(state)) {
+        if (!validState(state)) {
             throw new ConnectException("The state parameter was changed between authentication " +
                     "and now.");
         }
     }
 
-    public static void validateTokens(ConnectTokensTO tokens) {
+    public static boolean validState(String state) {
+        return ConnectSdk.getLastAuthenticationState() == null
+                || ConnectSdk.getLastAuthenticationState().isEmpty()
+                || ConnectSdk.getLastAuthenticationState().equals(state);
+    }
+
+    public static void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
         notNullOrEmpty(tokens.getAccessToken(), "access_token");
         notNull(tokens.getExpiresIn(), "expires_in");
         notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
@@ -42,7 +48,7 @@ public class Validator {
         notNullOrEmpty(tokens.getTokenType(), "token_type");
 
         if (tokens.getIdToken() != null) {
-            IdTokenValidator.validate(tokens.getIdToken());
+            IdTokenValidator.validate(tokens.getIdToken(), serverTimestamp);
         }
     }
 }
