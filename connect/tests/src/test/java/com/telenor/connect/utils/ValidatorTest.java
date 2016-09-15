@@ -83,7 +83,7 @@ public class ValidatorTest {
                 "scope",
                 "type");
 
-        Validator.validateTokens(connectTokensTO);
+        Validator.validateTokens(connectTokensTO, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -98,7 +98,7 @@ public class ValidatorTest {
                 "scope",
                 "type");
 
-        Validator.validateTokens(connectTokensTO);
+        Validator.validateTokens(connectTokensTO, null);
     }
 
     public void validateTokensMissingIdTokenIsAllowed() {
@@ -110,7 +110,7 @@ public class ValidatorTest {
                 "scope",
                 "type");
 
-        Validator.validateTokens(connectTokensTO);
+        Validator.validateTokens(connectTokensTO, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -125,7 +125,7 @@ public class ValidatorTest {
                 "scope",
                 "type");
 
-        Validator.validateTokens(connectTokensTO);
+        Validator.validateTokens(connectTokensTO, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -140,7 +140,7 @@ public class ValidatorTest {
                 null,
                 "type");
 
-        Validator.validateTokens(connectTokensTO);
+        Validator.validateTokens(connectTokensTO, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -155,7 +155,7 @@ public class ValidatorTest {
                 "scope",
                 null);
 
-        Validator.validateTokens(connectTokensTO);
+        Validator.validateTokens(connectTokensTO, null);
     }
 
     @Test

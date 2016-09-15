@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class IdTokenValidator {
 
-    public static void validate(final IdToken idToken) {
+    public static void validate(final IdToken idToken, Date serverTimestamp) {
         final ReadOnlyJWTClaimsSet idTokenClaimsSet;
 
         try {
@@ -69,15 +69,33 @@ public class IdTokenValidator {
                             + " idTokenClaimsSet=" + idTokenClaimsSet.toJSONObject());
         }
 
-        if (idTokenClaimsSet.getExpirationTime() == null
-                || idTokenClaimsSet.getExpirationTime().before(new Date())) {
+        final Date expirationTime = idTokenClaimsSet.getExpirationTime();
+        if (!isValidExpirationTime(expirationTime, new Date(), serverTimestamp)) {
             throw new ConnectException("ID token has expired."
                     + " idTokenClaimsSet=" + idTokenClaimsSet.toJSONObject());
         }
+
 
         if (idTokenClaimsSet.getIssueTime() == null) {
             throw new ConnectException("ID token is missing the \"iat\" claim."
                     + " idTokenClaimsSet=" + idTokenClaimsSet.toJSONObject());
         }
+    }
+
+    public static boolean isValidExpirationTime(
+            Date expirationTime, Date currentDate, Date serverTimestamp) {
+        if (expirationTime == null) {
+            return false;
+        }
+
+        if (expirationTime.after(currentDate)) {
+            return true;
+        }
+
+        if (serverTimestamp == null) {
+            return false;
+        }
+
+        return expirationTime.after(serverTimestamp);
     }
 }
