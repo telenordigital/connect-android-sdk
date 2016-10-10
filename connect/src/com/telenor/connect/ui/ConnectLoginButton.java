@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
-import android.support.customtabs.CustomTabsSession;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -28,10 +27,19 @@ import java.util.Map;
 
 public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
+    private static final Uri PRE_FETCH_URL
+            = Uri.parse(
+                ConnectSdk
+                        .getConnectApiUrl()
+                        .newBuilder()
+                        .addPathSegment("id")
+                        .addPathSegment("android-sdk-prefetch-static-resources")
+                        .build()
+                        .uri()
+                        .toString()
+    );
+
     private OnClickListener onClickListener;
-    private Uri uri;
-    private CustomTabsClient customTabsClient;
-    private CustomTabsSession customTabsSession;
     private CustomTabsServiceConnection connection;
     private boolean customTabsSupported = false;
     private BrowserType browserType;
@@ -43,24 +51,20 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         connection = new CustomTabsServiceConnection() {
             @Override
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-                customTabsClient = client;
-                customTabsClient.warmup(0);
-                customTabsSession = customTabsClient.newSession(null);
-                if (uri == null) {
-                    uri = getAuthorizeUriAndSetLastAuthState();
-                }
-                customTabsSession.mayLaunchUrl(uri, null, null);
+                client.warmup(0);
+                client
+                        .newSession(null)
+                        .mayLaunchUrl(PRE_FETCH_URL, null, null);
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                customTabsClient = null;
             }
         };
 
-        final boolean serviceBound = CustomTabsClient.bindCustomTabsService(
+        boolean serviceBound = CustomTabsClient.bindCustomTabsService(
                 getContext(), "com.android.chrome", connection);
-        final boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
+        boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
         customTabsSupported = serviceBound && correctIntentFilter;
         browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
         onClickListener = new LoginClickListener();
@@ -141,7 +145,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
             new CustomTabsIntent.Builder()
                     .build()
-                    .launchUrl(getActivity(), uri);
+                    .launchUrl(getActivity(), getAuthorizeUriAndSetLastAuthState());
         }
     }
 }
