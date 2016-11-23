@@ -4,12 +4,12 @@ apply plugin: 'com.novoda.bintray-release'
 project.group = 'com.telenor.connect'
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 25
     buildToolsVersion "24.0.2"
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 24
-        versionName "0.6.1"
+        targetSdkVersion 25
+        versionName "0.7.0"
     }
     sourceSets {
         main {
@@ -32,7 +32,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.nimbusds:nimbus-jose-jwt:3.10'
@@ -42,5 +42,5 @@ publish {
     userOrg = 'telenordigital'
     groupId = project.group
     artifactId = 'connect-android-sdk'
-    publishVersion = '0.6.1'
+    publishVersion = '0.7.0'
 }

@@ -14,6 +14,8 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.Date;
+
 import retrofit.Callback;
 
 import static junit.framework.Assert.fail;
@@ -158,5 +160,38 @@ public class ConnectIdServiceTest {
                 fail();
             }
         });
+    }
+
+    @Test
+    public void getAccessTokenExpirationTimeRetrievesFromTokenStoreWhenNull() {
+        TokenStore tokenStore = mock(TokenStore.class);
+        ConnectTokens connectTokens = mock(ConnectTokens.class);
+        Date value = new Date();
+        when(connectTokens.getExpirationDate()).thenReturn(value);
+        when(tokenStore.get()).thenReturn(connectTokens);
+        ConnectAPI connectApi = mock(ConnectAPI.class);
+
+        ConnectIdService connectIdService = new ConnectIdService(tokenStore, connectApi, "", "");
+
+        Date date = connectIdService.getAccessTokenExpirationTime();
+        assertThat(date, is(value));
+        verify(tokenStore).get();
+    }
+
+    @Test
+    public void getAccessTokenExpirationTimeFetchesFromMemoryWhenAlreadyLoaded() {
+        TokenStore tokenStore = mock(TokenStore.class);
+        ConnectTokens connectTokens = mock(ConnectTokens.class);
+        Date value = new Date();
+        when(connectTokens.getExpirationDate()).thenReturn(value);
+        when(tokenStore.get()).thenReturn(connectTokens);
+        ConnectAPI connectApi = mock(ConnectAPI.class);
+
+        ConnectIdService connectIdService = new ConnectIdService(tokenStore, connectApi, "", "");
+
+        connectIdService.getAccessTokenExpirationTime();
+        connectIdService.getAccessTokenExpirationTime();
+
+        verify(tokenStore, times(1)).get();
     }
 }
