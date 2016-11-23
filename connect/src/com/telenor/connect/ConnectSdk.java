@@ -25,6 +25,7 @@ import com.telenor.connect.utils.Validator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -158,6 +159,16 @@ public final class ConnectSdk {
     public static synchronized String getAccessToken() {
         Validator.sdkInitialized();
         return sConnectIdService.getAccessToken();
+    }
+
+    /**
+     * Get the expiration time of the signed in user. If no user is signed in returns {@code null}.
+     *
+     * @return the expiration time of the Access Token in form of a {@code Date}.
+     */
+    public static synchronized Date getAccessTokenExpirationTime() {
+        Validator.sdkInitialized();
+        return sConnectIdService.getAccessTokenExpirationTime();
     }
 
     public static synchronized void getAccessTokenFromCode(String code, ConnectCallback callback) {

@@ -39,7 +39,7 @@ The binaries are included on JCenter, so the SDK can be added by including a lin
 ```gradle
 dependencies {
     // ...
-    compile 'com.telenor.connect:connect-android-sdk:0.6.1' // add this line
+    compile 'com.telenor.connect:connect-android-sdk:0.7.0' // add this line
 }
 ```
 
@@ -128,6 +128,40 @@ ConnectSdk.getValidAccessToken(new AccessTokenCallback() {
         // app code
     }
 });
+```
+
+The above method will always return a valid access token, unless no user is signed in, in which
+case you will get a `ConnectRefreshTokenMissingException`.
+
+You can also manually check the expiration time of the stored access token and check if it is expired.
+
+```java
+Date expirationTime = ConnectSdk.getAccessTokenExpirationTime();
+
+if (expirationTime == null) { // if no user is signed in
+    goToLogin();
+    return;
+}
+
+if (new Date().before(expirationTime)) {
+    Toast.makeText(this, "Token has not expired yet. expirationTime=" + expirationTime, Toast.LENGTH_LONG).show();
+    String validAccessToken = ConnectSdk.getAccessToken();
+    // use the access token for something
+} else {
+    Toast.makeText(this, "Token has expired. expirationTime=" + expirationTime, Toast.LENGTH_LONG).show();
+    ConnectSdk.updateTokens(new AccessTokenCallback() {
+        @Override
+        public void onSuccess(String accessToken) {
+            Toast.makeText(SignedInActivity.this, "Got new access token and expiration time. New time: " + ConnectSdk.getAccessTokenExpirationTime(), Toast.LENGTH_LONG).show();
+            String validAccessToken = ConnectSdk.getAccessToken();
+        }
+
+        @Override
+        public void onError(Object errorData) {
+            Toast.makeText(SignedInActivity.this, "Failed to refresh token.", Toast.LENGTH_LONG).show();
+        }
+    });
+}
 ```
 
 ### Access User Information

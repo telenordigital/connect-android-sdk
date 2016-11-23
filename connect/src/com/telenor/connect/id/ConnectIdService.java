@@ -58,6 +58,14 @@ public class ConnectIdService {
         return retrieveTokens().getAccessToken();
     }
 
+    public Date getAccessTokenExpirationTime() {
+        if (retrieveTokens() == null) {
+            return null;
+        }
+
+        return retrieveTokens().getExpirationDate();
+    }
+
     public void getAccessTokenFromCode(
             final String authCode,
             final ConnectCallback callback) {
@@ -196,4 +204,5 @@ public class ConnectIdService {
         final String auth = "Bearer " + accessToken;
         connectApi.getUserInfo(auth, userInfoCallback);
     }
+
 }
