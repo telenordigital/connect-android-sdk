@@ -38,32 +38,36 @@ public class ConnectIdService {
     }
 
     public void getValidAccessToken(final AccessTokenCallback callback) {
-        if (retrieveTokens() == null) {
+        ConnectTokens connectTokens = retrieveTokens();
+        if (connectTokens == null) {
             throw new ConnectRefreshTokenMissingException(
-                    "retrieveTokens() returned null. Tokens are missing.");
+                    "retrieveTokens() returned null. Tokens are missing. Is user signed in?");
         }
 
-        if (retrieveTokens().accessTokenHasExpired()) {
+        if (connectTokens.accessTokenHasExpired()) {
             updateTokens(callback);
             return;
         }
 
-        callback.onSuccess(retrieveTokens().getAccessToken());
+        callback.onSuccess(connectTokens.getAccessToken());
     }
 
     public String getAccessToken() {
-        if (retrieveTokens() == null) {
+        ConnectTokens connectTokens = retrieveTokens();
+        if (connectTokens == null) {
             return null;
         }
-        return retrieveTokens().getAccessToken();
+
+        return connectTokens.getAccessToken();
     }
 
     public Date getAccessTokenExpirationTime() {
-        if (retrieveTokens() == null) {
+        ConnectTokens connectTokens = retrieveTokens();
+        if (connectTokens == null) {
             return null;
         }
 
-        return retrieveTokens().getExpirationDate();
+        return connectTokens.getExpirationDate();
     }
 
     public void getAccessTokenFromCode(
@@ -101,10 +105,11 @@ public class ConnectIdService {
     }
 
     private String getRefreshToken() {
-        if (retrieveTokens() == null) {
+        ConnectTokens connectTokens = retrieveTokens();
+        if (connectTokens == null) {
             return null;
         }
-        return retrieveTokens().getRefreshToken();
+        return connectTokens.getRefreshToken();
     }
 
     public void revokeTokens(Context context) {
