@@ -2,4 +2,5 @@
     <string name="app_name">Connect ID Example</string>
     <string name="connect_client_id">telenordigital-connectexample-android</string>
     <string name="connect_redirect_uri">telenordigital-connectexample-android://oauth2callback</string>
+    <string name="connect_redirect_uri_scheme">telenordigital-connectexample-android</string>
 </resources>

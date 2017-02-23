@@ -270,7 +270,7 @@ For your app to respond to calls to the redirect URI you need to add an `intent-
 ```xml
 <activity android:name=".SignInActivity" >
 	<intent-filter>
-		<data android:scheme="@string/connect_client_id" />
+		<data android:scheme="@string/connect_redirect_uri_scheme" />
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />
