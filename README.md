@@ -28,9 +28,9 @@ This SDK uses the Connect ID and Connect Payment APIs. Documentation for these A
 
 ## Prerequisites
 
-Before being able to use Telenor Connect in your application, you first need to get your
-application registered with Telenor Connect. This can be done using a form on
-[our website](http://docs.telenordigital.com/getting_started.html).
+Before being able to use Telenor Connect in your application, you first need to
+[get your application registered](http://docs.telenordigital.com/getting-started/)
+with Telenor Connect.
 
 ## Install
 
