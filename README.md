@@ -26,6 +26,8 @@ sign-in or payment. More information about Telenor Connect can be found on our
 This SDK uses the Connect ID and Connect Payment APIs. Documentation for these APIs can be found at
 [docs.telenordigital.com](http://docs.telenordigital.com).
 
+Please use the GitHub _Watch_ feature to get notified on new releases of the SDK.
+
 ## Prerequisites
 
 Before being able to use Telenor Connect in your application, you first need to
