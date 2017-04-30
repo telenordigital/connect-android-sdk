@@ -27,8 +27,7 @@ public class IdTokenValidator {
         }
 
         final String iss = idTokenClaimsSet.getIssuer();
-        final String expectedIssuer
-                = ConnectSdk.getConnectApiUrl().toString() + ConnectUrlHelper.OAUTH_PATH;
+        final String expectedIssuer = ConnectSdk.getExpectedIssuer(iss);
         if (!expectedIssuer.equals(iss)) {
             throw new ConnectException(
                     "ID token issuer is not the same as the issuer this client is configured with."
@@ -36,9 +35,10 @@ public class IdTokenValidator {
                             + " idTokenClaimsSet=" + idTokenClaimsSet.toJSONObject());
         }
 
-        final List<String> audience = idTokenClaimsSet.getAudience();
         final String clientId = ConnectSdk.getClientId();
-        if (audience == null || !audience.contains(clientId)) {
+        final List<String> audience = idTokenClaimsSet.getAudience();
+        final List<String> expectedAudience = ConnectSdk.getExpectedAudiences(audience);
+        if (audience == null || !audience.containsAll(expectedAudience)) {
             throw new ConnectException(
                     "ID token audience list does not contain the configured client ID."
                             + " clientId=" + clientId
@@ -46,12 +46,12 @@ public class IdTokenValidator {
         }
 
         final Set<String> untrustedAudiences = new HashSet<>(idTokenClaimsSet.getAudience());
-        untrustedAudiences.remove(clientId);
+        untrustedAudiences.removeAll(expectedAudience);
         if (untrustedAudiences.size() != 0) {
             throw new ConnectException(
                     "ID token audience list contains untrusted audiences."
                             + " untrustedAudiences=" + untrustedAudiences
-                            + " trustedAudiences=" + clientId
+                            + " trustedAudiences=" + expectedAudience
                             + " idTokenClaimsSet=" + idTokenClaimsSet.toJSONObject());
         }
 

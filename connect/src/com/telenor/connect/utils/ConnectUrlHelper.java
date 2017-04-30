@@ -7,6 +7,9 @@ import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.BuildConfig;
+import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.ConnectSdkProfile;
+import com.telenor.mobileconnect.MobileConnectSdkProfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +42,22 @@ public class ConnectUrlHelper {
             String redirectUri,
             ArrayList<String> locales,
             HttpUrl basePath) {
+        if (ConnectSdk.getSdkProfile() instanceof ConnectSdkProfile) {
+            return getConnectAuthorizeUri(parameters, clientId, redirectUri, locales, basePath);
+        } else if (ConnectSdk.getSdkProfile() instanceof MobileConnectSdkProfile) {
+            return getMobileConnectAuthorizeUri(parameters, clientId, redirectUri, locales, basePath);
+        } else {
+            return null;
+        }
+    }
+
+
+    public static Uri getConnectAuthorizeUri(
+            Map<String, String> parameters,
+            String clientId,
+            String redirectUri,
+            ArrayList<String> locales,
+            HttpUrl basePath) {
         Map<String, String> authParameters = new HashMap<>();
         authParameters.put("response_type", "code");
         authParameters.put("client_id", clientId);
@@ -54,6 +73,34 @@ public class ConnectUrlHelper {
                 .authority(basePath.host())
                 .appendPath(OAUTH_PATH)
                 .appendPath("authorize");
+        for (Map.Entry<String, String> entry : authParameters.entrySet()) {
+            builder.appendQueryParameter(entry.getKey(), entry.getValue());
+        }
+        return builder.build();
+    }
+
+    public static Uri getMobileConnectAuthorizeUri(
+            Map<String, String> parameters,
+            String clientId,
+            String redirectUri,
+            ArrayList<String> locales,
+            HttpUrl basePath) {
+        Map<String, String> authParameters = new HashMap<>();
+        authParameters.put("response_type", "code");
+        authParameters.put("client_id", clientId);
+        authParameters.put("redirect_uri", redirectUri);
+        authParameters.put("ui_locales", TextUtils.join(" ", locales));
+        authParameters.put("telenordigital_sdk_version", getVersionParam());
+
+        authParameters.putAll(parameters);
+
+        Uri.Builder builder = new Uri.Builder();
+        builder
+                .scheme(basePath.scheme())
+                .authority(basePath.host());
+        for (String pathSeg : basePath.pathSegments()) {
+            builder.appendPath(pathSeg);
+        }
         for (Map.Entry<String, String> entry : authParameters.entrySet()) {
             builder.appendQueryParameter(entry.getKey(), entry.getValue());
         }

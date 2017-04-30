@@ -15,7 +15,19 @@
         <item name="android:textColor">@color/com_telenor_connect_dark_gray</item>
         <item name="android:textSize">16.0sp</item>
     </style>
-    
+
+    <style name="com_telenor_MobileConnectButton.Dark">
+        <item name="android:background">@drawable/mobile_connect_btn_dark_selector</item>
+        <item name="android:textColor">@color/com_telenor_connect_light_color</item>
+    </style>
+
+    <style name="com_telenor_MobileConnectButton" parent="Theme.AppCompat">
+        <item name="android:background">@drawable/mobile_connect_btn_light_selector</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/com_telenor_connect_dark_gray</item>
+        <item name="android:textSize">16.0sp</item>
+    </style>
+
     <style name="ConnectTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorAccent">@color/com_telenor_connect_light_color</item>
     </style>

@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.AccessTokenCallback;
@@ -22,11 +23,15 @@ import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
+import com.telenor.mobileconnect.MobileConnectSdkProfile;
+import com.telenor.mobileconnect.SimCardStateChangedBroadcastReceiver;
+import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -34,17 +39,12 @@ import java.util.UUID;
 import retrofit.Callback;
 
 public final class ConnectSdk {
-    private static String sClientId;
-    private static boolean sConfidentialClient = false;
     private static Context sContext;
     private static String sLastAuthState;
     private static ArrayList<Locale> sLocales;
     private static String sPaymentCancelUri;
     private static String sPaymentSuccessUri;
-    private static String sRedirectUri;
-    private static boolean sSdkInitialized = false;
-    private static boolean sUseStaging = false;
-    private static ConnectIdService sConnectIdService;
+    private static SdkProfile sdkProfile;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -85,6 +85,11 @@ public final class ConnectSdk {
     public static final String EXTRA_CONNECT_TOKENS =
             "com.telenor.connect.EXTRA_CONNECT_TOKENS";
 
+    public static SdkProfile getSdkProfile() {
+        Validator.sdkInitialized();
+        return sdkProfile;
+    }
+
     public static synchronized void authenticate(
             Activity activity,
             int requestCode,
@@ -99,9 +104,13 @@ public final class ConnectSdk {
             Activity activity,
             Map<String, String> parameters,
             int requestCode) {
-
-        Intent intent = getAuthIntent(parameters);
-        activity.startActivityForResult(intent, requestCode);
+        Validator.sdkInitialized();
+        if (SdkProfile.DoNext.proceed.equals(sdkProfile.onAuthorize(parameters))) {
+            Intent intent = getAuthIntent(parameters);
+            activity.startActivityForResult(intent, requestCode);
+        } else {
+            showAuthenticationCanelationMessage(activity);
+        }
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
@@ -114,12 +123,24 @@ public final class ConnectSdk {
     }
 
     public static synchronized void authenticate(Activity activity,
-            Map<String, String> parameters,
-            int customLoadingLayout,
-            int requestCode) {
-        Intent intent = getAuthIntent(parameters);
-        intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-        activity.startActivityForResult(intent, requestCode);
+                                                 Map<String, String> parameters,
+                                                 int customLoadingLayout,
+                                                 int requestCode) {
+        Validator.sdkInitialized();
+        if (SdkProfile.DoNext.proceed.equals(sdkProfile.onAuthorize(parameters))) {
+            Intent intent = getAuthIntent(parameters);
+            intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
+            activity.startActivityForResult(intent, requestCode);
+        } else {
+            showAuthenticationCanelationMessage(activity);
+        }
+    }
+
+    private static void showAuthenticationCanelationMessage(Activity activity) {
+        Toast.makeText(
+                activity,
+                R.string.com_telenor_authorization_cancelled,
+                Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -145,7 +166,7 @@ public final class ConnectSdk {
     /**
      * Get a valid Access Token. If a non-expired one is available, that will be given to the
      * callback {@code onSuccess(String accessToken)} method.
-     *
+     * <p>
      * If it is expired, it will be refreshed and then returned. This requires a network call.
      *
      * @param callback callback that will be called on success or failure to update.
@@ -153,12 +174,15 @@ public final class ConnectSdk {
      */
     public static synchronized void getValidAccessToken(AccessTokenCallback callback) {
         Validator.sdkInitialized();
-        sConnectIdService.getValidAccessToken(callback);
+        sdkProfile.getConnectIdService().getValidAccessToken(callback);
     }
 
     public static synchronized String getAccessToken() {
         Validator.sdkInitialized();
-        return sConnectIdService.getAccessToken();
+        if (sdkProfile.getConnectIdService() != null) {
+            return sdkProfile.getConnectIdService().getAccessToken();
+        }
+        return null;
     }
 
     /**
@@ -168,12 +192,12 @@ public final class ConnectSdk {
      */
     public static synchronized Date getAccessTokenExpirationTime() {
         Validator.sdkInitialized();
-        return sConnectIdService.getAccessTokenExpirationTime();
+        return sdkProfile.getConnectIdService().getAccessTokenExpirationTime();
     }
 
     public static synchronized void getAccessTokenFromCode(String code, ConnectCallback callback) {
         Validator.sdkInitialized();
-        sConnectIdService.getAccessTokenFromCode(code, callback);
+        sdkProfile.getConnectIdService().getAccessTokenFromCode(code, callback);
     }
 
     public static synchronized Uri getAuthorizeUriAndSetLastAuthState(
@@ -203,12 +227,7 @@ public final class ConnectSdk {
     }
 
     public static HttpUrl getConnectApiUrl() {
-        HttpUrl.Builder builder = new HttpUrl.Builder();
-        builder.scheme("https");
-        builder.host(sUseStaging
-                ? "connect.staging.telenordigital.com"
-                : "connect.telenordigital.com");
-        return builder.build();
+        return sdkProfile.getApiUrl();
     }
 
     public static Context getContext() {
@@ -218,7 +237,7 @@ public final class ConnectSdk {
 
     public static String getClientId() {
         Validator.sdkInitialized();
-        return sClientId;
+        return sdkProfile.getClientId();
     }
 
     public static String getLastAuthenticationState() {
@@ -243,7 +262,7 @@ public final class ConnectSdk {
 
     public static String getRedirectUri() {
         Validator.sdkInitialized();
-        return sRedirectUri;
+        return sdkProfile.getRedirectUri();
     }
 
     private static ArrayList<String> getUiLocales() {
@@ -262,7 +281,7 @@ public final class ConnectSdk {
     public static void initializePayment(Context context, String transactionLocation) {
         Validator.sdkInitialized();
         if (ConnectSdk.getPaymentSuccessUri() == null
-                || ConnectSdk.getPaymentCancelUri() == null ) {
+                || ConnectSdk.getPaymentCancelUri() == null) {
             throw new ConnectException("Payment success or cancel URI not specified in application"
                     + "manifest.");
         }
@@ -276,34 +295,45 @@ public final class ConnectSdk {
         activity.startActivityForResult(intent, 1);
     }
 
+    public static String getExpectedIssuer(String actualIssuer) {
+        return sdkProfile.getExpectedIssuer(actualIssuer);
+    }
+
+    public static List<String> getExpectedAudiences(List<String> actualAudiences) {
+        return sdkProfile.getExpectedAudiences(actualAudiences);
+    }
+
     public static synchronized boolean isConfidentialClient() {
-        return sConfidentialClient;
+        Validator.sdkInitialized();
+        return sdkProfile.isConfidentialClient();
     }
 
     public static synchronized boolean isInitialized() {
-        return sSdkInitialized;
+        return sdkProfile != null;
     }
 
     public static void logout() {
         Validator.sdkInitialized();
-        sConnectIdService.revokeTokens(sContext);
+        sdkProfile.getConnectIdService().revokeTokens(sContext);
     }
 
     public static synchronized void sdkInitialize(Context context) {
-        if (sSdkInitialized) {
+        if (isInitialized()) {
             return;
         }
 
         Validator.notNull(context, "context");
         sContext = context;
-        loadConnectConfig(ConnectSdk.sContext);
+        ConnectSdkProfile profile = new ConnectSdkProfile();
+        loadConnectConfig(ConnectSdk.sContext, profile);
+        sdkProfile = profile;
+        profile.setConnectIdService(
+                new ConnectIdService(
+                        new TokenStore(context),
+                        RestHelper.getConnectApi(getConnectApiUrl().toString()),
+                        profile.getClientId(),
+                        profile.getRedirectUri()));
 
-        sSdkInitialized = true;
-        sConnectIdService = new ConnectIdService(
-                new TokenStore(context),
-                RestHelper.getConnectApi(getConnectApiUrl().toString()),
-                sClientId,
-                sRedirectUri);
     }
 
     public static void setLocales(Locale... locales) {
@@ -316,26 +346,20 @@ public final class ConnectSdk {
 
     /**
      * Manually update the access token.
+     *
      * @param callback callback that will be called on success or failure to update.
      */
     public static void updateTokens(AccessTokenCallback callback) {
         Validator.sdkInitialized();
-        sConnectIdService.updateTokens(callback);
+        sdkProfile.getConnectIdService().updateTokens(callback);
     }
 
-    private static void loadConnectConfig(Context context) {
+    private static void loadConnectConfig(Context context, ConnectSdkProfile sdkProfile) {
         if (context == null) {
             return;
         }
 
-        ApplicationInfo ai = null;
-        try {
-            ai = context.getPackageManager().getApplicationInfo(
-                    context.getPackageName(), PackageManager.GET_META_DATA);
-        } catch (PackageManager.NameNotFoundException e) {
-            return;
-        }
-
+        ApplicationInfo ai = getApplicationInfo(context);
         if (ai == null || ai.metaData == null) {
             throw new ConnectException("No application metadata was found.");
         }
@@ -343,24 +367,18 @@ public final class ConnectSdk {
         Object clientIdObject = ai.metaData.get(CLIENT_ID_PROPERTY);
         if (clientIdObject instanceof String) {
             String clientIdString = (String) clientIdObject;
-            sClientId = clientIdString;
+            sdkProfile.setClientId(clientIdString);
         }
 
-        Object confidentialClientObject = ai.metaData.get(CONFIDENTIAL_CLIENT_PROPERTY);
-        if (confidentialClientObject instanceof Boolean) {
-            sConfidentialClient = (Boolean) confidentialClientObject;
-        }
+        sdkProfile.setConfidentialClient(fetchBooleanProperty(ai, CONFIDENTIAL_CLIENT_PROPERTY));
 
         Object redirectUriObject = ai.metaData.get(REDIRECT_URI_PROPERTY);
         if (redirectUriObject instanceof String) {
             String redirectUriString = (String) redirectUriObject;
-            sRedirectUri = redirectUriString;
+            sdkProfile.setRedirectUri((String) redirectUriObject);
         }
 
-        Object useStagingObject = ai.metaData.get(USE_STAGING_PROPERTY);
-        if (useStagingObject instanceof Boolean) {
-            sUseStaging = (Boolean) useStagingObject;
-        }
+        sdkProfile.setUseStaging(fetchBooleanProperty(ai, USE_STAGING_PROPERTY));
 
         Object paymentCancelUriObject = ai.metaData.get(PAYMENT_CANCEL_URI_PROPERTY);
         if (paymentCancelUriObject instanceof String) {
@@ -375,6 +393,26 @@ public final class ConnectSdk {
         }
     }
 
+    private static ApplicationInfo getApplicationInfo(Context context) {
+        ApplicationInfo ai = null;
+        try {
+            ai = context.getPackageManager().getApplicationInfo(
+                    context.getPackageName(), PackageManager.GET_META_DATA);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
+        return ai;
+    }
+
+
+    private static boolean fetchBooleanProperty(ApplicationInfo appInfo, String propertyName) {
+        Object useStagingObject = appInfo.metaData.get(propertyName);
+        if (useStagingObject instanceof Boolean) {
+            return (Boolean) useStagingObject;
+        }
+        return false;
+    }
+
     /**
      * @return the subject's ID (sub), if one is signed in. Otherwise {@code null}.
      * @deprecated use {@code getIdToken()} instead to access user information.
@@ -382,7 +420,7 @@ public final class ConnectSdk {
     @Deprecated
     public static String getSubjectId() {
         Validator.sdkInitialized();
-        IdToken idToken = sConnectIdService.getIdToken();
+        IdToken idToken = sdkProfile.getConnectIdService().getIdToken();
         return idToken != null ? idToken.getSubject() : null;
     }
 
@@ -395,7 +433,7 @@ public final class ConnectSdk {
      */
     public static IdToken getIdToken() {
         Validator.sdkInitialized();
-        return sConnectIdService.getIdToken();
+        return sdkProfile.getConnectIdService().getIdToken();
     }
 
     /**
@@ -409,8 +447,33 @@ public final class ConnectSdk {
      */
     public static void getUserInfo(Callback<UserInfo> userInfoCallback) {
         Validator.sdkInitialized();
-        sConnectIdService.getUserInfo(userInfoCallback);
+        sdkProfile.getConnectIdService().getUserInfo(userInfoCallback);
     }
 
+    /**
+     * MobileConnect stuff
+     */
 
+    public static synchronized void sdkInitializeMobileConnect(
+            Context context,
+            OperatorDiscoveryConfig operatorDiscoveryConfig) {
+        if (!isInitialized()) {
+            sContext = context;
+            sdkProfile = new MobileConnectSdkProfile(
+                    context,
+                    operatorDiscoveryConfig,
+                    fetchBooleanProperty(getApplicationInfo(context), USE_STAGING_PROPERTY),
+                    fetchBooleanProperty(getApplicationInfo(context), CONFIDENTIAL_CLIENT_PROPERTY));
+            context.registerReceiver(
+                    SimCardStateChangedBroadcastReceiver.getReceiver(),
+                    SimCardStateChangedBroadcastReceiver.getIntentFilter());
+        }
+    }
+
+    public static synchronized void sdkReinitializeMobileConnect() {
+        if (isInitialized()) {
+            MobileConnectSdkProfile profile = (MobileConnectSdkProfile) sdkProfile;
+            profile.deInitialize();
+        }
+    }
 }
