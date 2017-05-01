@@ -109,7 +109,7 @@ public final class ConnectSdk {
             Intent intent = getAuthIntent(parameters);
             activity.startActivityForResult(intent, requestCode);
         } else {
-            showAuthenticationCanelationMessage(activity);
+            showAuthCancelMessage(activity);
         }
     }
 
@@ -132,11 +132,11 @@ public final class ConnectSdk {
             intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
             activity.startActivityForResult(intent, requestCode);
         } else {
-            showAuthenticationCanelationMessage(activity);
+            showAuthCancelMessage(activity);
         }
     }
 
-    private static void showAuthenticationCanelationMessage(Activity activity) {
+    private static void showAuthCancelMessage(Activity activity) {
         Toast.makeText(
                 activity,
                 R.string.com_telenor_authorization_cancelled,
@@ -374,7 +374,6 @@ public final class ConnectSdk {
 
         Object redirectUriObject = ai.metaData.get(REDIRECT_URI_PROPERTY);
         if (redirectUriObject instanceof String) {
-            String redirectUriString = (String) redirectUriObject;
             sdkProfile.setRedirectUri((String) redirectUriObject);
         }
 
