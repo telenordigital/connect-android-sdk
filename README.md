@@ -628,7 +628,7 @@ public class ExampleApplication extends Application {
         super.onCreate();
         ConnectSdk.sdkInitializeMobileConnect(
                 getApplicationContext(),
-                new ExampleOperatorDiscoveryConfig());
+                new MyOperatorDiscoveryConfig());
     }
 }
 ```
