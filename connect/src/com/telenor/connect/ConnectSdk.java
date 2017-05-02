@@ -405,9 +405,11 @@ public final class ConnectSdk {
 
 
     private static boolean fetchBooleanProperty(ApplicationInfo appInfo, String propertyName) {
-        Object useStagingObject = appInfo.metaData.get(propertyName);
-        if (useStagingObject instanceof Boolean) {
-            return (Boolean) useStagingObject;
+        if (appInfo != null) {
+            Object useStagingObject = appInfo.metaData.get(propertyName);
+            if (useStagingObject instanceof Boolean) {
+                return (Boolean) useStagingObject;
+            }
         }
         return false;
     }
