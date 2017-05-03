@@ -25,10 +25,10 @@ public interface OperatorDiscoveryAPI {
 
     public static class BodyForMsisdn {
         @SerializedName("Redirect_URL")
-        String redirectUri;
+        private String redirectUri;
 
         @SerializedName("MSISDN")
-        String msisdn;
+        private String msisdn;
 
         public BodyForMsisdn(String redirectUri, String msisdn) {
             this.redirectUri = redirectUri;
@@ -56,44 +56,44 @@ public interface OperatorDiscoveryAPI {
 
         private static class OperatorInfo {
             @SerializedName("country")
-            String country;
+            private String country;
 
             @SerializedName("currency")
-            String currency;
+            private String currency;
 
             @SerializedName("client_id")
-            String clientId;
+            private String clientId;
 
             @SerializedName("client_name")
-            String clientName;
+            private String clientName;
 
             @SerializedName("client_secret")
-            String clientSecret;
+            private String clientSecret;
 
             @SerializedName("serving_operator")
-            String servingOperator;
+            private String servingOperator;
 
             @SerializedName("apis")
-            OperatorApi apis;
+            private OperatorApi apis;
 
         }
 
         private static class OperatorApi {
             @SerializedName("operatorid")
-            OperatorIdApi operatorIdApi;
+            private OperatorIdApi operatorIdApi;
         }
 
         private static class OperatorIdApi {
             @SerializedName("link")
-            List<OperatorIdApiEndpoint> link;
+            private List<OperatorIdApiEndpoint> link;
         }
 
         private static class OperatorIdApiEndpoint {
             @SerializedName("rel")
-            String usage;
+            private String usage;
 
             @SerializedName("href")
-            String href;
+            private String href;
         }
 
         public String getUrl(String rel) {

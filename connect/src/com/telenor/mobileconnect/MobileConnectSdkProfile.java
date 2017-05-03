@@ -158,8 +158,8 @@ public class MobileConnectSdkProfile implements SdkProfile {
         TelephonyManager phMgr = (TelephonyManager) context.getSystemService(context.TELEPHONY_SERVICE);
         String networkOperator = phMgr.getNetworkOperator();
         if (!TextUtils.isEmpty(networkOperator)) {
-            final String mcc = "242"; //networkOperator.substring(0, 3);
-            final String mnc = "01"; // networkOperator.substring(3);
+            final String mcc = networkOperator.substring(0, 3);
+            final String mnc = networkOperator.substring(3);
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<OperatorDiscoveryAPI.OperatorDiscoveryResult> operatorDiscoveryResultFuture =
