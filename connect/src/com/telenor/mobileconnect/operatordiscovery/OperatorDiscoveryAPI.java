@@ -23,7 +23,7 @@ public interface OperatorDiscoveryAPI {
             @Query("Identified-MNC") String identifiedMnc);
 
 
-    public static class BodyForMsisdn {
+    class BodyForMsisdn {
         @SerializedName("Redirect_URL")
         private String redirectUri;
 
@@ -43,7 +43,7 @@ public interface OperatorDiscoveryAPI {
             @Body BodyForMsisdn body);
 
 
-    public static class OperatorDiscoveryResult {
+    class OperatorDiscoveryResult {
 
         @SerializedName("subscriber_id")
         private String subscriberId;

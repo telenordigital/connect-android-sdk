@@ -15,7 +15,7 @@ public interface WellKnownAPI {
     @GET("/.well-known/openid-configuration")
     WellKnownResult getWellKnownConfig();
 
-    public static class WellKnownResult {
+    class WellKnownResult {
         @SerializedName("issuer")
         private String issuer;
 

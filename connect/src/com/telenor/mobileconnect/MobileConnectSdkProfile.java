@@ -43,6 +43,8 @@ public class MobileConnectSdkProfile implements SdkProfile {
     private boolean confidentialClient;
     private boolean isInitialized = false;
 
+    private static ExecutorService sExecutor = Executors.newSingleThreadExecutor();
+
     public MobileConnectSdkProfile(
             Context context,
             final OperatorDiscoveryConfig operatorDiscoveryConfig,
@@ -52,6 +54,11 @@ public class MobileConnectSdkProfile implements SdkProfile {
         this.operatorDiscoveryConfig = operatorDiscoveryConfig;
         this.useStaging = useStaging;
         this.confidentialClient = confidentialClient;
+    }
+
+    @Override
+    public Context getContext() {
+        return context;
     }
 
     @Override
@@ -109,7 +116,7 @@ public class MobileConnectSdkProfile implements SdkProfile {
 
     @Override
     public List<String> getExpectedAudiences(List<String> actualAudiences) {
-        return new ArrayList<String>(actualAudiences);
+        return new ArrayList<>(actualAudiences);
     }
 
     @Override
@@ -144,26 +151,23 @@ public class MobileConnectSdkProfile implements SdkProfile {
     }
 
     private String readPhoneNumber() {
-        TelephonyManager phMgr = (TelephonyManager) context.getSystemService(context.TELEPHONY_SERVICE);
+        TelephonyManager phMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         try {
             String msisdn = phMgr.getLine1Number();
             return (TextUtils.isEmpty(msisdn) ? null : msisdn);
-        } catch (RuntimeException e) {
-            ;
+        } catch (RuntimeException ignored) {
         }
         return null;
     }
 
     private OperatorDiscoveryAPI.OperatorDiscoveryResult getOperatorDiscoveryResult() {
-        TelephonyManager phMgr = (TelephonyManager) context.getSystemService(context.TELEPHONY_SERVICE);
+        TelephonyManager phMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String networkOperator = phMgr.getNetworkOperator();
         if (!TextUtils.isEmpty(networkOperator)) {
             final String mcc = networkOperator.substring(0, 3);
             final String mnc = networkOperator.substring(3);
-
-            ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<OperatorDiscoveryAPI.OperatorDiscoveryResult> operatorDiscoveryResultFuture =
-                    executor.submit(new Callable<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
+                    sExecutor.submit(new Callable<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
                         @Override
                         public OperatorDiscoveryAPI.OperatorDiscoveryResult call() throws Exception {
                             return getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
@@ -176,17 +180,15 @@ public class MobileConnectSdkProfile implements SdkProfile {
                     });
             try {
                 return operatorDiscoveryResultFuture.get();
-            } catch (InterruptedException | ExecutionException | RuntimeException e) {
-                ;
+            } catch (InterruptedException | ExecutionException | RuntimeException ignored) {
             }
         }
         return null;
     }
 
     private OperatorDiscoveryAPI.OperatorDiscoveryResult getOperatorDiscoveryResult(final String msisdn) {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<OperatorDiscoveryAPI.OperatorDiscoveryResult> operatorDiscoveryResultFuture =
-                executor.submit(new Callable<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
+                sExecutor.submit(new Callable<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
                     @Override
                     public OperatorDiscoveryAPI.OperatorDiscoveryResult call() throws Exception {
                         return getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMsisdn(
@@ -199,16 +201,14 @@ public class MobileConnectSdkProfile implements SdkProfile {
                 });
         try {
             return operatorDiscoveryResultFuture.get();
-        } catch (InterruptedException | ExecutionException | RuntimeException e) {
-            ;
+        } catch (InterruptedException | ExecutionException | RuntimeException ignored) {
         }
         return null;
     }
 
     private WellKnownAPI.WellKnownResult getWellKnownConfig() {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<WellKnownAPI.WellKnownResult> wellKnownResultFuture =
-                executor.submit(new Callable<WellKnownAPI.WellKnownResult>() {
+                sExecutor.submit(new Callable<WellKnownAPI.WellKnownResult>() {
                     @Override
                     public WellKnownAPI.WellKnownResult call() throws Exception {
                         return RestHelper.getMobileConnectWellKnownApi(
@@ -217,8 +217,7 @@ public class MobileConnectSdkProfile implements SdkProfile {
                 });
         try {
             return wellKnownResultFuture.get();
-        } catch (InterruptedException | ExecutionException | RuntimeException e) {
-            ;
+        } catch (InterruptedException | ExecutionException | RuntimeException ignored) {
         }
         return null;
     }
@@ -250,8 +249,7 @@ public class MobileConnectSdkProfile implements SdkProfile {
                             getRedirectUri());
             wellKnownResult = getWellKnownConfig();
             isInitialized = (wellKnownResult != null);
-        } catch (RuntimeException e) {
-            ;
+        } catch (RuntimeException ignored) {
         }
         return isInitialized;
     }
@@ -264,7 +262,7 @@ public class MobileConnectSdkProfile implements SdkProfile {
         isInitialized = false;
     }
 
-    public String getAuthorizationHeader() {
+    private String getAuthorizationHeader() {
         return "Basic " + Base64.encodeToString(
                 String.format("%s:%s",
                         getClientId(),
@@ -272,7 +270,7 @@ public class MobileConnectSdkProfile implements SdkProfile {
                 Base64.NO_WRAP);
     }
 
-    public String getOperatorPrefix() {
+    private String getOperatorPrefix() {
         return operatorDiscoveryResult.getServingOperator();
     }
 
@@ -288,7 +286,7 @@ public class MobileConnectSdkProfile implements SdkProfile {
 
         private MobileConnectAPI mobileConnectApi;
 
-        public MobileConnectAPIAdapter(MobileConnectAPI mobileConnectApi) {
+        MobileConnectAPIAdapter(MobileConnectAPI mobileConnectApi) {
             this.mobileConnectApi = mobileConnectApi;
         }
 

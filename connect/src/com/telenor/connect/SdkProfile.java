@@ -1,5 +1,7 @@
 package com.telenor.connect;
 
+import android.content.Context;
+
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
 
@@ -8,6 +10,7 @@ import java.util.Map;
 
 public interface SdkProfile {
 
+    Context getContext();
     HttpUrl getApiUrl();
     String getClientId();
     String getClientSecret();
@@ -17,6 +20,6 @@ public interface SdkProfile {
     String getExpectedIssuer(String actualIssuer);
     List<String> getExpectedAudiences(List<String> actualAudiences);
 
-    enum DoNext {proceed, cancel};
+    enum DoNext {proceed, cancel}
     DoNext onAuthorize(Map<String, String> parameters);
 }

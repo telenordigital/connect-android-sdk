@@ -1,21 +1,34 @@
 package com.telenor.connect;
 
+import android.content.Context;
+
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.utils.ConnectUrlHelper;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class ConnectSdkProfile implements SdkProfile {
 
+    private Context context;
     private boolean useStaging;
     private String clientId;
     private boolean confidentialClient;
     private String redirectUri;
 
     private ConnectIdService connectIdService;
+
+    public ConnectSdkProfile(Context context) {
+        this.context = context;
+    }
+
+    @Override
+    public Context getContext() {
+        return context;
+    }
 
     @Override
     public HttpUrl getApiUrl() {
@@ -60,7 +73,7 @@ public class ConnectSdkProfile implements SdkProfile {
 
     @Override
     public List<String> getExpectedAudiences(List<String> actualAudiences) {
-        return Arrays.asList(clientId);
+        return Collections.singletonList(clientId);
     }
 
     @Override

@@ -21,7 +21,6 @@ public class SimCardStateChangedBroadcastReceiver extends BroadcastReceiver {
     public static SimCardStateChangedBroadcastReceiver getReceiver() {
         return sSimCardChangedReceiver;
     }
-
     public static IntentFilter getIntentFilter() {
         return SIM_CARD_CHANGED_INTENT_FILTER;
     }

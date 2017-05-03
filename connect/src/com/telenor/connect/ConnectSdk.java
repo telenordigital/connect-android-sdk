@@ -39,7 +39,7 @@ import java.util.UUID;
 import retrofit.Callback;
 
 public final class ConnectSdk {
-    private static Context sContext;
+
     private static String sLastAuthState;
     private static ArrayList<Locale> sLocales;
     private static String sPaymentCancelUri;
@@ -232,7 +232,7 @@ public final class ConnectSdk {
 
     public static Context getContext() {
         Validator.sdkInitialized();
-        return sContext;
+        return sdkProfile.getContext();
     }
 
     public static String getClientId() {
@@ -287,7 +287,7 @@ public final class ConnectSdk {
         }
 
         Intent intent = new Intent();
-        intent.setClass(ConnectSdk.getContext(), ConnectActivity.class);
+        intent.setClass(getContext(), ConnectActivity.class);
         intent.putExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION, transactionLocation);
         intent.setAction(ConnectUtils.PAYMENT_ACTION);
 
@@ -314,7 +314,7 @@ public final class ConnectSdk {
 
     public static void logout() {
         Validator.sdkInitialized();
-        sdkProfile.getConnectIdService().revokeTokens(sContext);
+        sdkProfile.getConnectIdService().revokeTokens(getContext());
     }
 
     public static synchronized void sdkInitialize(Context context) {
@@ -323,9 +323,8 @@ public final class ConnectSdk {
         }
 
         Validator.notNull(context, "context");
-        sContext = context;
-        ConnectSdkProfile profile = new ConnectSdkProfile();
-        loadConnectConfig(ConnectSdk.sContext, profile);
+        ConnectSdkProfile profile = new ConnectSdkProfile(context);
+        loadConnectConfig(context, profile);
         sdkProfile = profile;
         profile.setConnectIdService(
                 new ConnectIdService(
@@ -459,7 +458,6 @@ public final class ConnectSdk {
             Context context,
             OperatorDiscoveryConfig operatorDiscoveryConfig) {
         if (!isInitialized()) {
-            sContext = context;
             sdkProfile = new MobileConnectSdkProfile(
                     context,
                     operatorDiscoveryConfig,
