@@ -8,6 +8,7 @@ import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.IdTokenDeserializer;
 import com.telenor.mobileconnect.id.MobileConnectAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
+import com.telenor.mobileconnect.operatordiscovery.WellKnownAPI;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +25,10 @@ public class RestHelper {
 
     public static MobileConnectAPI getMobileConnectApi(String endpoint) {
         return buildApi(endpoint).create(MobileConnectAPI.class);
+    }
+
+    public static WellKnownAPI getMobileConnectWellKnownApi(String endpoint) {
+        return buildApi(endpoint).create(WellKnownAPI.class);
     }
 
     public static OperatorDiscoveryAPI getOperatorDiscoveryAPI(String endpoint) {
