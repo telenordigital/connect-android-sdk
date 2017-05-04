@@ -1,6 +1,7 @@
 package com.telenor.mobileconnect;
 
 import android.content.Context;
+import android.net.Uri;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -12,6 +13,7 @@ import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.id.TokenStore;
 import com.telenor.connect.id.UserInfo;
+import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.mobileconnect.id.MobileConnectAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
@@ -117,6 +119,21 @@ public class MobileConnectSdkProfile implements SdkProfile {
     @Override
     public List<String> getExpectedAudiences(List<String> actualAudiences) {
         return new ArrayList<>(actualAudiences);
+    }
+
+    @Override
+    public Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales) {
+        Uri.Builder builder = ConnectUrlHelper.getAuthorizeUriStem(
+                parameters,
+                getClientId(),
+                getRedirectUri(),
+                locales,
+                getApiUrl())
+                .buildUpon();
+        for (String pathSeg : getApiUrl().pathSegments()) {
+            builder.appendPath(pathSeg);
+        }
+        return builder.build();
     }
 
     @Override
@@ -299,7 +316,7 @@ public class MobileConnectSdkProfile implements SdkProfile {
                 Callback<ConnectTokensTO> tokens) {
             mobileConnectApi.getAccessTokens(
                     getAuthorizationHeader(),
-                    getOperatorPrefix(),
+                    operatorDiscoveryResult.getPath("token"),
                     grant_type,
                     code,
                     redirect_uri,
@@ -314,7 +331,7 @@ public class MobileConnectSdkProfile implements SdkProfile {
                 Callback<ConnectTokensTO> tokens) {
             mobileConnectApi.refreshAccessTokens(
                     getAuthorizationHeader(),
-                    getOperatorPrefix(),
+                    operatorDiscoveryResult.getPath("token"),
                     grant_type,
                     refresh_token,
                     tokens);
@@ -327,7 +344,7 @@ public class MobileConnectSdkProfile implements SdkProfile {
                 ResponseCallback callback) {
             mobileConnectApi.revokeToken(
                     getAuthorizationHeader(),
-                    getOperatorPrefix(),
+                    operatorDiscoveryResult.getPath("tokenrevoke"),
                     token,
                     callback);
         }
@@ -338,7 +355,7 @@ public class MobileConnectSdkProfile implements SdkProfile {
                 Callback<UserInfo> userInfoCallback) {
             mobileConnectApi.getUserInfo(
                     auth,
-                    getOperatorPrefix(),
+                    operatorDiscoveryResult.getPath("userinfo"),
                     userInfoCallback);
         }
     }

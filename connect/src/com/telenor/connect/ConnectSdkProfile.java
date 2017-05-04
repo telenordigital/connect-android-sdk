@@ -1,6 +1,7 @@
 package com.telenor.connect;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ConnectSdkProfile implements SdkProfile {
+
+    public static final String OAUTH_PATH = "oauth";
 
     private Context context;
     private boolean useStaging;
@@ -68,12 +71,26 @@ public class ConnectSdkProfile implements SdkProfile {
 
     @Override
     public String getExpectedIssuer(String actualIssuer) {
-        return getApiUrl() + ConnectUrlHelper.OAUTH_PATH;
+        return getApiUrl() + OAUTH_PATH;
     }
 
     @Override
     public List<String> getExpectedAudiences(List<String> actualAudiences) {
         return Collections.singletonList(clientId);
+    }
+
+    @Override
+    public Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales) {
+        return ConnectUrlHelper.getAuthorizeUriStem(
+                parameters,
+                getClientId(),
+                getRedirectUri(),
+                locales,
+                getApiUrl())
+                .buildUpon()
+                .appendPath(OAUTH_PATH)
+                .appendPath("authorize")
+                .build();
     }
 
     @Override

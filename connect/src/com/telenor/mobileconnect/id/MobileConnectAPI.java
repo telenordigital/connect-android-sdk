@@ -17,10 +17,10 @@ public interface MobileConnectAPI {
 
     @FormUrlEncoded
     @Headers("Content-Type: application/x-www-form-urlencoded")
-    @POST("/oauth/{operator_prefix}/token")
+    @POST("/{token_path}")
     void getAccessTokens(
             @Header("Authorization") String authHeader,
-            @Path("operator_prefix") String operatorPrefix,
+            @Path(value = "token_path", encode = false) String tokenPath,
             @Field("grant_type") String grant_type,
             @Field("code") String code,
             @Field("redirect_uri") String redirect_uri,
@@ -28,27 +28,27 @@ public interface MobileConnectAPI {
 
     @FormUrlEncoded
     @Headers("Content-Type: application/x-www-form-urlencoded")
-    @POST("/oauth/{operator_prefix}/token")
+    @POST("/{token_path}")
     void refreshAccessTokens(
             @Header("Authorization") String authHeader,
-            @Path("operator_prefix") String operatorPrefix,
+            @Path(value = "token_path", encode = false) String tokenPath,
             @Field("grant_type") String grant_type,
             @Field("refresh_token") String refresh_token,
             Callback<ConnectTokensTO> tokens);
 
     @FormUrlEncoded
     @Headers("Content-Type: application/x-www-form-urlencoded")
-    @POST("/oauth/{operator_prefix}/revoke")
+    @POST("/{revoke_path}")
     void revokeToken(
             @Header("Authorization") String authHeader,
-            @Path("operator_prefix") String operatorPrefix,
+            @Path(value = "revoke_path", encode = false) String revokePath,
             @Field("token") String token,
             ResponseCallback callback);
 
     @Headers("Accept: application/json")
-    @GET("/oauth/{operator_prefix}/userinfo")
+    @GET("/{userinfo_path}")
     void getUserInfo(
             @Header("Authorization") String auth,
-            @Path("operator_prefix") String operator_prefix,
+            @Path(value = "userinfo_path", encode = false) String userinfo_path,
             Callback<UserInfo> userInfoCallback);
 }

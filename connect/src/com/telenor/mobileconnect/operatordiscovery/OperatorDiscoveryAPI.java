@@ -1,8 +1,13 @@
 package com.telenor.mobileconnect.operatordiscovery;
 
+import android.net.Uri;
+
 import com.google.gson.annotations.SerializedName;
 import com.squareup.okhttp.HttpUrl;
+import com.telenor.connect.ConnectException;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import retrofit.http.Body;
@@ -134,5 +139,12 @@ public interface OperatorDiscoveryAPI {
             return operatorInfo.servingOperator;
         }
 
+        public String getPath(String rel) {
+            try {
+                return new URL(getUrl(rel)).getPath();
+            } catch (MalformedURLException e) {
+                throw new ConnectException(e);
+            }
+        }
     }
 }

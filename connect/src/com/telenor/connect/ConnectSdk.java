@@ -218,12 +218,7 @@ public final class ConnectSdk {
         }
         sLastAuthState = parameters.get("state");
 
-        return ConnectUrlHelper.getAuthorizeUri(
-                parameters,
-                getClientId(),
-                getRedirectUri(),
-                getUiLocales(),
-                getConnectApiUrl());
+        return sdkProfile.getAuthorizeUri(parameters, getUiLocales());
     }
 
     public static HttpUrl getConnectApiUrl() {
