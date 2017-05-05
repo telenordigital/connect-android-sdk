@@ -454,22 +454,24 @@ public final class ConnectSdk {
     public static synchronized void sdkInitializeMobileConnect(
             Context context,
             OperatorDiscoveryConfig operatorDiscoveryConfig) {
-        if (!isInitialized()) {
-            sdkProfile = new MobileConnectSdkProfile(
-                    context,
-                    operatorDiscoveryConfig,
-                    fetchBooleanProperty(getApplicationInfo(context), USE_STAGING_PROPERTY),
-                    fetchBooleanProperty(getApplicationInfo(context), CONFIDENTIAL_CLIENT_PROPERTY));
-            context.registerReceiver(
-                    SimCardStateChangedBroadcastReceiver.getReceiver(),
-                    SimCardStateChangedBroadcastReceiver.getIntentFilter());
+        if (isInitialized()) {
+            return;
         }
+        sdkProfile = new MobileConnectSdkProfile(
+                context,
+                operatorDiscoveryConfig,
+                fetchBooleanProperty(getApplicationInfo(context), USE_STAGING_PROPERTY),
+                fetchBooleanProperty(getApplicationInfo(context), CONFIDENTIAL_CLIENT_PROPERTY));
+        context.registerReceiver(
+                SimCardStateChangedBroadcastReceiver.getReceiver(),
+                SimCardStateChangedBroadcastReceiver.getIntentFilter());
     }
 
     public static synchronized void sdkReinitializeMobileConnect() {
-        if (isInitialized()) {
-            MobileConnectSdkProfile profile = (MobileConnectSdkProfile) sdkProfile;
-            profile.deInitialize();
+        if (!isInitialized()) {
+            return;
         }
+        MobileConnectSdkProfile profile = (MobileConnectSdkProfile) sdkProfile;
+        profile.deInitialize();
     }
 }
