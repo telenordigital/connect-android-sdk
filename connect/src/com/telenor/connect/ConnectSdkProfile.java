@@ -2,35 +2,27 @@ package com.telenor.connect;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
-import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.utils.ConnectUrlHelper;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class ConnectSdkProfile implements SdkProfile {
+public class ConnectSdkProfile extends AbstractSdkProfile {
 
     public static final String OAUTH_PATH = "oauth";
 
-    private Context context;
-    private boolean useStaging;
     private String clientId;
-    private boolean confidentialClient;
     private String redirectUri;
 
-    private ConnectIdService connectIdService;
-
-    public ConnectSdkProfile(Context context) {
-        this.context = context;
-    }
-
-    @Override
-    public Context getContext() {
-        return context;
+    public ConnectSdkProfile(
+            Context context,
+            boolean useStaging,
+            boolean confidentialClient) {
+        super(context, useStaging, confidentialClient);
     }
 
     @Override
@@ -54,23 +46,15 @@ public class ConnectSdkProfile implements SdkProfile {
     }
 
     @Override
-    public boolean isConfidentialClient() {
-        return confidentialClient;
-    }
-
-
-    @Override
     public String getRedirectUri() {
         return redirectUri;
     }
 
     @Override
-    public ConnectIdService getConnectIdService() {
-        return connectIdService;
-    }
-
-    @Override
     public String getExpectedIssuer(String actualIssuer) {
+        if (getWellKnownConfig() != null) {
+            return getWellKnownConfig().getIssuer();
+        }
         return getApiUrl() + OAUTH_PATH;
     }
 
@@ -98,6 +82,18 @@ public class ConnectSdkProfile implements SdkProfile {
         return DoNext.proceed;
     }
 
+    @Override
+    protected String getWellKnownEndpoint() {
+        HttpUrl.Builder builder = getApiUrl().newBuilder();
+        builder.addPathSegment(OAUTH_PATH);
+        for (String pathSegment : WellKnownAPI.OPENID_CONFIGURATION_PATH.split("/")) {
+            if (!TextUtils.isEmpty(pathSegment)) {
+                builder.addPathSegment(pathSegment);
+            }
+        }
+        return builder.build().toString();
+    }
+
     public void setUseStaging(boolean useStaging) {
         this.useStaging = useStaging;
     }
@@ -112,9 +108,5 @@ public class ConnectSdkProfile implements SdkProfile {
 
     public void setRedirectUri(String redirectUri) {
         this.redirectUri = redirectUri;
-    }
-
-    public void setConnectIdService(ConnectIdService connectIdService) {
-        this.connectIdService = connectIdService;
     }
 }

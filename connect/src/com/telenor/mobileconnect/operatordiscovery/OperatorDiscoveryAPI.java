@@ -1,10 +1,9 @@
 package com.telenor.mobileconnect.operatordiscovery;
 
-import android.net.Uri;
-
 import com.google.gson.annotations.SerializedName;
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.ConnectException;
+import com.telenor.connect.WellKnownAPI;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -101,7 +100,7 @@ public interface OperatorDiscoveryAPI {
             private String href;
         }
 
-        public String getUrl(String rel) {
+        public String getEndpoint(String rel) {
             for (OperatorIdApiEndpoint endpoint : operatorInfo.apis.operatorIdApi.link) {
                 if (endpoint.usage.equals(rel)) {
                     return endpoint.href;
@@ -111,13 +110,13 @@ public interface OperatorDiscoveryAPI {
         }
 
         public HttpUrl getMobileConnectApiUrl() {
-            return HttpUrl.parse(getUrl("authorization"));
+            return HttpUrl.parse(getEndpoint("authorization"));
         }
 
         public String getBasePath() {
             for (OperatorIdApiEndpoint endpoint : operatorInfo.apis.operatorIdApi.link) {
                 if (endpoint.usage.equals("authorization")) {
-                    return endpoint.href.replace("/authorize", "");
+                    return endpoint.href.substring(0, endpoint.href.lastIndexOf("/"));
                 }
             }
             return null;
@@ -141,10 +140,17 @@ public interface OperatorDiscoveryAPI {
 
         public String getPath(String rel) {
             try {
-                return new URL(getUrl(rel)).getPath();
+                return new URL(getEndpoint(rel)).getPath();
             } catch (MalformedURLException e) {
                 throw new ConnectException(e);
             }
+        }
+        public String getWellKnownEndpoint() {
+            String endpoint = getEndpoint("openid-configuration");
+            if (endpoint != null) {
+                return endpoint;
+            }
+            return getBasePath() + WellKnownAPI.OPENID_CONFIGURATION_PATH;
         }
     }
 }

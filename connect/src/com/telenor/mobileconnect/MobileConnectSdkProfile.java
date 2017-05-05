@@ -7,7 +7,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.squareup.okhttp.HttpUrl;
-import com.telenor.connect.SdkProfile;
+import com.telenor.connect.AbstractSdkProfile;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
@@ -18,49 +18,31 @@ import com.telenor.connect.utils.RestHelper;
 import com.telenor.mobileconnect.id.MobileConnectAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
-import com.telenor.mobileconnect.operatordiscovery.WellKnownAPI;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import retrofit.Callback;
 import retrofit.ResponseCallback;
 
-public class MobileConnectSdkProfile implements SdkProfile {
+public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
     private OperatorDiscoveryConfig operatorDiscoveryConfig;
     private OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult;
-    private WellKnownAPI.WellKnownResult wellKnownResult;
     private OperatorDiscoveryAPI operatorDiscoveryApi;
-    private ConnectIdService connectIdService;
-
-    private Context context;
-    private boolean useStaging;
-    private boolean confidentialClient;
     private boolean isInitialized = false;
-
-    private static ExecutorService sExecutor = Executors.newSingleThreadExecutor();
 
     public MobileConnectSdkProfile(
             Context context,
             final OperatorDiscoveryConfig operatorDiscoveryConfig,
             boolean useStaging,
             boolean confidentialClient) {
-        this.context = context;
+        super(context, useStaging, confidentialClient);
         this.operatorDiscoveryConfig = operatorDiscoveryConfig;
-        this.useStaging = useStaging;
-        this.confidentialClient = confidentialClient;
-    }
-
-    @Override
-    public Context getContext() {
-        return context;
     }
 
     @Override
@@ -93,18 +75,8 @@ public class MobileConnectSdkProfile implements SdkProfile {
     }
 
     @Override
-    public boolean isConfidentialClient() {
-        return confidentialClient;
-    }
-
-    @Override
     public String getRedirectUri() {
         return operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri();
-    }
-
-    @Override
-    public ConnectIdService getConnectIdService() {
-        return connectIdService;
     }
 
     @Override
@@ -113,7 +85,10 @@ public class MobileConnectSdkProfile implements SdkProfile {
         if (operatorDiscoveryResult.getBasePath().contains("telenordigital.com")) {
             return actualIssuer;
         }
-        return wellKnownResult.getIssuer();
+        if (getWellKnownConfig() != null) {
+            return getWellKnownConfig().getIssuer();
+        }
+        return actualIssuer;
     }
 
     @Override
@@ -223,22 +198,6 @@ public class MobileConnectSdkProfile implements SdkProfile {
         return null;
     }
 
-    private WellKnownAPI.WellKnownResult getWellKnownConfig() {
-        Future<WellKnownAPI.WellKnownResult> wellKnownResultFuture =
-                sExecutor.submit(new Callable<WellKnownAPI.WellKnownResult>() {
-                    @Override
-                    public WellKnownAPI.WellKnownResult call() throws Exception {
-                        return RestHelper.getMobileConnectWellKnownApi(
-                                operatorDiscoveryResult.getBasePath()).getWellKnownConfig();
-                    }
-                });
-        try {
-            return wellKnownResultFuture.get();
-        } catch (InterruptedException | ExecutionException | RuntimeException ignored) {
-        }
-        return null;
-    }
-
     private OperatorDiscoveryAPI getOperatorDiscoveryApi() {
         if (operatorDiscoveryApi == null) {
             operatorDiscoveryApi = RestHelper.getOperatorDiscoveryAPI(
@@ -258,25 +217,29 @@ public class MobileConnectSdkProfile implements SdkProfile {
                                     "%s://%s",
                                     url.scheme(),
                                     url.host()));
-            connectIdService =
+            setConnectIdService(
                     new ConnectIdService(
                             new TokenStore(context),
                             new MobileConnectAPIAdapter(mobileConnectApi),
                             getClientId(),
-                            getRedirectUri());
-            wellKnownResult = getWellKnownConfig();
-            isInitialized = (wellKnownResult != null);
+                            getRedirectUri()));
+            isInitialized = true;
         } catch (RuntimeException ignored) {
         }
         return isInitialized;
     }
 
     public void deInitialize() {
+        deInitialize();
+        setConnectIdService(null);
         operatorDiscoveryApi = null;
         operatorDiscoveryResult = null;
-        connectIdService = null;
-        wellKnownResult = null;
         isInitialized = false;
+    }
+
+    @Override
+    protected String getWellKnownEndpoint() {
+        return operatorDiscoveryResult.getWellKnownEndpoint();
     }
 
     private String getAuthorizationHeader() {
@@ -285,10 +248,6 @@ public class MobileConnectSdkProfile implements SdkProfile {
                         getClientId(),
                         getClientSecret()).getBytes(),
                 Base64.NO_WRAP);
-    }
-
-    private String getOperatorPrefix() {
-        return operatorDiscoveryResult.getServingOperator();
     }
 
     private String getOperatorDiscoveryAuthHeader() {

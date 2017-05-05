@@ -318,8 +318,7 @@ public final class ConnectSdk {
         }
 
         Validator.notNull(context, "context");
-        ConnectSdkProfile profile = new ConnectSdkProfile(context);
-        loadConnectConfig(context, profile);
+        ConnectSdkProfile profile = loadConnectConfig(context);
         sdkProfile = profile;
         profile.setConnectIdService(
                 new ConnectIdService(
@@ -327,7 +326,6 @@ public final class ConnectSdk {
                         RestHelper.getConnectApi(getConnectApiUrl().toString()),
                         profile.getClientId(),
                         profile.getRedirectUri()));
-
     }
 
     public static void setLocales(Locale... locales) {
@@ -348,30 +346,28 @@ public final class ConnectSdk {
         sdkProfile.getConnectIdService().updateTokens(callback);
     }
 
-    private static void loadConnectConfig(Context context, ConnectSdkProfile sdkProfile) {
-        if (context == null) {
-            return;
-        }
+    private static ConnectSdkProfile loadConnectConfig(Context context) {
 
         ApplicationInfo ai = getApplicationInfo(context);
         if (ai == null || ai.metaData == null) {
             throw new ConnectException("No application metadata was found.");
         }
 
+        ConnectSdkProfile profile = new ConnectSdkProfile(
+                context,
+                fetchBooleanProperty(ai, USE_STAGING_PROPERTY),
+                fetchBooleanProperty(ai, CONFIDENTIAL_CLIENT_PROPERTY));
+
         Object clientIdObject = ai.metaData.get(CLIENT_ID_PROPERTY);
         if (clientIdObject instanceof String) {
             String clientIdString = (String) clientIdObject;
-            sdkProfile.setClientId(clientIdString);
+            profile.setClientId(clientIdString);
         }
-
-        sdkProfile.setConfidentialClient(fetchBooleanProperty(ai, CONFIDENTIAL_CLIENT_PROPERTY));
 
         Object redirectUriObject = ai.metaData.get(REDIRECT_URI_PROPERTY);
         if (redirectUriObject instanceof String) {
-            sdkProfile.setRedirectUri((String) redirectUriObject);
+            profile.setRedirectUri((String) redirectUriObject);
         }
-
-        sdkProfile.setUseStaging(fetchBooleanProperty(ai, USE_STAGING_PROPERTY));
 
         Object paymentCancelUriObject = ai.metaData.get(PAYMENT_CANCEL_URI_PROPERTY);
         if (paymentCancelUriObject instanceof String) {
@@ -384,6 +380,7 @@ public final class ConnectSdk {
             String paymentSuccessUriString = (String) paymentSuccessUriObject;
             sPaymentSuccessUri = paymentSuccessUriString;
         }
+        return profile;
     }
 
     private static ApplicationInfo getApplicationInfo(Context context) {
@@ -406,6 +403,11 @@ public final class ConnectSdk {
             }
         }
         return false;
+    }
+
+    public static WellKnownAPI.WellKnownConfig getWellKnownConfig() {
+        Validator.sdkInitialized();
+        return sdkProfile.getWellKnownConfig();
     }
 
     /**

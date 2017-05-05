@@ -1,21 +1,19 @@
-package com.telenor.mobileconnect.operatordiscovery;
+package com.telenor.connect;
 
 import com.google.gson.annotations.SerializedName;
 
-import retrofit.http.Body;
 import retrofit.http.GET;
-import retrofit.http.Header;
 import retrofit.http.Headers;
-import retrofit.http.POST;
-import retrofit.http.Query;
 
 public interface WellKnownAPI {
 
-    @Headers("Content-Type: application/json")
-    @GET("/.well-known/openid-configuration")
-    WellKnownResult getWellKnownConfig();
+    public static final String OPENID_CONFIGURATION_PATH = "/.well-known/openid-configuration";
 
-    class WellKnownResult {
+    @Headers("Content-Type: application/json")
+    @GET("/")
+    WellKnownConfig getWellKnownConfig();
+
+    class WellKnownConfig {
         @SerializedName("issuer")
         private String issuer;
 
