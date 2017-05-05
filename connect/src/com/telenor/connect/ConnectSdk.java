@@ -8,7 +8,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.webkit.CookieManager;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.AccessTokenCallback;
@@ -304,6 +306,20 @@ public final class ConnectSdk {
                 RestHelper.getConnectApi(getConnectApiUrl().toString()),
                 sClientId,
                 sRedirectUri);
+    }
+
+    public static String getMccMnc() {
+        TelephonyManager tel
+                = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        return tel.getNetworkOperator();
+    }
+
+    public static String getMccMncLoginHint() {
+        String mccMnc = getMccMnc();
+        if (mccMnc.isEmpty()) {
+            return null;
+        }
+        return String.format("MCCMNC:%s", mccMnc);
     }
 
     public static void setLocales(Locale... locales) {
