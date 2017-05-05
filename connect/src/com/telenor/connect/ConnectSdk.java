@@ -1,11 +1,17 @@
 package com.telenor.connect;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
@@ -46,6 +52,9 @@ public final class ConnectSdk {
     private static String sPaymentCancelUri;
     private static String sPaymentSuccessUri;
     private static SdkProfile sdkProfile;
+    private static ConnectivityManager connectivityManager;
+    private static Network cellularNetwork;
+    private static Network wifiNetwork;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -331,6 +340,7 @@ public final class ConnectSdk {
             return;
         }
 
+
         Validator.notNull(context, "context");
         ConnectSdkProfile profile = loadConnectConfig(context);
         sdkProfile = profile;
@@ -340,6 +350,8 @@ public final class ConnectSdk {
                         RestHelper.getConnectApi(getConnectApiUrl().toString()),
                         profile.getClientId(),
                         profile.getRedirectUri()));
+
+        initializeCommonComponents();
     }
 
     public static String getMccMnc() {
@@ -493,6 +505,8 @@ public final class ConnectSdk {
         context.registerReceiver(
                 SimCardStateChangedBroadcastReceiver.getReceiver(),
                 SimCardStateChangedBroadcastReceiver.getIntentFilter());
+
+        initializeCommonComponents();
     }
 
     public static synchronized void sdkReinitializeMobileConnect() {
@@ -501,5 +515,68 @@ public final class ConnectSdk {
         }
         MobileConnectSdkProfile profile = (MobileConnectSdkProfile) sdkProfile;
         profile.deInitialize();
+    }
+
+    public static ConnectivityManager getConnectivityManager() {
+        return connectivityManager;
+    }
+
+    public static Network getCellularNetwork() {
+        return cellularNetwork;
+    }
+
+    public static Network getWifiNetwork() {
+        return wifiNetwork;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static void initalizeCellularNetwork() {
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+
+        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+        builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
+
+        NetworkRequest networkRequest = builder.build();
+        connectivityManager.requestNetwork(
+                networkRequest,
+                new ConnectivityManager.NetworkCallback() {
+                    @Override
+                    public void onAvailable(Network network) {
+                        cellularNetwork = network;
+                    }
+                }
+        );
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static void initalizeWiFiNetwork() {
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+
+        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+        builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+
+        NetworkRequest networkRequest = builder.build();
+        connectivityManager.requestNetwork(
+                networkRequest,
+                new ConnectivityManager.NetworkCallback() {
+                    @Override
+                    public void onAvailable(Network network) {
+                        wifiNetwork = network;
+                    }
+                }
+        );
+    }
+
+    /**
+     * Initialize components common to both Mobile Connect and ConnectID SDK profiles
+     */
+    public static synchronized void initializeCommonComponents() {
+        connectivityManager
+                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (null == connectivityManager) {
+            return;
+        }
+        initalizeCellularNetwork();
+        initalizeWiFiNetwork();
     }
 }
