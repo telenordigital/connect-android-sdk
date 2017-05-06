@@ -1,15 +1,19 @@
 package com.telenor.connect.ui;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Network;
+import android.net.Uri;
 import android.os.Build;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -22,8 +26,19 @@ import com.telenor.connect.sms.SmsPinParseUtil;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 
 public class ConnectWebViewClient extends WebViewClient implements SmsHandler, InstructionHandler {
 
@@ -91,6 +106,70 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             return true;
         }
         return false;
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        // Only implement interception logic when we have both cellular and WiFi interfaces active
+        if (ConnectSdk.getCellularNetwork() == null || ConnectSdk.getWifiNetwork() == null) {
+            return null;
+        }
+        if (shouldFetchThroughCellular(request.getUrl().toString())) {
+            return fetchUrlThroghCellular(request.getUrl().toString());
+        }
+        return null;
+    }
+
+    public boolean shouldFetchThroughCellular(String url) {
+        try {
+            String host = (new URL(url)).getHost();
+            String hostIp = InetAddress.getByName(host).getHostAddress();
+            return ConnectSdk
+                    .getWellKnownConfig()
+                    .getNetworkAuthenticationTargetIps()
+                    .contains(hostIp);
+        } catch (MalformedURLException|UnknownHostException e) {
+            return false;
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public WebResourceResponse fetchUrlThroghCellular(String originalUrl) {
+        String newUrl = originalUrl;
+        int attempts = 0;
+        do {
+            Network interfaceToUse = ConnectSdk.getCellularNetwork();
+            HttpURLConnection connection = null;
+            InputStream inputStream = null;
+            try {
+                connection = (HttpURLConnection)interfaceToUse.openConnection(new URL(newUrl));
+                connection.setInstanceFollowRedirects(false);
+                connection.connect();
+                int responseCode = connection.getResponseCode();
+                attempts += 1;
+                if (responseCode != HTTP_SEE_OTHER
+                    && responseCode != HTTP_MOVED_TEMP
+                    && responseCode != HTTP_MOVED_PERM) {
+                    // Rely on the WebView to close the input stream when finished fetching data
+                    return new WebResourceResponse(
+                            connection.getContentType(),
+                            connection.getContentEncoding(),
+                            connection.getInputStream());
+                }
+                newUrl = connection.getHeaderField("Location");
+
+                // Close the input stream, but do not disconnect the connection as its socket might
+                // be reused during the next request.
+                connection.getInputStream().close();
+
+                if (attempts > ConnectSdk.MAX_REDIRECTS_TO_FOLLOW_FOR_HE) {
+                    return null;
+                }
+            } catch (final IOException e) {
+                return null;
+            }
+        } while (true);
     }
 
     @Override

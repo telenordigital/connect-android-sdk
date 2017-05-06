@@ -95,6 +95,8 @@ public final class ConnectSdk {
     public static final String EXTRA_CONNECT_TOKENS =
             "com.telenor.connect.EXTRA_CONNECT_TOKENS";
 
+    public static final int MAX_REDIRECTS_TO_FOLLOW_FOR_HE = 5;
+
     public static SdkProfile getSdkProfile() {
         Validator.sdkInitialized();
         return sdkProfile;
