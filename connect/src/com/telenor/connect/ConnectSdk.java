@@ -25,6 +25,7 @@ import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 import com.telenor.mobileconnect.MobileConnectSdkProfile;
 import com.telenor.mobileconnect.SimCardStateChangedBroadcastReceiver;
+import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import java.util.ArrayList;
@@ -451,7 +452,20 @@ public final class ConnectSdk {
      * MobileConnect stuff
      */
 
-    public static synchronized void sdkInitializeMobileConnect(
+    public static void sdkInitializeMobileConnect(
+            Context context,
+            OperatorDiscoveryConfig operatorDiscoveryConfig) {
+        OperatorDiscoveryConfig plainConfig =
+                new OperatorDiscoveryAPI.PlainOperatorDiscoveryConfig(
+                        operatorDiscoveryConfig.getOperatorDiscoveryEndpoint(),
+                        operatorDiscoveryConfig.getOperatorDiscoveryClientId(),
+                        operatorDiscoveryConfig.getOperatorDiscoveryClientSecret(),
+                        operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri()
+                );
+        _sdkInitializeMobileConnect(context, plainConfig);
+    }
+
+    private static synchronized void _sdkInitializeMobileConnect(
             Context context,
             OperatorDiscoveryConfig operatorDiscoveryConfig) {
         if (isInitialized()) {

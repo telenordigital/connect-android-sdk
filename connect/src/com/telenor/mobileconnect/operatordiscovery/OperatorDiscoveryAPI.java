@@ -153,4 +153,39 @@ public interface OperatorDiscoveryAPI {
             return getBasePath() + WellKnownAPI.OPENID_CONFIGURATION_PATH;
         }
     }
+
+    class PlainOperatorDiscoveryConfig implements OperatorDiscoveryConfig {
+
+        private String endpoint;
+        private String clientId;
+        private String clientSecret;
+        private String redirectUri;
+
+        public PlainOperatorDiscoveryConfig(String endpoint, String clientId, String clientSecret, String redirectUri) {
+            this.endpoint = endpoint;
+            this.clientId = clientId;
+            this.clientSecret = clientSecret;
+            this.redirectUri = redirectUri;
+        }
+
+        @Override
+        public String getOperatorDiscoveryClientId() {
+            return clientId;
+        }
+
+        @Override
+        public String getOperatorDiscoveryClientSecret() {
+            return clientSecret;
+        }
+
+        @Override
+        public String getOperatorDiscoveryRedirectUri() {
+            return redirectUri;
+        }
+
+        @Override
+        public String getOperatorDiscoveryEndpoint() {
+            return endpoint;
+        }
+    }
 }
