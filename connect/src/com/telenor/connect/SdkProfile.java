@@ -23,9 +23,9 @@ public interface SdkProfile {
     Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales);
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
 
-    void onStartAuthorization(Map<String, String> parameters, OnStartAuthorizationCallback callback);
+    void onStartAuthorization(Map<String, String> parameters, OnStartAuthenticationCallback callback);
 
-    interface OnStartAuthorizationCallback {
+    interface OnStartAuthenticationCallback {
         void onSuccess();
         void onError();
     }

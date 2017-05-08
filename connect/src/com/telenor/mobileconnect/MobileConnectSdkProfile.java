@@ -8,7 +8,6 @@ import android.util.Base64;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.AbstractSdkProfile;
-import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
@@ -23,9 +22,6 @@ import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import retrofit.Callback;
 import retrofit.ResponseCallback;
@@ -117,7 +113,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     @Override
     public void onStartAuthorization(
             final Map<String, String> parameters,
-            final OnStartAuthorizationCallback callback) {
+            final OnStartAuthenticationCallback callback) {
 
         final Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult> odCallbackForMccMnc =
                 new Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {

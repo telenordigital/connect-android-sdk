@@ -25,7 +25,6 @@ import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 import com.telenor.mobileconnect.MobileConnectSdkProfile;
 import com.telenor.mobileconnect.SimCardStateChangedBroadcastReceiver;
-import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import java.util.ArrayList;
@@ -106,7 +105,7 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
+        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthenticationCallback() {
             @Override
             public void onSuccess() {
                 Intent intent = getAuthIntent(parameters);
@@ -135,7 +134,7 @@ public final class ConnectSdk {
                                                  final int customLoadingLayout,
                                                  final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
+        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthenticationCallback() {
             @Override
             public void onSuccess() {
                 Intent intent = getAuthIntent(parameters);

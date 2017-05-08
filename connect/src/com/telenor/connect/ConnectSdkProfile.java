@@ -78,7 +78,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public void onStartAuthorization(Map<String, String> parameters, OnStartAuthorizationCallback callback) {
+    public void onStartAuthorization(Map<String, String> parameters, OnStartAuthenticationCallback callback) {
         callback.onSuccess();
     }
 
