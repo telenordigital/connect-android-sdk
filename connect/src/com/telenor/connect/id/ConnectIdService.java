@@ -102,6 +102,7 @@ public class ConnectIdService {
                         }
                     }
                 });
+
     }
 
     private String getRefreshToken() {

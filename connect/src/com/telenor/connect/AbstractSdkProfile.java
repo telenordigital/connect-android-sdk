@@ -48,7 +48,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                     });
             try {
                 wellKnownResult = wellKnownResultFuture.get();
-            } catch (InterruptedException | ExecutionException | RuntimeException ignored) {
+            } catch (InterruptedException | ExecutionException ignored) {
             }
         }
         return wellKnownResult;

@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.GET;
 import retrofit.http.Header;
@@ -20,11 +21,12 @@ public interface OperatorDiscoveryAPI {
 
     @Headers("Content-Type: application/json")
     @GET("/")
-    OperatorDiscoveryResult getOperatorDiscoveryResult_ForMccMnc(
+    void getOperatorDiscoveryResult_ForMccMnc(
             @Header("Authorization") String auth,
             @Query("Redirect_URL") String redirectUrl,
             @Query("Identified-MCC") String identifiedMcc,
-            @Query("Identified-MNC") String identifiedMnc);
+            @Query("Identified-MNC") String identifiedMnc,
+            Callback<OperatorDiscoveryResult> result);
 
 
     class BodyForMsisdn {
@@ -42,9 +44,10 @@ public interface OperatorDiscoveryAPI {
 
     @Headers("Content-Type: application/json")
     @POST("/")
-    OperatorDiscoveryResult getOperatorDiscoveryResult_ForMsisdn(
+    void getOperatorDiscoveryResult_ForMsisdn(
             @Header("Authorization") String auth,
-            @Body BodyForMsisdn body);
+            @Body BodyForMsisdn body,
+            Callback<OperatorDiscoveryResult> result);
 
 
     class OperatorDiscoveryResult {
@@ -151,41 +154,6 @@ public interface OperatorDiscoveryAPI {
                 return endpoint;
             }
             return getBasePath() + WellKnownAPI.OPENID_CONFIGURATION_PATH;
-        }
-    }
-
-    class PlainOperatorDiscoveryConfig implements OperatorDiscoveryConfig {
-
-        private String endpoint;
-        private String clientId;
-        private String clientSecret;
-        private String redirectUri;
-
-        public PlainOperatorDiscoveryConfig(String endpoint, String clientId, String clientSecret, String redirectUri) {
-            this.endpoint = endpoint;
-            this.clientId = clientId;
-            this.clientSecret = clientSecret;
-            this.redirectUri = redirectUri;
-        }
-
-        @Override
-        public String getOperatorDiscoveryClientId() {
-            return clientId;
-        }
-
-        @Override
-        public String getOperatorDiscoveryClientSecret() {
-            return clientSecret;
-        }
-
-        @Override
-        public String getOperatorDiscoveryRedirectUri() {
-            return redirectUri;
-        }
-
-        @Override
-        public String getOperatorDiscoveryEndpoint() {
-            return endpoint;
         }
     }
 }

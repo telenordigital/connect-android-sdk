@@ -102,16 +102,23 @@ public final class ConnectSdk {
     }
 
     public static synchronized void authenticate(
-            Activity activity,
-            Map<String, String> parameters,
-            int requestCode) {
+            final Activity activity,
+            final Map<String, String> parameters,
+            final int requestCode) {
         Validator.sdkInitialized();
-        if (SdkProfile.DoNext.proceed.equals(sdkProfile.onStartAuthorization(parameters))) {
-            Intent intent = getAuthIntent(parameters);
-            activity.startActivityForResult(intent, requestCode);
-        } else {
-            showAuthCancelMessage(activity);
-        }
+        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
+            @Override
+            public void onSuccess() {
+                Intent intent = getAuthIntent(parameters);
+                activity.startActivityForResult(intent, requestCode);
+            }
+
+            @Override
+            public void onError() {
+                showAuthCancelMessage(activity);
+            }
+        });
+
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
@@ -123,18 +130,24 @@ public final class ConnectSdk {
         return intent;
     }
 
-    public static synchronized void authenticate(Activity activity,
-                                                 Map<String, String> parameters,
-                                                 int customLoadingLayout,
-                                                 int requestCode) {
+    public static synchronized void authenticate(final Activity activity,
+                                                 final Map<String, String> parameters,
+                                                 final int customLoadingLayout,
+                                                 final int requestCode) {
         Validator.sdkInitialized();
-        if (SdkProfile.DoNext.proceed.equals(sdkProfile.onStartAuthorization(parameters))) {
-            Intent intent = getAuthIntent(parameters);
-            intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-            activity.startActivityForResult(intent, requestCode);
-        } else {
-            showAuthCancelMessage(activity);
-        }
+        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
+            @Override
+            public void onSuccess() {
+                Intent intent = getAuthIntent(parameters);
+                intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
+                activity.startActivityForResult(intent, requestCode);
+            }
+
+            @Override
+            public void onError() {
+                showAuthCancelMessage(activity);
+            }
+        });
     }
 
     private static void showAuthCancelMessage(Activity activity) {
@@ -452,20 +465,7 @@ public final class ConnectSdk {
      * MobileConnect stuff
      */
 
-    public static void sdkInitializeMobileConnect(
-            Context context,
-            OperatorDiscoveryConfig operatorDiscoveryConfig) {
-        OperatorDiscoveryConfig plainConfig =
-                new OperatorDiscoveryAPI.PlainOperatorDiscoveryConfig(
-                        operatorDiscoveryConfig.getOperatorDiscoveryEndpoint(),
-                        operatorDiscoveryConfig.getOperatorDiscoveryClientId(),
-                        operatorDiscoveryConfig.getOperatorDiscoveryClientSecret(),
-                        operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri()
-                );
-        _sdkInitializeMobileConnect(context, plainConfig);
-    }
-
-    private static synchronized void _sdkInitializeMobileConnect(
+    public static synchronized void sdkInitializeMobileConnect(
             Context context,
             OperatorDiscoveryConfig operatorDiscoveryConfig) {
         if (isInitialized()) {

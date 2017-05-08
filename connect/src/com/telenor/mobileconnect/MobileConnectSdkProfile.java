@@ -8,6 +8,7 @@ import android.util.Base64;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.AbstractSdkProfile;
+import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
@@ -28,6 +29,8 @@ import java.util.concurrent.Future;
 
 import retrofit.Callback;
 import retrofit.ResponseCallback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
@@ -112,23 +115,74 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public DoNext onStartAuthorization(Map<String, String> parameters) {
-        OperatorDiscoveryAPI.OperatorDiscoveryResult odResult = null;
+    public void onStartAuthorization(
+            final Map<String, String> parameters,
+            final OnStartAuthorizationCallback callback) {
 
-        final String msisdn = readPhoneNumber();
+        final Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult> odCallbackForMccMnc =
+                new Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
+                    @Override
+                    public void success(OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult, Response response) {
+                        if (isInitialized || initialize(operatorDiscoveryResult)) {
+                            callback.onSuccess();
+                            return;
+                        }
+                        callback.onError();
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        callback.onError();
+                    }
+                };
+
+        final Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult> odCallbackForMsisdn =
+                new Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
+                    @Override
+                    public void success(OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult, Response response) {
+                        parameters.put("login_hint", String.format("ENCR_MSISDN:%s", operatorDiscoveryResult.getSubscriberId()));
+                        odCallbackForMccMnc.success(operatorDiscoveryResult, response);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        if (isInitialized) {
+                            callback.onSuccess();
+                            return;
+                        }
+
+                        TelephonyManager phMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                        String networkOperator = phMgr.getNetworkOperator();
+
+                        if (TextUtils.isEmpty(networkOperator)) {
+                            callback.onError();
+                            return;
+                        }
+
+                        if (!TextUtils.isEmpty(networkOperator)) {
+                        final String mcc = networkOperator.substring(0, 3);
+                        final String mnc = networkOperator.substring(3);
+                        getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
+                                getOperatorDiscoveryAuthHeader(),
+                                operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
+                                mcc,
+                                mnc,
+                                odCallbackForMccMnc);
+                        }
+                    }
+                };
+
+        String msisdn = readPhoneNumber();
         if (msisdn != null) {
-            odResult = getOperatorDiscoveryResult(msisdn);
+            getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMsisdn(
+                    getOperatorDiscoveryAuthHeader(),
+                    new OperatorDiscoveryAPI.BodyForMsisdn(
+                            operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
+                            msisdn),
+                    odCallbackForMsisdn);
+        } else {
+            odCallbackForMsisdn.failure(null);
         }
-
-        if (odResult != null) {
-            parameters.put("login_hint", String.format("ENCR_MSISDN:%s", odResult.getSubscriberId()));
-        }
-
-        if (isInitialized || initialize(odResult)) {
-            return DoNext.proceed;
-        }
-
-        return DoNext.cancel;
     }
 
     private String readPhoneNumber() {
@@ -137,52 +191,6 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
             String msisdn = phMgr.getLine1Number();
             return (TextUtils.isEmpty(msisdn) ? null : msisdn);
         } catch (RuntimeException ignored) {
-        }
-        return null;
-    }
-
-    private OperatorDiscoveryAPI.OperatorDiscoveryResult getOperatorDiscoveryResult() {
-        TelephonyManager phMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String networkOperator = phMgr.getNetworkOperator();
-        if (!TextUtils.isEmpty(networkOperator)) {
-            final String mcc = networkOperator.substring(0, 3);
-            final String mnc = networkOperator.substring(3);
-            Future<OperatorDiscoveryAPI.OperatorDiscoveryResult> operatorDiscoveryResultFuture =
-                    sExecutor.submit(new Callable<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
-                        @Override
-                        public OperatorDiscoveryAPI.OperatorDiscoveryResult call() throws Exception {
-                            return getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
-                                    getOperatorDiscoveryAuthHeader(),
-                                    operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
-                                    mcc,
-                                    mnc
-                            );
-                        }
-                    });
-            try {
-                return operatorDiscoveryResultFuture.get();
-            } catch (InterruptedException | ExecutionException | RuntimeException ignored) {
-            }
-        }
-        return null;
-    }
-
-    private OperatorDiscoveryAPI.OperatorDiscoveryResult getOperatorDiscoveryResult(final String msisdn) {
-        Future<OperatorDiscoveryAPI.OperatorDiscoveryResult> operatorDiscoveryResultFuture =
-                sExecutor.submit(new Callable<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
-                    @Override
-                    public OperatorDiscoveryAPI.OperatorDiscoveryResult call() throws Exception {
-                        return getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMsisdn(
-                                getOperatorDiscoveryAuthHeader(),
-                                new OperatorDiscoveryAPI.BodyForMsisdn(
-                                        operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
-                                        msisdn)
-                        );
-                    }
-                });
-        try {
-            return operatorDiscoveryResultFuture.get();
-        } catch (InterruptedException | ExecutionException | RuntimeException ignored) {
         }
         return null;
     }
@@ -198,12 +206,6 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     private boolean initialize(OperatorDiscoveryAPI.OperatorDiscoveryResult odResult) {
         isInitialized = false;
         try {
-            if (odResult == null) {
-                odResult = getOperatorDiscoveryResult();
-            }
-            if (odResult == null) {
-                return false;
-            }
             operatorDiscoveryResult = odResult;
             HttpUrl url = getApiUrl();
             MobileConnectAPI mobileConnectApi =
@@ -226,10 +228,8 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     public void deInitialize() {
-        deInitialize();
-        setConnectIdService(null);
+        super.deInitialize();
         operatorDiscoveryApi = null;
-        operatorDiscoveryResult = null;
         isInitialized = false;
     }
 

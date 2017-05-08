@@ -78,8 +78,8 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public DoNext onStartAuthorization(Map<String, String> parameters) {
-        return DoNext.proceed;
+    public void onStartAuthorization(Map<String, String> parameters, OnStartAuthorizationCallback callback) {
+        callback.onSuccess();
     }
 
     @Override

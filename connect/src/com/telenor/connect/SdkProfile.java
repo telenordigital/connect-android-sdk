@@ -23,6 +23,10 @@ public interface SdkProfile {
     Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales);
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
 
-    enum DoNext {proceed, cancel}
-    DoNext onStartAuthorization(Map<String, String> parameters);
+    void onStartAuthorization(Map<String, String> parameters, OnStartAuthorizationCallback callback);
+
+    interface OnStartAuthorizationCallback {
+        void onSuccess();
+        void onError();
+    }
 }
