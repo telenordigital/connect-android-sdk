@@ -114,31 +114,20 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     @Override
     public DoNext onAuthorize(Map<String, String> parameters) {
         OperatorDiscoveryAPI.OperatorDiscoveryResult odResult = null;
+
         final String msisdn = readPhoneNumber();
         if (msisdn != null) {
             odResult = getOperatorDiscoveryResult(msisdn);
         }
+
         if (odResult != null) {
             parameters.put("login_hint", String.format("ENCR_MSISDN:%s", odResult.getSubscriberId()));
-            if (isInitialized) {
-                return DoNext.proceed;
-            } else {
-                if (initialize(odResult)) {
-                    return DoNext.proceed;
-                }
-            }
-        } else {
-            if (isInitialized) {
-                return DoNext.proceed;
-            } else {
-                odResult = getOperatorDiscoveryResult();
-                if (odResult != null) {
-                    if (initialize(odResult)) {
-                        return DoNext.proceed;
-                    }
-                }
-            }
         }
+
+        if (isInitialized || initialize(odResult)) {
+            return DoNext.proceed;
+        }
+
         return DoNext.cancel;
     }
 
@@ -209,6 +198,12 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     private boolean initialize(OperatorDiscoveryAPI.OperatorDiscoveryResult odResult) {
         isInitialized = false;
         try {
+            if (odResult == null) {
+                odResult = getOperatorDiscoveryResult();
+            }
+            if (odResult == null) {
+                return false;
+            }
             operatorDiscoveryResult = odResult;
             HttpUrl url = getApiUrl();
             MobileConnectAPI mobileConnectApi =
@@ -224,9 +219,10 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                             getClientId(),
                             getRedirectUri()));
             isInitialized = true;
+            return true;
         } catch (RuntimeException ignored) {
         }
-        return isInitialized;
+        return false;
     }
 
     public void deInitialize() {
