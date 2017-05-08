@@ -112,7 +112,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public DoNext onAuthorize(Map<String, String> parameters) {
+    public DoNext onStartAuthorization(Map<String, String> parameters) {
         OperatorDiscoveryAPI.OperatorDiscoveryResult odResult = null;
 
         final String msisdn = readPhoneNumber();

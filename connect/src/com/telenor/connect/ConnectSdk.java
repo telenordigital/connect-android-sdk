@@ -106,7 +106,7 @@ public final class ConnectSdk {
             Map<String, String> parameters,
             int requestCode) {
         Validator.sdkInitialized();
-        if (SdkProfile.DoNext.proceed.equals(sdkProfile.onAuthorize(parameters))) {
+        if (SdkProfile.DoNext.proceed.equals(sdkProfile.onStartAuthorization(parameters))) {
             Intent intent = getAuthIntent(parameters);
             activity.startActivityForResult(intent, requestCode);
         } else {
@@ -128,7 +128,7 @@ public final class ConnectSdk {
                                                  int customLoadingLayout,
                                                  int requestCode) {
         Validator.sdkInitialized();
-        if (SdkProfile.DoNext.proceed.equals(sdkProfile.onAuthorize(parameters))) {
+        if (SdkProfile.DoNext.proceed.equals(sdkProfile.onStartAuthorization(parameters))) {
             Intent intent = getAuthIntent(parameters);
             intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
             activity.startActivityForResult(intent, requestCode);

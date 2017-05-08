@@ -24,5 +24,5 @@ public interface SdkProfile {
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
 
     enum DoNext {proceed, cancel}
-    DoNext onAuthorize(Map<String, String> parameters);
+    DoNext onStartAuthorization(Map<String, String> parameters);
 }
