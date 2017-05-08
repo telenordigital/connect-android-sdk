@@ -111,7 +111,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public void onStartAuthorization(
+    public void onStartAuthentication(
             final Map<String, String> parameters,
             final OnStartAuthenticationCallback callback) {
 

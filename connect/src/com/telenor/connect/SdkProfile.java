@@ -23,7 +23,7 @@ public interface SdkProfile {
     Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales);
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
 
-    void onStartAuthorization(Map<String, String> parameters, OnStartAuthenticationCallback callback);
+    void onStartAuthentication(Map<String, String> parameters, OnStartAuthenticationCallback callback);
 
     interface OnStartAuthenticationCallback {
         void onSuccess();
