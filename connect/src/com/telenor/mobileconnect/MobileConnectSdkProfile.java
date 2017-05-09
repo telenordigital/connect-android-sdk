@@ -159,7 +159,6 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                             return;
                         }
 
-                        if (!TextUtils.isEmpty(networkOperator)) {
                         final String mcc = networkOperator.substring(0, 3);
                         final String mnc = networkOperator.substring(3);
                         getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
@@ -168,7 +167,6 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                                 mcc,
                                 mnc,
                                 odCallbackForMccMnc);
-                        }
                     }
                 };
 
