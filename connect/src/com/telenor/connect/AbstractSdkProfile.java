@@ -13,15 +13,14 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public abstract class AbstractSdkProfile implements SdkProfile {
-    protected static ExecutorService sExecutor = Executors.newSingleThreadExecutor();
 
-    private ConnectIdService connectIdService;
-    private WellKnownAPI.WellKnownConfig wellKnownConfig;
+    private volatile ConnectIdService connectIdService;
+    private volatile WellKnownAPI.WellKnownConfig wellKnownConfig;
 
     protected Context context;
     protected boolean useStaging;
     protected boolean confidentialClient;
-    private boolean isInitialized = false;
+    private volatile boolean isInitialized = false;
 
     public AbstractSdkProfile(
             Context context,

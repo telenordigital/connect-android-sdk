@@ -599,21 +599,7 @@ notable ones.
 
 #### Initializing SDK with Mobile Connect
 
-##### Step 1: implement OperatorDiscoveryConfig interface
-
-
-```Java
-public interface OperatorDiscoveryConfig {
-    String getOperatorDiscoveryClientId();
-    String getOperatorDiscoveryClientSecret();
-    String getOperatorDiscoveryRedirectUri();
-    String getOperatorDiscoveryEndpoint();
-}
-```
-
-```Java
-public static class MyOperatorDiscoveryConfig implements OperatorDiscoveryConfig {
-```
+##### Step 1: Implement your own logic for safekeeping secrets in your application
 
 > The example implementation found in the example app is just a simple example. 
 > Developers are encouraged to implement their own scheme to keep this information secret.
@@ -621,6 +607,11 @@ public static class MyOperatorDiscoveryConfig implements OperatorDiscoveryConfig
 ##### Step 2: initialize SDK at the application startup
 
 ```Java
+
+appConfig = ...
+
+...
+
 public class ExampleApplication extends Application {
 
     @Override
@@ -628,7 +619,13 @@ public class ExampleApplication extends Application {
         super.onCreate();
         ConnectSdk.sdkInitializeMobileConnect(
                 getApplicationContext(),
-                new MyOperatorDiscoveryConfig());
+                OperatorDiscoveryConfig
+                        .builder()
+                        .endpoint(appConfig.operatorDiscoveryEndpoint())
+                        .clientId(appConfig.operatorDiscoveryClientId())
+                        .clientSecret(appConfig.operatorDiscoverySecret())
+                        .redirectUri(appConfig.operatorDiscoveryRedirectUri())
+                        .build());
     }
 }
 ```

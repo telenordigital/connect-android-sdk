@@ -16,12 +16,14 @@ import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.mobileconnect.id.MobileConnectAPI;
-import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
+import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import retrofit.Callback;
 import retrofit.ResponseCallback;
@@ -31,8 +33,8 @@ import retrofit.client.Response;
 public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
     private OperatorDiscoveryConfig operatorDiscoveryConfig;
-    private OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult;
-    private OperatorDiscoveryAPI operatorDiscoveryApi;
+    private volatile OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult;
+    private volatile OperatorDiscoveryAPI operatorDiscoveryApi;
 
     public MobileConnectSdkProfile(
             Context context,
@@ -110,15 +112,18 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public void onStartAuthentication(
+    public void onStartAuthorization(
             final Map<String, String> parameters,
-            final OnStartAuthenticationCallback callback) {
+            final OnStartAuthorizationCallback callback) {
 
         final Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult> odCallbackForMccMnc =
                 new Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
                     @Override
                     public void success(OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult, Response response) {
-                        if (isInitialized() || initialize(operatorDiscoveryResult)) {
+                        if (!isInitialized()) {
+                            initialize(operatorDiscoveryResult);
+                        }
+                        if (isInitialized()) {
                             callback.onSuccess();
                             return;
                         }
@@ -166,6 +171,8 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                         }
                     }
                 };
+
+
 
         String msisdn = readPhoneNumber();
         if (msisdn != null) {
