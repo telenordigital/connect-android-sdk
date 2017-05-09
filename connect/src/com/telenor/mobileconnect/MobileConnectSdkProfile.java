@@ -16,14 +16,12 @@ import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.mobileconnect.id.MobileConnectAPI;
-import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
+import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 import retrofit.Callback;
 import retrofit.ResponseCallback;
