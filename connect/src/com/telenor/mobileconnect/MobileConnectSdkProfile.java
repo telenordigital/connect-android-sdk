@@ -33,7 +33,6 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     private OperatorDiscoveryConfig operatorDiscoveryConfig;
     private OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult;
     private OperatorDiscoveryAPI operatorDiscoveryApi;
-    private boolean isInitialized = false;
 
     public MobileConnectSdkProfile(
             Context context,
@@ -119,7 +118,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                 new Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
                     @Override
                     public void success(OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult, Response response) {
-                        if (isInitialized || initialize(operatorDiscoveryResult)) {
+                        if (isInitialized() || initialize(operatorDiscoveryResult)) {
                             callback.onSuccess();
                             return;
                         }
@@ -142,7 +141,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
                     @Override
                     public void failure(RetrofitError error) {
-                        if (isInitialized) {
+                        if (isInitialized()) {
                             callback.onSuccess();
                             return;
                         }
@@ -200,33 +199,28 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     private boolean initialize(OperatorDiscoveryAPI.OperatorDiscoveryResult odResult) {
-        isInitialized = false;
-        try {
-            operatorDiscoveryResult = odResult;
-            HttpUrl url = getApiUrl();
-            MobileConnectAPI mobileConnectApi =
-                    RestHelper.getMobileConnectApi(
-                            String.format(
-                                    "%s://%s",
-                                    url.scheme(),
-                                    url.host()));
-            setConnectIdService(
-                    new ConnectIdService(
-                            new TokenStore(context),
-                            new MobileConnectAPIAdapter(mobileConnectApi),
-                            getClientId(),
-                            getRedirectUri()));
-            isInitialized = true;
-            return true;
-        } catch (RuntimeException ignored) {
-        }
-        return false;
+        setInitialized(false);
+        operatorDiscoveryResult = odResult;
+        HttpUrl url = getApiUrl();
+        MobileConnectAPI mobileConnectApi =
+                RestHelper.getMobileConnectApi(
+                        String.format(
+                                "%s://%s",
+                                url.scheme(),
+                                url.host()));
+        setConnectIdService(
+                new ConnectIdService(
+                        new TokenStore(context),
+                        new MobileConnectAPIAdapter(mobileConnectApi),
+                        getClientId(),
+                        getRedirectUri()));
+        return super.initialize();
     }
 
     public void deInitialize() {
         super.deInitialize();
         operatorDiscoveryApi = null;
-        isInitialized = false;
+        setInitialized(false);
     }
 
     @Override

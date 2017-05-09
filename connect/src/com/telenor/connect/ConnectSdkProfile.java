@@ -79,6 +79,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
 
     @Override
     public void onStartAuthentication(Map<String, String> parameters, OnStartAuthenticationCallback callback) {
+        initialize();
         callback.onSuccess();
     }
 
@@ -109,4 +110,5 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     public void setRedirectUri(String redirectUri) {
         this.redirectUri = redirectUri;
     }
+
 }

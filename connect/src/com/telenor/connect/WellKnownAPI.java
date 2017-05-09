@@ -2,6 +2,7 @@ package com.telenor.connect;
 
 import com.google.gson.annotations.SerializedName;
 
+import retrofit.Callback;
 import retrofit.http.GET;
 import retrofit.http.Headers;
 
@@ -11,7 +12,7 @@ public interface WellKnownAPI {
 
     @Headers("Content-Type: application/json")
     @GET("/")
-    WellKnownConfig getWellKnownConfig();
+    void getWellKnownConfig(Callback<WellKnownConfig> callback);
 
     class WellKnownConfig {
         @SerializedName("issuer")

@@ -5,21 +5,23 @@ import android.content.Context;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.utils.RestHelper;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public abstract class AbstractSdkProfile implements SdkProfile {
     protected static ExecutorService sExecutor = Executors.newSingleThreadExecutor();
 
     private ConnectIdService connectIdService;
-    private WellKnownAPI.WellKnownConfig wellKnownResult;
+    private WellKnownAPI.WellKnownConfig wellKnownConfig;
 
     protected Context context;
     protected boolean useStaging;
     protected boolean confidentialClient;
+    private boolean isInitialized = false;
 
     public AbstractSdkProfile(
             Context context,
@@ -30,28 +32,15 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         this.confidentialClient = confidentialClient;
     }
 
+    protected abstract String getWellKnownEndpoint();
+
     @Override
     public Context getContext() {
         return context;
     }
 
     public WellKnownAPI.WellKnownConfig getWellKnownConfig() {
-        if (wellKnownResult == null) {
-            Future<WellKnownAPI.WellKnownConfig> wellKnownResultFuture =
-                    sExecutor.submit(new Callable<WellKnownAPI.WellKnownConfig>() {
-                        @Override
-                        public WellKnownAPI.WellKnownConfig call() throws Exception {
-                            return RestHelper.
-                                    getWellKnownApi(getWellKnownEndpoint()).
-                                    getWellKnownConfig();
-                        }
-                    });
-            try {
-                wellKnownResult = wellKnownResultFuture.get();
-            } catch (InterruptedException | ExecutionException ignored) {
-            }
-        }
-        return wellKnownResult;
+        return wellKnownConfig;
     }
 
     @Override
@@ -68,9 +57,41 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         this.connectIdService = connectIdService;
     }
 
-    protected void deInitialize() {
-        wellKnownResult = null;
+    protected boolean isInitialized() {
+        return isInitialized;
     }
 
-    protected abstract String getWellKnownEndpoint();
+    protected void  setInitialized(boolean isInitialized) {
+        this.isInitialized = isInitialized;
+    }
+
+    protected void deInitialize() {
+        isInitialized = false;
+        wellKnownConfig = null;
+    }
+
+    protected boolean initialize() {
+        if (!isInitialized) {
+            fetchWellKnownConfig();
+            isInitialized = true;
+        }
+        return isInitialized;
+    }
+
+    private void fetchWellKnownConfig() {
+        RestHelper.
+                getWellKnownApi(getWellKnownEndpoint()).getWellKnownConfig(
+                new Callback<WellKnownAPI.WellKnownConfig>() {
+                    @Override
+                    public void success(WellKnownAPI.WellKnownConfig wellKnownConfig, Response response) {
+                        AbstractSdkProfile.this.wellKnownConfig = wellKnownConfig;
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        wellKnownConfig = null;
+                    }
+                });
+    }
+
 }
