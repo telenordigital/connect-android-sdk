@@ -2,10 +2,10 @@ package com.telenor.mobileconnect.operatordiscovery;
 
 public final class OperatorDiscoveryConfig {
 
-    String operatorDiscoveryEndpoint;
-    String operatorDiscoveryClientId;
-    String operatorDiscoveryClientSecret;
-    String operatorDiscoveryRedirectUri;
+    private String operatorDiscoveryEndpoint;
+    private String operatorDiscoveryClientId;
+    private String operatorDiscoveryClientSecret;
+    private String operatorDiscoveryRedirectUri;
 
     private OperatorDiscoveryConfig() {
     }
