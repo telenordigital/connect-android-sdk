@@ -146,27 +146,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
                     @Override
                     public void failure(RetrofitError error) {
-                        if (isInitialized()) {
-                            callback.onSuccess();
-                            return;
-                        }
-
-                        TelephonyManager phMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-                        String networkOperator = phMgr.getNetworkOperator();
-
-                        if (TextUtils.isEmpty(networkOperator)) {
-                            callback.onError();
-                            return;
-                        }
-
-                        final String mcc = networkOperator.substring(0, 3);
-                        final String mnc = networkOperator.substring(3);
-                        getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
-                                getOperatorDiscoveryAuthHeader(),
-                                operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
-                                mcc,
-                                mnc,
-                                odCallbackForMccMnc);
+                        tryMccMnc(callback, odCallbackForMccMnc);
                     }
                 };
 
@@ -181,8 +161,34 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                             msisdn),
                     odCallbackForMsisdn);
         } else {
-            odCallbackForMsisdn.failure(null);
+            tryMccMnc(callback, odCallbackForMccMnc);
         }
+    }
+
+    private void tryMccMnc(
+            final OnStartAuthorizationCallback callback,
+            Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult> odCallbackForMccMnc) {
+        if (isInitialized()) {
+            callback.onSuccess();
+            return;
+        }
+
+        TelephonyManager phMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String networkOperator = phMgr.getNetworkOperator();
+
+        if (TextUtils.isEmpty(networkOperator)) {
+            callback.onError();
+            return;
+        }
+
+        final String mcc = networkOperator.substring(0, 3);
+        final String mnc = networkOperator.substring(3);
+        getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
+                getOperatorDiscoveryAuthHeader(),
+                operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
+                mcc,
+                mnc,
+                odCallbackForMccMnc);
     }
 
     private String readPhoneNumber() {

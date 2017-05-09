@@ -1,7 +1,5 @@
 package com.telenor.mobileconnect.operatordiscovery;
 
-import org.immutables.value.Value;
-
 public final class OperatorDiscoveryConfig {
 
     String operatorDiscoveryEndpoint;
