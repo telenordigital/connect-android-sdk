@@ -12,8 +12,14 @@ public class SimCardStateChangedBroadcastReceiver extends BroadcastReceiver {
     private static SimCardStateChangedBroadcastReceiver sSimCardChangedReceiver =
             new SimCardStateChangedBroadcastReceiver();
 
+
+    // This action is undocumented (for the time being).
+    // For more info, see the following link:
+    // http://stackoverflow.com/questions/10528464/how-to-monitor-sim-state-change
+    private static final String SIM_STATE_CHANGED_ACTION = "android.intent.action.SIM_STATE_CHANGED";
+
     private static IntentFilter SIM_CARD_CHANGED_INTENT_FILTER =
-            new IntentFilter("android.intent.action.SIM_STATE_CHANGED");
+            new IntentFilter(SIM_STATE_CHANGED_ACTION);
 
     private SimCardStateChangedBroadcastReceiver() {
     }

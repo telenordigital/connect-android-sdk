@@ -27,12 +27,12 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
 
     @Override
     public HttpUrl getApiUrl() {
-        HttpUrl.Builder builder = new HttpUrl.Builder();
-        builder.scheme("https");
-        builder.host(useStaging
-                ? "connect.staging.telenordigital.com"
-                : "connect.telenordigital.com");
-        return builder.build();
+        return new HttpUrl.Builder()
+                .scheme("https")
+                .host(useStaging
+                        ? "connect.staging.telenordigital.com"
+                        : "connect.telenordigital.com")
+                .build();
     }
 
     @Override

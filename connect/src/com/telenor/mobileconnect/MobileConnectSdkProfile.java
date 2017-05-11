@@ -8,7 +8,6 @@ import android.util.Base64;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.AbstractSdkProfile;
-import com.telenor.connect.SdkProfile;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
@@ -148,7 +147,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
     private OperatorDiscoveryAPI getOperatorDiscoveryApi() {
         if (operatorDiscoveryApi == null) {
-            operatorDiscoveryApi = RestHelper.getOperatorDiscoveryAPI(
+            operatorDiscoveryApi = RestHelper.getOperatorDiscoveryApi(
                     operatorDiscoveryConfig.getOperatorDiscoveryEndpoint());
         }
         return operatorDiscoveryApi;
@@ -211,37 +210,37 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
         @Override
         public void getAccessTokens(
-                String grant_type,
+                String grantType,
                 String code,
-                String redirect_uri,
-                String client_id,
+                String redirectUri,
+                String clientId,
                 Callback<ConnectTokensTO> tokens) {
             mobileConnectApi.getAccessTokens(
                     getAuthorizationHeader(),
                     operatorDiscoveryResult.getPath("token"),
-                    grant_type,
+                    grantType,
                     code,
-                    redirect_uri,
+                    redirectUri,
                     tokens);
         }
 
         @Override
         public void refreshAccessTokens(
-                String grant_type,
-                String refresh_token,
-                String client_id,
+                String grantType,
+                String refreshToken,
+                String clientId,
                 Callback<ConnectTokensTO> tokens) {
             mobileConnectApi.refreshAccessTokens(
                     getAuthorizationHeader(),
                     operatorDiscoveryResult.getPath("token"),
-                    grant_type,
-                    refresh_token,
+                    grantType,
+                    refreshToken,
                     tokens);
         }
 
         @Override
         public void revokeToken(
-                String client_id,
+                String clientId,
                 String token,
                 ResponseCallback callback) {
             mobileConnectApi.revokeToken(

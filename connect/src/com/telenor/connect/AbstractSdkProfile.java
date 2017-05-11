@@ -60,7 +60,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         return isInitialized;
     }
 
-    protected void  setInitialized(boolean isInitialized) {
+    protected void setInitialized(boolean isInitialized) {
         this.isInitialized = isInitialized;
     }
 

@@ -31,7 +31,7 @@ public class RestHelper {
         return buildApi(endpoint).create(WellKnownAPI.class);
     }
 
-    public static OperatorDiscoveryAPI getOperatorDiscoveryAPI(String endpoint) {
+    public static OperatorDiscoveryAPI getOperatorDiscoveryApi(String endpoint) {
         final OkHttpClient httpClient = new OkHttpClient();
         httpClient.setConnectTimeout(10, TimeUnit.SECONDS);
         httpClient.setReadTimeout(10, TimeUnit.SECONDS);
