@@ -8,6 +8,7 @@ import android.util.Base64;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.AbstractSdkProfile;
+import com.telenor.connect.SdkProfile;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
@@ -118,14 +119,11 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                 new Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
                     @Override
                     public void success(OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult, Response response) {
-                        if (!isInitialized()) {
-                            initialize(operatorDiscoveryResult);
-                        }
                         if (isInitialized()) {
                             callback.onSuccess();
                             return;
                         }
-                        callback.onError();
+                        initAndContinue(operatorDiscoveryResult, callback);
                     }
 
                     @Override
@@ -207,8 +205,9 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
         return operatorDiscoveryApi;
     }
 
-    private boolean initialize(OperatorDiscoveryAPI.OperatorDiscoveryResult odResult) {
-        setInitialized(false);
+    private void initAndContinue(
+            OperatorDiscoveryAPI.OperatorDiscoveryResult odResult,
+            OnStartAuthorizationCallback callback) {
         operatorDiscoveryResult = odResult;
         HttpUrl url = getApiUrl();
         MobileConnectAPI mobileConnectApi =
@@ -223,7 +222,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                         new MobileConnectAPIAdapter(mobileConnectApi),
                         getClientId(),
                         getRedirectUri()));
-        return super.initialize();
+        initializeAndContinueAuthorizationFlow(callback);
     }
 
     public void deInitialize() {

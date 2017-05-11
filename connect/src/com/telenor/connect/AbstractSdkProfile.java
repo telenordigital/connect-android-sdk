@@ -69,28 +69,27 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         wellKnownConfig = null;
     }
 
-    protected boolean initialize() {
-        if (!isInitialized) {
-            fetchWellKnownConfig();
-            isInitialized = true;
+    protected void initializeAndContinueAuthorizationFlow(final OnStartAuthorizationCallback callback) {
+        if (isInitialized) {
+            callback.onSuccess();
+            return;
         }
-        return isInitialized;
-    }
-
-    private void fetchWellKnownConfig() {
         RestHelper.
                 getWellKnownApi(getWellKnownEndpoint()).getWellKnownConfig(
                 new Callback<WellKnownAPI.WellKnownConfig>() {
                     @Override
-                    public void success(WellKnownAPI.WellKnownConfig wellKnownConfig, Response response) {
-                        AbstractSdkProfile.this.wellKnownConfig = wellKnownConfig;
+                    public void success(WellKnownAPI.WellKnownConfig config, Response response) {
+                        wellKnownConfig = config;
+                        isInitialized = true;
+                        callback.onSuccess();
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
                         wellKnownConfig = null;
+                        isInitialized = true;
+                        callback.onSuccess();
                     }
                 });
     }
-
 }
