@@ -117,7 +117,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             return null;
         }
         if (shouldFetchThroughCellular(request.getUrl().toString())) {
-            return fetchUrlThroghCellular(request.getUrl().toString());
+            return fetchUrlTroughCellular(request.getUrl().toString());
         }
         return null;
     }
@@ -136,7 +136,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public WebResourceResponse fetchUrlThroghCellular(String originalUrl) {
+    public WebResourceResponse fetchUrlTroughCellular(String originalUrl) {
         String newUrl = originalUrl;
         int attempts = 0;
         do {
@@ -158,6 +158,9 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                             connection.getInputStream());
                 }
                 newUrl = connection.getHeaderField("Location");
+                interfaceToUse = shouldFetchThroughCellular(newUrl)
+                        ? ConnectSdk.getCellularNetwork()
+                        : ConnectSdk.getWifiNetwork();
                 // Close the input stream, but do not disconnect the connection as its socket might
                 // be reused during the next request.
                 connection.getInputStream().close();
