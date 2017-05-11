@@ -111,8 +111,9 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     @Override
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        // Only implement interception logic when we have both cellular and WiFi interfaces active
-        if (ConnectSdk.getCellularNetwork() == null || ConnectSdk.getWifiNetwork() == null) {
+        boolean shouldSkipInterceptionLogic
+                = ConnectSdk.getCellularNetwork() == null || ConnectSdk.getWifiNetwork() == null;
+        if (shouldSkipInterceptionLogic) {
             return null;
         }
         if (shouldFetchThroughCellular(request.getUrl().toString())) {
@@ -140,10 +141,9 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         int attempts = 0;
         do {
             Network interfaceToUse = ConnectSdk.getCellularNetwork();
-            HttpURLConnection connection = null;
-            InputStream inputStream = null;
             try {
-                connection = (HttpURLConnection)interfaceToUse.openConnection(new URL(newUrl));
+                HttpURLConnection connection
+                        = (HttpURLConnection)interfaceToUse.openConnection(new URL(newUrl));
                 connection.setInstanceFollowRedirects(false);
                 connection.connect();
                 int responseCode = connection.getResponseCode();
@@ -158,18 +158,14 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                             connection.getInputStream());
                 }
                 newUrl = connection.getHeaderField("Location");
-
                 // Close the input stream, but do not disconnect the connection as its socket might
                 // be reused during the next request.
                 connection.getInputStream().close();
-
-                if (attempts > ConnectSdk.MAX_REDIRECTS_TO_FOLLOW_FOR_HE) {
-                    return null;
-                }
             } catch (final IOException e) {
                 return null;
             }
-        } while (true);
+        } while (attempts <= ConnectSdk.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
+        return null;
     }
 
     @Override

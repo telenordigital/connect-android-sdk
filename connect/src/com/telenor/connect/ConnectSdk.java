@@ -362,14 +362,6 @@ public final class ConnectSdk {
         return tel.getNetworkOperator();
     }
 
-    public static String getMccMncLoginHint() {
-        String mccMnc = getMccMnc();
-        if (mccMnc.isEmpty()) {
-            return null;
-        }
-        return String.format("MCCMNC:%s", mccMnc);
-    }
-
     public static void setLocales(Locale... locales) {
         sLocales = new ArrayList<Locale>(Arrays.asList(locales));
     }
@@ -533,12 +525,10 @@ public final class ConnectSdk {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static void initalizeCellularNetwork() {
-        NetworkRequest.Builder builder = new NetworkRequest.Builder();
-
-        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-        builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
-
-        NetworkRequest networkRequest = builder.build();
+        NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                .build();
         connectivityManager.requestNetwork(
                 networkRequest,
                 new ConnectivityManager.NetworkCallback() {
@@ -552,12 +542,10 @@ public final class ConnectSdk {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static void initalizeWiFiNetwork() {
-        NetworkRequest.Builder builder = new NetworkRequest.Builder();
-
-        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-        builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
-
-        NetworkRequest networkRequest = builder.build();
+        NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build();
         connectivityManager.requestNetwork(
                 networkRequest,
                 new ConnectivityManager.NetworkCallback() {
@@ -578,7 +566,9 @@ public final class ConnectSdk {
         if (null == connectivityManager) {
             return;
         }
-        initalizeCellularNetwork();
-        initalizeWiFiNetwork();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            initalizeCellularNetwork();
+            initalizeWiFiNetwork();
+        }
     }
 }
