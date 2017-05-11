@@ -123,16 +123,22 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     }
 
     public boolean shouldFetchThroughCellular(String url) {
+        if (ConnectSdk.getWellKnownConfig() == null
+                || ConnectSdk.getWellKnownConfig().getNetworkAuthenticationTargetIps() == null
+                || ConnectSdk.getWellKnownConfig().getNetworkAuthenticationTargetIps().isEmpty()) {
+            return false;
+        }
+        String hostIp;
         try {
             String host = (new URL(url)).getHost();
-            String hostIp = InetAddress.getByName(host).getHostAddress();
-            return ConnectSdk
-                    .getWellKnownConfig()
-                    .getNetworkAuthenticationTargetIps()
-                    .contains(hostIp);
+            hostIp = InetAddress.getByName(host).getHostAddress();
         } catch (MalformedURLException|UnknownHostException e) {
             return false;
         }
+        return ConnectSdk
+                .getWellKnownConfig()
+                .getNetworkAuthenticationTargetIps()
+                .contains(hostIp);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
