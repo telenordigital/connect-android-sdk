@@ -117,7 +117,7 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
+        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
             @Override
             public void onSuccess() {
                 Intent intent = getAuthIntent(parameters);
@@ -146,7 +146,7 @@ public final class ConnectSdk {
                                                  final int customLoadingLayout,
                                                  final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
+        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
             @Override
             public void onSuccess() {
                 Intent intent = getAuthIntent(parameters);

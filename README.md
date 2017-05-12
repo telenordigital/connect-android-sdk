@@ -18,6 +18,7 @@
   * [Next steps for public clients](#next-steps-for-public-clients)
   * [Retrieving information about the logged in user](#retrieving-information-about-the-logged-in-user)
 * [Connect Payment](#connect-payment)
+* [Mobile Connect](#mobile-connect)
 
 The Connect SDK for Android allows developers to create applications that use Telenor Connect for
 sign-in or payment. More information about Telenor Connect can be found on our
@@ -589,7 +590,7 @@ perform the transaction.
 
 ## Mobile Connect
 
-This SDK may be used for developing apps that authenticate users via MobileConnect. MobileConnect is a 
+This SDK may be used for developing apps that authenticate users via Mobile Connect. Mobile Connect is a 
 GSMA initiative aimed at providing an authentication mechanism that utilizes mobile phone as an identity 
 berarer. More about MobileConnect can be found here: https://mobileconnect.io.
 

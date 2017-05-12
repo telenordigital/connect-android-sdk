@@ -110,62 +110,8 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public void onStartAuthorization(
-            final Map<String, String> parameters,
-            final OnStartAuthorizationCallback callback) {
+    public void onStartAuthorization(final OnStartAuthorizationCallback callback) {
 
-        final Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult> odCallbackForMccMnc =
-                new Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
-                    @Override
-                    public void success(OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult, Response response) {
-                        if (!isInitialized()) {
-                            initialize(operatorDiscoveryResult);
-                        }
-                        if (isInitialized()) {
-                            callback.onSuccess();
-                            return;
-                        }
-                        callback.onError();
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        callback.onError();
-                    }
-                };
-
-        final Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult> odCallbackForMsisdn =
-                new Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
-                    @Override
-                    public void success(OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult, Response response) {
-                        parameters.put("login_hint", String.format("ENCR_MSISDN:%s", operatorDiscoveryResult.getSubscriberId()));
-                        odCallbackForMccMnc.success(operatorDiscoveryResult, response);
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        tryMccMnc(callback, odCallbackForMccMnc);
-                    }
-                };
-
-
-
-        String msisdn = readPhoneNumber();
-        if (msisdn != null) {
-            getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMsisdn(
-                    getOperatorDiscoveryAuthHeader(),
-                    new OperatorDiscoveryAPI.BodyForMsisdn(
-                            operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
-                            msisdn),
-                    odCallbackForMsisdn);
-        } else {
-            tryMccMnc(callback, odCallbackForMccMnc);
-        }
-    }
-
-    private void tryMccMnc(
-            final OnStartAuthorizationCallback callback,
-            Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult> odCallbackForMccMnc) {
         if (isInitialized()) {
             callback.onSuccess();
             return;
@@ -186,29 +132,30 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                 operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
                 mcc,
                 mnc,
-                odCallbackForMccMnc);
-    }
+                new Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
+                    @Override
+                    public void success(OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult, Response response) {
+                        initAndContinue(operatorDiscoveryResult, callback);
+                    }
 
-    private String readPhoneNumber() {
-        TelephonyManager phMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        try {
-            String msisdn = phMgr.getLine1Number();
-            return (TextUtils.isEmpty(msisdn) ? null : msisdn);
-        } catch (RuntimeException ignored) {
-        }
-        return null;
+                    @Override
+                    public void failure(RetrofitError error) {
+                        callback.onError();
+                    }
+                });
     }
 
     private OperatorDiscoveryAPI getOperatorDiscoveryApi() {
         if (operatorDiscoveryApi == null) {
-            operatorDiscoveryApi = RestHelper.getOperatorDiscoveryAPI(
+            operatorDiscoveryApi = RestHelper.getOperatorDiscoveryApi(
                     operatorDiscoveryConfig.getOperatorDiscoveryEndpoint());
         }
         return operatorDiscoveryApi;
     }
 
-    private boolean initialize(OperatorDiscoveryAPI.OperatorDiscoveryResult odResult) {
-        setInitialized(false);
+    private void initAndContinue(
+            OperatorDiscoveryAPI.OperatorDiscoveryResult odResult,
+            OnStartAuthorizationCallback callback) {
         operatorDiscoveryResult = odResult;
         HttpUrl url = getApiUrl();
         MobileConnectAPI mobileConnectApi =
@@ -223,7 +170,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                         new MobileConnectAPIAdapter(mobileConnectApi),
                         getClientId(),
                         getRedirectUri()));
-        return super.initialize();
+        initializeAndContinueAuthorizationFlow(callback);
     }
 
     public void deInitialize() {
@@ -263,37 +210,37 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
         @Override
         public void getAccessTokens(
-                String grant_type,
+                String grantType,
                 String code,
-                String redirect_uri,
-                String client_id,
+                String redirectUri,
+                String clientId,
                 Callback<ConnectTokensTO> tokens) {
             mobileConnectApi.getAccessTokens(
                     getAuthorizationHeader(),
                     operatorDiscoveryResult.getPath("token"),
-                    grant_type,
+                    grantType,
                     code,
-                    redirect_uri,
+                    redirectUri,
                     tokens);
         }
 
         @Override
         public void refreshAccessTokens(
-                String grant_type,
-                String refresh_token,
-                String client_id,
+                String grantType,
+                String refreshToken,
+                String clientId,
                 Callback<ConnectTokensTO> tokens) {
             mobileConnectApi.refreshAccessTokens(
                     getAuthorizationHeader(),
                     operatorDiscoveryResult.getPath("token"),
-                    grant_type,
-                    refresh_token,
+                    grantType,
+                    refreshToken,
                     tokens);
         }
 
         @Override
         public void revokeToken(
-                String client_id,
+                String clientId,
                 String token,
                 ResponseCallback callback) {
             mobileConnectApi.revokeToken(
