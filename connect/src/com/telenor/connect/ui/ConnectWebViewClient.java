@@ -145,8 +145,8 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     public WebResourceResponse fetchUrlTroughCellular(String originalUrl) {
         String newUrl = originalUrl;
         int attempts = 0;
+        Network interfaceToUse = ConnectSdk.getCellularNetwork();
         do {
-            Network interfaceToUse = ConnectSdk.getCellularNetwork();
             try {
                 HttpURLConnection connection
                         = (HttpURLConnection)interfaceToUse.openConnection(new URL(newUrl));
@@ -164,15 +164,15 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                             connection.getInputStream());
                 }
                 newUrl = connection.getHeaderField("Location");
-                interfaceToUse = shouldFetchThroughCellular(newUrl)
-                        ? ConnectSdk.getCellularNetwork()
-                        : ConnectSdk.getWifiNetwork();
                 // Close the input stream, but do not disconnect the connection as its socket might
                 // be reused during the next request.
                 connection.getInputStream().close();
             } catch (final IOException e) {
                 return null;
             }
+            interfaceToUse = shouldFetchThroughCellular(newUrl)
+                    ? ConnectSdk.getCellularNetwork()
+                    : ConnectSdk.getWifiNetwork();
         } while (attempts <= ConnectSdk.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
         return null;
     }
