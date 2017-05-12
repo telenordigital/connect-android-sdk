@@ -53,8 +53,8 @@ public final class ConnectSdk {
     private static String sPaymentSuccessUri;
     private static SdkProfile sdkProfile;
     private static ConnectivityManager connectivityManager;
-    private static Network cellularNetwork;
-    private static Network wifiNetwork;
+    private static volatile Network cellularNetwork;
+    private static volatile Network wifiNetwork;
 
     /**
      * The key for the client ID in the Android manifest.
