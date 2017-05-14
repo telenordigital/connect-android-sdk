@@ -180,7 +180,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    protected String getWellKnownEndpoint() {
+    public String getWellKnownEndpoint() {
         return operatorDiscoveryResult.getWellKnownEndpoint();
     }
 

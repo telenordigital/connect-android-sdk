@@ -10,40 +10,46 @@ import com.telenor.mobileconnect.id.MobileConnectAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 import com.telenor.connect.WellKnownAPI;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
+import retrofit.client.Client;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 
 public class RestHelper {
 
+    private static Map<String, ConnectAPI> connectApiMap = new HashMap<>();
+    private static Map<String, MobileConnectAPI> mobileConnectApiMap = new HashMap<>();
+    private static Map<String, WellKnownAPI> wellKnownApiMap = new HashMap<>();
+    private static Map<String, OperatorDiscoveryAPI> operatorDiscoveryApiMap = new HashMap<>();
+
     public static ConnectAPI getConnectApi(String endpoint) {
-        return buildApi(endpoint).create(ConnectAPI.class);
+        return getApi(connectApiMap, endpoint, ConnectAPI.class);
     }
 
     public static MobileConnectAPI getMobileConnectApi(String endpoint) {
-        return buildApi(endpoint).create(MobileConnectAPI.class);
+        return getApi(mobileConnectApiMap, endpoint, MobileConnectAPI.class);
     }
 
     public static WellKnownAPI getWellKnownApi(String endpoint) {
-        return buildApi(endpoint).create(WellKnownAPI.class);
+        return getApi(wellKnownApiMap, endpoint, WellKnownAPI.class);
     }
 
     public static OperatorDiscoveryAPI getOperatorDiscoveryApi(String endpoint) {
-        final OkHttpClient httpClient = new OkHttpClient();
-        httpClient.setConnectTimeout(10, TimeUnit.SECONDS);
-        httpClient.setReadTimeout(10, TimeUnit.SECONDS);
-        httpClient.setWriteTimeout(10, TimeUnit.SECONDS);
+        return getApi(operatorDiscoveryApiMap, endpoint, OperatorDiscoveryAPI.class);
+    }
 
-        return new RestAdapter.Builder()
-                .setClient(new OkClient(httpClient))
-                .setEndpoint(endpoint)
-                .setLogLevel(RestAdapter.LogLevel.FULL)
-                .build()
-                .create(OperatorDiscoveryAPI.class);
-
+    private static synchronized <T> T getApi(Map<String, T> map, String endpoint, Class<T> type) {
+        T api = map.get(endpoint);
+        if (api == null) {
+            api = buildApi(endpoint).create(type);
+            map.put(endpoint, api);
+        }
+        return api;
     }
 
     private static RestAdapter buildApi(String endpoint) {

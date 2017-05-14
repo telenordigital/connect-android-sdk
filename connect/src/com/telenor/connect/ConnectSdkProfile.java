@@ -83,7 +83,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    protected String getWellKnownEndpoint() {
+    public String getWellKnownEndpoint() {
         HttpUrl.Builder builder = getApiUrl().newBuilder();
         builder.addPathSegment(OAUTH_PATH);
         for (String pathSegment : WellKnownAPI.OPENID_CONFIGURATION_PATH.split("/")) {

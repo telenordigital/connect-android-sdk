@@ -20,11 +20,15 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ConnectSdk.class)
@@ -76,6 +80,10 @@ public class IdTokenValidatorTest {
         BDDMockito.given(ConnectSdk.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
+        BDDMockito.given(ConnectSdk.getExpectedIssuer(anyString()))
+                .willReturn("https://connect.telenordigital.com/oauth");
+        BDDMockito.given(ConnectSdk.getExpectedAudiences(anyList()))
+                .willReturn(Collections.singletonList("connect-tests"));
 
         IdTokenValidator.validate(normalSerializedSignedJwt, null);
     }
@@ -85,6 +93,8 @@ public class IdTokenValidatorTest {
         BDDMockito.given(ConnectSdk.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com.fishyou.biz"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
+        BDDMockito.given(ConnectSdk.getExpectedIssuer(anyString()))
+                .willReturn("https://connect.telenordigital.com/oauth");
 
         IdTokenValidator.validate(normalSerializedSignedJwt, null);
     }
@@ -94,6 +104,8 @@ public class IdTokenValidatorTest {
         BDDMockito.given(ConnectSdk.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("something-else");
+        BDDMockito.given(ConnectSdk.getExpectedIssuer(anyString()))
+                .willReturn("https://connect.telenordigital.com/oauth");
 
         IdTokenValidator.validate(normalSerializedSignedJwt, null);
     }
@@ -103,7 +115,8 @@ public class IdTokenValidatorTest {
         BDDMockito.given(ConnectSdk.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
-
+        BDDMockito.given(ConnectSdk.getExpectedIssuer(anyString()))
+                .willReturn("https://connect.telenordigital.com/oauth");
 
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
@@ -125,7 +138,8 @@ public class IdTokenValidatorTest {
         BDDMockito.given(ConnectSdk.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
-
+        BDDMockito.given(ConnectSdk.getExpectedIssuer(anyString()))
+                .willReturn("https://connect.telenordigital.com/oauth");
 
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
@@ -145,6 +159,8 @@ public class IdTokenValidatorTest {
         BDDMockito.given(ConnectSdk.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
+        BDDMockito.given(ConnectSdk.getExpectedIssuer(anyString()))
+                .willReturn("https://connect.telenordigital.com/oauth");
 
 
         JWTClaimsSet claimsSet = new JWTClaimsSet();

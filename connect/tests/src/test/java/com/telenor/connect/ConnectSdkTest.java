@@ -5,6 +5,7 @@ import com.telenor.connect.id.ConnectIdService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.theories.Theories;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -28,7 +29,7 @@ public class ConnectSdkTest {
 
     @Before
     public void before() {
-        Whitebox.setInternalState(ConnectSdk.class, "sSdkInitialized", false);
+        Whitebox.setInternalState(ConnectSdk.class, "sdkProfile", (SdkProfile) null);
     }
 
     @Test

@@ -31,7 +31,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         this.confidentialClient = confidentialClient;
     }
 
-    protected abstract String getWellKnownEndpoint();
+    public abstract String getWellKnownEndpoint();
 
     @Override
     public Context getContext() {
