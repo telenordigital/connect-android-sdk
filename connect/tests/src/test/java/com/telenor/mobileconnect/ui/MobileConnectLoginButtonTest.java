@@ -18,17 +18,12 @@ import com.telenor.connect.utils.RestHelper;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.powermock.reflect.Whitebox;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.annotation.Resetter;
-import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowContextImpl;
 import org.robolectric.shadows.ShadowTelephonyManager;
 
@@ -38,15 +33,26 @@ import static com.telenor.TestHelper.BooleanSupplier;
 import static com.telenor.TestHelper.MOCKED_WELL_KNOWN_ENDPONT;
 import static com.telenor.TestHelper.WELL_KNOWN_API_MAP;
 import static com.telenor.TestHelper.flushForegroundTasksUntilCallerIsSatisifed;
-import static com.telenor.mobileconnect.MobileConnectTestHelper.A_FAILING_OPERATOR_DISCOVERY_API;
-import static com.telenor.mobileconnect.MobileConnectTestHelper.A_VALID_OPERATOR_DISCOVERY_API;
 import static com.telenor.mobileconnect.MobileConnectTestHelper.CustomRobolectricTestRunner;
+import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_FAILING_OPERATOR_DISCOVERY_API;
+import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_MOBILE_CONNECT_CLIENT;
+import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_MOBILE_CONNECT_SECRET;
+import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_MOBILE_REDIRECT_URI;
 import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_OD_ENDPONT;
+import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_VALID_OPERATOR_DISCOVERY_API;
 import static com.telenor.mobileconnect.MobileConnectTestHelper.OPERATOR_DISCOVERY_API_MAP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.robolectric.Shadows.shadowOf;
 import static org.robolectric.internal.Shadow.newInstanceOf;
+
+/**
+ * Since it's as good as impossible to run PowerMock
+ * rule here (it sucks with anonymous classes and the
+ * ignore list is bound to become very long), we mock
+ * REST APIs by manipulating the API cache implemented
+ * in RestHelper class.
+ */
 
 @RunWith(CustomRobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
@@ -71,23 +77,23 @@ public class MobileConnectLoginButtonTest {
                 OperatorDiscoveryConfig
                         .builder()
                         .endpoint(MOCKED_OD_ENDPONT)
-                        .clientId("mobileconnect-client")
-                        .clientSecret("secret")
-                        .redirectUri("http://localhost/redirect")
+                        .clientId(MOCKED_MOBILE_CONNECT_CLIENT)
+                        .clientSecret(MOCKED_MOBILE_CONNECT_SECRET)
+                        .redirectUri(MOCKED_MOBILE_REDIRECT_URI)
                         .build());
     }
 
     @Test
-    public void clickingLoginButtonWithFailedOperatorDiscoveryDoesNotStartConnectActivity() {
+    public void clickingLoginButtonWithFailingOperatorDiscoveryDoesNotStartConnectActivity() {
         WELL_KNOWN_API_MAP.put(MOCKED_WELL_KNOWN_ENDPONT, A_FAILING_WELL_KNOWN_API);
-        OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, A_FAILING_OPERATOR_DISCOVERY_API);
+        OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, MOCKED_FAILING_OPERATOR_DISCOVERY_API);
 
         final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
         final ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);
         button.setLoginScopeTokens("profile");
         button.performClick();
 
-        assertThat("Activity start should fail, but it didn't!",
+        assertThat("Is activity started?",
                 flushForegroundTasksUntilCallerIsSatisifed(
                         1000,
                         new BooleanSupplier() {
@@ -99,16 +105,16 @@ public class MobileConnectLoginButtonTest {
     }
 
     @Test
-    public void clickingLoginButtonWithValidOperatorDiscoveryResultStartsConnectActivity() {
+    public void clickingLoginButtonWithValidOperatorDiscoveryResultStartsConnectActivityAndReturnsValidWellKnownConfig() {
         WELL_KNOWN_API_MAP.put(MOCKED_WELL_KNOWN_ENDPONT, A_VALID_WELL_KNOWN_API);
-        OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, A_VALID_OPERATOR_DISCOVERY_API);
+        OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, MOCKED_VALID_OPERATOR_DISCOVERY_API);
 
         final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
         final ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);
         button.setLoginScopeTokens("profile");
         button.performClick();
 
-        assertThat("Activity start fails!",
+        assertThat("Is activity started?",
                 flushForegroundTasksUntilCallerIsSatisifed(
                         3000,
                         new BooleanSupplier() {
@@ -117,11 +123,10 @@ public class MobileConnectLoginButtonTest {
                                 return shadowOf(activity).peekNextStartedActivityForResult() != null;                            }
                         }
                 ), is(true));
-
-        assertThat(ConnectSdk.getWellKnownConfig().getIssuer(), is(TestHelper.DUMMY_ISSUER));
         Intent expected = new Intent(activity, ConnectActivity.class);
         Intent startedIntent = shadowOf(activity).peekNextStartedActivityForResult().intent;
         assertThat(startedIntent.getComponent(), is(expected.getComponent()));
         assertThat(startedIntent.getAction(), is(ConnectUtils.LOGIN_ACTION));
+        assertThat(ConnectSdk.getWellKnownConfig().getIssuer(), is(TestHelper.DUMMY_ISSUER));
     }
 }

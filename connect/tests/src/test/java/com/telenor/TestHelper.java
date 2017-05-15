@@ -22,9 +22,9 @@ import retrofit.Callback;
 public class TestHelper {
 
     public static final String DUMMY_ISSUER = "https://dummy/oauth";
-    public  static final Map<String, WellKnownAPI> WELL_KNOWN_API_MAP = new HashMap<>();
-    public  static final String MOCKED_WELL_KNOWN_ENDPONT =
-            DUMMY_ISSUER + "/.well-known/openid-configuration";
+    public static final Map<String, WellKnownAPI> WELL_KNOWN_API_MAP = new HashMap<>();
+    public static final String
+            MOCKED_WELL_KNOWN_ENDPONT = DUMMY_ISSUER + "/.well-known/openid-configuration";
 
     private static final long SLEEPING_TIME_IN_MILLIES = 10;
 
@@ -69,6 +69,6 @@ public class TestHelper {
                 }
             };
 
-    private static String A_VALID_WELL_KNOWN_BODY =
+    private static final String A_VALID_WELL_KNOWN_BODY =
             String.format("{'issuer' : '%s'}", DUMMY_ISSUER);
 }

@@ -2,7 +2,6 @@ package com.telenor.mobileconnect;
 
 import com.google.gson.Gson;
 import com.telenor.TestHelper;
-import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.tests.BuildConfig;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 
@@ -18,21 +17,12 @@ import retrofit.Callback;
 public class MobileConnectTestHelper {
 
     public static final String MOCKED_OD_ENDPONT = "https://fake/operator/discovery";
+    public static final String MOCKED_MOBILE_CONNECT_CLIENT = "mobileconnect-client";
+    public static final String MOCKED_MOBILE_CONNECT_SECRET = "mobi1ec0nnec1-5ecret";
+    public static final String MOCKED_MOBILE_REDIRECT_URI = "http://localhost/redirect";
     public static final Map<String, OperatorDiscoveryAPI> OPERATOR_DISCOVERY_API_MAP = new HashMap<>();
 
-
-    public static class CustomRobolectricTestRunner extends RobolectricTestRunner {
-        public CustomRobolectricTestRunner(Class<?> testClass) throws InitializationError {
-            super(testClass);
-            String pathToMerged = "build/intermediates/res/merged/" + BuildConfig.BUILD_TYPE;
-            File f = new File(pathToMerged);
-            if (f.exists()) {
-                System.setProperty("android.resources", pathToMerged);
-            }
-        }
-    }
-
-    public static final OperatorDiscoveryAPI A_VALID_OPERATOR_DISCOVERY_API =
+    public static final OperatorDiscoveryAPI MOCKED_VALID_OPERATOR_DISCOVERY_API =
             new OperatorDiscoveryAPI() {
 
                 @Override
@@ -44,13 +34,13 @@ public class MobileConnectTestHelper {
                         Callback<OperatorDiscoveryResult> callback) {
                     Gson gson = new Gson();
                     OperatorDiscoveryResult odr = gson.fromJson(
-                            A_VALID_OPERATOR_DISCOVERY_BODY,
+                            VALID_OPERATOR_DISCOVERY_BODY,
                             OperatorDiscoveryResult.class);
                     callback.success(odr, null);
                 }
             };
 
-    public static final OperatorDiscoveryAPI A_FAILING_OPERATOR_DISCOVERY_API =
+    public static final OperatorDiscoveryAPI MOCKED_FAILING_OPERATOR_DISCOVERY_API =
             new OperatorDiscoveryAPI() {
 
                 @Override
@@ -64,7 +54,28 @@ public class MobileConnectTestHelper {
                 }
             };
 
-    private static String A_VALID_OPERATOR_DISCOVERY_BODY =
+
+    /**
+     * A custom Robolectric test runner that fixes the resources finding problem
+     * when tests are to be executed in Android Studio w/Gradle.
+     *
+     * Should have no effect in all other cases.
+     *
+     * See: https://github.com/robolectric/robolectric/issues/1592
+     */
+    public static class CustomRobolectricTestRunner extends RobolectricTestRunner {
+        public CustomRobolectricTestRunner(Class<?> testClass) throws InitializationError {
+            super(testClass);
+            if (System.getProperty("android.resources") == null) {
+                String pathToMerged = "build/intermediates/res/merged/" + BuildConfig.BUILD_TYPE;
+                if (new File(pathToMerged).exists()) {
+                    System.setProperty("android.resources", pathToMerged);
+                }
+            }
+        }
+    }
+
+    private static final String VALID_OPERATOR_DISCOVERY_BODY =
             new StringBuilder()
                     .append("  {")
                     .append("    'ttl': 1498403492,")
@@ -108,5 +119,4 @@ public class MobileConnectTestHelper {
                     .append("    }")
                     .append("}")
                     .toString();
-
 }
