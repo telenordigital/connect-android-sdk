@@ -259,7 +259,7 @@ public final class ConnectSdk {
     }
 
     public static String getPaymentCancelUri() {
-        Validator.sdkInitialized();
+        // Validator.sdkInitialized();
         return sPaymentCancelUri;
     }
 

@@ -11,10 +11,10 @@ android {
         testCompile 'org.hamcrest:hamcrest-integration:1.1'
         testCompile 'org.hamcrest:hamcrest-core:1.1'
         testCompile 'org.hamcrest:hamcrest-library:1.1'
-        testCompile 'org.powermock:powermock-module-junit4:1.6.2'
-        testCompile 'org.powermock:powermock-module-junit4-rule:1.6.2'
-        testCompile 'org.powermock:powermock-api-mockito:1.6.2'
-        testCompile 'org.powermock:powermock-classloading-xstream:1.6.2'
+        testCompile 'org.powermock:powermock-module-junit4:1.6.5'
+        testCompile 'org.powermock:powermock-module-junit4-rule:1.6.5'
+        testCompile 'org.powermock:powermock-api-mockito:1.6.5'
+        testCompile 'org.powermock:powermock-classloading-xstream:1.6.5'
         testCompile ("org.robolectric:robolectric:3.0") {
             exclude module: 'bcprov-jdk16'
         }

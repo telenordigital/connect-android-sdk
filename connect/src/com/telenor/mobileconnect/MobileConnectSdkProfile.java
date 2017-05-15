@@ -146,11 +146,8 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     private OperatorDiscoveryAPI getOperatorDiscoveryApi() {
-        if (operatorDiscoveryApi == null) {
-            operatorDiscoveryApi = RestHelper.getOperatorDiscoveryApi(
+        return  RestHelper.getOperatorDiscoveryApi(
                     operatorDiscoveryConfig.getOperatorDiscoveryEndpoint());
-        }
-        return operatorDiscoveryApi;
     }
 
     private void initAndContinue(

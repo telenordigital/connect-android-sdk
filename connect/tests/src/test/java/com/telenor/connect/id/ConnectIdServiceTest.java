@@ -30,12 +30,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
-@PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*" })
 @PrepareForTest({Validator.class})
 public class ConnectIdServiceTest {
-
-    @Rule
-    public PowerMockRule rule = new PowerMockRule(); // needed to activate PowerMock
 
     @Test
     public void getAccessTokenRetrievesFromTokenStoreWhenNull() {
