@@ -49,16 +49,8 @@ import static org.robolectric.Shadows.shadowOf;
 import static org.robolectric.internal.Shadow.newInstanceOf;
 
 @RunWith(CustomRobolectricTestRunner.class)
-@PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*",
-        "com.telenor.connect.ui.*", "com.telenor.connect.ConnectSdk",
-        "com.telenor.mobileconnect.*", "com.telenor.TestHelper",
-        "com.telenor.connect.WellKnownAPI",
-        "class com.telenor.mobileconnect.ui.MobileConnectLoginButtonTest$1"})
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
 public class MobileConnectLoginButtonTest {
-
-    @Rule
-    public PowerMockRule rule = new PowerMockRule(); // needed to activate PowerMock
 
     @Before
     public void before() throws Exception {
@@ -132,14 +124,4 @@ public class MobileConnectLoginButtonTest {
         assertThat(startedIntent.getComponent(), is(expected.getComponent()));
         assertThat(startedIntent.getAction(), is(ConnectUtils.LOGIN_ACTION));
     }
-
-    private static class PeekNextStarted implements BooleanSupplier {
-        private Activity activity;
-
-        @Override
-        public boolean getAsBoolean() {
-            return false;
-        }
-    }
-
 }
