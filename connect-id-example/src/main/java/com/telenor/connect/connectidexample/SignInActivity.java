@@ -3,7 +3,11 @@ package com.telenor.connect.connectidexample;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.Switch;
 
+import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.ui.ConnectLoginButton;
 
 public class SignInActivity extends Activity {
@@ -15,6 +19,18 @@ public class SignInActivity extends Activity {
 
         ConnectLoginButton loginButton = (ConnectLoginButton) findViewById(R.id.login_button);
         loginButton.setLoginScopeTokens("profile openid");
+
+        Switch forcedHeSwitch = (Switch) findViewById(R.id.switchForcedHe);
+
+        forcedHeSwitch
+                .setOnClickListener(new Switch.OnClickListener() {
+                    private boolean state = false;
+                    public void onClick(View v) {
+                        ConnectSdk.setForcedHeEnabled(((Switch)v).isChecked());
+                    }
+                });
+
+        ConnectSdk.setForcedHeEnabled(forcedHeSwitch.isEnabled());
     }
 
     @Override

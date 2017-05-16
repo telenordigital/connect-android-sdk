@@ -13,8 +13,10 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.ListView;
 
 import com.telenor.connect.ConnectCallback;
+import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
 import com.telenor.connect.id.ParseTokenCallback;
 import com.telenor.connect.utils.ConnectUrlHelper;
@@ -61,6 +63,9 @@ public class ConnectWebFragment extends Fragment {
         final String pageUrl = ConnectUrlHelper.getPageUrl(arguments);
         final View errorView = view.findViewById(R.id.com_telenor_connect_error_view);
         setupErrorView(webView, loadingView, pageUrl, errorView, view);
+
+        ListView listView = (ListView)view.findViewById(R.id.com_telenor_connect_fragment_logview);
+        ConnectSdk.setLogSourceForLogView(listView);
 
         client = new ConnectWebViewClient(
                 getActivity(),

@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.net.Network;
 import android.net.Uri;
 import android.os.Build;
+import android.os.StrictMode;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -84,6 +85,29 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         this.errorView = errorView;
         this.connectCallback = callback;
         this.smsBroadcastReceiver = new SmsBroadcastReceiver(this);
+
+        ConnectSdk.clearLogs(activity);
+
+        ConnectSdk.logMessage(activity, "MCCMNC : " + ConnectSdk.getMccMnc());
+        ConnectSdk.logMessage(activity, "API : " + Build.VERSION.SDK);
+        ConnectSdk.logMessage(activity, "Android : " + Build.VERSION.RELEASE);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        if (ConnectSdk.getCellularNetwork() != null) {
+            ConnectSdk.logMessage(activity,
+                    "Cellualr IP : " + ConnectSdk.getIp(ConnectSdk.getCellularNetwork()));
+        } else {
+            ConnectSdk.logMessage(activity, "cellular not detected");
+        }
+
+        if (ConnectSdk.getWifiNetwork() != null) {
+            ConnectSdk.logMessage(activity,
+                    "WiFi IP : " + ConnectSdk.getIp(ConnectSdk.getWifiNetwork()));
+        } else {
+            ConnectSdk.logMessage(activity, "WiFi not detected");
+        }
     }
 
     @Override
@@ -111,12 +135,23 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     @Override
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        if (!ConnectSdk.isForceHeEnabled()) {
+            return null;
+        }
         boolean shouldSkipInterceptionLogic
                 = ConnectSdk.getCellularNetwork() == null || ConnectSdk.getWifiNetwork() == null;
         if (shouldSkipInterceptionLogic) {
+            ConnectSdk.logMessage(activity, "shouldSkipInterceptionLogic because " +
+                    ConnectSdk.getCellularNetwork() == null
+                    ? "cellular interface is down"
+                    : "wifi interface is down");
             return null;
         }
+        if (request.getUrl().toString().contains("/authorize")) {
+            ConnectSdk.logMessage(activity, request.getUrl().toString());
+        }
         if (shouldFetchThroughCellular(request.getUrl().toString())) {
+            ConnectSdk.logMessage(activity, "shouldFetchThroughCellular:"+request.getUrl().toString());
             return fetchUrlTroughCellular(request.getUrl().toString());
         }
         return null;
@@ -149,12 +184,14 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         do {
             int responseCode;
             try {
+                ConnectSdk.logMessage(activity, "fetchUrlTroughCellular con begin (" + attempts + ") " + newUrl + " " + interfaceToUse);
                 HttpURLConnection connection
                         = (HttpURLConnection)interfaceToUse.openConnection(new URL(newUrl));
                 connection.setInstanceFollowRedirects(false);
                 connection.connect();
                 responseCode = connection.getResponseCode();
                 attempts += 1;
+                ConnectSdk.logMessage(activity, "getResponseCode=" + responseCode);
                 if (responseCode != HTTP_SEE_OTHER
                     && responseCode != HTTP_MOVED_TEMP
                     && responseCode != HTTP_MOVED_PERM) {

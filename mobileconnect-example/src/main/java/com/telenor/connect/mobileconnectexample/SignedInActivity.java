@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.telenor.connect.ConnectSdk;
@@ -44,6 +45,10 @@ public class SignedInActivity extends Activity {
                 }
             }
         };
+
+        ListView listView = (ListView)
+                findViewById(R.id.logview);
+        ConnectSdk.setLogSourceForLogView(listView);
     }
 
     private void goToLogin() {

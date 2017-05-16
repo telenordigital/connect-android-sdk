@@ -2,6 +2,8 @@ package com.telenor.connect;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -13,11 +15,17 @@ import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import com.nimbusds.jose.util.StringUtils;
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
@@ -34,16 +42,23 @@ import com.telenor.mobileconnect.MobileConnectSdkProfile;
 import com.telenor.mobileconnect.SimCardStateChangedBroadcastReceiver;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
 import retrofit.Callback;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 public final class ConnectSdk {
 
@@ -55,6 +70,11 @@ public final class ConnectSdk {
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
     private static volatile Network wifiNetwork;
+
+    private static List<String> logList = new LinkedList<>();
+    private static boolean forcedHeEnabled;
+    private static ArrayAdapter<String> logItemsAdapter;
+
 
     /**
      * The key for the client ID in the Android manifest.
@@ -571,5 +591,62 @@ public final class ConnectSdk {
         }
         initalizeCellularNetwork();
         initalizeWiFiNetwork();
+    }
+
+    public static void logMessage(final Activity activity, final String message) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                logList.add(message);
+                copyLogsToClipboard();
+                logItemsAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    public static void clearLogs(final Activity activity) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    logList.clear();
+                    logItemsAdapter.notifyDataSetChanged();
+                }
+            });
+    }
+
+    public static void setLogSourceForLogView(ListView listView) {
+        logItemsAdapter =
+                new ArrayAdapter<String>(getContext(), R.layout.list_black_text, R.id.list_content, logList);
+        listView.setAdapter(logItemsAdapter);
+        listView.setOnItemClickListener(null);
+    }
+
+    public static boolean isForceHeEnabled() {
+        return forcedHeEnabled;
+    }
+
+    public static void setForcedHeEnabled(boolean forcedHeEnabled) {
+        ConnectSdk.forcedHeEnabled = forcedHeEnabled;
+    }
+
+    public static void copyLogsToClipboard() {
+        ClipboardManager clipboard = (ClipboardManager)getContext().getSystemService(CLIPBOARD_SERVICE);
+        String joinedList = TextUtils.join("\n", logList);
+        ClipData clip = ClipData.newPlainText("label", joinedList);
+        clipboard.setPrimaryClip(clip);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static String getIp(Network networkInterface) {
+        try {
+            HttpURLConnection connection
+                    = (HttpURLConnection) networkInterface.openConnection(new URL("https://api.ipify.org"));
+            BufferedReader br =
+                    new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String ip = br.readLine();
+            return ip;
+        } catch (Exception e) {
+            return "Couldn't fetch it : " + e.getMessage();
+        }
     }
 }

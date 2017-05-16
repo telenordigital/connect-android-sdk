@@ -3,7 +3,10 @@ package com.telenor.connect.mobileconnectexample;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Switch;
 
+import com.telenor.connect.ConnectSdk;
 import com.telenor.mobileconnect.ui.MobileConnectLoginButton;
 
 public class SignInActivity extends Activity {
@@ -15,6 +18,18 @@ public class SignInActivity extends Activity {
 
         MobileConnectLoginButton loginButton = (MobileConnectLoginButton) findViewById(R.id.login_button);
         loginButton.setLoginScopeTokens("openid phone");
+
+        Switch forcedHeSwitch = (Switch) findViewById(R.id.switchForcedHe);
+
+        forcedHeSwitch
+                .setOnClickListener(new Switch.OnClickListener() {
+                    private boolean state = false;
+                    public void onClick(View v) {
+                        ConnectSdk.setForcedHeEnabled(((Switch)v).isChecked());
+                    }
+                });
+
+        ConnectSdk.setForcedHeEnabled(forcedHeSwitch.isEnabled());
     }
 
     @Override
