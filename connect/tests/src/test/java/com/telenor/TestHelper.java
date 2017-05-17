@@ -1,23 +1,22 @@
 package com.telenor;
 
-import com.google.gson.Gson;
 import com.telenor.connect.WellKnownAPI;
-import com.telenor.connect.tests.BuildConfig;
-import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 
-import org.junit.runners.model.InitializationError;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import retrofit.Callback;
+
+import static com.telenor.connect.WellKnownAPI.WellKnownConfig;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 
 public class TestHelper {
 
@@ -49,26 +48,41 @@ public class TestHelper {
         return false;
     }
 
-    public static final WellKnownAPI A_FAILING_WELL_KNOWN_API =
-            new WellKnownAPI() {
-                @Override
-                public void getWellKnownConfig(Callback<WellKnownConfig> callback) {
-                    callback.failure(null);
-                }
-            };
+    public static final WellKnownAPI A_FAILING_WELL_KNOWN_API = getFailingWellKnownApiMock();
 
-    public static final WellKnownAPI A_VALID_WELL_KNOWN_API =
-            new WellKnownAPI() {
-                @Override
-                public void getWellKnownConfig(Callback<WellKnownConfig> callback) {
-                    Gson gson = new Gson();
-                    WellKnownAPI.WellKnownConfig wnc = gson.fromJson(
-                            A_VALID_WELL_KNOWN_BODY,
-                            WellKnownAPI.WellKnownConfig.class);
-                    callback.success(wnc, null);
-                }
-            };
+    public static final WellKnownAPI A_VALID_WELL_KNOWN_API = getValidWellKnownApiMock();
 
-    private static final String A_VALID_WELL_KNOWN_BODY =
-            String.format("{'issuer' : '%s'}", DUMMY_ISSUER);
+    private static WellKnownAPI getValidWellKnownApiMock() {
+        final WellKnownConfig wellKnownConfig = mock(WellKnownConfig.class);
+        when(wellKnownConfig.getIssuer()).thenReturn(DUMMY_ISSUER);
+
+        WellKnownAPI api = mock(WellKnownAPI.class);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Callback<WellKnownConfig> callback =
+                        (Callback<WellKnownConfig>) invocation.getArguments()[0];
+                callback.success(wellKnownConfig, null);
+                return null;
+            }
+        }).when(api).getWellKnownConfig(
+                any(Callback.class));
+        return api;
+
+    }
+    private static WellKnownAPI getFailingWellKnownApiMock() {
+        WellKnownAPI api = mock(WellKnownAPI.class);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Callback<WellKnownAPI.WellKnownConfig> callback =
+                        (Callback<WellKnownAPI.WellKnownConfig>) invocation.getArguments()[0];
+                callback.failure(null);
+                return null;
+            }
+        }).when(api).getWellKnownConfig(any(Callback.class));
+        return api;
+    }
+
+
 }

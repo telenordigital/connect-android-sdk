@@ -1,11 +1,12 @@
 package com.telenor.mobileconnect;
 
-import com.google.gson.Gson;
-import com.telenor.TestHelper;
+import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.tests.BuildConfig;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 
 import org.junit.runners.model.InitializationError;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 
 import java.io.File;
@@ -13,6 +14,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import retrofit.Callback;
+
+import static com.telenor.TestHelper.MOCKED_WELL_KNOWN_ENDPONT;
+import static com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI.OperatorDiscoveryResult;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MobileConnectTestHelper {
 
@@ -22,38 +31,57 @@ public class MobileConnectTestHelper {
     public static final String MOCKED_MOBILE_REDIRECT_URI = "http://localhost/redirect";
     public static final Map<String, OperatorDiscoveryAPI> OPERATOR_DISCOVERY_API_MAP = new HashMap<>();
 
-    public static final OperatorDiscoveryAPI MOCKED_VALID_OPERATOR_DISCOVERY_API =
-            new OperatorDiscoveryAPI() {
-
-                @Override
-                public void getOperatorDiscoveryResult_ForMccMnc(
-                        String auth,
-                        String redirectUrl,
-                        String identifiedMcc,
-                        String identifiedMnc,
-                        Callback<OperatorDiscoveryResult> callback) {
-                    Gson gson = new Gson();
-                    OperatorDiscoveryResult odr = gson.fromJson(
-                            VALID_OPERATOR_DISCOVERY_BODY,
-                            OperatorDiscoveryResult.class);
-                    callback.success(odr, null);
-                }
-            };
-
     public static final OperatorDiscoveryAPI MOCKED_FAILING_OPERATOR_DISCOVERY_API =
-            new OperatorDiscoveryAPI() {
+            getFailingOperatorDiscoveryApiMock();
+    public static final OperatorDiscoveryAPI MOCKED_VALID_OPERATOR_DISCOVERY_API =
+            getValidOperatorDiscoveryApiMock();
 
-                @Override
-                public void getOperatorDiscoveryResult_ForMccMnc(
-                        String auth,
-                        String redirectUrl,
-                        String identifiedMcc,
-                        String identifiedMnc,
-                        Callback<OperatorDiscoveryResult> callback) {
-                    callback.failure(null);
-                }
-            };
+    private static final String MOCKED_API_URL = "https://dummy/operator/oauth";
+    private static final String MOCKED_CLIENT_ID = "dummy-client";
 
+    private static OperatorDiscoveryAPI getFailingOperatorDiscoveryApiMock() {
+        OperatorDiscoveryAPI api = mock(OperatorDiscoveryAPI.class);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Callback<OperatorDiscoveryResult> callback =
+                        (Callback<OperatorDiscoveryResult>) invocation.getArguments()[4];
+                callback.failure(null);
+                return null;
+            }
+        }).when(api).getOperatorDiscoveryResult_ForMccMnc(
+                anyString(),
+                anyString(),
+                anyString(),
+                anyString(),
+                any(Callback.class));
+        return api;
+    }
+
+    private static OperatorDiscoveryAPI getValidOperatorDiscoveryApiMock() {
+        final OperatorDiscoveryAPI.OperatorDiscoveryResult odResult =
+                mock(OperatorDiscoveryAPI.OperatorDiscoveryResult.class);
+        when(odResult.getWellKnownEndpoint()).thenReturn(MOCKED_WELL_KNOWN_ENDPONT);
+        when(odResult.getMobileConnectApiUrl()).thenReturn(HttpUrl.parse(MOCKED_API_URL));
+        when(odResult.getClientId()).thenReturn(MOCKED_CLIENT_ID);
+
+        OperatorDiscoveryAPI api = mock(OperatorDiscoveryAPI.class);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Callback<OperatorDiscoveryResult> callback =
+                        (Callback<OperatorDiscoveryResult>) invocation.getArguments()[4];
+                callback.success(odResult, null);
+                return null;
+            }
+        }).when(api).getOperatorDiscoveryResult_ForMccMnc(
+                anyString(),
+                anyString(),
+                anyString(),
+                anyString(),
+                any(Callback.class));
+        return api;
+    }
 
     /**
      * A custom Robolectric test runner that fixes the resources finding problem
@@ -74,49 +102,4 @@ public class MobileConnectTestHelper {
             }
         }
     }
-
-    private static final String VALID_OPERATOR_DISCOVERY_BODY =
-            new StringBuilder()
-                    .append("  {")
-                    .append("    'ttl': 1498403492,")
-                    .append("    'response': {")
-                    .append("      'client_id': 'dummy-client',")
-                    .append("      'client_secret': 'dummy-secret',")
-                    .append("      'serving_operator': 'dummy-operator',")
-                    .append("      'country': 'Foreignia',")
-                    .append("      'currency': 'BTC',")
-                    .append("      'client_name': 'dummy-client-name',")
-                    .append("      'apis': {")
-                    .append("        'operatorid': {")
-                    .append("          'link': [")
-                    .append("            {")
-                    .append("              'href': 'https://dummy/operator/oauth/authorize',")
-                    .append("              'rel': 'authorization'")
-                    .append("            },")
-                    .append("            {")
-                    .append("              'href': 'https://dummy/operator/oauth/token',")
-                    .append("              'rel': 'token'")
-                    .append("            },")
-                    .append("            {")
-                    .append("              'href': 'https://dummy/operator/oauth/oauth/userinfo',")
-                    .append("              'rel': 'userinfo'")
-                    .append("            },")
-                    .append("            {")
-                    .append("              'href': 'https://dummy/operator/oauth/oauth/token',")
-                    .append("              'rel': 'tokenrefresh'")
-                    .append("            },")
-                    .append("            {")
-                    .append(String.format("'href': '%s',", TestHelper.MOCKED_WELL_KNOWN_ENDPONT))
-                    .append("              'rel': 'openid-configuration'")
-                    .append("            },")
-                    .append("            {")
-                    .append("              'href': 'https://dummy/operator/oauth/oauth/revoke',")
-                    .append("              'rel': 'tokenrevoke'")
-                    .append("            }")
-                    .append("          ]")
-                    .append("        }")
-                    .append("      }")
-                    .append("    }")
-                    .append("}")
-                    .toString();
 }
