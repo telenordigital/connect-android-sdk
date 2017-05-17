@@ -27,8 +27,8 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowContextImpl;
 import org.robolectric.shadows.ShadowTelephonyManager;
 
-import static com.telenor.TestHelper.A_FAILING_WELL_KNOWN_API;
-import static com.telenor.TestHelper.A_VALID_WELL_KNOWN_API;
+import static com.telenor.TestHelper.MOCKED_FAILING_WELL_KNOWN_API;
+import static com.telenor.TestHelper.MOCKED_VALID_WELL_KNOWN_API;
 import static com.telenor.TestHelper.BooleanSupplier;
 import static com.telenor.TestHelper.MOCKED_WELL_KNOWN_ENDPONT;
 import static com.telenor.TestHelper.WELL_KNOWN_API_MAP;
@@ -85,7 +85,7 @@ public class MobileConnectLoginButtonTest {
 
     @Test
     public void clickingLoginButtonWithFailingOperatorDiscoveryDoesNotStartConnectActivity() {
-        WELL_KNOWN_API_MAP.put(MOCKED_WELL_KNOWN_ENDPONT, A_FAILING_WELL_KNOWN_API);
+        WELL_KNOWN_API_MAP.put(MOCKED_WELL_KNOWN_ENDPONT, MOCKED_FAILING_WELL_KNOWN_API);
         OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, MOCKED_FAILING_OPERATOR_DISCOVERY_API);
 
         final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
@@ -106,7 +106,7 @@ public class MobileConnectLoginButtonTest {
 
     @Test
     public void clickingLoginButtonWithValidOperatorDiscoveryResultStartsConnectActivityAndReturnsValidWellKnownConfig() {
-        WELL_KNOWN_API_MAP.put(MOCKED_WELL_KNOWN_ENDPONT, A_VALID_WELL_KNOWN_API);
+        WELL_KNOWN_API_MAP.put(MOCKED_WELL_KNOWN_ENDPONT, MOCKED_VALID_WELL_KNOWN_API);
         OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, MOCKED_VALID_OPERATOR_DISCOVERY_API);
 
         final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();

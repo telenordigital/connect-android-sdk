@@ -21,9 +21,8 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowActivity;
 
-import static com.telenor.TestHelper.A_VALID_WELL_KNOWN_API;
+import static com.telenor.TestHelper.MOCKED_VALID_WELL_KNOWN_API;
 import static com.telenor.TestHelper.DUMMY_ISSUER;
 import static com.telenor.TestHelper.WELL_KNOWN_API_MAP;
 import static com.telenor.TestHelper.flushForegroundTasksUntilCallerIsSatisifed;
@@ -54,7 +53,7 @@ public class ConnectLoginButtonTest {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         WELL_KNOWN_API_MAP.put(
                 ((ConnectSdkProfile) ConnectSdk.getSdkProfile()).getWellKnownEndpoint(),
-                A_VALID_WELL_KNOWN_API);
+                MOCKED_VALID_WELL_KNOWN_API);
 
         final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
         final ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);

@@ -48,9 +48,9 @@ public class TestHelper {
         return false;
     }
 
-    public static final WellKnownAPI A_FAILING_WELL_KNOWN_API = getFailingWellKnownApiMock();
+    public static final WellKnownAPI MOCKED_FAILING_WELL_KNOWN_API = getFailingWellKnownApiMock();
 
-    public static final WellKnownAPI A_VALID_WELL_KNOWN_API = getValidWellKnownApiMock();
+    public static final WellKnownAPI MOCKED_VALID_WELL_KNOWN_API = getValidWellKnownApiMock();
 
     private static WellKnownAPI getValidWellKnownApiMock() {
         final WellKnownConfig wellKnownConfig = mock(WellKnownConfig.class);
