@@ -397,25 +397,24 @@ public final class ConnectSdk {
     }
 
     private static ApplicationInfo getApplicationInfo(Context context) {
-        ApplicationInfo ai = null;
         try {
-            ai = context.getPackageManager().getApplicationInfo(
+            return context.getPackageManager().getApplicationInfo(
                     context.getPackageName(), PackageManager.GET_META_DATA);
         } catch (PackageManager.NameNotFoundException e) {
             return null;
         }
-        return ai;
     }
 
 
     private static boolean fetchBooleanProperty(ApplicationInfo appInfo, String propertyName) {
-        if (appInfo != null) {
-            Object useStagingObject = appInfo.metaData.get(propertyName);
-            if (useStagingObject instanceof Boolean) {
-                return (Boolean) useStagingObject;
-            }
+        if (appInfo == null) {
+            return false;
         }
-        return false;
+        Object useStagingObject = appInfo.metaData.get(propertyName);
+        if (!(useStagingObject instanceof Boolean)) {
+            return false;
+        }
+        return (Boolean) useStagingObject;
     }
 
     public static WellKnownAPI.WellKnownConfig getWellKnownConfig() {
@@ -459,10 +458,6 @@ public final class ConnectSdk {
         Validator.sdkInitialized();
         sdkProfile.getConnectIdService().getUserInfo(userInfoCallback);
     }
-
-    /**
-     * MobileConnect stuff
-     */
 
     public static synchronized void sdkInitializeMobileConnect(
             Context context,
