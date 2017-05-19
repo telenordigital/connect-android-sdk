@@ -20,6 +20,7 @@ import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -78,20 +79,16 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public String getExpectedIssuer(String actualIssuer) {
-        // discrepancy between .well-known configuration and the actual issuer returned
-        if (operatorDiscoveryResult.getBasePath().contains("telenordigital.com")) {
-            return actualIssuer;
-        }
+    public String getExpectedIssuer() {
         if (getWellKnownConfig() != null) {
             return getWellKnownConfig().getIssuer();
         }
-        return actualIssuer;
+        return operatorDiscoveryResult.getBasePath();
     }
 
     @Override
-    public List<String> getExpectedAudiences(List<String> actualAudiences) {
-        return new ArrayList<>(actualAudiences);
+    public List<String> getExpectedAudiences() {
+        return new ArrayList<>(Arrays.asList(getClientId()));
     }
 
     @Override

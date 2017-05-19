@@ -303,12 +303,12 @@ public final class ConnectSdk {
         activity.startActivityForResult(intent, 1);
     }
 
-    public static String getExpectedIssuer(String actualIssuer) {
-        return sdkProfile.getExpectedIssuer(actualIssuer);
+    public static String getExpectedIssuer() {
+        return sdkProfile.getExpectedIssuer();
     }
 
-    public static List<String> getExpectedAudiences(List<String> actualAudiences) {
-        return sdkProfile.getExpectedAudiences(actualAudiences);
+    public static List<String> getExpectedAudiences() {
+        return sdkProfile.getExpectedAudiences();
     }
 
     public static synchronized boolean isConfidentialClient() {

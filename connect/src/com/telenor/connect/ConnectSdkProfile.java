@@ -51,7 +51,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public String getExpectedIssuer(String actualIssuer) {
+    public String getExpectedIssuer() {
         if (getWellKnownConfig() != null) {
             return getWellKnownConfig().getIssuer();
         }
@@ -59,7 +59,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public List<String> getExpectedAudiences(List<String> actualAudiences) {
+    public List<String> getExpectedAudiences() {
         return Collections.singletonList(clientId);
     }
 
