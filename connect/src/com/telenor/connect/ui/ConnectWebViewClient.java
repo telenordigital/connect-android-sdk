@@ -147,12 +147,13 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         int attempts = 0;
         Network interfaceToUse = ConnectSdk.getCellularNetwork();
         do {
+            int responseCode;
             try {
                 HttpURLConnection connection
                         = (HttpURLConnection)interfaceToUse.openConnection(new URL(newUrl));
                 connection.setInstanceFollowRedirects(false);
                 connection.connect();
-                int responseCode = connection.getResponseCode();
+                responseCode = connection.getResponseCode();
                 attempts += 1;
                 if (responseCode != HTTP_SEE_OTHER
                     && responseCode != HTTP_MOVED_TEMP
@@ -170,9 +171,11 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             } catch (final IOException e) {
                 return null;
             }
-            interfaceToUse = shouldFetchThroughCellular(newUrl)
+            interfaceToUse = responseCode == HTTP_MOVED_TEMP
                     ? ConnectSdk.getCellularNetwork()
-                    : ConnectSdk.getWifiNetwork();
+                    : shouldFetchThroughCellular(newUrl)
+                      ? ConnectSdk.getCellularNetwork()
+                      : ConnectSdk.getWifiNetwork();
         } while (attempts <= ConnectSdk.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
         return null;
     }
