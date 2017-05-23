@@ -60,7 +60,7 @@ public class ConnectLoginButtonTest {
         button.setLoginScopeTokens("profile");
         button.performClick();
 
-        assertThat("Is activity started?",
+        assertThat("Activity is started",
                 flushForegroundTasksUntilCallerIsSatisifed(5000, new TestHelper.BooleanSupplier() {
                     @Override
                     public boolean getAsBoolean() {

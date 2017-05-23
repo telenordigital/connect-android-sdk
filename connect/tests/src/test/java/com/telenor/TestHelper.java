@@ -34,10 +34,11 @@ public class TestHelper {
     public static boolean flushForegroundTasksUntilCallerIsSatisifed(
             long maxMillies,
             BooleanSupplier isCallerSatisfied) {
-        for (; maxMillies > 0; maxMillies -= SLEEPING_TIME_IN_MILLIES) {
+        while (maxMillies > 0) {
             if (isCallerSatisfied.getAsBoolean()) {
                 return true;
             }
+            maxMillies -= SLEEPING_TIME_IN_MILLIES;
             Robolectric.flushForegroundThreadScheduler();
             try {
                 Thread.sleep(SLEEPING_TIME_IN_MILLIES);

@@ -94,11 +94,12 @@ public class MobileConnectTestHelper {
     public static class CustomRobolectricTestRunner extends RobolectricTestRunner {
         public CustomRobolectricTestRunner(Class<?> testClass) throws InitializationError {
             super(testClass);
-            if (System.getProperty("android.resources") == null) {
-                String pathToMerged = "build/intermediates/res/merged/" + BuildConfig.BUILD_TYPE;
-                if (new File(pathToMerged).exists()) {
-                    System.setProperty("android.resources", pathToMerged);
-                }
+            if (System.getProperty("android.resources") != null) {
+                return;
+            }
+            String pathToMerged = "build/intermediates/res/merged/" + BuildConfig.BUILD_TYPE;
+            if (new File(pathToMerged).exists()) {
+                System.setProperty("android.resources", pathToMerged);
             }
         }
     }

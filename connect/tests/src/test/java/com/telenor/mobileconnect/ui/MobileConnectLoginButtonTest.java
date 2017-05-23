@@ -93,7 +93,7 @@ public class MobileConnectLoginButtonTest {
         button.setLoginScopeTokens("profile");
         button.performClick();
 
-        assertThat("Is activity started?",
+        assertThat("Activity is started",
                 flushForegroundTasksUntilCallerIsSatisifed(
                         1000,
                         new BooleanSupplier() {
@@ -114,7 +114,7 @@ public class MobileConnectLoginButtonTest {
         button.setLoginScopeTokens("profile");
         button.performClick();
 
-        assertThat("Is activity started?",
+        assertThat("Activity is started",
                 flushForegroundTasksUntilCallerIsSatisifed(
                         3000,
                         new BooleanSupplier() {
