@@ -56,7 +56,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         this.connectIdService = connectIdService;
     }
 
-    protected boolean isInitialized() {
+    public boolean isInitialized() {
         return isInitialized;
     }
 

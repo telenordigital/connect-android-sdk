@@ -192,7 +192,7 @@ public final class ConnectSdk {
 
     public static synchronized String getAccessToken() {
         Validator.sdkInitialized();
-        if (sdkProfile.getConnectIdService() != null) {
+        if (sdkProfile.isInitialized()) {
             return sdkProfile.getConnectIdService().getAccessToken();
         }
         return null;
@@ -213,7 +213,7 @@ public final class ConnectSdk {
         sdkProfile.getConnectIdService().getAccessTokenFromCode(code, callback);
     }
 
-    public static synchronized Uri getAuthorizeUriAndSetLastAuthState(
+    private static synchronized Uri getAuthorizeUriAndSetLastAuthState(
             Map<String, String> parameters) {
         if (ConnectSdk.getClientId() == null) {
             throw new ConnectException("Client ID not specified in application manifest.");
@@ -235,6 +235,7 @@ public final class ConnectSdk {
     }
 
     public static HttpUrl getConnectApiUrl() {
+        Validator.sdkInitialized();
         return sdkProfile.getApiUrl();
     }
 
@@ -304,10 +305,12 @@ public final class ConnectSdk {
     }
 
     public static String getExpectedIssuer() {
+        Validator.sdkInitialized();
         return sdkProfile.getExpectedIssuer();
     }
 
     public static List<String> getExpectedAudiences() {
+        Validator.sdkInitialized();
         return sdkProfile.getExpectedAudiences();
     }
 

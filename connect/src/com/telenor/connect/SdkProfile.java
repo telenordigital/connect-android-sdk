@@ -22,6 +22,7 @@ public interface SdkProfile {
     List<String> getExpectedAudiences();
     Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales);
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
+    boolean isInitialized();
 
     void onStartAuthorization(OnStartAuthorizationCallback callback);
 

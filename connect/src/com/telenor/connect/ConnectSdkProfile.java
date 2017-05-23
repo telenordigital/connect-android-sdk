@@ -110,4 +110,8 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
         this.redirectUri = redirectUri;
     }
 
+    @Override
+    public boolean isInitialized() {
+        return true;
+    }
 }
