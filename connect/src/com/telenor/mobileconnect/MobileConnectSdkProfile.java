@@ -122,8 +122,8 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
             return;
         }
 
-        final String mcc = networkOperator.substring(0, 3);
-        final String mnc = networkOperator.substring(3);
+        final String mcc = "242"; //networkOperator.substring(0, 3);
+        final String mnc = "01"; //networkOperator.substring(3);
         getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
                 getOperatorDiscoveryAuthHeader(),
                 operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
@@ -175,7 +175,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
     @Override
     public String getWellKnownEndpoint() {
-        return operatorDiscoveryResult.getWellKnownEndpoint();
+        return applyStagingOnEndpoint(operatorDiscoveryResult.getWellKnownEndpoint());
     }
 
     private String getAuthorizationHeader() {

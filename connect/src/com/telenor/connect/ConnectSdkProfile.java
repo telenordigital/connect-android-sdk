@@ -91,7 +91,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
                 builder.addPathSegment(pathSegment);
             }
         }
-        return builder.build().toString();
+        return applyStagingOnEndpoint(builder.build().toString());
     }
 
     public void setUseStaging(boolean useStaging) {

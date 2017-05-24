@@ -92,4 +92,11 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                     }
                 });
     }
+
+    protected String applyStagingOnEndpoint(String endpoint) {
+        if (!useStaging) {
+            return endpoint;
+        }
+        return endpoint.replace("connect.telenordigital.com", "connect.staging.telenordigital.com");
+    }
 }
