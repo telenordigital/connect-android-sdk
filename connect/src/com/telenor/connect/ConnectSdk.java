@@ -413,11 +413,14 @@ public final class ConnectSdk {
         if (appInfo == null) {
             return false;
         }
-        Object useStagingObject = appInfo.metaData.get(propertyName);
-        if (!(useStagingObject instanceof Boolean)) {
+        if (appInfo.metaData == null) {
             return false;
         }
-        return (Boolean) useStagingObject;
+        Object booleanPropertyObject = appInfo.metaData.get(propertyName);
+        if (!(booleanPropertyObject instanceof Boolean)) {
+            return false;
+        }
+        return (Boolean) booleanPropertyObject;
     }
 
     public static WellKnownAPI.WellKnownConfig getWellKnownConfig() {
@@ -471,7 +474,6 @@ public final class ConnectSdk {
         sdkProfile = new MobileConnectSdkProfile(
                 context,
                 operatorDiscoveryConfig,
-                fetchBooleanProperty(getApplicationInfo(context), USE_STAGING_PROPERTY),
                 fetchBooleanProperty(getApplicationInfo(context), CONFIDENTIAL_CLIENT_PROPERTY));
         context.registerReceiver(
                 SimCardStateChangedBroadcastReceiver.getReceiver(),

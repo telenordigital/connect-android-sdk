@@ -17,12 +17,15 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
 
     private String clientId;
     private String redirectUri;
+    private boolean useStaging;
+
 
     public ConnectSdkProfile(
             Context context,
             boolean useStaging,
             boolean confidentialClient) {
-        super(context, useStaging, confidentialClient);
+        super(context, confidentialClient);
+        this.useStaging = useStaging;
     }
 
     @Override
@@ -91,7 +94,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
                 builder.addPathSegment(pathSegment);
             }
         }
-        return applyStagingOnEndpoint(builder.build().toString());
+        return applyUseStaginfOnEndpoint(builder.build().toString());
     }
 
     public void setUseStaging(boolean useStaging) {
@@ -113,5 +116,12 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     @Override
     public boolean isInitialized() {
         return true;
+    }
+
+    private String applyUseStaginfOnEndpoint(String endpoint) {
+        if (!useStaging) {
+            return endpoint;
+        }
+        return endpoint.replace("connect.telenordigital.com", "connect.staging.telenordigital.com");
     }
 }

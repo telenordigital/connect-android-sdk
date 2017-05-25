@@ -15,8 +15,8 @@ public class ExampleApplication extends Application {
                 OperatorDiscoveryConfig
                         .builder()
                         .endpoint("https://discover.mobileconnect.io/gsma/v2/discovery")
-                        .clientId("abce79a0-5a73-488e-9389-4bc7f2685b5b")
-                        .clientSecret("923901ca-6977-4f90-b18a-34da0c5c7b69")
+                        .clientId("ac8eb92d-5d6b-4db7-b46f-730534386026")
+                        .clientSecret("4af5f0dd-aa3c-420a-8790-2212476728c6")
                         .redirectUri("https://localhost:8443/")
                         .build());
     }

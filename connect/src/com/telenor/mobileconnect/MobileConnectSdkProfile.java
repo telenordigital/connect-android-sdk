@@ -38,21 +38,14 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     public MobileConnectSdkProfile(
             Context context,
             final OperatorDiscoveryConfig operatorDiscoveryConfig,
-            boolean useStaging,
             boolean confidentialClient) {
-        super(context, useStaging, confidentialClient);
+        super(context, confidentialClient);
         this.operatorDiscoveryConfig = operatorDiscoveryConfig;
     }
 
     @Override
     public HttpUrl getApiUrl() {
         String host = operatorDiscoveryResult.getMobileConnectApiUrl().host();
-        if (useStaging) {
-            // will have no effect on non-Telenor subscribers
-            host = host.replace(
-                    "connect.telenordigital.com",
-                    "connect.staging.telenordigital.com");
-        }
         HttpUrl.Builder builder = new HttpUrl.Builder();
         builder
                 .scheme(operatorDiscoveryResult.getMobileConnectApiUrl().scheme())
@@ -122,8 +115,8 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
             return;
         }
 
-        final String mcc = "242"; //networkOperator.substring(0, 3);
-        final String mnc = "01"; //networkOperator.substring(3);
+        final String mcc = networkOperator.substring(0, 3);
+        final String mnc = networkOperator.substring(3);
         getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
                 getOperatorDiscoveryAuthHeader(),
                 operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
@@ -175,7 +168,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
     @Override
     public String getWellKnownEndpoint() {
-        return applyStagingOnEndpoint(operatorDiscoveryResult.getWellKnownEndpoint());
+        return operatorDiscoveryResult.getWellKnownEndpoint();
     }
 
     private String getAuthorizationHeader() {

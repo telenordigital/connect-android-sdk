@@ -18,16 +18,13 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     private volatile WellKnownAPI.WellKnownConfig wellKnownConfig;
 
     protected Context context;
-    protected boolean useStaging;
     protected boolean confidentialClient;
     private volatile boolean isInitialized = false;
 
     public AbstractSdkProfile(
             Context context,
-            boolean useStaging,
             boolean confidentialClient) {
         this.context = context;
-        this.useStaging = useStaging;
         this.confidentialClient = confidentialClient;
     }
 
@@ -91,12 +88,5 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                         callback.onSuccess();
                     }
                 });
-    }
-
-    protected String applyStagingOnEndpoint(String endpoint) {
-        if (!useStaging) {
-            return endpoint;
-        }
-        return endpoint.replace("connect.telenordigital.com", "connect.staging.telenordigital.com");
     }
 }
