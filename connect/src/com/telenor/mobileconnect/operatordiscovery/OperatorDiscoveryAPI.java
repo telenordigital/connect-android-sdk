@@ -26,29 +26,7 @@ public interface OperatorDiscoveryAPI {
             @Query("Redirect_URL") String redirectUrl,
             @Query("Identified-MCC") String identifiedMcc,
             @Query("Identified-MNC") String identifiedMnc,
-            Callback<OperatorDiscoveryResult> result);
-
-
-    class BodyForMsisdn {
-        @SerializedName("Redirect_URL")
-        private String redirectUri;
-
-        @SerializedName("MSISDN")
-        private String msisdn;
-
-        public BodyForMsisdn(String redirectUri, String msisdn) {
-            this.redirectUri = redirectUri;
-            this.msisdn = msisdn;
-        }
-    }
-
-    @Headers("Content-Type: application/json")
-    @POST("/")
-    void getOperatorDiscoveryResult_ForMsisdn(
-            @Header("Authorization") String auth,
-            @Body BodyForMsisdn body,
-            Callback<OperatorDiscoveryResult> result);
-
+            Callback<OperatorDiscoveryResult> callback);
 
     class OperatorDiscoveryResult {
 

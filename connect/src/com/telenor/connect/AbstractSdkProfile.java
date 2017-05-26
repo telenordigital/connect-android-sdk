@@ -18,20 +18,17 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     private volatile WellKnownAPI.WellKnownConfig wellKnownConfig;
 
     protected Context context;
-    protected boolean useStaging;
     protected boolean confidentialClient;
     private volatile boolean isInitialized = false;
 
     public AbstractSdkProfile(
             Context context,
-            boolean useStaging,
             boolean confidentialClient) {
         this.context = context;
-        this.useStaging = useStaging;
         this.confidentialClient = confidentialClient;
     }
 
-    protected abstract String getWellKnownEndpoint();
+    public abstract String getWellKnownEndpoint();
 
     @Override
     public Context getContext() {
@@ -56,7 +53,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         this.connectIdService = connectIdService;
     }
 
-    protected boolean isInitialized() {
+    public boolean isInitialized() {
         return isInitialized;
     }
 

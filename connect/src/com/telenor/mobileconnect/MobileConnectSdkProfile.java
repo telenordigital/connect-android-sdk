@@ -20,6 +20,7 @@ import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,21 +38,14 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     public MobileConnectSdkProfile(
             Context context,
             final OperatorDiscoveryConfig operatorDiscoveryConfig,
-            boolean useStaging,
             boolean confidentialClient) {
-        super(context, useStaging, confidentialClient);
+        super(context, confidentialClient);
         this.operatorDiscoveryConfig = operatorDiscoveryConfig;
     }
 
     @Override
     public HttpUrl getApiUrl() {
         String host = operatorDiscoveryResult.getMobileConnectApiUrl().host();
-        if (useStaging) {
-            // will have no effect on non-Telenor subscribers
-            host = host.replace(
-                    "connect.telenordigital.com",
-                    "connect.staging.telenordigital.com");
-        }
         HttpUrl.Builder builder = new HttpUrl.Builder();
         builder
                 .scheme(operatorDiscoveryResult.getMobileConnectApiUrl().scheme())
@@ -78,20 +72,16 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public String getExpectedIssuer(String actualIssuer) {
-        // discrepancy between .well-known configuration and the actual issuer returned
-        if (operatorDiscoveryResult.getBasePath().contains("telenordigital.com")) {
-            return actualIssuer;
-        }
+    public String getExpectedIssuer() {
         if (getWellKnownConfig() != null) {
             return getWellKnownConfig().getIssuer();
         }
-        return actualIssuer;
+        return operatorDiscoveryResult.getBasePath();
     }
 
     @Override
-    public List<String> getExpectedAudiences(List<String> actualAudiences) {
-        return new ArrayList<>(actualAudiences);
+    public List<String> getExpectedAudiences() {
+        return new ArrayList<>(Arrays.asList(getClientId()));
     }
 
     @Override
@@ -146,11 +136,8 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     private OperatorDiscoveryAPI getOperatorDiscoveryApi() {
-        if (operatorDiscoveryApi == null) {
-            operatorDiscoveryApi = RestHelper.getOperatorDiscoveryApi(
+        return  RestHelper.getOperatorDiscoveryApi(
                     operatorDiscoveryConfig.getOperatorDiscoveryEndpoint());
-        }
-        return operatorDiscoveryApi;
     }
 
     private void initAndContinue(
@@ -180,7 +167,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    protected String getWellKnownEndpoint() {
+    public String getWellKnownEndpoint() {
         return operatorDiscoveryResult.getWellKnownEndpoint();
     }
 

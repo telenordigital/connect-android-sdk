@@ -204,7 +204,7 @@ public final class ConnectSdk {
 
     public static synchronized String getAccessToken() {
         Validator.sdkInitialized();
-        if (sdkProfile.getConnectIdService() != null) {
+        if (sdkProfile.isInitialized()) {
             return sdkProfile.getConnectIdService().getAccessToken();
         }
         return null;
@@ -225,7 +225,7 @@ public final class ConnectSdk {
         sdkProfile.getConnectIdService().getAccessTokenFromCode(code, callback);
     }
 
-    public static synchronized Uri getAuthorizeUriAndSetLastAuthState(
+    private static synchronized Uri getAuthorizeUriAndSetLastAuthState(
             Map<String, String> parameters) {
         if (ConnectSdk.getClientId() == null) {
             throw new ConnectException("Client ID not specified in application manifest.");
@@ -247,6 +247,7 @@ public final class ConnectSdk {
     }
 
     public static HttpUrl getConnectApiUrl() {
+        Validator.sdkInitialized();
         return sdkProfile.getApiUrl();
     }
 
@@ -315,12 +316,14 @@ public final class ConnectSdk {
         activity.startActivityForResult(intent, 1);
     }
 
-    public static String getExpectedIssuer(String actualIssuer) {
-        return sdkProfile.getExpectedIssuer(actualIssuer);
+    public static String getExpectedIssuer() {
+        Validator.sdkInitialized();
+        return sdkProfile.getExpectedIssuer();
     }
 
-    public static List<String> getExpectedAudiences(List<String> actualAudiences) {
-        return sdkProfile.getExpectedAudiences(actualAudiences);
+    public static List<String> getExpectedAudiences() {
+        Validator.sdkInitialized();
+        return sdkProfile.getExpectedAudiences();
     }
 
     public static synchronized boolean isConfidentialClient() {
@@ -418,25 +421,27 @@ public final class ConnectSdk {
     }
 
     private static ApplicationInfo getApplicationInfo(Context context) {
-        ApplicationInfo ai = null;
         try {
-            ai = context.getPackageManager().getApplicationInfo(
+            return context.getPackageManager().getApplicationInfo(
                     context.getPackageName(), PackageManager.GET_META_DATA);
         } catch (PackageManager.NameNotFoundException e) {
             return null;
         }
-        return ai;
     }
 
 
     private static boolean fetchBooleanProperty(ApplicationInfo appInfo, String propertyName) {
-        if (appInfo != null) {
-            Object useStagingObject = appInfo.metaData.get(propertyName);
-            if (useStagingObject instanceof Boolean) {
-                return (Boolean) useStagingObject;
-            }
+        if (appInfo == null) {
+            return false;
         }
-        return false;
+        if (appInfo.metaData == null) {
+            return false;
+        }
+        Object booleanPropertyObject = appInfo.metaData.get(propertyName);
+        if (!(booleanPropertyObject instanceof Boolean)) {
+            return false;
+        }
+        return (Boolean) booleanPropertyObject;
     }
 
     public static WellKnownAPI.WellKnownConfig getWellKnownConfig() {
@@ -481,10 +486,6 @@ public final class ConnectSdk {
         sdkProfile.getConnectIdService().getUserInfo(userInfoCallback);
     }
 
-    /**
-     * MobileConnect stuff
-     */
-
     public static synchronized void sdkInitializeMobileConnect(
             Context context,
             OperatorDiscoveryConfig operatorDiscoveryConfig) {
@@ -494,7 +495,6 @@ public final class ConnectSdk {
         sdkProfile = new MobileConnectSdkProfile(
                 context,
                 operatorDiscoveryConfig,
-                fetchBooleanProperty(getApplicationInfo(context), USE_STAGING_PROPERTY),
                 fetchBooleanProperty(getApplicationInfo(context), CONFIDENTIAL_CLIENT_PROPERTY));
         context.registerReceiver(
                 SimCardStateChangedBroadcastReceiver.getReceiver(),

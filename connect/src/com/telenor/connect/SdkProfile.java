@@ -18,10 +18,11 @@ public interface SdkProfile {
     boolean isConfidentialClient();
     String getRedirectUri();
     ConnectIdService getConnectIdService();
-    String getExpectedIssuer(String actualIssuer);
-    List<String> getExpectedAudiences(List<String> actualAudiences);
+    String getExpectedIssuer();
+    List<String> getExpectedAudiences();
     Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales);
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
+    boolean isInitialized();
 
     void onStartAuthorization(OnStartAuthorizationCallback callback);
 

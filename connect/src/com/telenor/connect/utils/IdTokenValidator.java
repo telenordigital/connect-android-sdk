@@ -27,7 +27,7 @@ public class IdTokenValidator {
         }
 
         final String issuer = idTokenClaimsSet.getIssuer();
-        final String expectedIssuer = ConnectSdk.getExpectedIssuer(issuer);
+        final String expectedIssuer = ConnectSdk.getExpectedIssuer();
         if (!expectedIssuer.equals(issuer)) {
             throw new ConnectException(
                     "ID token issuer is not the same as the issuer this client is configured with."
@@ -37,7 +37,7 @@ public class IdTokenValidator {
 
         final String clientId = ConnectSdk.getClientId();
         final List<String> audience = idTokenClaimsSet.getAudience();
-        final List<String> expectedAudience = ConnectSdk.getExpectedAudiences(audience);
+        final List<String> expectedAudience = ConnectSdk.getExpectedAudiences();
         if (audience == null || !audience.containsAll(expectedAudience)) {
             throw new ConnectException(
                     "ID token audience list does not contain the configured client ID."

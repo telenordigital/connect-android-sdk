@@ -17,12 +17,15 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
 
     private String clientId;
     private String redirectUri;
+    private boolean useStaging;
+
 
     public ConnectSdkProfile(
             Context context,
             boolean useStaging,
             boolean confidentialClient) {
-        super(context, useStaging, confidentialClient);
+        super(context, confidentialClient);
+        this.useStaging = useStaging;
     }
 
     @Override
@@ -51,7 +54,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public String getExpectedIssuer(String actualIssuer) {
+    public String getExpectedIssuer() {
         if (getWellKnownConfig() != null) {
             return getWellKnownConfig().getIssuer();
         }
@@ -59,7 +62,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public List<String> getExpectedAudiences(List<String> actualAudiences) {
+    public List<String> getExpectedAudiences() {
         return Collections.singletonList(clientId);
     }
 
@@ -83,7 +86,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    protected String getWellKnownEndpoint() {
+    public String getWellKnownEndpoint() {
         HttpUrl.Builder builder = getApiUrl().newBuilder();
         builder.addPathSegment(OAUTH_PATH);
         for (String pathSegment : WellKnownAPI.OPENID_CONFIGURATION_PATH.split("/")) {
@@ -91,7 +94,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
                 builder.addPathSegment(pathSegment);
             }
         }
-        return builder.build().toString();
+        return applyUseStaginfOnEndpoint(builder.build().toString());
     }
 
     public void setUseStaging(boolean useStaging) {
@@ -110,4 +113,15 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
         this.redirectUri = redirectUri;
     }
 
+    @Override
+    public boolean isInitialized() {
+        return true;
+    }
+
+    private String applyUseStaginfOnEndpoint(String endpoint) {
+        if (!useStaging) {
+            return endpoint;
+        }
+        return endpoint.replace("connect.telenordigital.com", "connect.staging.telenordigital.com");
+    }
 }
