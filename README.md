@@ -18,6 +18,7 @@
   * [Next steps for public clients](#next-steps-for-public-clients)
   * [Retrieving information about the logged in user](#retrieving-information-about-the-logged-in-user)
 * [Connect Payment](#connect-payment)
+* [Mobile Connect](#mobile-connect)
 
 The Connect SDK for Android allows developers to create applications that use Telenor Connect for
 sign-in or payment. More information about Telenor Connect can be found on our
@@ -585,3 +586,54 @@ return the [Payment link](http://docs.telenordigital.com/apis/connect/payment/#s
 to your application. The Payment link is then used in a call to
 `ConnectSdk.initializePayment(Context, String)`, which opens a `ConnectActivity` where the user can
 perform the transaction.
+
+
+## Mobile Connect
+
+This SDK may be used for developing apps that authenticate users via Mobile Connect. Mobile Connect is a 
+GSMA initiative aimed at providing an authentication mechanism that utilizes mobile phone as an identity 
+berarer. More about MobileConnect can be found here: https://mobileconnect.io.
+
+Since virtually everything said thus far about Connect ID applies to MobileConnect as well, you may 
+want to see mobileconnect-example app to spot the differences. What follows are some details about the most 
+notable ones.
+
+#### Initializing SDK with Mobile Connect
+
+##### Step 1: Implement your own logic for safekeeping secrets in your application
+
+> The example implementation found in the example app is just a simple example. 
+> Developers are encouraged to implement their own scheme to keep this information secret.
+
+##### Step 2: initialize SDK at the application startup
+
+```Java
+
+appConfig = ...
+
+...
+
+public class ExampleApplication extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ConnectSdk.sdkInitializeMobileConnect(
+                getApplicationContext(),
+                OperatorDiscoveryConfig
+                        .builder()
+                        .endpoint(appConfig.operatorDiscoveryEndpoint())
+                        .clientId(appConfig.operatorDiscoveryClientId())
+                        .clientSecret(appConfig.operatorDiscoverySecret())
+                        .redirectUri(appConfig.operatorDiscoveryRedirectUri())
+                        .build());
+    }
+}
+```
+
+#### MobileConnectLoginButton
+
+Use this button instead of `ConnectLoginButton` (previously discussed).
+
+
+

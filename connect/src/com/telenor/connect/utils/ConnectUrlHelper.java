@@ -7,16 +7,19 @@ import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.BuildConfig;
+import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.ConnectSdkProfile;
+import com.telenor.mobileconnect.MobileConnectSdkProfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ConnectUrlHelper {
 
     public static final String ACTION_ARGUMENT = "com.telenor.connect.ACTION_ARGUMENT";
     public static final String URL_ARGUMENT = "com.telenor.connect.URL_ARGUMENT";
-    public static final String OAUTH_PATH = "oauth";
 
     public static String getPageUrl(Bundle arguments) {
         if (ConnectUtils.PAYMENT_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
@@ -33,11 +36,11 @@ public class ConnectUrlHelper {
         throw new IllegalStateException("An invalid action was used to start a Connect Activity.");
     }
 
-    public static Uri getAuthorizeUri(
+    public static Uri getAuthorizeUriStem(
             Map<String, String> parameters,
             String clientId,
             String redirectUri,
-            ArrayList<String> locales,
+            List<String> locales,
             HttpUrl basePath) {
         Map<String, String> authParameters = new HashMap<>();
         authParameters.put("response_type", "code");
@@ -51,9 +54,7 @@ public class ConnectUrlHelper {
         Uri.Builder builder = new Uri.Builder();
         builder
                 .scheme(basePath.scheme())
-                .authority(basePath.host())
-                .appendPath(OAUTH_PATH)
-                .appendPath("authorize");
+                .authority(basePath.host());
         for (Map.Entry<String, String> entry : authParameters.entrySet()) {
             builder.appendQueryParameter(entry.getKey(), entry.getValue());
         }
