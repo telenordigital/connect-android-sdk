@@ -86,6 +86,8 @@ public final class ConnectSdk {
      */
     public static final String USE_STAGING_PROPERTY = "com.telenor.connect.USE_STAGING";
 
+    public static final int NO_CUSTOM_LAYOUT = -1;
+
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
 
@@ -116,27 +118,14 @@ public final class ConnectSdk {
             final Activity activity,
             final Map<String, String> parameters,
             final int requestCode) {
-        Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
-            @Override
-            public void onSuccess() {
-                Intent intent = getAuthIntent(parameters);
-                activity.startActivityForResult(intent, requestCode);
-            }
-
-            @Override
-            public void onError() {
-                showAuthCancelMessage(activity);
-            }
-        });
-
+        authenticate(activity, parameters, NO_CUSTOM_LAYOUT, requestCode);
     }
 
-    private static Intent getAuthIntent(Map<String, String> parameters) {
+    private static Intent getAuthIntent(Uri startUri) {
         final Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
-        final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
+        final String url = startUri.toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
         return intent;
     }
@@ -146,22 +135,62 @@ public final class ConnectSdk {
                                                  final int customLoadingLayout,
                                                  final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
-            @Override
-            public void onSuccess() {
-                Intent intent = getAuthIntent(parameters);
-                intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-                activity.startActivityForResult(intent, requestCode);
-            }
+        final ArrayList<String> uiLocales = getUiLocales();
+        sdkProfile.onStartAuthorization(
+                parameters,
+                uiLocales,
+                new SdkProfile.OnStartAuthorizationCallback() {
 
-            @Override
-            public void onError() {
-                showAuthCancelMessage(activity);
-            }
+                    @Override
+                    public void onSuccess(Uri authorizationStartUri) {
+                        startAuthActivity(authorizationStartUri, false);
+                    }
+
+                    @Override
+                    public void onDivert(Uri diversionUri) {
+                        startAuthActivity(diversionUri, true);
+                    }
+
+                    @Override
+                    public void onError() {
+                        showAuthCancelMessage(activity);
+                    }
+
+                    private void startAuthActivity(
+                            Uri startUri,
+                            boolean isDivertedToFetchInitUri) {
+
+                        if (TextUtils.isEmpty(parameters.get("state"))) {
+                            parameters.put("state", UUID.randomUUID().toString());
+                        }
+                        sLastAuthState = parameters.get("state");
+
+                        Intent intent = getAuthIntent(startUri);
+
+                        if (isDivertedToFetchInitUri) {
+                            intent.putExtra(
+                                    ConnectUtils.IS_DIVERTED_TO_FETCH_INIT_URI,
+                                    isDivertedToFetchInitUri);
+                            intent.putExtra(
+                                    ConnectUtils.PARAM_SNAPHOT_EXTRA,
+                                    new HashMap<>(parameters));
+                            intent.putExtra(
+                                    ConnectUtils.UI_LOCALES_SNAPHOT_EXTRA,
+                                    uiLocales);
+                        }
+
+                        if (customLoadingLayout != NO_CUSTOM_LAYOUT) {
+                            intent.putExtra(
+                                    ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA,
+                                    customLoadingLayout);
+                        }
+
+                        activity.startActivityForResult(intent, requestCode);
+                    }
         });
     }
 
-    private static void showAuthCancelMessage(Activity activity) {
+    public static void showAuthCancelMessage(Activity activity) {
         Toast.makeText(
                 activity,
                 R.string.com_telenor_authorization_cancelled,
@@ -175,8 +204,10 @@ public final class ConnectSdk {
      * @param parameters authorization parameters
      * @return authorization fragment
      */
+
     public static Fragment getAuthFragment(Map<String, String> parameters) {
         Validator.sdkInitialized();
+        Validator.connectIdOnly();
 
         final Fragment fragment = new ConnectWebFragment();
         Intent authIntent = getAuthIntent(parameters);
@@ -225,6 +256,15 @@ public final class ConnectSdk {
         sdkProfile.getConnectIdService().getAccessTokenFromCode(code, callback);
     }
 
+    private static Intent getAuthIntent(Map<String, String> parameters) {
+        final Intent intent = new Intent();
+        intent.setClass(getContext(), ConnectActivity.class);
+        intent.setAction(ConnectUtils.LOGIN_ACTION);
+        final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
+        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
+        return intent;
+    }
+
     private static synchronized Uri getAuthorizeUriAndSetLastAuthState(
             Map<String, String> parameters) {
         if (ConnectSdk.getClientId() == null) {
@@ -266,7 +306,7 @@ public final class ConnectSdk {
         return sLastAuthState;
     }
 
-    public static ArrayList<Locale> getLocales() {
+    public static List<Locale> getLocales() {
         Validator.sdkInitialized();
         return sLocales;
     }

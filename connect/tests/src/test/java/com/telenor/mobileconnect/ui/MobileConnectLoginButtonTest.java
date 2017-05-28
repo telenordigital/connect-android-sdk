@@ -27,9 +27,9 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowContextImpl;
 import org.robolectric.shadows.ShadowTelephonyManager;
 
+import static com.telenor.TestHelper.BooleanSupplier;
 import static com.telenor.TestHelper.MOCKED_FAILING_WELL_KNOWN_API;
 import static com.telenor.TestHelper.MOCKED_VALID_WELL_KNOWN_API;
-import static com.telenor.TestHelper.BooleanSupplier;
 import static com.telenor.TestHelper.MOCKED_WELL_KNOWN_ENDPONT;
 import static com.telenor.TestHelper.WELL_KNOWN_API_MAP;
 import static com.telenor.TestHelper.flushForegroundTasksUntilCallerIsSatisifed;

@@ -19,6 +19,7 @@ import android.webkit.WebViewClient;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.SdkProfile;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsCursorUtil;
 import com.telenor.connect.sms.SmsHandler;
@@ -27,13 +28,13 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
@@ -87,11 +88,47 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     }
 
     @Override
-    public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        if (ConnectSdk.getRedirectUri() != null
-                && url.startsWith(ConnectSdk.getRedirectUri())) {
-            ConnectUtils.parseAuthCode(url, connectCallback);
-            return true;
+    @SuppressWarnings("unchecked")
+    public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
+        if ((ConnectSdk.getRedirectUri() != null) && url.startsWith(ConnectSdk.getRedirectUri())) {
+
+            if (ConnectSdk.getSdkProfile().isInitialized()) {
+                ConnectUtils.parseAuthCode(url, connectCallback);
+                return true;
+            }
+
+            if (this.activity
+                    .getIntent()
+                    .getExtras()
+                    .getBoolean(ConnectUtils.IS_DIVERTED_TO_FETCH_INIT_URI, false)) {
+                Uri initFrom = Uri.parse(url);
+                ConnectSdk.getSdkProfile().initializeFromUri(
+                        (Map<String, String>) this.activity
+                                .getIntent()
+                                .getExtras()
+                                .get(ConnectUtils.PARAM_SNAPHOT_EXTRA),
+                        (List<String>) this.activity
+                                .getIntent()
+                                .getExtras()
+                                .get(ConnectUtils.UI_LOCALES_SNAPHOT_EXTRA),
+                        initFrom,
+                        new SdkProfile.OnDeliverAuthorizationUriCallback() {
+
+                            @Override
+                            public void onSuccess(Uri authorizationStartUri) {
+                                view.loadUrl(authorizationStartUri.toString());
+                            }
+
+                            @Override
+                            public void onError() {
+                                ConnectSdk.showAuthCancelMessage(activity);
+                                activity.setResult(Activity.RESULT_CANCELED);
+                                activity.finish();
+
+                            }
+                        });
+                return true;
+            }
         }
         if (ConnectSdk.getPaymentCancelUri() != null
                 && url.startsWith(ConnectSdk.getPaymentCancelUri())) {

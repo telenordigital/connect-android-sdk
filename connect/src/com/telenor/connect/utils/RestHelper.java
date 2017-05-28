@@ -3,12 +3,12 @@ package com.telenor.connect.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
+import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.IdTokenDeserializer;
 import com.telenor.mobileconnect.id.MobileConnectAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
-import com.telenor.connect.WellKnownAPI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
-import retrofit.client.Client;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 

@@ -3,6 +3,7 @@ package com.telenor.connect;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Set;
+
 import retrofit.Callback;
 import retrofit.http.GET;
 import retrofit.http.Headers;

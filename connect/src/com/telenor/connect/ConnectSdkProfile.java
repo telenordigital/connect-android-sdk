@@ -81,8 +81,11 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public void onStartAuthorization(OnStartAuthorizationCallback callback) {
-        initializeAndContinueAuthorizationFlow(callback);
+    public void onStartAuthorization(
+            Map<String, String> parameters,
+            List<String> locales,
+            OnStartAuthorizationCallback callback) {
+        initializeAndContinueAuthorizationFlow(parameters, locales, callback);
     }
 
     @Override
@@ -123,5 +126,14 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
             return endpoint;
         }
         return endpoint.replace("connect.telenordigital.com", "connect.staging.telenordigital.com");
+    }
+
+    @Override
+    public void initializeFromUri(
+            Map<String, String> parameters,
+            List<String> uiLocales,
+            Uri initFrom,
+            OnDeliverAuthorizationUriCallback callback) {
+        throw new UnsupportedOperationException();
     }
 }

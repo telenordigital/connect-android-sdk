@@ -22,8 +22,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static com.telenor.TestHelper.MOCKED_VALID_WELL_KNOWN_API;
 import static com.telenor.TestHelper.DUMMY_ISSUER;
+import static com.telenor.TestHelper.MOCKED_VALID_WELL_KNOWN_API;
 import static com.telenor.TestHelper.WELL_KNOWN_API_MAP;
 import static com.telenor.TestHelper.flushForegroundTasksUntilCallerIsSatisifed;
 import static org.hamcrest.MatcherAssert.assertThat;

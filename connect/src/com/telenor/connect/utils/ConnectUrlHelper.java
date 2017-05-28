@@ -7,11 +7,7 @@ import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.BuildConfig;
-import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.ConnectSdkProfile;
-import com.telenor.mobileconnect.MobileConnectSdkProfile;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
