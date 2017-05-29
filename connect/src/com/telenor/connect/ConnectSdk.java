@@ -1,13 +1,20 @@
 package com.telenor.connect;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -45,6 +52,9 @@ public final class ConnectSdk {
     private static String sPaymentCancelUri;
     private static String sPaymentSuccessUri;
     private static SdkProfile sdkProfile;
+    private static ConnectivityManager connectivityManager;
+    private static volatile Network cellularNetwork;
+    private static volatile Network wifiNetwork;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -84,6 +94,8 @@ public final class ConnectSdk {
 
     public static final String EXTRA_CONNECT_TOKENS =
             "com.telenor.connect.EXTRA_CONNECT_TOKENS";
+
+    public static final int MAX_REDIRECTS_TO_FOLLOW_FOR_HE = 5;
 
     public static SdkProfile getSdkProfile() {
         Validator.sdkInitialized();
@@ -333,6 +345,7 @@ public final class ConnectSdk {
             return;
         }
 
+
         Validator.notNull(context, "context");
         ConnectSdkProfile profile = loadConnectConfig(context);
         sdkProfile = profile;
@@ -342,6 +355,14 @@ public final class ConnectSdk {
                         RestHelper.getConnectApi(getConnectApiUrl().toString()),
                         profile.getClientId(),
                         profile.getRedirectUri()));
+
+        initializeCommonComponents();
+    }
+
+    public static String getMccMnc() {
+        TelephonyManager tel
+                = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        return tel.getNetworkOperator();
     }
 
     public static void setLocales(Locale... locales) {
@@ -478,6 +499,8 @@ public final class ConnectSdk {
         context.registerReceiver(
                 SimCardStateChangedBroadcastReceiver.getReceiver(),
                 SimCardStateChangedBroadcastReceiver.getIntentFilter());
+
+        initializeCommonComponents();
     }
 
     public static synchronized void sdkReinitializeMobileConnect() {
@@ -486,5 +509,67 @@ public final class ConnectSdk {
         }
         MobileConnectSdkProfile profile = (MobileConnectSdkProfile) sdkProfile;
         profile.deInitialize();
+    }
+
+    public static ConnectivityManager getConnectivityManager() {
+        return connectivityManager;
+    }
+
+    public static Network getCellularNetwork() {
+        return cellularNetwork;
+    }
+
+    public static Network getWifiNetwork() {
+        return wifiNetwork;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static void initalizeCellularNetwork() {
+        NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                .build();
+        connectivityManager.requestNetwork(
+                networkRequest,
+                new ConnectivityManager.NetworkCallback() {
+                    @Override
+                    public void onAvailable(Network network) {
+                        cellularNetwork = network;
+                    }
+                }
+        );
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static void initalizeWiFiNetwork() {
+        NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build();
+        connectivityManager.requestNetwork(
+                networkRequest,
+                new ConnectivityManager.NetworkCallback() {
+                    @Override
+                    public void onAvailable(Network network) {
+                        wifiNetwork = network;
+                    }
+                }
+        );
+    }
+
+    /**
+     * Initialize components common to both Mobile Connect and ConnectID SDK profiles
+     */
+    public static synchronized void initializeCommonComponents() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+        connectivityManager
+                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (null == connectivityManager) {
+            return;
+        }
+        initalizeCellularNetwork();
+        initalizeWiFiNetwork();
     }
 }

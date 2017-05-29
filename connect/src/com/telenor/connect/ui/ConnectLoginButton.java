@@ -107,6 +107,11 @@ public class ConnectLoginButton extends ConnectButton {
                 parameters.put("scope", TextUtils.join(" ", getLoginScopeTokens()));
             }
 
+            final String mccMnc = ConnectSdk.getMccMnc();
+            if (mccMnc != null) {
+                parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
+            }
+
             if (claims != null && claims.getClaimsAsSet() != null) {
                 try {
                     parameters.put("claims", ClaimsParameterFormatter.asJson(claims));

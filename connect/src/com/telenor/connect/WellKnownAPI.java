@@ -2,6 +2,7 @@ package com.telenor.connect;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Set;
 import retrofit.Callback;
 import retrofit.http.GET;
 import retrofit.http.Headers;
@@ -17,9 +18,14 @@ public interface WellKnownAPI {
     class WellKnownConfig {
         @SerializedName("issuer")
         private String issuer;
-
         public String getIssuer() {
             return issuer;
+        }
+
+        @SerializedName("network_authentication_target_ips")
+        private Set<String> networkAuthenticationTargetIps;
+        public Set<String> getNetworkAuthenticationTargetIps() {
+            return networkAuthenticationTargetIps;
         }
     }
 }
