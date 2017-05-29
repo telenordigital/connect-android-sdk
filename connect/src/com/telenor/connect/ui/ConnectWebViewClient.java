@@ -1,15 +1,19 @@
 package com.telenor.connect.ui;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Network;
+import android.net.Uri;
 import android.os.Build;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -22,8 +26,19 @@ import com.telenor.connect.sms.SmsPinParseUtil;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 
 public class ConnectWebViewClient extends WebViewClient implements SmsHandler, InstructionHandler {
 
@@ -91,6 +106,78 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             return true;
         }
         return false;
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        boolean shouldSkipInterceptionLogic
+                = ConnectSdk.getCellularNetwork() == null || ConnectSdk.getWifiNetwork() == null;
+        if (shouldSkipInterceptionLogic) {
+            return null;
+        }
+        if (shouldFetchThroughCellular(request.getUrl().toString())) {
+            return fetchUrlTroughCellular(request.getUrl().toString());
+        }
+        return null;
+    }
+
+    public boolean shouldFetchThroughCellular(String url) {
+        if (ConnectSdk.getWellKnownConfig() == null
+                || ConnectSdk.getWellKnownConfig().getNetworkAuthenticationTargetIps() == null
+                || ConnectSdk.getWellKnownConfig().getNetworkAuthenticationTargetIps().isEmpty()) {
+            return false;
+        }
+        String hostIp;
+        try {
+            String host = (new URL(url)).getHost();
+            hostIp = InetAddress.getByName(host).getHostAddress();
+        } catch (MalformedURLException|UnknownHostException e) {
+            return false;
+        }
+        return ConnectSdk
+                .getWellKnownConfig()
+                .getNetworkAuthenticationTargetIps()
+                .contains(hostIp);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public WebResourceResponse fetchUrlTroughCellular(String originalUrl) {
+        String newUrl = originalUrl;
+        int attempts = 0;
+        Network interfaceToUse = ConnectSdk.getCellularNetwork();
+        do {
+            int responseCode;
+            try {
+                HttpURLConnection connection
+                        = (HttpURLConnection)interfaceToUse.openConnection(new URL(newUrl));
+                connection.setInstanceFollowRedirects(false);
+                connection.connect();
+                responseCode = connection.getResponseCode();
+                attempts += 1;
+                if (responseCode != HTTP_SEE_OTHER
+                    && responseCode != HTTP_MOVED_TEMP
+                    && responseCode != HTTP_MOVED_PERM) {
+                    // Rely on the WebView to close the input stream when finished fetching data
+                    return new WebResourceResponse(
+                            connection.getContentType(),
+                            connection.getContentEncoding(),
+                            connection.getInputStream());
+                }
+                newUrl = connection.getHeaderField("Location");
+                // Close the input stream, but do not disconnect the connection as its socket might
+                // be reused during the next request.
+                connection.getInputStream().close();
+            } catch (final IOException e) {
+                return null;
+            }
+            interfaceToUse = responseCode == HTTP_MOVED_TEMP
+                    ? ConnectSdk.getCellularNetwork()
+                    : shouldFetchThroughCellular(newUrl)
+                      ? ConnectSdk.getCellularNetwork()
+                      : ConnectSdk.getWifiNetwork();
+        } while (attempts <= ConnectSdk.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
+        return null;
     }
 
     @Override
