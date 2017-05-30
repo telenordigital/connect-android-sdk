@@ -12,7 +12,7 @@
   * [Set Staging or Production Environment](#set-staging-or-production-environment)
   * [Select Client type](#select-client-type)
   * [Adding the Client ID and redirect URI](#adding-the-client-id-and-redirect-uri)
-  * [Adding permissions](adding-permissions)
+  * [Adding permissions](#adding-permissions)
 * [Detailed Usage](#detailed-usage)
   * [Adding a ConnectLoginButton](#adding-a-connectloginbutton)
   * [Next steps for public clients](#next-steps-for-public-clients)
