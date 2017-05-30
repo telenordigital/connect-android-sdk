@@ -2,12 +2,14 @@ package com.telenor.connect;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.utils.RestHelper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -107,6 +109,11 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
         }
+
+        if (TextUtils.isEmpty(parameters.get("state"))) {
+            parameters.put("state", UUID.randomUUID().toString());
+        }
+
         return getAuthorizeUri(parameters, uiLocales);
     }
 }

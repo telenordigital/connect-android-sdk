@@ -160,9 +160,6 @@ public final class ConnectSdk {
                             Uri startUri,
                             boolean isDivertedToFetchInitUri) {
 
-                        if (TextUtils.isEmpty(parameters.get("state"))) {
-                            parameters.put("state", UUID.randomUUID().toString());
-                        }
                         sLastAuthState = parameters.get("state");
 
                         Intent intent = getAuthIntent(startUri);
