@@ -22,6 +22,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI.OperatorSelectionResult;
 
 public class MobileConnectTestHelper {
 
@@ -35,6 +36,8 @@ public class MobileConnectTestHelper {
             getFailingOperatorDiscoveryApiMock();
     public static final OperatorDiscoveryAPI MOCKED_VALID_OPERATOR_DISCOVERY_API =
             getValidOperatorDiscoveryApiMock();
+    public static final OperatorDiscoveryAPI MOCKED_VALID_OPERATOR_SELECTION_API =
+            getValidOperatorSelectionApiMock();
 
     private static final String MOCKED_API_URL = "https://dummy/operator/oauth";
     private static final String MOCKED_CLIENT_ID = "dummy-client";
@@ -58,9 +61,29 @@ public class MobileConnectTestHelper {
         return api;
     }
 
+    private static OperatorDiscoveryAPI getValidOperatorSelectionApiMock() {
+        final OperatorSelectionResult osResult =
+                mock(OperatorSelectionResult.class);
+        when(osResult.getEndpoint()).thenReturn(MOCKED_MOBILE_REDIRECT_URI);
+        OperatorDiscoveryAPI api = getFailingOperatorDiscoveryApiMock();
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Callback<OperatorSelectionResult> callback =
+                        (Callback<OperatorSelectionResult>) invocation.getArguments()[2];
+                callback.success(osResult, null);
+                return null;
+            }
+        }).when(api).getOperatorSelectionResult(
+                anyString(),
+                anyString(),
+                any(Callback.class));
+        return api;
+    }
+
     private static OperatorDiscoveryAPI getValidOperatorDiscoveryApiMock() {
-        final OperatorDiscoveryAPI.OperatorDiscoveryResult odResult =
-                mock(OperatorDiscoveryAPI.OperatorDiscoveryResult.class);
+        final OperatorDiscoveryResult odResult =
+                mock(OperatorDiscoveryResult.class);
         when(odResult.getWellKnownEndpoint()).thenReturn(MOCKED_WELL_KNOWN_ENDPONT);
         when(odResult.getMobileConnectApiUrl()).thenReturn(HttpUrl.parse(MOCKED_API_URL));
         when(odResult.getClientId()).thenReturn(MOCKED_CLIENT_ID);
