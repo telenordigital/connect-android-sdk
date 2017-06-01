@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static com.telenor.connect.WellKnownAPI.WellKnownConfig;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
@@ -88,7 +89,6 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
         if ((ConnectSdk.getRedirectUri() != null) && url.startsWith(ConnectSdk.getRedirectUri())) {
 
@@ -101,21 +101,30 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                     .getIntent()
                     .getExtras()
                     .getBoolean(ConnectUtils.IS_DIVERTED_TO_FETCH_INIT_URI, false)) {
+
                 Uri initFrom = Uri.parse(url);
+                @SuppressWarnings("unchecked")
+                Map<String, String> parameters = (Map<String, String>) this.activity
+                        .getIntent()
+                        .getExtras()
+                        .get(ConnectUtils.PARAM_SNAPHOT_EXTRA);
+                @SuppressWarnings("unchecked")
+                List<String> uiLocales = (List<String>) this.activity
+                        .getIntent()
+                        .getExtras()
+                        .get(ConnectUtils.UI_LOCALES_SNAPHOT_EXTRA);
+
                 ConnectSdk.getSdkProfile().initializeFromUri(
-                        (Map<String, String>) this.activity
-                                .getIntent()
-                                .getExtras()
-                                .get(ConnectUtils.PARAM_SNAPHOT_EXTRA),
-                        (List<String>) this.activity
-                                .getIntent()
-                                .getExtras()
-                                .get(ConnectUtils.UI_LOCALES_SNAPHOT_EXTRA),
+                        parameters,
+                        uiLocales,
                         initFrom,
                         new SdkProfile.OnDeliverAuthorizationUriCallback() {
 
                             @Override
                             public void onSuccess(Uri authorizationStartUri) {
+                                activity.getIntent().putExtra(
+                                        ConnectUtils.WELL_KNOWN_CONFIG_EXTRA,
+                                        ConnectSdk.getSdkProfile().getWellKnownConfig());
                                 view.loadUrl(authorizationStartUri.toString());
                             }
 
@@ -159,10 +168,15 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         return null;
     }
 
-    public boolean shouldFetchThroughCellular(String url) {
-        if (ConnectSdk.getWellKnownConfig() == null
-                || ConnectSdk.getWellKnownConfig().getNetworkAuthenticationTargetIps() == null
-                || ConnectSdk.getWellKnownConfig().getNetworkAuthenticationTargetIps().isEmpty()) {
+    private boolean shouldFetchThroughCellular(String url) {
+        WellKnownConfig wellKnownConfig =
+                (WellKnownConfig) this.activity
+                .getIntent()
+                .getExtras()
+                .get(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA);
+        if (wellKnownConfig == null
+                || wellKnownConfig.getNetworkAuthenticationTargetIps() == null
+                || wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()) {
             return false;
         }
         String hostIp;
@@ -172,14 +186,13 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         } catch (MalformedURLException|UnknownHostException e) {
             return false;
         }
-        return ConnectSdk
-                .getWellKnownConfig()
+        return wellKnownConfig
                 .getNetworkAuthenticationTargetIps()
                 .contains(hostIp);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public WebResourceResponse fetchUrlTroughCellular(String originalUrl) {
+    private WebResourceResponse fetchUrlTroughCellular(String originalUrl) {
         String newUrl = originalUrl;
         int attempts = 0;
         Network interfaceToUse = ConnectSdk.getCellularNetwork();

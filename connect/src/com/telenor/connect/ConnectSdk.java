@@ -163,6 +163,9 @@ public final class ConnectSdk {
                         sLastAuthState = parameters.get("state");
 
                         Intent intent = getAuthIntent(startUri);
+                        intent.putExtra(
+                                ConnectUtils.WELL_KNOWN_CONFIG_EXTRA,
+                                sdkProfile.getWellKnownConfig());
 
                         if (isDivertedToFetchInitUri) {
                             intent.putExtra(

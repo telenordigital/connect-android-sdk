@@ -2,6 +2,7 @@ package com.telenor.connect;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import retrofit.Callback;
@@ -16,7 +17,7 @@ public interface WellKnownAPI {
     @GET("/")
     void getWellKnownConfig(Callback<WellKnownConfig> callback);
 
-    class WellKnownConfig {
+    class WellKnownConfig implements Serializable {
         @SerializedName("issuer")
         private String issuer;
         public String getIssuer() {

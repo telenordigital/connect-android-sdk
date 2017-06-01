@@ -103,41 +103,9 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public synchronized void onStartAuthorization(
-            Map<String, String> parameters,
-            List<String> uiLocales,
-            OnStartAuthorizationCallback callback) {
-        fetchStartUri(parameters, uiLocales, null, callback);
-    }
-
-    @Override
-    public synchronized void initializeFromUri(
-            Map<String, String> parameters,
-            List<String> uiLocales,
-            Uri initFrom,
-            final OnDeliverAuthorizationUriCallback callback) {
-        fetchStartUri(parameters, uiLocales, initFrom, new OnStartAuthorizationCallback() {
-            @Override
-            public void onDivert(Uri startUri) {
-                throw new RuntimeException("Unexpected callback!");
-            }
-
-            @Override
-            public void onSuccess(Uri startUri) {
-                callback.onSuccess(startUri);
-            }
-
-            @Override
-            public void onError() {
-                callback.onError();
-            }
-        });
-    }
-
-    private void fetchStartUri(
+    public void onStartAuthorization(
             final Map<String, String> parameters,
             final List<String> uiLocales,
-            final Uri initFrom,
             final OnStartAuthorizationCallback callback) {
 
         if (isInitialized()) {
@@ -145,41 +113,16 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
             return;
         }
 
-        final String mcc;
-        final String mnc;
+        TelephonyManager phMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String networkOperator = phMgr.getNetworkOperator();
 
-        if (initFrom == null) {
-            TelephonyManager phMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            String networkOperator = phMgr.getNetworkOperator();
-
-            if (TextUtils.isEmpty(networkOperator)) {
-                handleOperatorDiscoveryFailure(callback);
-                return;
-            }
-
-            mcc = networkOperator.substring(0, 3);
-            mnc = networkOperator.substring(3);
-        } else {
-            String mcc_mnc = initFrom.getQueryParameter("mcc_mnc");
-            if (mcc_mnc == null) {
-                callback.onError();
-                return;
-            }
-            String[] mccAndMnc = mcc_mnc.split("_");
-            if (mccAndMnc.length != 2) {
-                callback.onError();
-                return;
-            }
-            mcc = mccAndMnc[0];
-            mnc = mccAndMnc[1];
-
-            String subscriber_id = initFrom.getQueryParameter("subscriber_id");
-            if (subscriber_id != null) {
-                parameters.put(
-                        "login_hint",
-                        String.format("ENCR_MSISDN:%s", subscriber_id));
-            }
+        if (TextUtils.isEmpty(networkOperator)) {
+            handleOperatorDiscoveryFailure(callback);
+            return;
         }
+
+        final String mcc = networkOperator.substring(0, 3);
+        final String mnc = networkOperator.substring(3);
 
         getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
                 getOperatorDiscoveryAuthHeader(),
@@ -196,10 +139,6 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
                     @Override
                     public void failure(RetrofitError error) {
-                        if (initFrom != null) {
-                            callback.onError();
-                            return;
-                        }
                         handleOperatorDiscoveryFailure(callback);
                     }
                 });
@@ -220,6 +159,53 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                             return;
                         }
                         callback.onDivert(Uri.parse(endpoint));
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        callback.onError();
+                    }
+                });
+    }
+
+    @Override
+    public synchronized void initializeFromUri(
+            final Map<String, String> parameters,
+            final List<String> uiLocales,
+            Uri initFrom,
+            final OnDeliverAuthorizationUriCallback callback) {
+
+        String mcc_mnc = initFrom.getQueryParameter("mcc_mnc");
+        if (mcc_mnc == null) {
+            callback.onError();
+            return;
+        }
+        String[] mccAndMnc = mcc_mnc.split("_");
+        if (mccAndMnc.length != 2) {
+            callback.onError();
+            return;
+        }
+        String mcc = mccAndMnc[0];
+        String mnc = mccAndMnc[1];
+
+        String subscriber_id = initFrom.getQueryParameter("subscriber_id");
+        if (subscriber_id != null) {
+            parameters.put(
+                    "login_hint",
+                    String.format("ENCR_MSISDN:%s", subscriber_id));
+        }
+
+        getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
+                getOperatorDiscoveryAuthHeader(),
+                operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
+                mcc,
+                mnc,
+                new Callback<OperatorDiscoveryResult>() {
+                    @Override
+                    public void success(
+                            OperatorDiscoveryResult operatorDiscoveryResult,
+                            Response response) {
+                        initAndContinue(parameters, uiLocales, operatorDiscoveryResult, callback);
                     }
 
                     @Override

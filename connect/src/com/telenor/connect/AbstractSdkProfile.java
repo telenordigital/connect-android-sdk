@@ -17,8 +17,8 @@ import retrofit.client.Response;
 
 public abstract class AbstractSdkProfile implements SdkProfile {
 
-    private volatile ConnectIdService connectIdService;
-    private volatile WellKnownAPI.WellKnownConfig wellKnownConfig;
+    private ConnectIdService connectIdService;
+    private WellKnownAPI.WellKnownConfig wellKnownConfig;
 
     protected Context context;
     protected boolean confidentialClient;
@@ -96,7 +96,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                 });
     }
 
-    protected synchronized Uri getAuthorizationStartUri(
+    protected Uri getAuthorizationStartUri(
             Map<String, String> parameters,
             List<String> uiLocales) {
         if (getClientId() == null) {
