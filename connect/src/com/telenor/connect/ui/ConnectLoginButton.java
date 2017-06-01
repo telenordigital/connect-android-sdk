@@ -21,14 +21,12 @@ import java.util.Map;
 
 public class ConnectLoginButton extends ConnectButton {
 
-    private static final int NO_CUSTOM_LAYOUT = -1;
-
     private ArrayList<String> acrValues;
     private Map<String, String> loginParameters;
     private ArrayList<String> loginScopeTokens;
     private int requestCode = 0xa987;
     private Claims claims;
-    private int customLoadingLayout = NO_CUSTOM_LAYOUT;
+    private int customLoadingLayout = ConnectSdk.NO_CUSTOM_LAYOUT;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -124,14 +122,10 @@ public class ConnectLoginButton extends ConnectButton {
                 parameters.putAll(getLoginParameters());
             }
 
-            if (customLoadingLayout == NO_CUSTOM_LAYOUT) {
-                ConnectSdk.authenticate(getActivity(), parameters, requestCode);
-            } else {
-                ConnectSdk.authenticate(getActivity(),
-                        parameters,
-                        customLoadingLayout,
-                        requestCode);
-            }
+            ConnectSdk.authenticate(getActivity(),
+                    parameters,
+                    customLoadingLayout,
+                    requestCode);
         }
     }
 }

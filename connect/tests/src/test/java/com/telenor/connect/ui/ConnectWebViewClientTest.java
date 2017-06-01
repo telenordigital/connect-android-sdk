@@ -8,9 +8,10 @@ import android.webkit.WebView;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.SdkProfile;
+import com.telenor.connect.id.ParseTokenCallback;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.utils.ConnectUtils;
-import com.telenor.connect.id.ParseTokenCallback;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
@@ -215,8 +217,11 @@ public class ConnectWebViewClientTest {
 
     @Test
     public void urlsThatStartWithRedirectUriCallsParseAuthCode() {
+        SdkProfile sdkProfileMock = mock(SdkProfile.class);
+        when(sdkProfileMock.isInitialized()).thenReturn(true);
+
         mockStatic(ConnectSdk.class);
-        given(ConnectSdk.isInitialized()).willReturn(true);
+        given(ConnectSdk.getSdkProfile()).willReturn(sdkProfileMock);
         given(ConnectSdk.getRedirectUri()).willReturn("redirect-uri");
 
         mockStatic(ConnectUtils.class);

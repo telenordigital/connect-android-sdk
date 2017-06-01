@@ -24,12 +24,13 @@ import org.powermock.reflect.Whitebox;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowContextImpl;
 import org.robolectric.shadows.ShadowTelephonyManager;
 
+import static com.telenor.TestHelper.BooleanSupplier;
 import static com.telenor.TestHelper.MOCKED_FAILING_WELL_KNOWN_API;
 import static com.telenor.TestHelper.MOCKED_VALID_WELL_KNOWN_API;
-import static com.telenor.TestHelper.BooleanSupplier;
 import static com.telenor.TestHelper.MOCKED_WELL_KNOWN_ENDPONT;
 import static com.telenor.TestHelper.WELL_KNOWN_API_MAP;
 import static com.telenor.TestHelper.flushForegroundTasksUntilCallerIsSatisifed;
@@ -40,6 +41,7 @@ import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_MOBILE_CO
 import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_MOBILE_REDIRECT_URI;
 import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_OD_ENDPONT;
 import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_VALID_OPERATOR_DISCOVERY_API;
+import static com.telenor.mobileconnect.MobileConnectTestHelper.MOCKED_VALID_OPERATOR_SELECTION_API;
 import static com.telenor.mobileconnect.MobileConnectTestHelper.OPERATOR_DISCOVERY_API_MAP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -128,5 +130,34 @@ public class MobileConnectLoginButtonTest {
         assertThat(startedIntent.getComponent(), is(expected.getComponent()));
         assertThat(startedIntent.getAction(), is(ConnectUtils.LOGIN_ACTION));
         assertThat(ConnectSdk.getWellKnownConfig().getIssuer(), is(TestHelper.DUMMY_ISSUER));
+    }
+
+    @Test
+    public void clickingLoginButtonWithFailingOperatorDiscoveryResultStartsDivertedConnectActivity() {
+        WELL_KNOWN_API_MAP.put(MOCKED_WELL_KNOWN_ENDPONT, MOCKED_VALID_WELL_KNOWN_API);
+        OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, MOCKED_VALID_OPERATOR_SELECTION_API);
+
+        final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
+        final ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);
+        button.setLoginScopeTokens("profile");
+        button.performClick();
+
+        assertThat("Activity is started",
+                flushForegroundTasksUntilCallerIsSatisifed(
+                        3000,
+                        new BooleanSupplier() {
+                            @Override
+                            public boolean getAsBoolean() {
+                                ShadowActivity.IntentForResult intentForResult =
+                                        shadowOf(activity).peekNextStartedActivityForResult();
+                                if (intentForResult == null) {
+                                    return false;
+                                }
+                                return intentForResult.intent.getBooleanExtra(
+                                        ConnectUtils.IS_DIVERTED_TO_FETCH_INIT_URI,
+                                        false);
+                            }
+                        }
+                ), is(true));
     }
 }

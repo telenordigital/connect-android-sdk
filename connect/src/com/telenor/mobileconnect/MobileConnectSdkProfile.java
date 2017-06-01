@@ -29,10 +29,13 @@ import retrofit.ResponseCallback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+import static com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI.OperatorDiscoveryResult;
+import static com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI.OperatorSelectionResult;
+
 public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
     private OperatorDiscoveryConfig operatorDiscoveryConfig;
-    private volatile OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult;
+    private volatile OperatorDiscoveryResult operatorDiscoveryResult;
     private volatile OperatorDiscoveryAPI operatorDiscoveryApi;
 
     public MobileConnectSdkProfile(
@@ -100,10 +103,13 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public void onStartAuthorization(final OnStartAuthorizationCallback callback) {
+    public void onStartAuthorization(
+            final Map<String, String> parameters,
+            final List<String> uiLocales,
+            final OnStartAuthorizationCallback callback) {
 
         if (isInitialized()) {
-            callback.onSuccess();
+            callback.onSuccess(getAuthorizationStartUri(parameters, uiLocales));
             return;
         }
 
@@ -111,21 +117,95 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
         String networkOperator = phMgr.getNetworkOperator();
 
         if (TextUtils.isEmpty(networkOperator)) {
-            callback.onError();
+            handleOperatorDiscoveryFailure(callback);
             return;
         }
 
         final String mcc = networkOperator.substring(0, 3);
         final String mnc = networkOperator.substring(3);
+
         getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
                 getOperatorDiscoveryAuthHeader(),
                 operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
                 mcc,
                 mnc,
-                new Callback<OperatorDiscoveryAPI.OperatorDiscoveryResult>() {
+                new Callback<OperatorDiscoveryResult>() {
                     @Override
-                    public void success(OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult, Response response) {
-                        initAndContinue(operatorDiscoveryResult, callback);
+                    public void success(
+                            OperatorDiscoveryResult operatorDiscoveryResult,
+                            Response response) {
+                        initAndContinue(parameters, uiLocales, operatorDiscoveryResult, callback);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        handleOperatorDiscoveryFailure(callback);
+                    }
+                });
+    }
+
+    private void handleOperatorDiscoveryFailure(final OnStartAuthorizationCallback callback) {
+        getOperatorDiscoveryApi().getOperatorSelectionResult(
+                getOperatorDiscoveryAuthHeader(),
+                operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
+                new Callback<OperatorSelectionResult>() {
+                    @Override
+                    public void success(
+                            OperatorSelectionResult operatorSelectionResult,
+                            Response response) {
+                        String endpoint = operatorSelectionResult.getEndpoint();
+                        if (endpoint == null) {
+                            callback.onError();
+                            return;
+                        }
+                        callback.onDivert(Uri.parse(endpoint));
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        callback.onError();
+                    }
+                });
+    }
+
+    @Override
+    public synchronized void initializeFromUri(
+            final Map<String, String> parameters,
+            final List<String> uiLocales,
+            Uri initFrom,
+            final OnDeliverAuthorizationUriCallback callback) {
+
+        String mcc_mnc = initFrom.getQueryParameter("mcc_mnc");
+        if (mcc_mnc == null) {
+            callback.onError();
+            return;
+        }
+        String[] mccAndMnc = mcc_mnc.split("_");
+        if (mccAndMnc.length != 2) {
+            callback.onError();
+            return;
+        }
+        String mcc = mccAndMnc[0];
+        String mnc = mccAndMnc[1];
+
+        String subscriber_id = initFrom.getQueryParameter("subscriber_id");
+        if (subscriber_id != null) {
+            parameters.put(
+                    "login_hint",
+                    String.format("ENCR_MSISDN:%s", subscriber_id));
+        }
+
+        getOperatorDiscoveryApi().getOperatorDiscoveryResult_ForMccMnc(
+                getOperatorDiscoveryAuthHeader(),
+                operatorDiscoveryConfig.getOperatorDiscoveryRedirectUri(),
+                mcc,
+                mnc,
+                new Callback<OperatorDiscoveryResult>() {
+                    @Override
+                    public void success(
+                            OperatorDiscoveryResult operatorDiscoveryResult,
+                            Response response) {
+                        initAndContinue(parameters, uiLocales, operatorDiscoveryResult, callback);
                     }
 
                     @Override
@@ -141,8 +221,10 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     private void initAndContinue(
-            OperatorDiscoveryAPI.OperatorDiscoveryResult odResult,
-            OnStartAuthorizationCallback callback) {
+            Map<String, String> parameters,
+            List<String> uiLocales,
+            OperatorDiscoveryResult odResult,
+            OnDeliverAuthorizationUriCallback callback) {
         operatorDiscoveryResult = odResult;
         HttpUrl url = getApiUrl();
         MobileConnectAPI mobileConnectApi =
@@ -157,7 +239,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                         new MobileConnectAPIAdapter(mobileConnectApi),
                         getClientId(),
                         getRedirectUri()));
-        initializeAndContinueAuthorizationFlow(callback);
+        initializeAndContinueAuthorizationFlow(parameters, uiLocales, callback);
     }
 
     public void deInitialize() {

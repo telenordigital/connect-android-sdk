@@ -10,11 +10,9 @@ import java.net.URL;
 import java.util.List;
 
 import retrofit.Callback;
-import retrofit.http.Body;
 import retrofit.http.GET;
 import retrofit.http.Header;
 import retrofit.http.Headers;
-import retrofit.http.POST;
 import retrofit.http.Query;
 
 public interface OperatorDiscoveryAPI {
@@ -27,6 +25,13 @@ public interface OperatorDiscoveryAPI {
             @Query("Identified-MCC") String identifiedMcc,
             @Query("Identified-MNC") String identifiedMnc,
             Callback<OperatorDiscoveryResult> callback);
+
+    @Headers("Content-Type: application/json")
+    @GET("/")
+    void getOperatorSelectionResult(
+            @Header("Authorization") String auth,
+            @Query("Redirect_URL") String redirectUrl,
+            Callback<OperatorSelectionResult> callback);
 
     class OperatorDiscoveryResult {
 
@@ -126,12 +131,31 @@ public interface OperatorDiscoveryAPI {
                 throw new ConnectException(e);
             }
         }
+
         public String getWellKnownEndpoint() {
             String endpoint = getEndpoint("openid-configuration");
             if (endpoint != null) {
                 return endpoint;
             }
             return getBasePath() + WellKnownAPI.OPENID_CONFIGURATION_PATH;
+        }
+    }
+
+    class OperatorSelectionResult {
+
+        @SerializedName("links")
+        private List<OperatorDiscoveryResult.OperatorIdApiEndpoint> links;
+
+        public String getEndpoint() {
+            if (links == null) {
+                return null;
+            }
+            for (OperatorDiscoveryResult.OperatorIdApiEndpoint endpoint : links) {
+                if (endpoint.usage.equals("operatorSelection")) {
+                    return endpoint.href;
+                }
+            }
+            return null;
         }
     }
 }

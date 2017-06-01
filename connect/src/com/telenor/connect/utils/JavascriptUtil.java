@@ -1,6 +1,7 @@
 package com.telenor.connect.utils;
 
 import android.text.TextUtils;
+
 import com.telenor.connect.ui.Instruction;
 
 import java.util.List;

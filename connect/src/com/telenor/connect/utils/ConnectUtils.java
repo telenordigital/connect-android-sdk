@@ -18,6 +18,12 @@ public class ConnectUtils {
     public static final String PAYMENT_ACTION = "com.telenor.connect.PAYMENT_ACTION";
     public static final String CUSTOM_LOADING_SCREEN_EXTRA
             = "com.telenor.connect.CUSTOM_LOADING_SCREEN_EXTRA";
+    public static final String IS_DIVERTED_TO_FETCH_INIT_URI
+            = "com.telenor.connect.IS_DIVERTED_TO_FETCH_INIT_URI";
+    public static final String PARAM_SNAPHOT_EXTRA = "com.telenor.connect.PARAM_SNAPSHOT";
+    public static final String UI_LOCALES_SNAPHOT_EXTRA = "com.telenor.connect.UI_LOCALES_SNAPSHOT";
+    public static final String WELL_KNOWN_CONFIG_EXTRA
+            = "com.telenor.connect.WELL_KNOWN_CONFIG_EXTRA";
 
     public static void parseAuthCode(String callbackUrl, ConnectCallback callback) {
         Validator.notNullOrEmpty(callbackUrl, "callbackUrl");

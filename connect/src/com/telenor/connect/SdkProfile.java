@@ -24,10 +24,23 @@ public interface SdkProfile {
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
     boolean isInitialized();
 
-    void onStartAuthorization(OnStartAuthorizationCallback callback);
+    void initializeFromUri(
+            Map<String, String> parameters,
+            List<String> uiLocales,
+            Uri initFrom,
+            OnDeliverAuthorizationUriCallback callback);
 
-    interface OnStartAuthorizationCallback {
-        void onSuccess();
+    void onStartAuthorization(
+            Map<String, String> parameters,
+            List<String> uiLocales,
+            OnStartAuthorizationCallback callback);
+
+    interface OnDeliverAuthorizationUriCallback {
+        void onSuccess(Uri authorizationStartUri);
         void onError();
+    }
+
+    interface OnStartAuthorizationCallback extends OnDeliverAuthorizationUriCallback {
+        void onDivert(Uri diversionUri);
     }
 }
