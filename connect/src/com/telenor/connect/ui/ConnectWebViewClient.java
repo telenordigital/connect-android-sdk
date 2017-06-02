@@ -19,6 +19,7 @@ import android.webkit.WebViewClient;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsCursorUtil;
 import com.telenor.connect.sms.SmsHandler;
@@ -123,9 +124,14 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     }
 
     public boolean shouldFetchThroughCellular(String url) {
-        if (ConnectSdk.getWellKnownConfig() == null
-                || ConnectSdk.getWellKnownConfig().getNetworkAuthenticationTargetIps() == null
-                || ConnectSdk.getWellKnownConfig().getNetworkAuthenticationTargetIps().isEmpty()) {
+        WellKnownAPI.WellKnownConfig wellKnownConfig =
+                (WellKnownAPI.WellKnownConfig) this.activity
+                .getIntent()
+                .getExtras()
+                .get(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA);
+        if (wellKnownConfig == null
+                || wellKnownConfig.getNetworkAuthenticationTargetIps() == null
+                || wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()) {
             return false;
         }
         String hostIp;
@@ -135,8 +141,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         } catch (MalformedURLException|UnknownHostException e) {
             return false;
         }
-        return ConnectSdk
-                .getWellKnownConfig()
+        return wellKnownConfig
                 .getNetworkAuthenticationTargetIps()
                 .contains(hostIp);
     }

@@ -138,6 +138,7 @@ public final class ConnectSdk {
         intent.setAction(ConnectUtils.LOGIN_ACTION);
         final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
+        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, sdkProfile.getWellKnownConfig());
         return intent;
     }
 
