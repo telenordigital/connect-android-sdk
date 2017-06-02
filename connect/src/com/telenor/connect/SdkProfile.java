@@ -30,4 +30,6 @@ public interface SdkProfile {
         void onSuccess();
         void onError();
     }
+
+    void onFinishAuthorization(boolean success);
 }

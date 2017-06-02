@@ -6,8 +6,10 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.google.gson.Gson;
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.AbstractSdkProfile;
+import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
@@ -29,11 +31,14 @@ import retrofit.ResponseCallback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+import static com.telenor.connect.utils.ConnectUtils.PREFERENCES_FILE;
+
 public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
     private OperatorDiscoveryConfig operatorDiscoveryConfig;
     private volatile OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult;
     private volatile OperatorDiscoveryAPI operatorDiscoveryApi;
+    private LastSeenConfigStore lastSeenStore;
 
     public MobileConnectSdkProfile(
             Context context,
@@ -41,6 +46,14 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
             boolean confidentialClient) {
         super(context, confidentialClient);
         this.operatorDiscoveryConfig = operatorDiscoveryConfig;
+
+        this.lastSeenStore = new LastSeenConfigStore();
+        OperatorDiscoveryAPI.OperatorDiscoveryResult lastSeen =
+                lastSeenStore.getOperatorDiscoveryResult();
+        if (lastSeen != null) {
+            operatorDiscoveryResult = lastSeen;
+            setConnectIdService(createConnectIdService());
+        }
     }
 
     @Override
@@ -135,6 +148,14 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                 });
     }
 
+    @Override
+    public void onFinishAuthorization(boolean success) {
+        super.onFinishAuthorization(success);
+        if (success) {
+            lastSeenStore.setOperatorDiscoveryResult(operatorDiscoveryResult);
+        }
+    }
+
     private OperatorDiscoveryAPI getOperatorDiscoveryApi() {
         return  RestHelper.getOperatorDiscoveryApi(
                     operatorDiscoveryConfig.getOperatorDiscoveryEndpoint());
@@ -144,6 +165,11 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
             OperatorDiscoveryAPI.OperatorDiscoveryResult odResult,
             OnStartAuthorizationCallback callback) {
         operatorDiscoveryResult = odResult;
+        setConnectIdService(createConnectIdService());
+        initializeAndContinueAuthorizationFlow(callback);
+    }
+
+    private ConnectIdService createConnectIdService() {
         HttpUrl url = getApiUrl();
         MobileConnectAPI mobileConnectApi =
                 RestHelper.getMobileConnectApi(
@@ -151,13 +177,11 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                                 "%s://%s",
                                 url.scheme(),
                                 url.host()));
-        setConnectIdService(
-                new ConnectIdService(
-                        new TokenStore(context),
-                        new MobileConnectAPIAdapter(mobileConnectApi),
-                        getClientId(),
-                        getRedirectUri()));
-        initializeAndContinueAuthorizationFlow(callback);
+        return new ConnectIdService(
+                new TokenStore(context),
+                new MobileConnectAPIAdapter(mobileConnectApi),
+                getClientId(),
+                getRedirectUri());
     }
 
     public void deInitialize() {
@@ -245,6 +269,31 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                     auth,
                     operatorDiscoveryResult.getPath("userinfo"),
                     userInfoCallback);
+        }
+    }
+
+    private class LastSeenConfigStore {
+
+        private static final String PREFERENCE_KEY_OD_RESULT = "OD_RESULT";
+        private final Gson preferencesGson = new Gson();
+
+        private void setOperatorDiscoveryResult(
+                OperatorDiscoveryAPI.OperatorDiscoveryResult odResult) {
+            String jsonOdResult = preferencesGson.toJson(odResult);
+            context
+                    .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
+                    .edit()
+                    .putString(PREFERENCE_KEY_OD_RESULT, jsonOdResult)
+                    .apply();
+        }
+
+        private OperatorDiscoveryAPI.OperatorDiscoveryResult getOperatorDiscoveryResult() {
+            String wellKnownConfigJson = context
+                    .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
+                    .getString(PREFERENCE_KEY_OD_RESULT, null);
+            return preferencesGson.fromJson(
+                    wellKnownConfigJson,
+                    OperatorDiscoveryAPI.OperatorDiscoveryResult.class);
         }
     }
 }

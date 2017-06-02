@@ -205,7 +205,7 @@ public final class ConnectSdk {
 
     public static synchronized String getAccessToken() {
         Validator.sdkInitialized();
-        if (sdkProfile.isInitialized()) {
+        if (sdkProfile.getConnectIdService() != null) {
             return sdkProfile.getConnectIdService().getAccessToken();
         }
         return null;
