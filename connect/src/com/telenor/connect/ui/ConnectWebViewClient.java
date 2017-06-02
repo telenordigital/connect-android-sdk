@@ -130,7 +130,6 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                 .getExtras()
                 .get(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA);
         if (wellKnownConfig == null
-                || wellKnownConfig.getNetworkAuthenticationTargetIps() == null
                 || wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()) {
             return false;
         }

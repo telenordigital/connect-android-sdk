@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,13 +32,15 @@ public interface WellKnownAPI {
         @SerializedName("network_authentication_target_ips")
         private Set<String> networkAuthenticationTargetIps;
         public Set<String> getNetworkAuthenticationTargetIps() {
-            return networkAuthenticationTargetIps;
+            return networkAuthenticationTargetIps != null
+                    ? networkAuthenticationTargetIps
+                    : Collections.<String>emptySet();
         }
 
         protected WellKnownConfig(Parcel in) {
             issuer = in.readString();
-            networkAuthenticationTargetIps = new HashSet<>();
             int count = in.readInt();
+            networkAuthenticationTargetIps = new HashSet<>(count);
             for (int i = 0; i < count; i++) {
                 networkAuthenticationTargetIps.add(in.readString());
             }
