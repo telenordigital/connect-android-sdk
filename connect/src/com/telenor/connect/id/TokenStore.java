@@ -4,11 +4,12 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 
+import static com.telenor.connect.utils.ConnectUtils.PREFERENCES_FILE;
+
 public class TokenStore {
 
     private static final String PREFERENCE_KEY_CONNECT_TOKENS = "CONNECT_TOKENS";
     private static final String PREFERENCE_KEY_ID_TOKEN = "ID_TOKEN";
-    private static final String PREFERENCES_FILE = "com.telenor.connect.PREFERENCES_FILE";
     private static final Gson preferencesGson = new Gson();
 
     private final Context context;
