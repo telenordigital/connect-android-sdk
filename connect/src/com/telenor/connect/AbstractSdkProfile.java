@@ -14,8 +14,8 @@ import retrofit.client.Response;
 
 public abstract class AbstractSdkProfile implements SdkProfile {
 
-    private volatile ConnectIdService connectIdService;
-    private volatile WellKnownAPI.WellKnownConfig wellKnownConfig;
+    private ConnectIdService connectIdService;
+    private WellKnownAPI.WellKnownConfig wellKnownConfig;
 
     protected Context context;
     protected boolean confidentialClient;
