@@ -5,11 +5,6 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.utils.RestHelper;
-import com.telenor.mobileconnect.MobileConnectSdkProfile;
-import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -25,7 +20,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     protected Context context;
     protected boolean confidentialClient;
     private volatile boolean isInitialized = false;
-    private LastSeenConfigStore lastSeenStore;
+    private final WellKnownConfigStore lastSeenStore = new WellKnownConfigStore();
 
     public AbstractSdkProfile(
             Context context,
@@ -33,11 +28,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         this.context = context;
         this.confidentialClient = confidentialClient;
 
-        this.lastSeenStore = new LastSeenConfigStore();
-        WellKnownAPI.WellKnownConfig lastSeen = lastSeenStore.getWellKnownConfig();
-        if (lastSeen != null) {
-            wellKnownConfig = lastSeenStore.getWellKnownConfig();
-        }
+        wellKnownConfig = lastSeenStore.get();
     }
 
     public abstract String getWellKnownEndpoint();
@@ -64,7 +55,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     @Override
     public void onFinishAuthorization(boolean success) {
         if (success) {
-            lastSeenStore.setWellKnownConfig(wellKnownConfig);
+            lastSeenStore.set(wellKnownConfig);
         }
     }
 
@@ -109,12 +100,12 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                 });
     }
 
-    private class LastSeenConfigStore {
+    private class WellKnownConfigStore {
 
         private static final String PREFERENCE_KEY_WELL_KNOWN_CONFIG = "WELL_KNOWN_CONFIG";
         private final Gson preferencesGson = new Gson();
 
-        private void setWellKnownConfig(WellKnownAPI.WellKnownConfig wellKnownConfig) {
+        private void set(WellKnownAPI.WellKnownConfig wellKnownConfig) {
             String jsonWellKnownConfig = preferencesGson.toJson(wellKnownConfig);
             context
                     .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
@@ -123,7 +114,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                     .apply();
         }
 
-        private WellKnownAPI.WellKnownConfig getWellKnownConfig() {
+        private WellKnownAPI.WellKnownConfig get() {
             String wellKnownConfigJson = context
                     .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
                     .getString(PREFERENCE_KEY_WELL_KNOWN_CONFIG, null);
