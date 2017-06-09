@@ -6,7 +6,6 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.google.gson.Gson;
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.AbstractSdkProfile;
 import com.telenor.connect.id.ConnectAPI;
@@ -30,14 +29,12 @@ import retrofit.ResponseCallback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-import static com.telenor.connect.utils.ConnectUtils.PREFERENCES_FILE;
-
 public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
     private OperatorDiscoveryConfig operatorDiscoveryConfig;
     private volatile OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult;
     private volatile OperatorDiscoveryAPI operatorDiscoveryApi;
-    private final OperatorDiscoveryConfigStore lastSeenStore = new OperatorDiscoveryConfigStore();
+    private final OperatorDiscoveryConfigStore lastSeenStore;
 
     public MobileConnectSdkProfile(
             Context context,
@@ -46,6 +43,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
         super(context, confidentialClient);
         this.operatorDiscoveryConfig = operatorDiscoveryConfig;
 
+        lastSeenStore = new OperatorDiscoveryConfigStore(context);
         OperatorDiscoveryAPI.OperatorDiscoveryResult lastSeen = lastSeenStore.get();
         if (lastSeen != null) {
             operatorDiscoveryResult = lastSeen;
@@ -266,31 +264,6 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                     auth,
                     operatorDiscoveryResult.getPath("userinfo"),
                     userInfoCallback);
-        }
-    }
-
-    private class OperatorDiscoveryConfigStore {
-
-        private static final String PREFERENCE_KEY_OD_RESULT = "OD_RESULT";
-        private final Gson preferencesGson = new Gson();
-
-        private void set(
-                OperatorDiscoveryAPI.OperatorDiscoveryResult odResult) {
-            String jsonOdResult = preferencesGson.toJson(odResult);
-            context
-                    .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
-                    .edit()
-                    .putString(PREFERENCE_KEY_OD_RESULT, jsonOdResult)
-                    .apply();
-        }
-
-        private OperatorDiscoveryAPI.OperatorDiscoveryResult get() {
-            String wellKnownConfigJson = context
-                    .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
-                    .getString(PREFERENCE_KEY_OD_RESULT, null);
-            return preferencesGson.fromJson(
-                    wellKnownConfigJson,
-                    OperatorDiscoveryAPI.OperatorDiscoveryResult.class);
         }
     }
 }
