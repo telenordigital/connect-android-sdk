@@ -4,16 +4,12 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.google.gson.Gson;
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.utils.ConnectUrlHelper;
-import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static com.telenor.connect.utils.ConnectUtils.PREFERENCES_FILE;
 
 public class ConnectSdkProfile extends AbstractSdkProfile {
 
