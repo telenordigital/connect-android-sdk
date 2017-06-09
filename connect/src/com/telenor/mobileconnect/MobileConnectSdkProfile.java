@@ -34,6 +34,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     private OperatorDiscoveryConfig operatorDiscoveryConfig;
     private volatile OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult;
     private volatile OperatorDiscoveryAPI operatorDiscoveryApi;
+    private final OperatorDiscoveryConfigStore lastSeenStore;
 
     public MobileConnectSdkProfile(
             Context context,
@@ -41,6 +42,13 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
             boolean confidentialClient) {
         super(context, confidentialClient);
         this.operatorDiscoveryConfig = operatorDiscoveryConfig;
+
+        lastSeenStore = new OperatorDiscoveryConfigStore(context);
+        OperatorDiscoveryAPI.OperatorDiscoveryResult lastSeen = lastSeenStore.get();
+        if (lastSeen != null) {
+            operatorDiscoveryResult = lastSeen;
+            setConnectIdService(createConnectIdService());
+        }
     }
 
     @Override
@@ -135,6 +143,14 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                 });
     }
 
+    @Override
+    public void onFinishAuthorization(boolean success) {
+        super.onFinishAuthorization(success);
+        if (success) {
+            lastSeenStore.set(operatorDiscoveryResult);
+        }
+    }
+
     private OperatorDiscoveryAPI getOperatorDiscoveryApi() {
         return  RestHelper.getOperatorDiscoveryApi(
                     operatorDiscoveryConfig.getOperatorDiscoveryEndpoint());
@@ -144,6 +160,11 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
             OperatorDiscoveryAPI.OperatorDiscoveryResult odResult,
             OnStartAuthorizationCallback callback) {
         operatorDiscoveryResult = odResult;
+        setConnectIdService(createConnectIdService());
+        initializeAndContinueAuthorizationFlow(callback);
+    }
+
+    private ConnectIdService createConnectIdService() {
         HttpUrl url = getApiUrl();
         MobileConnectAPI mobileConnectApi =
                 RestHelper.getMobileConnectApi(
@@ -151,13 +172,11 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                                 "%s://%s",
                                 url.scheme(),
                                 url.host()));
-        setConnectIdService(
-                new ConnectIdService(
-                        new TokenStore(context),
-                        new MobileConnectAPIAdapter(mobileConnectApi),
-                        getClientId(),
-                        getRedirectUri()));
-        initializeAndContinueAuthorizationFlow(callback);
+        return new ConnectIdService(
+                new TokenStore(context),
+                new MobileConnectAPIAdapter(mobileConnectApi),
+                getClientId(),
+                getRedirectUri());
     }
 
     public void deInitialize() {

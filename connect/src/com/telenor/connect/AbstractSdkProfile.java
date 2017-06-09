@@ -5,9 +5,6 @@ import android.content.Context;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.utils.RestHelper;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -20,12 +17,15 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     protected Context context;
     protected boolean confidentialClient;
     private volatile boolean isInitialized = false;
+    private final WellKnownConfigStore lastSeenStore;
 
     public AbstractSdkProfile(
             Context context,
             boolean confidentialClient) {
         this.context = context;
         this.confidentialClient = confidentialClient;
+        lastSeenStore = new WellKnownConfigStore(context);
+        wellKnownConfig = lastSeenStore.get();
     }
 
     public abstract String getWellKnownEndpoint();
@@ -47,6 +47,13 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     @Override
     public ConnectIdService getConnectIdService() {
         return connectIdService;
+    }
+
+    @Override
+    public void onFinishAuthorization(boolean success) {
+        if (success) {
+            lastSeenStore.set(wellKnownConfig);
+        }
     }
 
     public void setConnectIdService(ConnectIdService connectIdService) {
