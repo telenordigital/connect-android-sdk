@@ -1,5 +1,6 @@
 package com.telenor.connect;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -81,8 +82,10 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public void onStartAuthorization(OnStartAuthorizationCallback callback) {
-        initializeAndContinueAuthorizationFlow(callback);
+    public void initializeAuthorizationFlow(
+            final Activity activity,
+            final SdkCallback callback) {
+        fetchWellknownConfig(callback);
     }
 
     @Override

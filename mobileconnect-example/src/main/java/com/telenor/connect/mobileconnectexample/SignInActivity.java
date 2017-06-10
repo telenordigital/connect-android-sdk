@@ -3,6 +3,7 @@ package com.telenor.connect.mobileconnectexample;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.telenor.mobileconnect.ui.MobileConnectLoginButton;
 
@@ -20,11 +21,13 @@ public class SignInActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            Intent intent = new Intent(getApplicationContext(), SignedInActivity.class);
-            startActivity(intent);
-            finish();
+        if (resultCode != Activity.RESULT_OK) {
+            Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show();
+            return;
         }
+        Intent intent = new Intent(getApplicationContext(), SignedInActivity.class);
+        startActivity(intent);
+        finish();
     }
 
 }
