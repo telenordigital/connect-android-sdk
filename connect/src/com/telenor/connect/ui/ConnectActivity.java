@@ -27,7 +27,7 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
     private final Gson gson = new Gson();
     private Fragment singleFragment;
 
-    private SdkProfile.SdkCallback activityInitalizedCallback
+    private final SdkProfile.SdkCallback activityInitalizedCallback
             = new SdkProfile.SdkCallback() {
                 @Override
                 public void onSuccess() {
@@ -36,7 +36,7 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
 
                     HashMap<String, String> parameters
                             = (HashMap<String, String>) intent.getSerializableExtra(ConnectUtils.LOGIN_PARAMS);
-                    final String url = ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters).toString();
+                    String url = ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters).toString();
 
                     setContentView(R.layout.com_telenor_connect_activity_layout);
 
