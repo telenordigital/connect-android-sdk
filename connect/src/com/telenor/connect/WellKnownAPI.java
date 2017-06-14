@@ -37,12 +37,25 @@ public interface WellKnownAPI {
                     : Collections.<String>emptySet();
         }
 
+        @SerializedName("network_authentication_target_urls")
+        private Set<String> networkAuthenticationTargetUrls;
+        public Set<String> getNetworkAuthenticationTargetUrls() {
+            return networkAuthenticationTargetUrls != null
+                    ? networkAuthenticationTargetUrls
+                    : Collections.<String>emptySet();
+        }
+
         protected WellKnownConfig(Parcel in) {
             issuer = in.readString();
-            int count = in.readInt();
-            networkAuthenticationTargetIps = new HashSet<>(count);
-            for (int i = 0; i < count; i++) {
+            int ipsCount = in.readInt();
+            networkAuthenticationTargetIps = new HashSet<>(ipsCount);
+            for (int i = 0; i < ipsCount; i++) {
                 networkAuthenticationTargetIps.add(in.readString());
+            }
+            int urlsCount = in.readInt();
+            networkAuthenticationTargetUrls = new HashSet<>(urlsCount);
+            for (int i = 0; i < urlsCount; i++) {
+                networkAuthenticationTargetUrls.add(in.readString());
             }
         }
 
@@ -56,11 +69,19 @@ public interface WellKnownAPI {
             dest.writeString(issuer);
             if (networkAuthenticationTargetIps == null) {
                 dest.writeInt(0);
-                return;
+            } else {
+                dest.writeInt(networkAuthenticationTargetIps.size());
+                for (String ip : networkAuthenticationTargetIps) {
+                    dest.writeString(ip);
+                }
             }
-            dest.writeInt(networkAuthenticationTargetIps.size());
-            for (String ip : networkAuthenticationTargetIps) {
-                dest.writeString(ip);
+            if (networkAuthenticationTargetUrls == null) {
+                dest.writeInt(0);
+            } else {
+                dest.writeInt(networkAuthenticationTargetUrls.size());
+                for (String url : networkAuthenticationTargetUrls) {
+                    dest.writeString(url);
+                }
             }
         }
 

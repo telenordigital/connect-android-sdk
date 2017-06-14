@@ -129,20 +129,31 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                 .getIntent()
                 .getExtras()
                 .get(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA);
-        if (wellKnownConfig == null
-                || wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()) {
+        if (wellKnownConfig == null ||
+                (wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()
+                 && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty())) {
             return false;
         }
-        String hostIp;
-        try {
-            String host = (new URL(url)).getHost();
-            hostIp = InetAddress.getByName(host).getHostAddress();
-        } catch (MalformedURLException|UnknownHostException e) {
+        if (!wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty()) {
+            for (String urlPrefix : wellKnownConfig.getNetworkAuthenticationTargetUrls()) {
+                if (url.contains(urlPrefix)) {
+                    return true;
+                }
+            }
             return false;
+        } else {
+            String hostIp;
+            try {
+                String host = (new URL(url)).getHost();
+                hostIp = InetAddress.getByName(host).getHostAddress();
+            } catch (MalformedURLException | UnknownHostException e) {
+                return false;
+            }
+            return wellKnownConfig
+                    .getNetworkAuthenticationTargetIps()
+                    .contains(hostIp);
         }
-        return wellKnownConfig
-                .getNetworkAuthenticationTargetIps()
-                .contains(hostIp);
+
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -175,11 +186,9 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             } catch (final IOException e) {
                 return null;
             }
-            interfaceToUse = responseCode == HTTP_MOVED_TEMP
+            interfaceToUse = shouldFetchThroughCellular(newUrl)
                     ? ConnectSdk.getCellularNetwork()
-                    : shouldFetchThroughCellular(newUrl)
-                      ? ConnectSdk.getCellularNetwork()
-                      : ConnectSdk.getWifiNetwork();
+                    : ConnectSdk.getWifiNetwork();
         } while (attempts <= ConnectSdk.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
         return null;
     }
