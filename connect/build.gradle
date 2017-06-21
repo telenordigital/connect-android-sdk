@@ -28,6 +28,7 @@ android {
 
     lintOptions {
         disable 'InvalidPackage'
+        disable 'AppCompatCustomView'
     }
 }
 
