@@ -26,6 +26,10 @@ public class WellKnownConfigStore {
     }
 
     public WellKnownAPI.WellKnownConfig get() {
+        if (context == null) {
+            return null;
+        }
+
         String wellKnownConfigJson = context
                 .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
                 .getString(PREFERENCE_KEY_WELL_KNOWN_CONFIG, null);
