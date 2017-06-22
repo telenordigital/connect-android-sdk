@@ -47,7 +47,6 @@ import retrofit.Callback;
 
 public final class ConnectSdk {
 
-    private static String sLastAuthState;
     private static ArrayList<Locale> sLocales;
     private static String sPaymentCancelUri;
     private static String sPaymentSuccessUri;
@@ -117,7 +116,7 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
+        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
             @Override
             public void onSuccess() {
                 Intent intent = getAuthIntent(parameters);
@@ -147,7 +146,7 @@ public final class ConnectSdk {
                                                  final int customLoadingLayout,
                                                  final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
+        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
             @Override
             public void onSuccess() {
                 Intent intent = getAuthIntent(parameters);
@@ -238,12 +237,6 @@ public final class ConnectSdk {
         if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
         }
-
-        if (parameters.get("state") == null || parameters.get("state").isEmpty()) {
-            parameters.put("state", UUID.randomUUID().toString());
-        }
-        sLastAuthState = parameters.get("state");
-
         return sdkProfile.getAuthorizeUri(parameters, getUiLocales());
     }
 
@@ -264,7 +257,7 @@ public final class ConnectSdk {
 
     public static String getLastAuthenticationState() {
         Validator.sdkInitialized();
-        return sLastAuthState;
+        return getSdkProfile().getLastAuthState();
     }
 
     public static ArrayList<Locale> getLocales() {

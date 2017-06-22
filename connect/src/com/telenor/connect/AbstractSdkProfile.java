@@ -3,14 +3,21 @@ package com.telenor.connect;
 import android.content.Context;
 
 import com.telenor.connect.id.ConnectIdService;
+import com.telenor.connect.id.ConnectTokensTO;
+import com.telenor.connect.utils.IdTokenValidator;
 import com.telenor.connect.utils.RestHelper;
+import com.telenor.connect.utils.Validator;
+
+import java.util.Date;
+import java.util.Map;
+import java.util.UUID;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public abstract class AbstractSdkProfile implements SdkProfile {
-
+    private final String STATE = "state";
     private ConnectIdService connectIdService;
     private WellKnownAPI.WellKnownConfig wellKnownConfig;
 
@@ -18,6 +25,8 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     protected boolean confidentialClient;
     private volatile boolean isInitialized = false;
     private final WellKnownConfigStore lastSeenStore;
+
+    private String lastAuthState;
 
     public AbstractSdkProfile(
             Context context,
@@ -73,6 +82,16 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         wellKnownConfig = null;
     }
 
+    @Override
+    public void onStartAuthorization(
+            Map<String, String> parameters,
+            OnStartAuthorizationCallback callback) {
+        if (parameters.get(STATE) == null || parameters.get(STATE).isEmpty()) {
+            parameters.put(STATE, UUID.randomUUID().toString());
+        }
+        lastAuthState = parameters.get(STATE);
+    }
+
     protected void initializeAndContinueAuthorizationFlow(final OnStartAuthorizationCallback callback) {
         if (isInitialized) {
             callback.onSuccess();
@@ -95,5 +114,22 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                         callback.onSuccess();
                     }
                 });
+    }
+
+    @Override
+    public String getLastAuthState() {
+        return lastAuthState;
+    }
+
+    @Override
+    public void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
+        Validator.notNullOrEmpty(tokens.getAccessToken(), "access_token");
+        Validator.notNull(tokens.getExpiresIn(), "expires_in");
+        Validator.notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
+        Validator.notNullOrEmpty(tokens.getTokenType(), "token_type");
+
+        if (tokens.getIdToken() != null) {
+            IdTokenValidator.validate(tokens.getIdToken(), serverTimestamp);
+        }
     }
 }

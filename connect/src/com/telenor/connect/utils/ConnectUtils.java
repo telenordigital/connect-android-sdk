@@ -19,6 +19,7 @@ public class ConnectUtils {
     public static final String CUSTOM_LOADING_SCREEN_EXTRA
             = "com.telenor.connect.CUSTOM_LOADING_SCREEN_EXTRA";
     public static final String WELL_KNOWN_CONFIG_EXTRA = "com.telenor.connect.WELL_KNOWN_CONFIG";
+    public static final String ACR_VALUES_PARAM_NAME = "acr_values";
 
     public static void parseAuthCode(String callbackUrl, ConnectCallback callback) {
         Validator.notNullOrEmpty(callbackUrl, "callbackUrl");

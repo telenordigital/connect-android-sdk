@@ -16,6 +16,7 @@ public class IdToken {
     private static final String EMAIL_VERIFIED = "email_verified";
     private static final String PHONE_NUMBER = "phone_number";
     private static final String PHONE_NUMBER_VERIFIED = "phone_number_verified";
+    private static final String NONCE = "nonce";
 
     private final String serializedSignedJwt;
     private final String subject;
@@ -26,6 +27,7 @@ public class IdToken {
     private final Boolean emailVerified;
     private final String phoneNumber;
     private final Boolean phoneNumberVerified;
+    private final String nonce;
 
     public IdToken(String serializedSignedJwt) {
         this.serializedSignedJwt = serializedSignedJwt;
@@ -53,6 +55,8 @@ public class IdToken {
                 ? (String) customClaims.get(PHONE_NUMBER) : null;
         phoneNumberVerified = customClaims.containsKey(PHONE_NUMBER_VERIFIED)
                 ? (Boolean) customClaims.get(PHONE_NUMBER_VERIFIED) : null;
+        nonce = customClaims.containsKey(NONCE)
+                ? (String) customClaims.get(NONCE) : null;
     }
 
     public String getSerializedSignedJwt() {
@@ -91,6 +95,10 @@ public class IdToken {
         return phoneNumberVerified;
     }
 
+    public String getNonce() {
+        return nonce;
+    }
+
     @Override
     public String toString() {
         return "IdToken{" +
@@ -103,6 +111,7 @@ public class IdToken {
                 ", emailVerified=" + emailVerified +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", phoneNumberVerified=" + phoneNumberVerified +
+                ", nonce=" + nonce +
                 '}';
     }
 }
