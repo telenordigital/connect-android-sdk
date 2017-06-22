@@ -145,7 +145,7 @@ public class ConnectUrlHelperTest {
                 .host("connect.telenordigital.com")
                 .build();
 
-            ConnectSdkProfile profile = new ConnectSdkProfile(null, false, false);
+        ConnectSdkProfile profile = new ConnectSdkProfile(null, false, false);
         profile.setClientId("client-id-example");
         profile.setRedirectUri("redirect-url://here");
         Uri authorizeUri = profile.getAuthorizeUri(parameters, locales);
