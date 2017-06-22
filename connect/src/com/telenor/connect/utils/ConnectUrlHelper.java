@@ -33,6 +33,7 @@ public class ConnectUrlHelper {
             }
             return arguments.getString(ConnectUtils.LOGIN_AUTH_URI);
         }
+
         throw new IllegalStateException("An invalid action was used to start a Connect Activity.");
     }
 

@@ -5,6 +5,9 @@ import android.content.Context;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.utils.RestHelper;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -12,7 +15,8 @@ import retrofit.client.Response;
 public abstract class AbstractSdkProfile implements SdkProfile {
 
     private ConnectIdService connectIdService;
-    private WellKnownAPI.WellKnownConfig wellKnownConfig;
+    private volatile WellKnownAPI.WellKnownConfig wellKnownConfig;
+    private final Map<String, String> profileStorage = new ConcurrentHashMap<>();
 
     protected Context context;
     protected boolean confidentialClient;
@@ -73,7 +77,8 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         wellKnownConfig = null;
     }
 
-    protected void initializeAndContinueAuthorizationFlow(final OnStartAuthorizationCallback callback) {
+    @Override
+    public void fetchWellknownConfig(final SdkCallback callback) {
         if (isInitialized) {
             callback.onSuccess();
             return;
@@ -95,5 +100,17 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                         callback.onSuccess();
                     }
                 });
+    }
+
+    @Override
+    public void setValue(final String key, final String value) {
+        if (value != null) {
+            profileStorage.put(key, value);
+        }
+    }
+
+    @Override
+    public String getValue(final String key) {
+        return profileStorage.get(key);
     }
 }

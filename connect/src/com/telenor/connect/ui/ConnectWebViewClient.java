@@ -125,10 +125,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
 
     public boolean shouldFetchThroughCellular(String url) {
         WellKnownAPI.WellKnownConfig wellKnownConfig =
-                (WellKnownAPI.WellKnownConfig) this.activity
-                .getIntent()
-                .getExtras()
-                .get(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA);
+                ConnectSdk.getWellKnownConfig();
         if (wellKnownConfig == null
                 || wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()) {
             return false;

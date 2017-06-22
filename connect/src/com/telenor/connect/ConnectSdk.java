@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.AccessTokenCallback;
@@ -117,28 +116,18 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
-            @Override
-            public void onSuccess() {
-                Intent intent = getAuthIntent(parameters);
-                activity.startActivityForResult(intent, requestCode);
-            }
 
-            @Override
-            public void onError() {
-                showAuthCancelMessage(activity);
-            }
-        });
-
+        Intent intent = getAuthIntent(parameters);
+        activity.startActivityForResult(intent, requestCode);
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
         final Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
-        final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
-        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
-        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, sdkProfile.getWellKnownConfig());
+
+        HashMap<String, String> map = (HashMap<String, String>)(parameters);
+        intent.putExtra(ConnectUtils.LOGIN_PARAMS, map);
         return intent;
     }
 
@@ -147,26 +136,10 @@ public final class ConnectSdk {
                                                  final int customLoadingLayout,
                                                  final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
-            @Override
-            public void onSuccess() {
-                Intent intent = getAuthIntent(parameters);
-                intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-                activity.startActivityForResult(intent, requestCode);
-            }
 
-            @Override
-            public void onError() {
-                showAuthCancelMessage(activity);
-            }
-        });
-    }
-
-    private static void showAuthCancelMessage(Activity activity) {
-        Toast.makeText(
-                activity,
-                R.string.com_telenor_authorization_cancelled,
-                Toast.LENGTH_SHORT).show();
+        Intent intent = getAuthIntent(parameters);
+        intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
+        activity.startActivityForResult(intent, requestCode);
     }
 
     /**
@@ -226,7 +199,7 @@ public final class ConnectSdk {
         sdkProfile.getConnectIdService().getAccessTokenFromCode(code, callback);
     }
 
-    private static synchronized Uri getAuthorizeUriAndSetLastAuthState(
+    public static synchronized Uri getAuthorizeUriAndSetLastAuthState(
             Map<String, String> parameters) {
         if (ConnectSdk.getClientId() == null) {
             throw new ConnectException("Client ID not specified in application manifest.");

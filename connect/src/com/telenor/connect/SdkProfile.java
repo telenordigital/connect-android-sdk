@@ -1,5 +1,6 @@
 package com.telenor.connect;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 
@@ -24,12 +25,17 @@ public interface SdkProfile {
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
     boolean isInitialized();
 
-    void onStartAuthorization(OnStartAuthorizationCallback callback);
+    void initializeAuthorizationFlow(final Activity activity,
+                                     final SdkCallback callback);
+    void fetchWellknownConfig(final SdkCallback callback);
 
-    interface OnStartAuthorizationCallback {
+    interface SdkCallback {
         void onSuccess();
         void onError();
     }
 
     void onFinishAuthorization(boolean success);
+
+    void setValue(final String key, final String value);
+    String getValue(final String key);
 }

@@ -13,10 +13,13 @@ import com.google.gson.Gson;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.SdkProfile;
 import com.telenor.connect.id.ConnectTokens;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
+import com.telenor.mobileconnect.ui.OperatorSelectionActivity;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class ConnectActivity extends FragmentActivity implements ConnectCallback {
@@ -24,37 +27,59 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
     private final Gson gson = new Gson();
     private Fragment singleFragment;
 
+    private final SdkProfile.SdkCallback activityInitalizedCallback
+            = new SdkProfile.SdkCallback() {
+                @Override
+                public void onSuccess() {
+                    Intent intent = getIntent();
+                    String action = intent.getAction();
+
+                    HashMap<String, String> parameters
+                            = (HashMap<String, String>) intent.getSerializableExtra(ConnectUtils.LOGIN_PARAMS);
+                    String url = ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters).toString();
+
+                    setContentView(R.layout.com_telenor_connect_activity_layout);
+
+                    FragmentManager manager = getSupportFragmentManager();
+                    final String fragmentTag = "SingleFragment";
+                    Fragment fragment = manager.findFragmentByTag(fragmentTag);
+
+                    int loadingScreen = intent.getIntExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA,
+                            R.layout.com_telenor_connect_default_loading_view);
+
+                    if (fragment == null) {
+                        fragment = new ConnectWebFragment();
+                        Bundle bundle = new Bundle(intent.getExtras());
+                        bundle.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
+                        bundle.putInt(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, loadingScreen);
+
+                        bundle.putString(ConnectUtils.LOGIN_AUTH_URI, url);
+
+                        if (action.equals(ConnectUtils.PAYMENT_ACTION)) {
+                            bundle.putString(ConnectUrlHelper.URL_ARGUMENT,
+                                    intent.getStringExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION));
+                        }
+                        fragment.setArguments(bundle);
+                        fragment.setRetainInstance(true);
+                        manager.beginTransaction()
+                                .add(R.id.com_telenor_connect_fragment_container, fragment, fragmentTag)
+                                .commit();
+                    }
+
+                    singleFragment = fragment;
+                }
+
+                @Override
+                public void onError() {
+                    ConnectActivity.this.onError(null);
+                }
+            };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.com_telenor_connect_activity_layout);
-
-        FragmentManager manager = getSupportFragmentManager();
-        final String fragmentTag = "SingleFragment";
-        Fragment fragment = manager.findFragmentByTag(fragmentTag);
-
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        int loadingScreen = intent.getIntExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA,
-                R.layout.com_telenor_connect_default_loading_view);
-
-        if (fragment == null) {
-            fragment = new ConnectWebFragment();
-            Bundle bundle = new Bundle(intent.getExtras());
-            bundle.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
-            bundle.putInt(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, loadingScreen);
-            if (action.equals(ConnectUtils.PAYMENT_ACTION)) {
-                bundle.putString(ConnectUrlHelper.URL_ARGUMENT,
-                        intent.getStringExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION));
-            }
-            fragment.setArguments(bundle);
-            fragment.setRetainInstance(true);
-            manager.beginTransaction()
-                    .add(R.id.com_telenor_connect_fragment_container, fragment, fragmentTag)
-                    .commit();
-        }
-
-        singleFragment = fragment;
+        setContentView(R.layout.com_telenor_connect_default_loading_view);
+        ConnectSdk.getSdkProfile().initializeAuthorizationFlow(this, activityInitalizedCallback);
     }
 
     @Override
@@ -98,12 +123,26 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
     @Override
     public void onError(Object errorData) {
         Intent intent = new Intent();
-        Map<String, String> authCodeData = (Map<String, String>) errorData;
-        for (Map.Entry<String, String> entry : authCodeData.entrySet()) {
-            intent.putExtra(entry.getKey(), entry.getValue());
+        if (errorData != null) {
+            Map<String, String> authCodeData = (Map<String, String>) errorData;
+            for (Map.Entry<String, String> entry : authCodeData.entrySet()) {
+                intent.putExtra(entry.getKey(), entry.getValue());
+            }
         }
         setResult(Activity.RESULT_CANCELED, intent);
         finish();
         ConnectSdk.getSdkProfile().onFinishAuthorization(false);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == OperatorSelectionActivity.OPERATOR_SELECTION_REQUEST) {
+            if (resultCode != RESULT_OK) {
+                onError(null);
+                return;
+            }
+            ConnectSdk.getSdkProfile().initializeAuthorizationFlow(this, activityInitalizedCallback);
+        }
     }
 }
