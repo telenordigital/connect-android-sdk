@@ -133,5 +133,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     public void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
         super.validateTokens(tokens, serverTimestamp);
         Validator.notNullOrEmpty(tokens.getScope(), "scope");
+        Validator.notNull(tokens.getExpiresIn(), "expires_in");
+        Validator.notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
     }
 }

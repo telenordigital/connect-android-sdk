@@ -1,6 +1,7 @@
 package com.telenor.connect;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
@@ -17,7 +18,6 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public abstract class AbstractSdkProfile implements SdkProfile {
-    private final String STATE = "state";
     private ConnectIdService connectIdService;
     private WellKnownAPI.WellKnownConfig wellKnownConfig;
 
@@ -86,10 +86,10 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     public void onStartAuthorization(
             Map<String, String> parameters,
             OnStartAuthorizationCallback callback) {
-        if (parameters.get(STATE) == null || parameters.get(STATE).isEmpty()) {
-            parameters.put(STATE, UUID.randomUUID().toString());
+        if (TextUtils.isEmpty(parameters.get("state"))) {
+            parameters.put("state", UUID.randomUUID().toString());
         }
-        lastAuthState = parameters.get(STATE);
+        lastAuthState = parameters.get("state");
     }
 
     protected void initializeAndContinueAuthorizationFlow(final OnStartAuthorizationCallback callback) {
@@ -124,8 +124,6 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     @Override
     public void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
         Validator.notNullOrEmpty(tokens.getAccessToken(), "access_token");
-        Validator.notNull(tokens.getExpiresIn(), "expires_in");
-        Validator.notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
         Validator.notNullOrEmpty(tokens.getTokenType(), "token_type");
 
         if (tokens.getIdToken() != null) {

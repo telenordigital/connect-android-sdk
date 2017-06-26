@@ -165,6 +165,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     @Override
     public void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
         super.validateTokens(tokens, serverTimestamp);
+        Validator.notNull(tokens.getIdToken(), "id_token");
         Validator.notNullOrEmpty(tokens.getIdToken().getNonce(), "nonce");
         Validator.notDifferent(lastAuthNonce, tokens.getIdToken().getNonce(), "nonce");
     }
