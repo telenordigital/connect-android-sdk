@@ -402,7 +402,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 #### Adding claims
 
-To add additional [claims to your Connect request] (http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-authorization),
+To add additional [claims to your Connect request](http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-authorization),
 you can use the `setClaims` method on the `ConnectLoginButton`.
 
 ```Java
