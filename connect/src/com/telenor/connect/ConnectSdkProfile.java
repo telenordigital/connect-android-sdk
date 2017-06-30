@@ -12,7 +12,6 @@ import com.telenor.connect.utils.Validator;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class ConnectSdkProfile extends AbstractSdkProfile {
 
@@ -70,7 +69,8 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales) {
+    public Uri getAuthorizeUri(ParametersHolder parameters, List<String> locales) {
+        previewParameters(parameters);
         return ConnectUrlHelper.getAuthorizeUriStem(
                 parameters,
                 getClientId(),
@@ -81,12 +81,6 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
                 .appendPath(OAUTH_PATH)
                 .appendPath("authorize")
                 .build();
-    }
-
-    @Override
-    public void onStartAuthorization(Map<String, String> parameters, OnStartAuthorizationCallback callback) {
-        super.onStartAuthorization(parameters, callback);
-        initializeAndContinueAuthorizationFlow(callback);
     }
 
     @Override

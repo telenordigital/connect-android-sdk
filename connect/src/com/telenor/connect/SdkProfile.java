@@ -1,5 +1,6 @@
 package com.telenor.connect;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 
@@ -9,7 +10,8 @@ import com.telenor.connect.id.ConnectTokensTO;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+
+import static com.telenor.connect.WellKnownAPI.WellKnownConfig;
 
 public interface SdkProfile {
 
@@ -22,17 +24,17 @@ public interface SdkProfile {
     ConnectIdService getConnectIdService();
     String getExpectedIssuer();
     List<String> getExpectedAudiences();
-    Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales);
+    Uri getAuthorizeUri(ParametersHolder parameters, List<String> locales);
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
     boolean isInitialized();
 
     String getLastAuthState();
 
-    void onStartAuthorization(Map<String, String> parameters, OnStartAuthorizationCallback callback);
-
-    interface OnStartAuthorizationCallback {
-        void onSuccess();
-        void onError();
+    void initializeAuthorizationFlow(Activity activity,
+                                     AuthFlowInitializationCallback callback);
+    interface AuthFlowInitializationCallback {
+        void onSuccess(Uri authorizeUri, WellKnownConfig wellKnowConfig);
+        void onError(ConnectInitializationError error);
     }
 
     void validateTokens(ConnectTokensTO tokens, Date serverTimestamp);

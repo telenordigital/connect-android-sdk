@@ -1,16 +1,18 @@
 package com.telenor.connect;
 
+import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
+import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.IdTokenValidator;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import retrofit.Callback;
@@ -83,20 +85,32 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     }
 
     @Override
-    public void onStartAuthorization(
-            Map<String, String> parameters,
-            OnStartAuthorizationCallback callback) {
-        if (TextUtils.isEmpty(parameters.get("state"))) {
-            parameters.put("state", UUID.randomUUID().toString());
-        }
-        lastAuthState = parameters.get("state");
-    }
+    public void initializeAuthorizationFlow(
+            Activity activity,
+            final AuthFlowInitializationCallback callback) {
 
-    protected void initializeAndContinueAuthorizationFlow(final OnStartAuthorizationCallback callback) {
+        final ParametersHolder parameters = getLoginParams(activity);
+        final List<String> uiLocales = getUiLocales(activity);
+
         if (isInitialized) {
-            callback.onSuccess();
+            callback.onSuccess(getAuthorizeUri(parameters, uiLocales), wellKnownConfig);
             return;
         }
+
+        initialize(new InitializationCallback() {
+            @Override
+            public void onSuccess() {
+                callback.onSuccess(getAuthorizeUri(parameters, uiLocales), getWellKnownConfig());
+            }
+
+            @Override
+            public void onError(ConnectInitializationError error) {
+                callback.onSuccess(getAuthorizeUri(parameters, uiLocales), null);
+            }
+        });
+    }
+
+    protected void initialize(final InitializationCallback callback) {
         RestHelper.
                 getWellKnownApi(getWellKnownEndpoint()).getWellKnownConfig(
                 new Callback<WellKnownAPI.WellKnownConfig>() {
@@ -114,6 +128,36 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                         callback.onSuccess();
                     }
                 });
+    }
+
+    public interface InitializationCallback {
+        void onSuccess();
+        void onError(ConnectInitializationError error);
+    }
+
+    protected static ParametersHolder getLoginParams(Activity activity) {
+        @SuppressWarnings("unchecked")
+        ParametersHolder loginParams =  (ParametersHolder) activity
+                .getIntent()
+                .getExtras()
+                .get(ConnectUtils.LOGIN_PARAMS);
+        return loginParams;
+    }
+
+    protected static List<String> getUiLocales(Activity activity) {
+        @SuppressWarnings("unchecked")
+        final List<String> uiLocales = (List<String>) activity
+                .getIntent()
+                .getExtras()
+                .get(ConnectUtils.UI_LOCALES);
+        return uiLocales;
+    }
+
+    protected void previewParameters(ParametersHolder parameters) {
+        if (parameters.get("state") == null) {
+            parameters.add("state", UUID.randomUUID().toString());
+        }
+        lastAuthState = parameters.get("state").get(0);
     }
 
     @Override

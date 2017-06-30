@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.AccessTokenCallback;
@@ -41,7 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import retrofit.Callback;
 
@@ -115,30 +113,7 @@ public final class ConnectSdk {
             final Activity activity,
             final Map<String, String> parameters,
             final int requestCode) {
-        Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
-            @Override
-            public void onSuccess() {
-                Intent intent = getAuthIntent(parameters);
-                activity.startActivityForResult(intent, requestCode);
-            }
-
-            @Override
-            public void onError() {
-                showAuthCancelMessage(activity);
-            }
-        });
-
-    }
-
-    private static Intent getAuthIntent(Map<String, String> parameters) {
-        final Intent intent = new Intent();
-        intent.setClass(getContext(), ConnectActivity.class);
-        intent.setAction(ConnectUtils.LOGIN_ACTION);
-        final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
-        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
-        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, sdkProfile.getWellKnownConfig());
-        return intent;
+        authenticate(activity, parameters, ConnectUtils.NO_CUSTOM_LAYOUT, requestCode);
     }
 
     public static synchronized void authenticate(final Activity activity,
@@ -146,26 +121,15 @@ public final class ConnectSdk {
                                                  final int customLoadingLayout,
                                                  final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
-            @Override
-            public void onSuccess() {
-                Intent intent = getAuthIntent(parameters);
-                intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-                activity.startActivityForResult(intent, requestCode);
-            }
-
-            @Override
-            public void onError() {
-                showAuthCancelMessage(activity);
-            }
-        });
-    }
-
-    private static void showAuthCancelMessage(Activity activity) {
-        Toast.makeText(
-                activity,
-                R.string.com_telenor_authorization_cancelled,
-                Toast.LENGTH_SHORT).show();
+        final Intent intent = new Intent();
+        intent.setClass(getContext(), ConnectActivity.class);
+        intent.setAction(ConnectUtils.LOGIN_ACTION);
+        intent.putExtra(ConnectUtils.LOGIN_PARAMS, new ParametersHolder(parameters));
+        intent.putExtra(ConnectUtils.UI_LOCALES, getUiLocales());
+        if (customLoadingLayout != ConnectUtils.NO_CUSTOM_LAYOUT) {
+            intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
+        }
+        activity.startActivityForResult(intent, requestCode);
     }
 
     /**
@@ -177,6 +141,7 @@ public final class ConnectSdk {
      */
     public static Fragment getAuthFragment(Map<String, String> parameters) {
         Validator.sdkInitialized();
+        Validator.connectIdOnly();
 
         final Fragment fragment = new ConnectWebFragment();
         Intent authIntent = getAuthIntent(parameters);
@@ -237,7 +202,17 @@ public final class ConnectSdk {
         if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
         }
-        return sdkProfile.getAuthorizeUri(parameters, getUiLocales());
+        return sdkProfile.getAuthorizeUri(new ParametersHolder(parameters), getUiLocales());
+    }
+
+    private static Intent getAuthIntent(Map<String, String> parameters) {
+        final Intent intent = new Intent();
+        intent.setClass(getContext(), ConnectActivity.class);
+        intent.setAction(ConnectUtils.LOGIN_ACTION);
+        final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
+        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
+        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, sdkProfile.getWellKnownConfig());
+        return intent;
     }
 
     public static HttpUrl getConnectApiUrl() {
