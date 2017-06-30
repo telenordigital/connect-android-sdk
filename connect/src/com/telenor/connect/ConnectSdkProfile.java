@@ -5,11 +5,13 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
+import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.utils.ConnectUrlHelper;
+import com.telenor.connect.utils.Validator;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class ConnectSdkProfile extends AbstractSdkProfile {
 
@@ -67,7 +69,8 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales) {
+    public Uri getAuthorizeUri(ParametersHolder parameters, List<String> locales) {
+        previewParameters(parameters);
         return ConnectUrlHelper.getAuthorizeUriStem(
                 parameters,
                 getClientId(),
@@ -78,11 +81,6 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
                 .appendPath(OAUTH_PATH)
                 .appendPath("authorize")
                 .build();
-    }
-
-    @Override
-    public void onStartAuthorization(OnStartAuthorizationCallback callback) {
-        initializeAndContinueAuthorizationFlow(callback);
     }
 
     @Override
@@ -123,5 +121,13 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
             return endpoint;
         }
         return endpoint.replace("connect.telenordigital.com", "connect.staging.telenordigital.com");
+    }
+
+    @Override
+    public void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
+        super.validateTokens(tokens, serverTimestamp);
+        Validator.notNullOrEmpty(tokens.getScope(), "scope");
+        Validator.notNull(tokens.getExpiresIn(), "expires_in");
+        Validator.notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
     }
 }

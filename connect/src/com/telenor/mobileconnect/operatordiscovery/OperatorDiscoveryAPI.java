@@ -28,6 +28,13 @@ public interface OperatorDiscoveryAPI {
             @Query("Identified-MNC") String identifiedMnc,
             Callback<OperatorDiscoveryResult> callback);
 
+    @Headers("Content-Type: application/json")
+    @GET("/")
+    void getOperatorSelectionResult(
+            @Header("Authorization") String auth,
+            @Query("Redirect_URL") String redirectUrl,
+            Callback<OperatorSelectionResult> callback);
+
     class OperatorDiscoveryResult {
 
         @SerializedName("subscriber_id")
@@ -38,6 +45,10 @@ public interface OperatorDiscoveryAPI {
 
         @SerializedName("response")
         private OperatorInfo operatorInfo;
+
+        public void setSubscriberId(String subscriberId) {
+            this.subscriberId = subscriberId;
+        }
 
         private static class OperatorInfo {
             @SerializedName("country")
@@ -132,6 +143,24 @@ public interface OperatorDiscoveryAPI {
                 return endpoint;
             }
             return getBasePath() + WellKnownAPI.OPENID_CONFIGURATION_PATH;
+        }
+    }
+
+    class OperatorSelectionResult {
+
+        @SerializedName("links")
+        private List<OperatorDiscoveryResult.OperatorIdApiEndpoint> links;
+
+        public String getEndpoint() {
+            if (links == null) {
+                return null;
+            }
+            for (OperatorDiscoveryResult.OperatorIdApiEndpoint endpoint : links) {
+                if (endpoint.usage.equals("operatorSelection")) {
+                    return endpoint.href;
+                }
+            }
+            return null;
         }
     }
 }

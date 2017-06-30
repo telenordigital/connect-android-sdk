@@ -1,5 +1,6 @@
 package com.telenor.connect.utils;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
@@ -15,10 +16,19 @@ public class ConnectUtils {
     public static final String LOGIN_ACTION = "com.telenor.connect.LOGIN_ACTION";
     public static final String LOGIN_AUTH_URI = "com.telenor.connect.LOGIN_AUTH_URI";
     public static final String LOGIN_STATE = "com.telenor.connect.LOGIN_STATE";
+    public static final String LOGIN_PARAMS= "com.telenor.connect.LOGIN_PARAMS";
+    public static final String UI_LOCALES = "com.telenor.connect.UI_LOCALES";
     public static final String PAYMENT_ACTION = "com.telenor.connect.PAYMENT_ACTION";
     public static final String CUSTOM_LOADING_SCREEN_EXTRA
             = "com.telenor.connect.CUSTOM_LOADING_SCREEN_EXTRA";
+    public static final int NO_CUSTOM_LAYOUT = -1;
     public static final String WELL_KNOWN_CONFIG_EXTRA = "com.telenor.connect.WELL_KNOWN_CONFIG";
+    public static final String ACR_VALUES_PARAM_NAME = "acr_values";
+
+    public static final String OPERATOR_SELECTION_URI =
+            "com.telenor.mobileconnect.OPERATOR_SELECTION_URI";
+    public static final String OPERATOR_SELECTION_ACTION =
+            "com.telenor.mobileconnect.OPERATOR_SELECTION_ACTION";
 
     public static void parseAuthCode(String callbackUrl, ConnectCallback callback) {
         Validator.notNullOrEmpty(callbackUrl, "callbackUrl");

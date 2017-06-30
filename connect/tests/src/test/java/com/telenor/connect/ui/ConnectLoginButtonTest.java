@@ -71,6 +71,5 @@ public class ConnectLoginButtonTest {
         Intent startedIntent = shadowOf(activity).peekNextStartedActivityForResult().intent;
         assertThat(startedIntent.getComponent(), is(expected.getComponent()));
         assertThat(startedIntent.getAction(), is(ConnectUtils.LOGIN_ACTION));
-        assertThat(ConnectSdk.getWellKnownConfig().getIssuer(), is(DUMMY_ISSUER));
     }
 }
