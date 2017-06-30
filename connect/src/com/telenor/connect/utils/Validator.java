@@ -3,6 +3,7 @@ package com.telenor.connect.utils;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.ConnectSdkProfile;
 import com.telenor.connect.id.ConnectTokensTO;
 
 import java.util.Date;
@@ -30,6 +31,13 @@ public class Validator {
         if (!ConnectSdk.isInitialized()) {
             throw new ConnectNotInitializedException("The SDK was not initialized, call " +
                     "ConnectSdk.sdkInitialize() first");
+        }
+    }
+
+    public static void connectIdOnly() {
+        if (!(ConnectSdk.getSdkProfile() instanceof ConnectSdkProfile)) {
+            throw new ConnectNotInitializedException("The SDK was either not initialized or not " +
+                    "initialized in the right way; call ConnectSdk.sdkInitialize() first");
         }
     }
 

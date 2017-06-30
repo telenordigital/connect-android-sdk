@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.ConnectSdkProfile;
+import com.telenor.connect.ParametersHolder;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -150,7 +151,7 @@ public class ConnectUrlHelperTest {
                 new ConnectSdkProfile(RuntimeEnvironment.application, false, false);
         profile.setClientId("client-id-example");
         profile.setRedirectUri("redirect-url://here");
-        Uri authorizeUri = profile.getAuthorizeUri(parameters, locales);
+        Uri authorizeUri = profile.getAuthorizeUri(new ParametersHolder(parameters), locales);
 
         Uri expected
                 = Uri.parse("https://connect.telenordigital.com/oauth/authorize" +
