@@ -36,12 +36,12 @@ import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import retrofit.Callback;
 
@@ -136,15 +136,24 @@ public final class ConnectSdk {
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
         String mccMnc = getMccMnc();
-        if (mccMnc != null
-                && sdkProfile.getWellKnownConfig() != null
-                && sdkProfile.getWellKnownConfig().getNetworkAuthenticationTargetIps() != null) {
+        WellKnownAPI.WellKnownConfig wellKnownConfig = sdkProfile.getWellKnownConfig();
+        if (!TextUtils.isEmpty(mccMnc) && wellKnownConfig != null &&
+                !(isEmpty(wellKnownConfig.getNetworkAuthenticationTargetIps())
+                        && isEmpty(wellKnownConfig.getNetworkAuthenticationTargetUrls())))
+        {
             parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
         }
         final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
-        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, sdkProfile.getWellKnownConfig());
+        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, wellKnownConfig);
         return intent;
+    }
+
+    private static boolean isEmpty(Collection c) {
+        if (c == null) {
+            return true;
+        }
+        return c.isEmpty();
     }
 
     public static synchronized void authenticate(final Activity activity,
