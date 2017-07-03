@@ -135,6 +135,12 @@ public final class ConnectSdk {
         final Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
+        String mccMnc = getMccMnc();
+        if (mccMnc != null
+                && sdkProfile.getWellKnownConfig() != null
+                && sdkProfile.getWellKnownConfig().getNetworkAuthenticationTargetIps() != null) {
+            parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
+        }
         final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
         intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, sdkProfile.getWellKnownConfig());
