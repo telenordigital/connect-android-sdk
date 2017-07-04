@@ -11,6 +11,7 @@ import com.telenor.connect.utils.IdTokenValidator;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -158,6 +159,13 @@ public abstract class AbstractSdkProfile implements SdkProfile {
             parameters.add("state", UUID.randomUUID().toString());
         }
         lastAuthState = parameters.get("state").get(0);
+
+        String mccMnc = ConnectSdk.getMccMnc();
+        if (!TextUtils.isEmpty(mccMnc) && wellKnownConfig != null &&
+                !(isEmpty(wellKnownConfig.getNetworkAuthenticationTargetIps())
+                        && isEmpty(wellKnownConfig.getNetworkAuthenticationTargetUrls()))) {
+                    parameters.add("login_hint", String.format("MCCMNC:%s", mccMnc));
+        }
     }
 
     @Override
@@ -173,5 +181,12 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         if (tokens.getIdToken() != null) {
             IdTokenValidator.validate(tokens.getIdToken(), serverTimestamp);
         }
+    }
+
+    private static boolean isEmpty(Collection c) {
+        if (c == null) {
+            return true;
+        }
+        return c.isEmpty();
     }
 }

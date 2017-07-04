@@ -117,13 +117,6 @@ public final class ConnectSdk {
         authenticate(activity, parameters, ConnectUtils.NO_CUSTOM_LAYOUT, requestCode);
     }
 
-    private static boolean isEmpty(Collection c) {
-        if (c == null) {
-            return true;
-        }
-        return c.isEmpty();
-    }
-
     public static synchronized void authenticate(final Activity activity,
                                                  final Map<String, String> parameters,
                                                  final int customLoadingLayout,
