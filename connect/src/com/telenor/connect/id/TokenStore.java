@@ -12,7 +12,7 @@ public class TokenStore {
     private static final String PREFERENCE_KEY_ID_TOKEN = "ID_TOKEN";
     private static final String PREFERENCES_FILE = "com.telenor.connect.PREFERENCES_FILE";
     private static final Gson preferencesGson =
-            new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssX").create();
+            new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create();
 
     private final Context context;
 
