@@ -128,7 +128,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
             parameters.add(ConnectUtils.ACR_VALUES_PARAM_NAME, "2");
         }
         if (operatorDiscoveryResult.getSubscriberId() != null) {
-            parameters.put(
+            parameters.add(
                     "login_hint",
                     String.format("ENCR_MSISDN:%s", operatorDiscoveryResult.getSubscriberId()));
         }
