@@ -37,6 +37,7 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.nimbusds:nimbus-jose-jwt:3.10'
     compile 'com.android.support:customtabs:24.2.1'
+    compile 'com.google.code.gson:gson:2.8.1'
 }
 
 publish {

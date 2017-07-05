@@ -3,13 +3,16 @@ package com.telenor.connect.id;
 import android.content.Context;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 
 public class TokenStore {
 
     private static final String PREFERENCE_KEY_CONNECT_TOKENS = "CONNECT_TOKENS";
     private static final String PREFERENCE_KEY_ID_TOKEN = "ID_TOKEN";
     private static final String PREFERENCES_FILE = "com.telenor.connect.PREFERENCES_FILE";
-    private static final Gson preferencesGson = new Gson();
+    private static final Gson preferencesGson =
+            new GsonBuilder().setDateFormat("yyyy/MM/dd HH:mm:ss").create();
 
     private final Context context;
 
@@ -41,8 +44,12 @@ public class TokenStore {
         String connectTokensJson = context
                 .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
                 .getString(PREFERENCE_KEY_CONNECT_TOKENS, null);
-
-        return preferencesGson.fromJson(connectTokensJson, ConnectTokens.class);
+        try {
+            return preferencesGson.fromJson(connectTokensJson, ConnectTokens.class);
+        } catch (JsonSyntaxException e) {
+            clear();
+            return null;
+        }
     }
 
     public void clear() {
@@ -57,6 +64,11 @@ public class TokenStore {
         String idTokenJson = context
                 .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
                 .getString(PREFERENCE_KEY_ID_TOKEN, null);
-        return preferencesGson.fromJson(idTokenJson, IdToken.class);
+        try {
+            return preferencesGson.fromJson(idTokenJson, IdToken.class);
+        } catch (JsonSyntaxException e) {
+            clear();
+            return null;
+        }
     }
 }
