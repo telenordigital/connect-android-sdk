@@ -25,6 +25,8 @@ import org.json.JSONException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
     private static final Uri PRE_FETCH_URL
@@ -143,9 +145,10 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
                 return;
             }
 
-            new CustomTabsIntent.Builder()
-                    .build()
-                    .launchUrl(getActivity(), getAuthorizeUriAndSetLastAuthState());
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            CustomTabsIntent intent = builder.build();
+            intent.intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+            intent.launchUrl(getActivity(), getAuthorizeUriAndSetLastAuthState());
         }
     }
 }
