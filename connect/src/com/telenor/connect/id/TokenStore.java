@@ -4,7 +4,17 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
+
+import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class TokenStore {
 
@@ -12,7 +22,33 @@ public class TokenStore {
     private static final String PREFERENCE_KEY_ID_TOKEN = "ID_TOKEN";
     private static final String PREFERENCES_FILE = "com.telenor.connect.PREFERENCES_FILE";
     private static final Gson preferencesGson =
-            new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create();
+            new GsonBuilder()
+                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+                    .registerTypeAdapter(Date.class, new DateDeserializer())
+                    .create();
+
+    private static class DateDeserializer implements JsonDeserializer<Date> {
+        @Override
+        public Date deserialize(JsonElement je, Type type, JsonDeserializationContext jdc)
+                throws JsonParseException {
+            String date = je.getAsString();
+
+            try {
+                return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(date);
+            } catch (ParseException e) {}
+
+            try {
+                return new SimpleDateFormat("MMM d, y h:mm:ss").parse(date);
+            } catch (ParseException e) {}
+
+            try {
+                return DateFormat
+                        .getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT).parse(date);
+            } catch (ParseException e) {}
+
+            throw new JsonParseException("Invalid date");
+        }
+    }
 
     private final Context context;
 
