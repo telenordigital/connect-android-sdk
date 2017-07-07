@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
@@ -53,7 +54,7 @@ public final class ConnectSdk {
     private static SdkProfile sdkProfile;
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
-    private static volatile Network wifiNetwork;
+    private static volatile Network defaultNetwork;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -513,20 +514,41 @@ public final class ConnectSdk {
         profile.deInitialize();
     }
 
-    public static ConnectivityManager getConnectivityManager() {
-        return connectivityManager;
+    /**
+     * Initialize components common to both Mobile Connect and ConnectID SDK profiles
+     */
+    private static synchronized void initializeCommonComponents() {
+        connectivityManager
+                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+        initalizeCellularNetwork();
+        initalizeDefaultNetwork();
     }
 
-    public static Network getCellularNetwork() {
-        return cellularNetwork;
+    public static boolean isCellularDataNetworkConnected() {
+        Validator.sdkInitialized();
+        NetworkInfo networkInfo = null;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        } else {
+            if (cellularNetwork == null) {
+                return false;
+            }
+            networkInfo = connectivityManager.getNetworkInfo(cellularNetwork);
+        }
+        return (networkInfo != null) && networkInfo.isConnected();
     }
 
-    public static Network getWifiNetwork() {
-        return wifiNetwork;
+    public static boolean isCellularDataNetworkDefault() {
+        Validator.sdkInitialized();
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static void initalizeCellularNetwork() {
+    private static void initalizeCellularNetwork() {
         NetworkRequest networkRequest = new NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
@@ -543,35 +565,28 @@ public final class ConnectSdk {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static void initalizeWiFiNetwork() {
+    private static void initalizeDefaultNetwork() {
         NetworkRequest networkRequest = new NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                 .build();
         connectivityManager.requestNetwork(
                 networkRequest,
                 new ConnectivityManager.NetworkCallback() {
                     @Override
                     public void onAvailable(Network network) {
-                        wifiNetwork = network;
+                        defaultNetwork = network;
                     }
                 }
         );
     }
 
-    /**
-     * Initialize components common to both Mobile Connect and ConnectID SDK profiles
-     */
-    public static synchronized void initializeCommonComponents() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return;
-        }
-        connectivityManager
-                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (null == connectivityManager) {
-            return;
-        }
-        initalizeCellularNetwork();
-        initalizeWiFiNetwork();
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static Network getCellularNetwork() {
+        return cellularNetwork;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static Network getDefaultNetwork() {
+        return defaultNetwork;
     }
 }
