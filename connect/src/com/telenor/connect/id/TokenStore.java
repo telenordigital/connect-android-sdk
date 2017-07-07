@@ -46,7 +46,7 @@ public class TokenStore {
                         .getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT).parse(date);
             } catch (ParseException e) {}
 
-            throw new JsonParseException("Invalid date");
+            throw new JsonParseException("Invalid date:" + date);
         }
     }
 
