@@ -80,12 +80,8 @@ public class TokenStore {
         String connectTokensJson = context
                 .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
                 .getString(PREFERENCE_KEY_CONNECT_TOKENS, null);
-        try {
-            return preferencesGson.fromJson(connectTokensJson, ConnectTokens.class);
-        } catch (JsonSyntaxException e) {
-            clear();
-            return null;
-        }
+
+        return preferencesGson.fromJson(connectTokensJson, ConnectTokens.class);
     }
 
     public void clear() {
@@ -100,11 +96,6 @@ public class TokenStore {
         String idTokenJson = context
                 .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
                 .getString(PREFERENCE_KEY_ID_TOKEN, null);
-        try {
-            return preferencesGson.fromJson(idTokenJson, IdToken.class);
-        } catch (JsonSyntaxException e) {
-            clear();
-            return null;
-        }
+        return preferencesGson.fromJson(idTokenJson, IdToken.class);
     }
 }
