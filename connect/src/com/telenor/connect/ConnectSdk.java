@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
@@ -35,7 +36,6 @@ import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -541,5 +541,24 @@ public final class ConnectSdk {
         }
         initalizeCellularNetwork();
         initalizeWiFiNetwork();
+    }
+
+    public static boolean isCellularDataNetworkConnected() {
+        Validator.sdkInitialized();
+        NetworkInfo networkInfo = null;
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            // noinspection deprecation
+            networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        } else {
+            Network[] networks = connectivityManager.getAllNetworks();
+            for (Network network: networks) {
+                NetworkInfo ninfo = connectivityManager.getNetworkInfo(network);
+                if (ninfo.getType() == ConnectivityManager.TYPE_MOBILE) {
+                    networkInfo = ninfo;
+                    break;
+                }
+            }
+        }
+        return (networkInfo != null) && networkInfo.isConnected();
     }
 }
