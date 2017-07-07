@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
@@ -16,7 +17,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.AccessTokenCallback;
@@ -41,20 +41,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import retrofit.Callback;
 
 public final class ConnectSdk {
 
-    private static String sLastAuthState;
     private static ArrayList<Locale> sLocales;
     private static String sPaymentCancelUri;
     private static String sPaymentSuccessUri;
     private static SdkProfile sdkProfile;
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
-    private static volatile Network wifiNetwork;
+    private static volatile Network defaultNetwork;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -116,30 +114,7 @@ public final class ConnectSdk {
             final Activity activity,
             final Map<String, String> parameters,
             final int requestCode) {
-        Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
-            @Override
-            public void onSuccess() {
-                Intent intent = getAuthIntent(parameters);
-                activity.startActivityForResult(intent, requestCode);
-            }
-
-            @Override
-            public void onError() {
-                showAuthCancelMessage(activity);
-            }
-        });
-
-    }
-
-    private static Intent getAuthIntent(Map<String, String> parameters) {
-        final Intent intent = new Intent();
-        intent.setClass(getContext(), ConnectActivity.class);
-        intent.setAction(ConnectUtils.LOGIN_ACTION);
-        final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
-        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
-        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, sdkProfile.getWellKnownConfig());
-        return intent;
+        authenticate(activity, parameters, ConnectUtils.NO_CUSTOM_LAYOUT, requestCode);
     }
 
     public static synchronized void authenticate(final Activity activity,
@@ -147,26 +122,15 @@ public final class ConnectSdk {
                                                  final int customLoadingLayout,
                                                  final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
-            @Override
-            public void onSuccess() {
-                Intent intent = getAuthIntent(parameters);
-                intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-                activity.startActivityForResult(intent, requestCode);
-            }
-
-            @Override
-            public void onError() {
-                showAuthCancelMessage(activity);
-            }
-        });
-    }
-
-    private static void showAuthCancelMessage(Activity activity) {
-        Toast.makeText(
-                activity,
-                R.string.com_telenor_authorization_cancelled,
-                Toast.LENGTH_SHORT).show();
+        final Intent intent = new Intent();
+        intent.setClass(getContext(), ConnectActivity.class);
+        intent.setAction(ConnectUtils.LOGIN_ACTION);
+        intent.putExtra(ConnectUtils.LOGIN_PARAMS, new ParametersHolder(parameters));
+        intent.putExtra(ConnectUtils.UI_LOCALES, getUiLocales());
+        if (customLoadingLayout != ConnectUtils.NO_CUSTOM_LAYOUT) {
+            intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
+        }
+        activity.startActivityForResult(intent, requestCode);
     }
 
     /**
@@ -178,6 +142,7 @@ public final class ConnectSdk {
      */
     public static Fragment getAuthFragment(Map<String, String> parameters) {
         Validator.sdkInitialized();
+        Validator.connectIdOnly();
 
         final Fragment fragment = new ConnectWebFragment();
         Intent authIntent = getAuthIntent(parameters);
@@ -238,13 +203,17 @@ public final class ConnectSdk {
         if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
         }
+        return sdkProfile.getAuthorizeUri(new ParametersHolder(parameters), getUiLocales());
+    }
 
-        if (parameters.get("state") == null || parameters.get("state").isEmpty()) {
-            parameters.put("state", UUID.randomUUID().toString());
-        }
-        sLastAuthState = parameters.get("state");
-
-        return sdkProfile.getAuthorizeUri(parameters, getUiLocales());
+    private static Intent getAuthIntent(Map<String, String> parameters) {
+        final Intent intent = new Intent();
+        intent.setClass(getContext(), ConnectActivity.class);
+        intent.setAction(ConnectUtils.LOGIN_ACTION);
+        final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
+        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
+        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, sdkProfile.getWellKnownConfig());
+        return intent;
     }
 
     public static HttpUrl getConnectApiUrl() {
@@ -264,7 +233,7 @@ public final class ConnectSdk {
 
     public static String getLastAuthenticationState() {
         Validator.sdkInitialized();
-        return sLastAuthState;
+        return getSdkProfile().getLastAuthState();
     }
 
     public static ArrayList<Locale> getLocales() {
@@ -512,16 +481,41 @@ public final class ConnectSdk {
         profile.deInitialize();
     }
 
-    public static ConnectivityManager getConnectivityManager() {
-        return connectivityManager;
+    /**
+     * Initialize components common to both Mobile Connect and ConnectID SDK profiles
+     */
+    public static synchronized void initializeCommonComponents() {
+        connectivityManager
+                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+        initalizeCellularNetwork();
+        initalizeDefaultNetwork();
     }
 
-    public static Network getCellularNetwork() {
-        return cellularNetwork;
+    @SuppressWarnings("deprecation")
+    public static boolean isCellularDataNetworkConnected() {
+        Validator.sdkInitialized();
+        if (cellularNetwork == null) {
+            return false;
+        }
+        NetworkInfo networkInfo = null;
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        } else {
+            networkInfo = connectivityManager.getNetworkInfo(cellularNetwork);
+        }
+        return (networkInfo != null) && networkInfo.isConnected();
     }
 
-    public static Network getWifiNetwork() {
-        return wifiNetwork;
+    public static boolean isCellularDataNetworkDefault() {
+        Validator.sdkInitialized();
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
+            return true;
+        }
+        return false;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -542,35 +536,28 @@ public final class ConnectSdk {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static void initalizeWiFiNetwork() {
+    public static void initalizeDefaultNetwork() {
         NetworkRequest networkRequest = new NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                 .build();
         connectivityManager.requestNetwork(
                 networkRequest,
                 new ConnectivityManager.NetworkCallback() {
                     @Override
                     public void onAvailable(Network network) {
-                        wifiNetwork = network;
+                        defaultNetwork = network;
                     }
                 }
         );
     }
 
-    /**
-     * Initialize components common to both Mobile Connect and ConnectID SDK profiles
-     */
-    public static synchronized void initializeCommonComponents() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return;
-        }
-        connectivityManager
-                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (null == connectivityManager) {
-            return;
-        }
-        initalizeCellularNetwork();
-        initalizeWiFiNetwork();
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static Network getCellularNetwork() {
+        return cellularNetwork;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static Network getDefaultNetwork() {
+        return defaultNetwork;
     }
 }

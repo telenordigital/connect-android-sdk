@@ -26,6 +26,6 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+        <activity android:name="com.telenor.mobileconnect.ui.OperatorSelectionActivity"/>
     </application>
-
 </manifest>
