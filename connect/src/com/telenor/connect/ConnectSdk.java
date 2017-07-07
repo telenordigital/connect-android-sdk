@@ -52,7 +52,7 @@ public final class ConnectSdk {
     private static SdkProfile sdkProfile;
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
-    private static volatile Network wifiNetwork;
+    private static volatile Network defaultNetwork;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -487,23 +487,24 @@ public final class ConnectSdk {
     public static synchronized void initializeCommonComponents() {
         connectivityManager
                 = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+        initalizeCellularNetwork();
+        initalizeDefaultNetwork();
     }
 
     @SuppressWarnings("deprecation")
     public static boolean isCellularDataNetworkConnected() {
         Validator.sdkInitialized();
+        if (cellularNetwork == null) {
+            return false;
+        }
         NetworkInfo networkInfo = null;
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
             networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         } else {
-            Network[] networks = connectivityManager.getAllNetworks();
-            for (Network network: networks) {
-                NetworkInfo ninfo = connectivityManager.getNetworkInfo(network);
-                if (ninfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-                    networkInfo = ninfo;
-                    break;
-                }
-            }
+            networkInfo = connectivityManager.getNetworkInfo(cellularNetwork);
         }
         return (networkInfo != null) && networkInfo.isConnected();
     }
@@ -518,35 +519,45 @@ public final class ConnectSdk {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static void initalizeCellularNetwork() {
+        NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                .build();
+        connectivityManager.requestNetwork(
+                networkRequest,
+                new ConnectivityManager.NetworkCallback() {
+                    @Override
+                    public void onAvailable(Network network) {
+                        cellularNetwork = network;
+                    }
+                }
+        );
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static void initalizeDefaultNetwork() {
+        NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build();
+        connectivityManager.requestNetwork(
+                networkRequest,
+                new ConnectivityManager.NetworkCallback() {
+                    @Override
+                    public void onAvailable(Network network) {
+                        defaultNetwork = network;
+                    }
+                }
+        );
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getCellularNetwork() {
-        Network network = null;
-        Network[] networks = connectivityManager.getAllNetworks();
-        for (Network nw: networks) {
-            NetworkInfo ninfo = connectivityManager.getNetworkInfo(nw);
-            if (ninfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-                network = nw;
-                break;
-            }
-        }
-        return network;
+        return cellularNetwork;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getDefaultNetwork() {
-        Network network = null;
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-            Network[] networks = connectivityManager.getAllNetworks();
-            for (Network nw: networks) {
-                NetworkInfo ninfo = connectivityManager.getNetworkInfo(nw);
-                if (networkInfo.toString().equals(ninfo.toString())) {
-                    network = nw;
-                    break;
-                }
-            }
-        } else {
-            network = connectivityManager.getActiveNetwork();
-        }
-        return network;
+        return defaultNetwork;
     }
 }
