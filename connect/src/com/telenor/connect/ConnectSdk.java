@@ -545,11 +545,6 @@ public final class ConnectSdk {
 
     public static boolean isCellularDataNetworkConnected() {
         Validator.sdkInitialized();
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) sdkProfile
-                        .getContext()
-                        .getSystemService(Context.CONNECTIVITY_SERVICE);
-
         NetworkInfo networkInfo = null;
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
             // noinspection deprecation
