@@ -481,73 +481,19 @@ public final class ConnectSdk {
         profile.deInitialize();
     }
 
-    public static ConnectivityManager getConnectivityManager() {
-        return connectivityManager;
-    }
-
-    public static Network getCellularNetwork() {
-        return cellularNetwork;
-    }
-
-    public static Network getWifiNetwork() {
-        return wifiNetwork;
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static void initalizeCellularNetwork() {
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                .build();
-        connectivityManager.requestNetwork(
-                networkRequest,
-                new ConnectivityManager.NetworkCallback() {
-                    @Override
-                    public void onAvailable(Network network) {
-                        cellularNetwork = network;
-                    }
-                }
-        );
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static void initalizeWiFiNetwork() {
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .build();
-        connectivityManager.requestNetwork(
-                networkRequest,
-                new ConnectivityManager.NetworkCallback() {
-                    @Override
-                    public void onAvailable(Network network) {
-                        wifiNetwork = network;
-                    }
-                }
-        );
-    }
-
     /**
      * Initialize components common to both Mobile Connect and ConnectID SDK profiles
      */
     public static synchronized void initializeCommonComponents() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return;
-        }
         connectivityManager
                 = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (null == connectivityManager) {
-            return;
-        }
-        initalizeCellularNetwork();
-        initalizeWiFiNetwork();
     }
 
+    @SuppressWarnings("deprecation")
     public static boolean isCellularDataNetworkConnected() {
         Validator.sdkInitialized();
         NetworkInfo networkInfo = null;
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            // noinspection deprecation
             networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         } else {
             Network[] networks = connectivityManager.getAllNetworks();
@@ -560,5 +506,47 @@ public final class ConnectSdk {
             }
         }
         return (networkInfo != null) && networkInfo.isConnected();
+    }
+
+    public static boolean isCellularDataNetworkDefault() {
+        Validator.sdkInitialized();
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
+            return true;
+        }
+        return false;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static Network getCellularNetwork() {
+        Network network = null;
+        Network[] networks = connectivityManager.getAllNetworks();
+        for (Network nw: networks) {
+            NetworkInfo ninfo = connectivityManager.getNetworkInfo(nw);
+            if (ninfo.getType() == ConnectivityManager.TYPE_MOBILE) {
+                network = nw;
+                break;
+            }
+        }
+        return network;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static Network getDefaultNetwork() {
+        Network network = null;
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            Network[] networks = connectivityManager.getAllNetworks();
+            for (Network nw: networks) {
+                NetworkInfo ninfo = connectivityManager.getNetworkInfo(nw);
+                if (networkInfo.toString().equals(ninfo.toString())) {
+                    network = nw;
+                    break;
+                }
+            }
+        } else {
+            network = connectivityManager.getActiveNetwork();
+        }
+        return network;
     }
 }
