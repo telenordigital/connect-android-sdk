@@ -516,10 +516,7 @@ public final class ConnectSdk {
     public static boolean isCellularDataNetworkDefault() {
         Validator.sdkInitialized();
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-            return true;
-        }
-        return false;
+        return networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
