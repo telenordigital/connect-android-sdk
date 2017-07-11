@@ -166,6 +166,10 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                         && isEmpty(wellKnownConfig.getNetworkAuthenticationTargetUrls()))) {
                     parameters.add("login_hint", String.format("MCCMNC:%s", mccMnc));
         }
+
+        if (!ConnectSdk.isCellularDataNetworkConnected()) {
+            parameters.add("prompt", "no_seam");
+        }
     }
 
     @Override
