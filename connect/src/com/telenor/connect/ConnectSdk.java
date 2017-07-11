@@ -138,8 +138,8 @@ public final class ConnectSdk {
         String mccMnc = getMccMnc();
         WellKnownAPI.WellKnownConfig wellKnownConfig = sdkProfile.getWellKnownConfig();
         if (!TextUtils.isEmpty(mccMnc) && wellKnownConfig != null &&
-                !(isEmpty(wellKnownConfig.getNetworkAuthenticationTargetIps())
-                        && isEmpty(wellKnownConfig.getNetworkAuthenticationTargetUrls())))
+                !(wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()
+                        && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty()))
         {
             parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
         }
@@ -147,13 +147,6 @@ public final class ConnectSdk {
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
         intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, wellKnownConfig);
         return intent;
-    }
-
-    private static boolean isEmpty(Collection c) {
-        if (c == null) {
-            return true;
-        }
-        return c.isEmpty();
     }
 
     public static synchronized void authenticate(final Activity activity,
