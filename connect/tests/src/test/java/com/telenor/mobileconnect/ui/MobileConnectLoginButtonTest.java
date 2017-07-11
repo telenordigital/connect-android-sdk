@@ -106,6 +106,5 @@ public class MobileConnectLoginButtonTest {
         Intent startedIntent = shadowOf(activity).peekNextStartedActivityForResult().intent;
         assertThat(startedIntent.getComponent(), is(expected.getComponent()));
         assertThat(startedIntent.getAction(), is(ConnectUtils.LOGIN_ACTION));
-        assertThat(ConnectSdk.getWellKnownConfig().getIssuer(), is(TestHelper.DUMMY_ISSUER));
     }
 }

@@ -100,6 +100,10 @@ public final class ConnectSdk {
         return sdkProfile;
     }
 
+    /* package private */ static void setSdkProfile(SdkProfile profile) {
+        sdkProfile = profile;
+    }
+
     public static synchronized void authenticate(
             Activity activity,
             int requestCode,
