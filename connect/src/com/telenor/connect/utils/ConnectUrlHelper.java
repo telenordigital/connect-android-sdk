@@ -7,12 +7,8 @@ import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.BuildConfig;
-import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.ConnectSdkProfile;
-import com.telenor.mobileconnect.MobileConnectSdkProfile;
+import com.telenor.connect.ParametersHolder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,19 +33,19 @@ public class ConnectUrlHelper {
     }
 
     public static Uri getAuthorizeUriStem(
-            Map<String, String> parameters,
+            ParametersHolder parameters,
             String clientId,
             String redirectUri,
             List<String> locales,
             HttpUrl basePath) {
-        Map<String, String> authParameters = new HashMap<>();
-        authParameters.put("response_type", "code");
-        authParameters.put("client_id", clientId);
-        authParameters.put("redirect_uri", redirectUri);
-        authParameters.put("ui_locales", TextUtils.join(" ", locales));
-        authParameters.put("telenordigital_sdk_version", getVersionParam());
+        ParametersHolder authParameters = new ParametersHolder();
+        authParameters.add("response_type", "code");
+        authParameters.add("client_id", clientId);
+        authParameters.add("redirect_uri", redirectUri);
+        authParameters.add("ui_locales", TextUtils.join(" ", locales));
+        authParameters.add("telenordigital_sdk_version", getVersionParam());
 
-        authParameters.putAll(parameters);
+        authParameters.addAll(parameters);
 
         Uri.Builder builder = new Uri.Builder();
         builder

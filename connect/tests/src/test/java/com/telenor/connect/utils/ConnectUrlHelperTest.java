@@ -7,10 +7,13 @@ import android.os.Bundle;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.ConnectSdkProfile;
+import com.telenor.connect.ConnectTestHelper;
+import com.telenor.connect.ParametersHolder;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
@@ -145,10 +148,12 @@ public class ConnectUrlHelperTest {
                 .host("connect.telenordigital.com")
                 .build();
 
-        ConnectSdkProfile profile = new ConnectSdkProfile(null, false, false);
+        ConnectSdkProfile profile =
+                new ConnectSdkProfile(RuntimeEnvironment.application, false, false);
         profile.setClientId("client-id-example");
         profile.setRedirectUri("redirect-url://here");
-        Uri authorizeUri = profile.getAuthorizeUri(parameters, locales);
+        ConnectTestHelper.setSdkProfile(profile);
+        Uri authorizeUri = profile.getAuthorizeUri(new ParametersHolder(parameters), locales);
 
         Uri expected
                 = Uri.parse("https://connect.telenordigital.com/oauth/authorize" +

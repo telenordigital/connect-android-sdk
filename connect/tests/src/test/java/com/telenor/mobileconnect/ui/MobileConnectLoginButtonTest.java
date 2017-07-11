@@ -84,28 +84,7 @@ public class MobileConnectLoginButtonTest {
     }
 
     @Test
-    public void clickingLoginButtonWithFailingOperatorDiscoveryDoesNotStartConnectActivity() {
-        WELL_KNOWN_API_MAP.put(MOCKED_WELL_KNOWN_ENDPONT, MOCKED_FAILING_WELL_KNOWN_API);
-        OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, MOCKED_FAILING_OPERATOR_DISCOVERY_API);
-
-        final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
-        final ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);
-        button.setLoginScopeTokens("profile");
-        button.performClick();
-
-        assertThat("Activity is started",
-                flushForegroundTasksUntilCallerIsSatisifed(
-                        1000,
-                        new BooleanSupplier() {
-                            @Override
-                            public boolean getAsBoolean() {
-                                return shadowOf(activity).peekNextStartedActivityForResult() != null;                            }
-                        }
-                ), is(false));
-    }
-
-    @Test
-    public void clickingLoginButtonWithValidOperatorDiscoveryResultStartsConnectActivityAndReturnsValidWellKnownConfig() {
+    public void clickingLoginButtonWithValidOperatorDiscoveryResultStartsConnectActivity() {
         WELL_KNOWN_API_MAP.put(MOCKED_WELL_KNOWN_ENDPONT, MOCKED_VALID_WELL_KNOWN_API);
         OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, MOCKED_VALID_OPERATOR_DISCOVERY_API);
 
@@ -127,6 +106,5 @@ public class MobileConnectLoginButtonTest {
         Intent startedIntent = shadowOf(activity).peekNextStartedActivityForResult().intent;
         assertThat(startedIntent.getComponent(), is(expected.getComponent()));
         assertThat(startedIntent.getAction(), is(ConnectUtils.LOGIN_ACTION));
-        assertThat(ConnectSdk.getWellKnownConfig().getIssuer(), is(TestHelper.DUMMY_ISSUER));
     }
 }
