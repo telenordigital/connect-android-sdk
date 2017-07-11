@@ -489,7 +489,7 @@ public final class ConnectSdk {
     /**
      * Initialize components common to both Mobile Connect and ConnectID SDK profiles
      */
-    public static synchronized void initializeCommonComponents() {
+    private static synchronized void initializeCommonComponents() {
         connectivityManager
                 = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -520,7 +520,7 @@ public final class ConnectSdk {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static void initalizeCellularNetwork() {
+    private static void initalizeCellularNetwork() {
         NetworkRequest networkRequest = new NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
@@ -537,7 +537,7 @@ public final class ConnectSdk {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static void initalizeDefaultNetwork() {
+    private static void initalizeDefaultNetwork() {
         NetworkRequest networkRequest = new NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .build();
