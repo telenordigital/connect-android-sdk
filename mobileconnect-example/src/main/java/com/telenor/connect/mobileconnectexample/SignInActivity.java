@@ -15,6 +15,7 @@ public class SignInActivity extends Activity {
 
         MobileConnectLoginButton loginButton = (MobileConnectLoginButton) findViewById(R.id.login_button);
         loginButton.setLoginScopeTokens("openid phone");
+        loginButton.setAcrValues("2");
     }
 
     @Override

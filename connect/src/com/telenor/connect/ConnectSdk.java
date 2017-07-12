@@ -36,18 +36,17 @@ import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import retrofit.Callback;
 
 public final class ConnectSdk {
 
-    private static String sLastAuthState;
     private static ArrayList<Locale> sLocales;
     private static String sPaymentCancelUri;
     private static String sPaymentSuccessUri;
@@ -117,7 +116,7 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
+        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
             @Override
             public void onSuccess() {
                 Intent intent = getAuthIntent(parameters);
@@ -136,9 +135,17 @@ public final class ConnectSdk {
         final Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
+        String mccMnc = getMccMnc();
+        WellKnownAPI.WellKnownConfig wellKnownConfig = sdkProfile.getWellKnownConfig();
+        if (!TextUtils.isEmpty(mccMnc) && wellKnownConfig != null &&
+                !(wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()
+                        && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty()))
+        {
+            parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
+        }
         final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
-        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, sdkProfile.getWellKnownConfig());
+        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, wellKnownConfig);
         return intent;
     }
 
@@ -147,7 +154,7 @@ public final class ConnectSdk {
                                                  final int customLoadingLayout,
                                                  final int requestCode) {
         Validator.sdkInitialized();
-        sdkProfile.onStartAuthorization(new SdkProfile.OnStartAuthorizationCallback() {
+        sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
             @Override
             public void onSuccess() {
                 Intent intent = getAuthIntent(parameters);
@@ -238,12 +245,6 @@ public final class ConnectSdk {
         if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
         }
-
-        if (parameters.get("state") == null || parameters.get("state").isEmpty()) {
-            parameters.put("state", UUID.randomUUID().toString());
-        }
-        sLastAuthState = parameters.get("state");
-
         return sdkProfile.getAuthorizeUri(parameters, getUiLocales());
     }
 
@@ -264,7 +265,7 @@ public final class ConnectSdk {
 
     public static String getLastAuthenticationState() {
         Validator.sdkInitialized();
-        return sLastAuthState;
+        return getSdkProfile().getLastAuthState();
     }
 
     public static ArrayList<Locale> getLocales() {

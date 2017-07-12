@@ -5,7 +5,9 @@ import android.net.Uri;
 
 import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
+import com.telenor.connect.id.ConnectTokensTO;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -24,12 +26,15 @@ public interface SdkProfile {
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
     boolean isInitialized();
 
-    void onStartAuthorization(OnStartAuthorizationCallback callback);
+    String getLastAuthState();
+
+    void onStartAuthorization(Map<String, String> parameters, OnStartAuthorizationCallback callback);
 
     interface OnStartAuthorizationCallback {
         void onSuccess();
         void onError();
     }
 
+    void validateTokens(ConnectTokensTO tokens, Date serverTimestamp);
     void onFinishAuthorization(boolean success);
 }

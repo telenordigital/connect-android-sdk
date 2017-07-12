@@ -14,15 +14,19 @@ import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.id.TokenStore;
 import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.utils.ConnectUrlHelper;
+import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
+import com.telenor.connect.utils.Validator;
 import com.telenor.mobileconnect.id.MobileConnectAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import retrofit.Callback;
 import retrofit.ResponseCallback;
@@ -33,8 +37,9 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
     private OperatorDiscoveryConfig operatorDiscoveryConfig;
     private volatile OperatorDiscoveryAPI.OperatorDiscoveryResult operatorDiscoveryResult;
-    private volatile OperatorDiscoveryAPI operatorDiscoveryApi;
     private final OperatorDiscoveryConfigStore lastSeenStore;
+
+    private String lastAuthNonce;
 
     public MobileConnectSdkProfile(
             Context context,
@@ -108,7 +113,13 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public void onStartAuthorization(final OnStartAuthorizationCallback callback) {
+    public void onStartAuthorization(Map<String, String> parameters, final OnStartAuthorizationCallback callback) {
+        super.onStartAuthorization(parameters, callback);
+        lastAuthNonce = UUID.randomUUID().toString();
+        parameters.put("nonce", lastAuthNonce);
+        if (parameters.get(ConnectUtils.ACR_VALUES_PARAM_NAME) == null) {
+            parameters.put(ConnectUtils.ACR_VALUES_PARAM_NAME, "2");
+        }
 
         if (isInitialized()) {
             callback.onSuccess();
@@ -151,6 +162,14 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
         }
     }
 
+    @Override
+    public void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
+        super.validateTokens(tokens, serverTimestamp);
+        Validator.notNull(tokens.getIdToken(), "id_token");
+        Validator.notNullOrEmpty(tokens.getIdToken().getNonce(), "nonce");
+        Validator.notDifferent(lastAuthNonce, tokens.getIdToken().getNonce(), "nonce");
+    }
+
     private OperatorDiscoveryAPI getOperatorDiscoveryApi() {
         return  RestHelper.getOperatorDiscoveryApi(
                     operatorDiscoveryConfig.getOperatorDiscoveryEndpoint());
@@ -181,7 +200,6 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
 
     public void deInitialize() {
         super.deInitialize();
-        operatorDiscoveryApi = null;
         setInitialized(false);
     }
 

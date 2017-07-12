@@ -5,9 +5,12 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.squareup.okhttp.HttpUrl;
+import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.utils.ConnectUrlHelper;
+import com.telenor.connect.utils.Validator;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +84,8 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public void onStartAuthorization(OnStartAuthorizationCallback callback) {
+    public void onStartAuthorization(Map<String, String> parameters, OnStartAuthorizationCallback callback) {
+        super.onStartAuthorization(parameters, callback);
         initializeAndContinueAuthorizationFlow(callback);
     }
 
@@ -123,5 +127,13 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
             return endpoint;
         }
         return endpoint.replace("connect.telenordigital.com", "connect.staging.telenordigital.com");
+    }
+
+    @Override
+    public void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
+        super.validateTokens(tokens, serverTimestamp);
+        Validator.notNullOrEmpty(tokens.getScope(), "scope");
+        Validator.notNull(tokens.getExpiresIn(), "expires_in");
+        Validator.notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
     }
 }
