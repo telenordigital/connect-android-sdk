@@ -112,9 +112,8 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     @Override
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        boolean shouldSkipInterceptionLogic
-                = ConnectSdk.getCellularNetwork() == null || ConnectSdk.getWifiNetwork() == null;
-        if (shouldSkipInterceptionLogic) {
+        if (!ConnectSdk.isCellularDataNetworkConnected()
+                || ConnectSdk.isCellularDataNetworkDefault()) {
             return null;
         }
         if (shouldFetchThroughCellular(request.getUrl().toString())) {
@@ -188,7 +187,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             }
             interfaceToUse = shouldFetchThroughCellular(newUrl)
                     ? ConnectSdk.getCellularNetwork()
-                    : ConnectSdk.getWifiNetwork();
+                    : ConnectSdk.getDefaultNetwork();
         } while (attempts <= ConnectSdk.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
         return null;
     }
