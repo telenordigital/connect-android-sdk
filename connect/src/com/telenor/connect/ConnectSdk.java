@@ -518,9 +518,12 @@ public final class ConnectSdk {
      * Initialize components common to both Mobile Connect and ConnectID SDK profiles
      */
     private static synchronized void initializeCommonComponents() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
         connectivityManager
                 = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if (connectivityManager == null) {
             return;
         }
         initalizeCellularNetwork();
@@ -528,7 +531,9 @@ public final class ConnectSdk {
     }
 
     public static boolean isCellularDataNetworkConnected() {
-        Validator.sdkInitialized();
+        if (connectivityManager == null) {
+            return false;
+        }
         NetworkInfo networkInfo = null;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
@@ -542,7 +547,9 @@ public final class ConnectSdk {
     }
 
     public static boolean isCellularDataNetworkDefault() {
-        Validator.sdkInitialized();
+        if (connectivityManager == null) {
+            return false;
+        }
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE;
     }
