@@ -518,12 +518,9 @@ public final class ConnectSdk {
      * Initialize components common to both Mobile Connect and ConnectID SDK profiles
      */
     private static synchronized void initializeCommonComponents() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return;
-        }
         connectivityManager
                 = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager == null) {
+        if (connectivityManager == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return;
         }
         initalizeCellularNetwork();
