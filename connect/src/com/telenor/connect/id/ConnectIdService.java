@@ -100,32 +100,38 @@ public class ConnectIdService {
     }
 
     public void revokeTokens(Context context) {
-        connectApi.revokeToken(
-                clientId,
-                getAccessToken(),
-                new ResponseCallback() {
-            @Override
-            public void success(Response response) {
-            }
+        String accessToken = getAccessToken();
+        if (accessToken != null) {
+            connectApi.revokeToken(
+                    clientId,
+                    accessToken,
+                    new ResponseCallback() {
+                        @Override
+                        public void success(Response response) {
+                        }
 
-            @Override
-            public void failure(RetrofitError error) {
-                Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke access token on API", error);
-            }
-        });
-        connectApi.revokeToken(
-                clientId,
-                getRefreshToken(),
-                new ResponseCallback() {
-            @Override
-            public void success(Response response) {
-            }
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke access token on API", error);
+                        }
+                    });
+        }
+        String refreshToken = getRefreshToken();
+        if (refreshToken != null) {
+            connectApi.revokeToken(
+                    clientId,
+                    refreshToken,
+                    new ResponseCallback() {
+                        @Override
+                        public void success(Response response) {
+                        }
 
-            @Override
-            public void failure(RetrofitError error) {
-                Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke refresh token on API", error);
-            }
-        });
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke refresh token on API", error);
+                        }
+                    });
+        }
         tokenStore.clear();
         currentTokens = null;
         idToken = null;
