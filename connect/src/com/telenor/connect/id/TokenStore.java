@@ -56,6 +56,11 @@ public class TokenStore {
                         DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.ENGLISH).parse(date);
             } catch (ParseException e) {}
 
+            try {
+                return DateFormat.getDateTimeInstance(
+                        DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US).parse(date);
+            } catch (ParseException e) {}
+
             throw new JsonParseException("Invalid date:" + date);
         }
     }
