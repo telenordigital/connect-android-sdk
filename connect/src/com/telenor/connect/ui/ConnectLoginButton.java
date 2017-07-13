@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
+import android.support.customtabs.CustomTabsSession;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -54,9 +55,10 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
             @Override
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
                 client.warmup(0);
-                client
-                        .newSession(null)
-                        .mayLaunchUrl(PRE_FETCH_URL, null, null);
+                CustomTabsSession session = client.newSession(null);
+                if (session != null) {
+                    session.mayLaunchUrl(PRE_FETCH_URL, null, null);
+                }
             }
 
             @Override
