@@ -15,6 +15,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class TokenStore {
 
@@ -42,8 +43,17 @@ public class TokenStore {
             } catch (ParseException e) {}
 
             try {
+                return new SimpleDateFormat("MMM d, y h:mm:ss", Locale.ENGLISH).parse(date);
+            } catch (ParseException e) {}
+
+            try {
                 return DateFormat
                         .getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT).parse(date);
+            } catch (ParseException e) {}
+
+            try {
+                return DateFormat.getDateTimeInstance(
+                        DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.ENGLISH).parse(date);
             } catch (ParseException e) {}
 
             throw new JsonParseException("Invalid date:" + date);
