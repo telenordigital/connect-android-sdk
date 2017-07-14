@@ -2,6 +2,7 @@ package com.telenor.connect.id;
 
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -114,32 +115,38 @@ public class ConnectIdService {
     }
 
     public void revokeTokens(Context context) {
-        connectApi.revokeToken(
-                clientId,
-                getAccessToken(),
-                new ResponseCallback() {
-            @Override
-            public void success(Response response) {
-            }
+        String accessToken = getAccessToken();
+        if (!TextUtils.isEmpty(accessToken)) {
+            connectApi.revokeToken(
+                    clientId,
+                    accessToken,
+                    new ResponseCallback() {
+                        @Override
+                        public void success(Response response) {
+                        }
 
-            @Override
-            public void failure(RetrofitError error) {
-                Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke access token on API", error);
-            }
-        });
-        connectApi.revokeToken(
-                clientId,
-                getRefreshToken(),
-                new ResponseCallback() {
-            @Override
-            public void success(Response response) {
-            }
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke access token on API", error);
+                        }
+                    });
+        }
+        String refreshToken = getRefreshToken();
+        if (!TextUtils.isEmpty(refreshToken)) {
+            connectApi.revokeToken(
+                    clientId,
+                    refreshToken,
+                    new ResponseCallback() {
+                        @Override
+                        public void success(Response response) {
+                        }
 
-            @Override
-            public void failure(RetrofitError error) {
-                Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke refresh token on API", error);
-            }
-        });
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke refresh token on API", error);
+                        }
+                    });
+        }
         tokenStore.clear();
         currentTokens = null;
         idToken = null;
