@@ -2,6 +2,7 @@ package com.telenor.connect.id;
 
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -101,7 +102,7 @@ public class ConnectIdService {
 
     public void revokeTokens(Context context) {
         String accessToken = getAccessToken();
-        if (accessToken != null) {
+        if (!TextUtils.isEmpty(accessToken)) {
             connectApi.revokeToken(
                     clientId,
                     accessToken,
@@ -117,7 +118,7 @@ public class ConnectIdService {
                     });
         }
         String refreshToken = getRefreshToken();
-        if (refreshToken != null) {
+        if (!TextUtils.isEmpty(refreshToken)) {
             connectApi.revokeToken(
                     clientId,
                     refreshToken,
