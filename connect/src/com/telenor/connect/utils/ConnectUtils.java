@@ -25,12 +25,16 @@ public class ConnectUtils {
         Validator.notNullOrEmpty(callbackUrl, "callbackUrl");
 
         Uri uri = Uri.parse(callbackUrl);
-        Validator.validateAuthenticationState(uri.getQueryParameter("state"));
+        if (!Validator.validState(uri.getQueryParameter("state"))) {
+            callback.onError(getErrorParams(
+                    "state_changed",
+                    "The state parameter was changed between authentication and now"));
+            return;
+        }
         if (uri.getQueryParameter("error") != null) {
-            Map<String, String> errorParams = new HashMap<>();
-            errorParams.put("error", uri.getQueryParameter("error"));
-            errorParams.put("error_description", uri.getQueryParameter("error_description"));
-            callback.onError(errorParams);
+            callback.onError(getErrorParams(
+                    uri.getQueryParameter("error"),
+                    uri.getQueryParameter("error_description")));
             return;
         }
 
@@ -48,5 +52,12 @@ public class ConnectUtils {
         Intent intent = new Intent(ConnectSdk.ACTION_LOGIN_STATE_CHANGED);
         intent.putExtra(LOGIN_STATE, state);
         localBroadcastManager.sendBroadcast(intent);
+    }
+
+    private static Map<String, String> getErrorParams(String error, String errorDescription) {
+        Map<String, String> errorParams = new HashMap<>();
+        errorParams.put("error", error);
+        errorParams.put("error_description", errorDescription);
+        return errorParams;
     }
 }
