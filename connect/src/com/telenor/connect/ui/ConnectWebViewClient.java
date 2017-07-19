@@ -29,7 +29,6 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -92,7 +91,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         if (ConnectSdk.getRedirectUri() != null
                 && url.startsWith(ConnectSdk.getRedirectUri())) {
-            ConnectUtils.parseAuthCode(url, connectCallback);
+            ConnectUtils.parseAuthCode(url, getOriginalState(), connectCallback);
             return true;
         }
         if (ConnectSdk.getPaymentCancelUri() != null
@@ -108,6 +107,11 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             return true;
         }
         return false;
+    }
+
+    private String getOriginalState() {
+        String url = activity.getIntent().getStringExtra(ConnectUtils.LOGIN_AUTH_URI);
+        return Uri.parse(url).getQueryParameter("state");
     }
 
     @Override

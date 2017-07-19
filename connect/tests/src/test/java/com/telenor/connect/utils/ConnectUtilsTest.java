@@ -40,9 +40,11 @@ public class ConnectUtilsTest {
         mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
 
+        String state = "somestate";
         final String value1 = "something";
         final String value2 = "something else";
         String uri = new Uri.Builder()
+                .appendQueryParameter("state", state)
                 .appendQueryParameter("error", value1)
                 .appendQueryParameter("error_description", value2)
                 .build()
@@ -50,13 +52,36 @@ public class ConnectUtilsTest {
 
         ConnectCallback mock = mock(ConnectCallback.class);
 
-        ConnectUtils.parseAuthCode(uri, mock);
+        ConnectUtils.parseAuthCode(uri, state, mock);
         verify(mock).onError(argThat(new ArgumentMatcher<Object>() {
             @Override
             public boolean matches(Object argument) {
                 Map<String, String> stringMap = (Map<String, String>) argument;
                 return stringMap.get("error").equals(value1)
                         && stringMap.get("error_description").equals(value2);
+            }
+        }));
+    }
+
+    @Test
+    public void mutatedStateInCallbackUrlCallsCallbackOnErrorWithMap() {
+        mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
+
+        String state = "somestate";
+        String uri = new Uri.Builder()
+                .appendQueryParameter("state", state + "mutation")
+                .build()
+                .toString();
+
+        ConnectCallback mock = mock(ConnectCallback.class);
+
+        ConnectUtils.parseAuthCode(uri, state, mock);
+        verify(mock).onError(argThat(new ArgumentMatcher<Object>() {
+            @Override
+            public boolean matches(Object argument) {
+                Map<String, String> stringMap = (Map<String, String>) argument;
+                return stringMap.get("error").equals("state_changed");
             }
         }));
     }
@@ -76,7 +101,7 @@ public class ConnectUtilsTest {
 
         ConnectCallback mock = mock(ConnectCallback.class);
 
-        ConnectUtils.parseAuthCode(uri, mock);
+        ConnectUtils.parseAuthCode(uri, value2, mock);
         verify(mock).onSuccess(argThat(new ArgumentMatcher<Object>() {
             @Override
             public boolean matches(Object argument) {

@@ -26,8 +26,6 @@ public interface SdkProfile {
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
     boolean isInitialized();
 
-    String getLastAuthState();
-
     void onStartAuthorization(Map<String, String> parameters, OnStartAuthorizationCallback callback);
 
     interface OnStartAuthorizationCallback {
