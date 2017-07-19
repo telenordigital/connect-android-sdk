@@ -14,6 +14,8 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.HeadersDateUtil;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import retrofit.Callback;
 import retrofit.ResponseCallback;
@@ -99,7 +101,9 @@ public class ConnectIdService {
                     public void failure(RetrofitError error) {
                         ConnectUtils.sendTokenStateChanged(false);
                         if (callback != null) {
-                            callback.onError(error.toString());
+                            Map<String, String> errorParams = new HashMap<>();
+                            errorParams.put("error", error.toString());
+                            callback.onError(errorParams);
                         }
                     }
                 });
