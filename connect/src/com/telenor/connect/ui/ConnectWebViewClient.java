@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -242,8 +243,14 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         webView.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Cursor cursor = SmsCursorUtil.getSmsCursor(activity,
-                        pageLoadStarted-CHECK_FOR_SMS_BACK_IN_TIME_MILLIS);
+                Cursor cursor = null;
+                try {
+                    cursor = SmsCursorUtil.getSmsCursor(activity,
+                            pageLoadStarted-CHECK_FOR_SMS_BACK_IN_TIME_MILLIS);
+                } catch (SecurityException e) {
+                    Log.e(ConnectUtils.LOG_TAG, "Failed to acquire SMS cursor", e);
+                    return;
+                }
                 if (cursor == null) {
                     return;
                 }
