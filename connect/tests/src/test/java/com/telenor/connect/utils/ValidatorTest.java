@@ -19,8 +19,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -74,19 +72,6 @@ public class ValidatorTest {
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
 
         Validator.sdkInitialized();
-    }
-
-    @Test(expected = ConnectException.class)
-    public void validateAuthenticationStateThrowsOnUnEqualState() {
-        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn("some state");
-
-        Validator.validateAuthenticationState("not same state");
-    }
-
-    public void validateAuthenticationStateDoesNotThrowOnEqualState() {
-        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn("some state");
-
-        Validator.validateAuthenticationState("some state");
     }
 
     @Test
@@ -174,33 +159,5 @@ public class ValidatorTest {
                 null);
 
         Validator.validateTokens(connectTokensTO, null);
-    }
-
-    @Test
-    public void validStateReturnsTrueWhenCurrentStateIsNull() {
-        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn(null);
-
-        assertThat(Validator.validState("whatever"), is(true));
-    }
-
-    @Test
-    public void validStateReturnsTrueWhenCurrentStateIsEmpty() {
-        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn("");
-
-        assertThat(Validator.validState("whatever"), is(true));
-    }
-
-    @Test
-    public void validStateReturnsTrueWhenCurrentStateMatchesGivenState() {
-        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn("abc");
-
-        assertThat(Validator.validState("abc"), is(true));
-    }
-
-    @Test
-    public void validStateReturnsFalseWhenCurrentStateDoesNotMatchGivenState() {
-        BDDMockito.given(ConnectSdk.getLastAuthenticationState()).willReturn("xyz");
-
-        assertThat(Validator.validState("abc"), is(false));
     }
 }

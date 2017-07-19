@@ -40,9 +40,11 @@ public class ConnectUtilsTest {
         mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
 
+        String state = "somestate";
         final String value1 = "something";
         final String value2 = "something else";
         String uri = new Uri.Builder()
+                .appendQueryParameter("state", state)
                 .appendQueryParameter("error", value1)
                 .appendQueryParameter("error_description", value2)
                 .build()
@@ -50,7 +52,7 @@ public class ConnectUtilsTest {
 
         ConnectCallback mock = mock(ConnectCallback.class);
 
-        ConnectUtils.parseAuthCode(uri, mock);
+        ConnectUtils.parseAuthCode(uri, state, mock);
         verify(mock).onError(argThat(new ArgumentMatcher<Object>() {
             @Override
             public boolean matches(Object argument) {
@@ -76,7 +78,7 @@ public class ConnectUtilsTest {
 
         ConnectCallback mock = mock(ConnectCallback.class);
 
-        ConnectUtils.parseAuthCode(uri, mock);
+        ConnectUtils.parseAuthCode(uri, value2, mock);
         verify(mock).onSuccess(argThat(new ArgumentMatcher<Object>() {
             @Override
             public boolean matches(Object argument) {

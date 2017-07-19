@@ -26,8 +26,6 @@ public abstract class AbstractSdkProfile implements SdkProfile {
     private volatile boolean isInitialized = false;
     private final WellKnownConfigStore lastSeenStore;
 
-    private String lastAuthState;
-
     public AbstractSdkProfile(
             Context context,
             boolean confidentialClient) {
@@ -89,7 +87,6 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         if (TextUtils.isEmpty(parameters.get("state"))) {
             parameters.put("state", UUID.randomUUID().toString());
         }
-        lastAuthState = parameters.get("state");
     }
 
     protected void initializeAndContinueAuthorizationFlow(final OnStartAuthorizationCallback callback) {
@@ -114,11 +111,6 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                         callback.onSuccess();
                     }
                 });
-    }
-
-    @Override
-    public String getLastAuthState() {
-        return lastAuthState;
     }
 
     @Override

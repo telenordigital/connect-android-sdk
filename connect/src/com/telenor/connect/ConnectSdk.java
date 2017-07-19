@@ -264,11 +264,6 @@ public final class ConnectSdk {
         return sdkProfile.getClientId();
     }
 
-    public static String getLastAuthenticationState() {
-        Validator.sdkInitialized();
-        return getSdkProfile().getLastAuthState();
-    }
-
     public static ArrayList<Locale> getLocales() {
         Validator.sdkInitialized();
         return sLocales;
