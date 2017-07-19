@@ -64,6 +64,29 @@ public class ConnectUtilsTest {
     }
 
     @Test
+    public void mutatedStateInCallbackUrlCallsCallbackOnErrorWithMap() {
+        mockStatic(ConnectSdk.class);
+        BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
+
+        String state = "somestate";
+        String uri = new Uri.Builder()
+                .appendQueryParameter("state", state + "mutation")
+                .build()
+                .toString();
+
+        ConnectCallback mock = mock(ConnectCallback.class);
+
+        ConnectUtils.parseAuthCode(uri, state, mock);
+        verify(mock).onError(argThat(new ArgumentMatcher<Object>() {
+            @Override
+            public boolean matches(Object argument) {
+                Map<String, String> stringMap = (Map<String, String>) argument;
+                return stringMap.get("error").equals("state_changed");
+            }
+        }));
+    }
+
+    @Test
     public void successfulCallbackUrlCallsCallbackOnSuccessWithMap() {
         mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
