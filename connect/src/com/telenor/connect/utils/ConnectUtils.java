@@ -25,7 +25,15 @@ public class ConnectUtils {
         Validator.notNullOrEmpty(callbackUrl, "callbackUrl");
 
         Uri uri = Uri.parse(callbackUrl);
-        Validator.validateAuthenticationState(uri.getQueryParameter("state"));
+        if (!Validator.validState(uri.getQueryParameter("state"))) {
+            Map<String, String> errorParams = new HashMap<>();
+            errorParams.put("error", "state_changed");
+            errorParams.put(
+                    "error_description",
+                    "The state parameter was changed between authentication and now");
+            callback.onError(errorParams);
+            return;
+        }
         if (uri.getQueryParameter("error") != null) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("error", uri.getQueryParameter("error"));
