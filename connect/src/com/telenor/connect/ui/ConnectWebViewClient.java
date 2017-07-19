@@ -251,7 +251,8 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                     Log.e(ConnectUtils.LOG_TAG, "Failed to acquire SMS cursor", e);
                     return;
                 }
-                if (cursor == null) {
+
+                if (cursor == null || cursor.getCount() <= 0) {
                     return;
                 }
 
