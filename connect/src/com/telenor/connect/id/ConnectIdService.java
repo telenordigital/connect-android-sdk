@@ -44,7 +44,7 @@ public class ConnectIdService {
         ConnectTokens connectTokens = retrieveTokens();
         if (connectTokens == null) {
             throw new ConnectRefreshTokenMissingException(
-                    "retrieveTokens() returned null. Tokens are missing. Is user signed in?");
+                    "retrieveTokens() returned null. Tokens are missing. Is the user signed in?");
         }
 
         if (connectTokens.accessTokenHasExpired()) {
