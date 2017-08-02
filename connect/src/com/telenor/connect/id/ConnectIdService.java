@@ -99,7 +99,7 @@ public class ConnectIdService {
 
                     @Override
                     public void failure(RetrofitError error) {
-                        ConnectUtils.sendTokenStateChanged(false);
+                        clearTokensAndNotify();
                         if (callback != null) {
                             Map<String, String> errorParams = new HashMap<>();
                             errorParams.put("error", error.toString());
@@ -108,6 +108,13 @@ public class ConnectIdService {
                     }
                 });
 
+    }
+
+    private void clearTokensAndNotify() {
+        tokenStore.clear();
+        currentTokens = null;
+        idToken = null;
+        ConnectUtils.sendTokenStateChanged(false);
     }
 
     private String getRefreshToken() {
@@ -151,10 +158,7 @@ public class ConnectIdService {
                         }
                     });
         }
-        tokenStore.clear();
-        currentTokens = null;
-        idToken = null;
-        ConnectUtils.sendTokenStateChanged(false);
+        clearTokensAndNotify();
         final CookieManager cookieManager = CookieManager.getInstance();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             cookieManager.removeAllCookies(null);
@@ -189,8 +193,7 @@ public class ConnectIdService {
                                 && error.getResponse() != null
                                 && error.getResponse().getStatus() >= 400
                                 && error.getResponse().getStatus() < 500) {
-                            tokenStore.clear();
-                            currentTokens = null;
+                            clearTokensAndNotify();
                         }
                         callback.onError(error);
                     }
