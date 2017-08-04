@@ -325,6 +325,8 @@ Open your application's `AndroidManifest.xml` file and add the permission requir
 application to access the internet.
 
 ```XML
+<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 
