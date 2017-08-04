@@ -2,22 +2,21 @@ package com.telenor.connect.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.squareup.okhttp.OkHttpClient;
+import com.jakewharton.retrofit.Ok3Client;
+import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.IdTokenDeserializer;
 import com.telenor.mobileconnect.id.MobileConnectAPI;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
-import com.telenor.connect.WellKnownAPI;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
-import retrofit.client.Client;
-import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 
 public class RestHelper {
@@ -53,10 +52,11 @@ public class RestHelper {
     }
 
     private static RestAdapter buildApi(String endpoint) {
-        final OkHttpClient httpClient = new OkHttpClient();
-        httpClient.setConnectTimeout(10, TimeUnit.SECONDS);
-        httpClient.setReadTimeout(10, TimeUnit.SECONDS);
-        httpClient.setWriteTimeout(10, TimeUnit.SECONDS);
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .build();
 
         final Gson gson = new GsonBuilder()
                 .registerTypeAdapter(IdToken.class, new IdTokenDeserializer())
@@ -70,7 +70,7 @@ public class RestHelper {
         };
 
         return new RestAdapter.Builder()
-                .setClient(new OkClient(httpClient))
+                .setClient(new Ok3Client(httpClient))
                 .setEndpoint(endpoint)
                 .setRequestInterceptor(connectRetroFitInterceptor)
                 .setLogLevel(RestAdapter.LogLevel.FULL)
