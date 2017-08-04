@@ -5,16 +5,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.BuildConfig;
-import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.ConnectSdkProfile;
-import com.telenor.mobileconnect.MobileConnectSdkProfile;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.HttpUrl;
 
 public class ConnectUrlHelper {
 

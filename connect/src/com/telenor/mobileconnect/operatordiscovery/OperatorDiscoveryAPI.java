@@ -1,7 +1,6 @@
 package com.telenor.mobileconnect.operatordiscovery;
 
 import com.google.gson.annotations.SerializedName;
-import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.WellKnownAPI;
 
@@ -9,12 +8,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import okhttp3.HttpUrl;
 import retrofit.Callback;
-import retrofit.http.Body;
 import retrofit.http.GET;
 import retrofit.http.Header;
 import retrofit.http.Headers;
-import retrofit.http.POST;
 import retrofit.http.Query;
 
 public interface OperatorDiscoveryAPI {

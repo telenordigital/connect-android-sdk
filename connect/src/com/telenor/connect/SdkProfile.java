@@ -3,13 +3,14 @@ package com.telenor.connect;
 import android.content.Context;
 import android.net.Uri;
 
-import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.HttpUrl;
 
 public interface SdkProfile {
 

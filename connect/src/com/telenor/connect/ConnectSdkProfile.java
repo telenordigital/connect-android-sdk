@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.Validator;
@@ -13,6 +12,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.HttpUrl;
 
 public class ConnectSdkProfile extends AbstractSdkProfile {
 

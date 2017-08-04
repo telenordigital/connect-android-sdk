@@ -6,7 +6,6 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.AbstractSdkProfile;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.ConnectIdService;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import okhttp3.HttpUrl;
 import retrofit.Callback;
 import retrofit.ResponseCallback;
 import retrofit.RetrofitError;
