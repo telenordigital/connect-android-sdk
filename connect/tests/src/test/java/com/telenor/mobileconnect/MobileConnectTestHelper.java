@@ -1,6 +1,5 @@
 package com.telenor.mobileconnect;
 
-import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.tests.BuildConfig;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 
@@ -13,6 +12,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.HttpUrl;
 import retrofit.Callback;
 
 import static com.telenor.TestHelper.MOCKED_WELL_KNOWN_ENDPONT;
