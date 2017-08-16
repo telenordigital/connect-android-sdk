@@ -87,6 +87,9 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         if (TextUtils.isEmpty(parameters.get("state"))) {
             parameters.put("state", UUID.randomUUID().toString());
         }
+        if (!ConnectSdk.isCellularDataNetworkConnected()) {
+            parameters.put("prompt", "no_seam");
+        }
     }
 
     protected void initializeAndContinueAuthorizationFlow(final OnStartAuthorizationCallback callback) {
