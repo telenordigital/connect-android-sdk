@@ -102,7 +102,9 @@ public class CartActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            ConnectSdk.initializePayment(activity, jsonObject.getString("location"));
+                            ConnectSdk.initializePayment(
+                                    activity,
+                                    jsonObject.getString("PAYMENT_LINK"));
                         } catch (JSONException e) {
                             // TODO Handle JSON exception.
                         }

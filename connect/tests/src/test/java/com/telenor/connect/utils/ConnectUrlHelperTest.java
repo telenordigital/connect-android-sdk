@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.ConnectSdkProfile;
 
 import org.junit.Test;
@@ -19,6 +18,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import okhttp3.HttpUrl;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
