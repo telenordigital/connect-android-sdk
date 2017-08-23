@@ -55,6 +55,7 @@ public final class ConnectSdk {
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
     private static volatile Network defaultNetwork;
+    private static ConnectStore connectStore;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -347,9 +348,10 @@ public final class ConnectSdk {
         Validator.notNull(context, "context");
         ConnectSdkProfile profile = loadConnectConfig(context);
         sdkProfile = profile;
+        connectStore = new ConnectStore(getContext());
         profile.setConnectIdService(
                 new ConnectIdService(
-                        new ConnectStore(context),
+                        connectStore,
                         RestHelper.getConnectApi(getConnectApiUrl().toString()),
                         profile.getClientId(),
                         profile.getRedirectUri()));
@@ -506,7 +508,7 @@ public final class ConnectSdk {
         }
 
         final String state = data.getQueryParameter("state");
-        String originalState = new ConnectStore(getContext()).getSessionStateParam();
+        String originalState = connectStore.getSessionStateParam();
         if (originalState != null && !originalState.equals(state)) {
             return false;
         }

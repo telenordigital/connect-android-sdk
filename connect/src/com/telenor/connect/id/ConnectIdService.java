@@ -89,6 +89,7 @@ public class ConnectIdService {
                         ConnectTokens connectTokens
                                 = new ConnectTokens(connectTokensTO, serverTimestamp);
                         connectStore.set(connectTokens);
+                        connectStore.clearSessionStateParam();
                         currentTokens = connectTokens;
                         idToken = connectTokens.getIdToken();
                         ConnectUtils.sendTokenStateChanged(true);

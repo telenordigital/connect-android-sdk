@@ -26,7 +26,7 @@ public class ConnectStore {
     private static final String PREFERENCE_KEY_CONNECT_TOKENS = "CONNECT_TOKENS";
     private static final String PREFERENCE_KEY_ID_TOKEN = "ID_TOKEN";
     private static final String PREFERENCES_KEY_STATE = "STATE";
-    private static final String PREFERENCES_KEY_STATE_VALID = "STATE_EXPIRE";
+    private static final String PREFERENCES_KEY_STATE_EXPIRE = "STATE_EXPIRE";
     public static final String PREFERENCES_FILE = "com.telenor.connect.PREFERENCES_FILE";
     private static final Gson preferencesGson =
             new GsonBuilder()
@@ -125,9 +125,9 @@ public class ConnectStore {
         }
     }
 
-    public String getSessionStateParam() {
+    public String generateSessionStateParam() {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREFERENCE_KEY_CONNECT_TOKENS, Context.MODE_PRIVATE);
-        long expireTime = sharedPreferences.getLong(PREFERENCES_KEY_STATE_VALID, -1);
+        long expireTime = sharedPreferences.getLong(PREFERENCES_KEY_STATE_EXPIRE, -1);
         if (expireTime < System.currentTimeMillis()) {
             return createAndSaveNewSessionStateParam();
         }
@@ -146,8 +146,21 @@ public class ConnectStore {
         sharedPreferences
                 .edit()
                 .putString(PREFERENCES_KEY_STATE, newStateParam)
-                .putLong(PREFERENCES_KEY_STATE_VALID, stateExpireTime)
+                .putLong(PREFERENCES_KEY_STATE_EXPIRE, stateExpireTime)
                 .apply();
         return newStateParam;
+    }
+
+    public String getSessionStateParam() {
+        return context.getSharedPreferences(PREFERENCE_KEY_CONNECT_TOKENS, Context.MODE_PRIVATE)
+                .getString(PREFERENCES_KEY_STATE, null);
+    }
+
+    public void clearSessionStateParam() {
+        context.getSharedPreferences(PREFERENCE_KEY_CONNECT_TOKENS, Context.MODE_PRIVATE)
+                .edit()
+                .remove(PREFERENCES_KEY_STATE)
+                .remove(PREFERENCES_KEY_STATE_EXPIRE)
+                .apply();
     }
 }

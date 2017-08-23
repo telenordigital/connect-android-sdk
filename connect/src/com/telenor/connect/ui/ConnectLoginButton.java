@@ -70,7 +70,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
                                 ConnectLoginButton.this.setEnabled(true);
                                 return;
                             case CustomTabsCallback.TAB_SHOWN:
-                                ConnectLoginButton.this.setEnabled(true);
+                                ConnectLoginButton.this.setEnabled(false);
                                 return;
                             default:
                         }
@@ -124,7 +124,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
             }
         }
 
-        parameters.put("state", connectStore.getSessionStateParam());
+        parameters.put("state", connectStore.generateSessionStateParam());
 
         if (getLoginParameters() != null && !getLoginParameters().isEmpty()) {
             parameters.putAll(getLoginParameters());
