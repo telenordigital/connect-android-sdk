@@ -17,22 +17,10 @@ public class SignInActivity extends Activity {
     private ConnectLoginButton loginButton;
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (ConnectSdk.hasValidRedirectUrlCall(getIntent())) {
-            progressBar.setVisibility(View.VISIBLE);
-            loginButton.setEnabled(false);
-        } else {
-            progressBar.setVisibility(View.GONE);
-            loginButton.setEnabled(true);
-        }
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        loginButton = (ConnectLoginButton) findViewById(R.id.login_button);
+        loginButton = findViewById(R.id.login_button);
         progressBar = findViewById(R.id.progress_bar);
 
         loginButton.setLoginScopeTokens("profile openid");
@@ -40,8 +28,7 @@ public class SignInActivity extends Activity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                loginButton.setEnabled(false);
+                showLoading();
                 buttonClickListener.onClick(v);
             }
         });
@@ -59,15 +46,35 @@ public class SignInActivity extends Activity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (ConnectSdk.hasValidRedirectUrlCall(getIntent())) {
+            showLoading();
+        } else {
+            showEnabledButton();
+        }
+    }
+
+    private void showLoading() {
+        progressBar.setVisibility(View.VISIBLE);
+        loginButton.setEnabled(false);
+    }
+
+    private void showEnabledButton() {
+        progressBar.setVisibility(View.GONE);
+        loginButton.setEnabled(true);
+    }
+
     private void goToSignedInActivity() {
-        final Intent intent
-                = new Intent(getApplicationContext(), SignedInActivity.class);
-        intent.setFlags(
-                Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        final Intent intent = new Intent(getApplicationContext(), SignedInActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
 
+    // Fallback if no intent-filter is set on the activity, or device does not suport Chrome Custom
+    // Tabs, WebView will be used instead.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

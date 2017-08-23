@@ -37,9 +37,8 @@ public class HtmlToAndroidInstructionsInterfaceTest {
             "    \"name\":\"androidSystemCall_getPinFromSms\",\n" +
             "    \"pin_callback_name\":\"handlePinReceived\",\n" +
             "    \"arguments\":[  \n" +
-            "      \"(?:.* ([0-9]{4}) .*)\",\n" +
-            "      \"(?:.* ([0-9]{4})$)\",\n" +
-            "      \"(?:^([0-9]{4}) )\"\n" +
+            "      \".* ([0-9]{4}).*\",\n" +
+            "      \".*([0-9]{4}) .*\"\n" +
             "    ]\n" +
             "  }\n" +
             "]";
@@ -165,9 +164,8 @@ public class HtmlToAndroidInstructionsInterfaceTest {
         getPinFromSms.setName("androidSystemCall_getPinFromSms");
         getPinFromSms.setPinCallbackName("handlePinReceived");
         List<Object> list = new ArrayList<>();
-        list.add("(?:.* ([0-9]{4}) .*)");
-        list.add("(?:.* ([0-9]{4})$)");
-        list.add("(?:^([0-9]{4}) )");
+        list.add(".* ([0-9]{4}).*");
+        list.add(".*([0-9]{4}) .*");
         getPinFromSms.setArguments(list);
         instructions.add(getPinFromSms);
 

@@ -25,7 +25,7 @@ import retrofit.client.Response;
 public class ConnectIdService {
 
     private final ConnectAPI connectApi;
-    private final TokenStore tokenStore;
+    private final ConnectStore connectStore;
     private final String redirectUrl;
     private final String clientId;
 
@@ -33,32 +33,44 @@ public class ConnectIdService {
     private IdToken idToken;
 
     public ConnectIdService(
-            TokenStore tokenStore, ConnectAPI connectApi, String clientId, String redirectUrl) {
+            ConnectStore connectStore, ConnectAPI connectApi, String clientId, String redirectUrl) {
         this.clientId = clientId;
         this.redirectUrl = redirectUrl;
         this.connectApi = connectApi;
-        this.tokenStore = tokenStore;
+        this.connectStore = connectStore;
     }
 
     public void getValidAccessToken(final AccessTokenCallback callback) {
-        if (retrieveTokens() == null) {
+        ConnectTokens connectTokens = retrieveTokens();
+        if (connectTokens == null) {
             throw new ConnectRefreshTokenMissingException(
-                    "retrieveTokens() returned null. Tokens are missing.");
+                    "retrieveTokens() returned null. Tokens are missing. Is the user signed in?");
         }
 
-        if (retrieveTokens().accessTokenHasExpired()) {
+        if (connectTokens.accessTokenHasExpired()) {
             updateTokens(callback);
             return;
         }
 
-        callback.onSuccess(retrieveTokens().getAccessToken());
+        callback.onSuccess(connectTokens.getAccessToken());
     }
 
     public String getAccessToken() {
-        if (retrieveTokens() == null) {
+        ConnectTokens connectTokens = retrieveTokens();
+        if (connectTokens == null) {
             return null;
         }
-        return retrieveTokens().getAccessToken();
+
+        return connectTokens.getAccessToken();
+    }
+
+    public Date getAccessTokenExpirationTime() {
+        ConnectTokens connectTokens = retrieveTokens();
+        if (connectTokens == null) {
+            return null;
+        }
+
+        return connectTokens.getExpirationDate();
     }
 
     public void getAccessTokenFromCode(
@@ -76,7 +88,7 @@ public class ConnectIdService {
                                 = HeadersDateUtil.extractDate(response.getHeaders());
                         ConnectTokens connectTokens
                                 = new ConnectTokens(connectTokensTO, serverTimestamp);
-                        tokenStore.set(connectTokens);
+                        connectStore.set(connectTokens);
                         currentTokens = connectTokens;
                         idToken = connectTokens.getIdToken();
                         ConnectUtils.sendTokenStateChanged(true);
@@ -87,7 +99,7 @@ public class ConnectIdService {
 
                     @Override
                     public void failure(RetrofitError error) {
-                        ConnectUtils.sendTokenStateChanged(false);
+                        clearTokensAndNotify();
                         if (callback != null) {
                             Map<String, String> errorParams = new HashMap<>();
                             errorParams.put("error", error.toString());
@@ -95,13 +107,22 @@ public class ConnectIdService {
                         }
                     }
                 });
+
+    }
+
+    private void clearTokensAndNotify() {
+        connectStore.clear();
+        currentTokens = null;
+        idToken = null;
+        ConnectUtils.sendTokenStateChanged(false);
     }
 
     private String getRefreshToken() {
-        if (retrieveTokens() == null) {
+        ConnectTokens connectTokens = retrieveTokens();
+        if (connectTokens == null) {
             return null;
         }
-        return retrieveTokens().getRefreshToken();
+        return connectTokens.getRefreshToken();
     }
 
     public void revokeTokens(Context context) {
@@ -137,10 +158,8 @@ public class ConnectIdService {
                         }
                     });
         }
-        tokenStore.clear();
-        currentTokens = null;
-        idToken = null;
-        ConnectUtils.sendTokenStateChanged(false);
+
+        clearTokensAndNotify();
         final CookieManager cookieManager = CookieManager.getInstance();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             cookieManager.removeAllCookies(null);
@@ -164,7 +183,7 @@ public class ConnectIdService {
                                 = HeadersDateUtil.extractDate(response.getHeaders());
                         ConnectTokens connectTokens
                                 = new ConnectTokens(connectTokensTO, serverTimestamp);
-                        tokenStore.update(connectTokens);
+                        connectStore.update(connectTokens);
                         currentTokens = connectTokens;
                         callback.onSuccess(connectTokens.getAccessToken());
                     }
@@ -175,8 +194,7 @@ public class ConnectIdService {
                                 && error.getResponse() != null
                                 && error.getResponse().getStatus() >= 400
                                 && error.getResponse().getStatus() < 500) {
-                            tokenStore.clear();
-                            currentTokens = null;
+                            clearTokensAndNotify();
                         }
                         callback.onError(error);
                     }
@@ -185,14 +203,14 @@ public class ConnectIdService {
 
     private ConnectTokens retrieveTokens() {
         if (currentTokens == null) {
-            currentTokens = tokenStore.get();
+            currentTokens = connectStore.get();
         }
         return currentTokens;
     }
 
     public IdToken getIdToken() {
         if (idToken == null) {
-            idToken = tokenStore.getIdToken();
+            idToken = connectStore.getIdToken();
         }
         return idToken;
     }
@@ -207,4 +225,5 @@ public class ConnectIdService {
         final String auth = "Bearer " + accessToken;
         connectApi.getUserInfo(auth, userInfoCallback);
     }
+
 }

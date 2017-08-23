@@ -20,6 +20,12 @@ public class Validator {
         }
     }
 
+    public static void notDifferent(String var1, String var2, String name) {
+        if ((var1 == null && var2 != null) || (var1 != null && !var1.equals(var2))) {
+            throw new ConnectException("Variable '" + name + "': unexpected value");
+        }
+    }
+
     public static void sdkInitialized() {
         if (!ConnectSdk.isInitialized()) {
             throw new ConnectNotInitializedException("The SDK was not initialized, call " +
@@ -27,28 +33,8 @@ public class Validator {
         }
     }
 
-    public static void validateAuthenticationState(String state) {
-        if (!validState(state)) {
-            throw new ConnectException("The state parameter was changed between authentication " +
-                    "and now.");
-        }
-    }
-
-    public static boolean validState(String state) {
-        return ConnectSdk.getLastAuthenticationState() == null
-                || ConnectSdk.getLastAuthenticationState().isEmpty()
-                || ConnectSdk.getLastAuthenticationState().equals(state);
-    }
-
     public static void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
-        notNullOrEmpty(tokens.getAccessToken(), "access_token");
-        notNull(tokens.getExpiresIn(), "expires_in");
-        notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
-        notNullOrEmpty(tokens.getScope(), "scope");
-        notNullOrEmpty(tokens.getTokenType(), "token_type");
-
-        if (tokens.getIdToken() != null) {
-            IdTokenValidator.validate(tokens.getIdToken(), serverTimestamp);
-        }
+        sdkInitialized();
+        ConnectSdk.getSdkProfile().validateTokens(tokens, serverTimestamp);
     }
 }

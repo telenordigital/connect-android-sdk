@@ -8,15 +8,16 @@
   * [Access user information](#access-user-information)
 * [Example app](#example-app)
 * [Setup](#setup)
-  * [Set Staging or Production environment](#set-staging-or-production-environment)
-  * [Adding the client ID and redirect URI](#adding-the-client-id-and-redirect-uri)
-  * [Select client type and handle the redirect URI](#select-client-type-and-handle-the-redirect-uri)
+  * [Set Staging or Production Environment](#set-staging-or-production-environment)
+  * [Select Client type](#select-client-type)
+  * [Adding the Client ID and redirect URI](#adding-the-client-id-and-redirect-uri)
   * [Adding permissions](#adding-permissions)
-* [Detailed usage](#detailed-usage)
+* [Detailed Usage](#detailed-usage)
   * [Adding a ConnectLoginButton](#adding-a-connectloginbutton)
   * [Next steps for public clients](#next-steps-for-public-clients)
   * [Retrieving information about the logged in user](#retrieving-information-about-the-logged-in-user)
 * [Connect Payment](#connect-payment)
+* [Mobile Connect](#mobile-connect)
 
 The Connect SDK for Android allows developers to create applications that use Telenor Connect for
 sign-in or payment. More information about Telenor Connect can be found on our
@@ -25,11 +26,13 @@ sign-in or payment. More information about Telenor Connect can be found on our
 This SDK uses the Connect ID and Connect Payment APIs. Documentation for these APIs can be found at
 [docs.telenordigital.com](http://docs.telenordigital.com).
 
+Please use the GitHub _Watch_ feature to get notified on new releases of the SDK.
+
 ## Prerequisites
 
-Before being able to use Telenor Connect in your application, you first need to get your
-application registered with Telenor Connect. This can be done using a form on
-[our website](http://docs.telenordigital.com/getting_started.html).
+Before being able to use Telenor Connect in your application, you first need to
+[get your application registered](http://docs.telenordigital.com/getting-started/)
+with Telenor Connect.
 
 ## Install
 
@@ -38,7 +41,7 @@ The binaries are included on JCenter, so the SDK can be added by including a lin
 ```gradle
 dependencies {
     // ...
-    compile 'com.telenor.connect:connect-android-sdk:1.0.3-beta' // add this line
+    compile 'com.telenor.connect:connect-android-sdk:1.1.0' // add this line
 }
 ```
 
@@ -81,6 +84,7 @@ public class SignInActivity extends Activity {
         // code and state, for example example-clientid://oauth2callback?code=123&state=xyz .
         // It also takes a callback that has a onSuccess and onError function.
         // If it is a success we have stored tokens, and can go to SignedInActivity.
+        // Not needed if not using Chrome Custom Tabs.
         ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
             @Override
             public void onSuccess(Object successData) {
@@ -152,6 +156,40 @@ ConnectSdk.getValidAccessToken(new AccessTokenCallback() {
         // app code
     }
 });
+```
+
+The above method will always return a valid access token, unless no user is signed in, in which
+case you will get a `ConnectRefreshTokenMissingException`.
+
+You can also manually check the expiration time of the stored access token and check if it is expired.
+
+```java
+Date expirationTime = ConnectSdk.getAccessTokenExpirationTime();
+
+if (expirationTime == null) { // if no user is signed in
+    goToLogin();
+    return;
+}
+
+if (new Date().before(expirationTime)) {
+    Toast.makeText(this, "Token has not expired yet. expirationTime=" + expirationTime, Toast.LENGTH_LONG).show();
+    String validAccessToken = ConnectSdk.getAccessToken();
+    // use the access token for something
+} else {
+    Toast.makeText(this, "Token has expired. expirationTime=" + expirationTime, Toast.LENGTH_LONG).show();
+    ConnectSdk.updateTokens(new AccessTokenCallback() {
+        @Override
+        public void onSuccess(String accessToken) {
+            Toast.makeText(SignedInActivity.this, "Got new access token and expiration time. New time: " + ConnectSdk.getAccessTokenExpirationTime(), Toast.LENGTH_LONG).show();
+            String validAccessToken = ConnectSdk.getAccessToken();
+        }
+
+        @Override
+        public void onError(Object errorData) {
+            Toast.makeText(SignedInActivity.this, "Failed to refresh token.", Toast.LENGTH_LONG).show();
+        }
+    });
+}
 ```
 
 ### Access User Information
@@ -265,7 +303,13 @@ Connect ID supports two different client types: _public_ and _confidential_. Ple
 decision.
 
 #### Registering the redirect URI in Android
-For your app to respond to calls to the redirect URI you need to add an `intent-filter` to your `Activity` to register this in the Android system. This will allow the [Chrome Custom Tab](https://developer.chrome.com/multidevice/android/customtabs) used by `ConnectLoginButton` and external browsers to get back to your app.
+**Note**: If you do not wish to use the Chrome Custom Tabs feature do not add this to the manifest.
+
+For your app to respond to calls to the redirect URI you need to add an `intent-filter` to your
+`Activity` to register this in the Android system. This will allow the
+[Chrome Custom Tab](https://developer.chrome.com/multidevice/android/customtabs) used by
+`ConnectLoginButton` and external browsers to get back to your app.
+
 
 ```xml
 <activity android:name=".SignInActivity" >
@@ -277,8 +321,6 @@ For your app to respond to calls to the redirect URI you need to add an `intent-
 	</intent-filter>
 </activity>
 ```
-
-**Note**: If you do not wish to use the Chrome Custom Tab feature do not add this to the manifest, and the default Android WebView will be used instead.
 
 #### Public clients
 
@@ -342,6 +384,8 @@ Open your application's `AndroidManifest.xml` file and add the permission requir
 application to access the internet.
 
 ```xml
+<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 
@@ -613,3 +657,54 @@ return the [Payment link](http://docs.telenordigital.com/apis/connect/payment/#s
 to your application. The Payment link is then used in a call to
 `ConnectSdk.initializePayment(Context, String)`, which opens a `ConnectActivity` where the user can
 perform the transaction.
+
+
+## Mobile Connect
+
+This SDK may be used for developing apps that authenticate users via Mobile Connect. Mobile Connect is a 
+GSMA initiative aimed at providing an authentication mechanism that utilizes mobile phone as an identity 
+berarer. More about MobileConnect can be found here: https://mobileconnect.io.
+
+Since virtually everything said thus far about Connect ID applies to MobileConnect as well, you may 
+want to see mobileconnect-example app to spot the differences. What follows are some details about the most 
+notable ones.
+
+#### Initializing SDK with Mobile Connect
+
+##### Step 1: Implement your own logic for safekeeping secrets in your application
+
+> The example implementation found in the example app is just a simple example. 
+> Developers are encouraged to implement their own scheme to keep this information secret.
+
+##### Step 2: initialize SDK at the application startup
+
+```java
+
+appConfig = ...
+
+...
+
+public class ExampleApplication extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ConnectSdk.sdkInitializeMobileConnect(
+                getApplicationContext(),
+                OperatorDiscoveryConfig
+                        .builder()
+                        .endpoint(appConfig.operatorDiscoveryEndpoint())
+                        .clientId(appConfig.operatorDiscoveryClientId())
+                        .clientSecret(appConfig.operatorDiscoverySecret())
+                        .redirectUri(appConfig.operatorDiscoveryRedirectUri())
+                        .build());
+    }
+}
+```
+
+#### MobileConnectLoginButton
+
+Use this button instead of `ConnectLoginButton` (previously discussed).
+
+
+

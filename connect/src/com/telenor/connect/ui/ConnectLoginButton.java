@@ -5,7 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
@@ -18,6 +21,7 @@ import com.telenor.connect.BrowserType;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
 import com.telenor.connect.utils.Validator;
 
@@ -32,30 +36,46 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
     private static final Uri PRE_FETCH_URL
             = Uri.parse(
-                ConnectSdk
-                        .getConnectApiUrl()
-                        .newBuilder()
-                        .addPathSegment("id")
-                        .addPathSegment("android-sdk-prefetch-static-resources")
-                        .build()
-                        .uri()
-                        .toString()
+            ConnectSdk
+                    .getConnectApiUrl()
+                    .newBuilder()
+                    .addPathSegment("id")
+                    .addPathSegment("android-sdk-prefetch-static-resources")
+                    .build()
+                    .uri()
+                    .toString()
     );
 
     private OnClickListener onClickListener;
     private CustomTabsServiceConnection connection;
     private boolean customTabsSupported = false;
     private BrowserType browserType;
+    private ConnectStore connectStore;
+    private CustomTabsSession session;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
+        connectStore = new ConnectStore(getContext());
         setText(R.string.com_telenor_connect_login_button_text);
 
         connection = new CustomTabsServiceConnection() {
             @Override
             public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
                 client.warmup(0);
-                CustomTabsSession session = client.newSession(null);
+                session = client.newSession(new CustomTabsCallback() {
+                    @Override
+                    public void onNavigationEvent(int navigationEvent, Bundle extras) {
+                        switch (navigationEvent) {
+                            case CustomTabsCallback.TAB_HIDDEN:
+                                ConnectLoginButton.this.setEnabled(true);
+                                return;
+                            case CustomTabsCallback.TAB_SHOWN:
+                                ConnectLoginButton.this.setEnabled(true);
+                                return;
+                            default:
+                        }
+                    }
+                });
                 if (session != null) {
                     session.mayLaunchUrl(PRE_FETCH_URL, null, null);
                 }
@@ -79,9 +99,9 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         return onClickListener;
     }
 
-    private Uri getAuthorizeUriAndSetLastAuthState() {
+    private Uri getAuthorizeUri() {
         final Map<String, String> parameters = getParameters();
-        return ConnectSdk.getAuthorizeUriAndSetLastAuthState(parameters, browserType);
+        return ConnectSdk.getAuthorizeUri(parameters, browserType);
     }
 
     @NonNull
@@ -104,7 +124,9 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
             }
         }
 
-        if (getLoginParameters() != null && !getLoginParameters().isEmpty()){
+        parameters.put("state", connectStore.getSessionStateParam());
+
+        if (getLoginParameters() != null && !getLoginParameters().isEmpty()) {
             parameters.putAll(getLoginParameters());
         }
         return parameters;
@@ -130,27 +152,40 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         }
     }
 
+    private void launchWebViewAuthentication() {
+        int customLoadingLayout = getCustomLoadingLayout();
+        if (customLoadingLayout == NO_CUSTOM_LAYOUT) {
+            ConnectSdk.authenticate(getActivity(), getParameters(), getRequestCode());
+        } else {
+            ConnectSdk.authenticate(
+                    getActivity(), getParameters(), customLoadingLayout, getRequestCode());
+        }
+    }
+
+    private void launchChromeCustomTabAuthentication() {
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(session);
+        CustomTabsIntent cctIntent = builder.build();
+        Intent intent = cctIntent.intent;
+        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            intent.putExtra(Intent.EXTRA_REFERRER,
+                    Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getContext().getPackageName()));
+        }
+        Uri authorizeUri = getAuthorizeUri();
+        cctIntent.launchUrl(getActivity(), authorizeUri);
+    }
+
     private class LoginClickListener implements OnClickListener {
 
         @Override
         public void onClick(View v) {
             Validator.sdkInitialized();
             if (!customTabsSupported) {
-                int customLoadingLayout = getCustomLoadingLayout();
-                if (customLoadingLayout == NO_CUSTOM_LAYOUT) {
-                    ConnectSdk.authenticate(getActivity(), getParameters(), getRequestCode());
-                } else {
-                    ConnectSdk.authenticate(
-                            getActivity(), getParameters(), customLoadingLayout, getRequestCode());
-                }
-
-                return;
+                launchWebViewAuthentication();
+            } else {
+                launchChromeCustomTabAuthentication();
             }
-
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-            CustomTabsIntent intent = builder.build();
-            intent.intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-            intent.launchUrl(getActivity(), getAuthorizeUriAndSetLastAuthState());
         }
+
     }
 }

@@ -1,6 +1,7 @@
 package com.telenor.connect.ui;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -29,11 +30,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
@@ -221,10 +224,13 @@ public class ConnectWebViewClientTest {
 
         mockStatic(ConnectUtils.class);
         doNothing().when(ConnectUtils.class);
-        ConnectUtils.parseAuthCode(eq("redirect-uri"), any(ParseTokenCallback.class));
+        ConnectUtils.parseAuthCode(eq("redirect-uri"), anyString(), any(ParseTokenCallback.class));
 
         ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
+        Intent intent = mock(Intent.class);
+        when(intent.getStringExtra(ConnectUtils.LOGIN_AUTH_URI)).thenReturn("redirect-uri");
+        when(activity.getIntent()).thenReturn(intent);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
         View errorView = mock(View.class);
@@ -238,6 +244,6 @@ public class ConnectWebViewClientTest {
 
         assertThat(result, is(true));
         verifyStatic();
-        ConnectUtils.parseAuthCode(eq("redirect-uri"), any(ParseTokenCallback.class));
+        ConnectUtils.parseAuthCode(eq("redirect-uri"), anyString(), any(ParseTokenCallback.class));
     }
 }

@@ -5,12 +5,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.squareup.okhttp.HttpUrl;
 import com.telenor.connect.BrowserType;
+import com.telenor.connect.ConnectSdkProfile;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
@@ -18,6 +19,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import okhttp3.HttpUrl;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -144,14 +147,12 @@ public class ConnectUrlHelperTest {
                 .scheme("https")
                 .host("connect.telenordigital.com")
                 .build();
-
-        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(
-                parameters,
-                "client-id-example",
-                "redirect-url://here",
-                locales,
-                url,
-                null);
+        
+        ConnectSdkProfile profile =
+                new ConnectSdkProfile(RuntimeEnvironment.application, false, false);
+        profile.setClientId("client-id-example");
+        profile.setRedirectUri("redirect-url://here");
+        Uri authorizeUri = profile.getAuthorizeUri(parameters, locales, null);
 
         Uri expected
                 = Uri.parse("https://connect.telenordigital.com/oauth/authorize" +
@@ -185,7 +186,7 @@ public class ConnectUrlHelperTest {
         locales.add(Locale.ENGLISH.getLanguage());
 
         HashMap<String, String> parameters = new HashMap<>();
-        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUriStem(
                 parameters,
                 "client-id-example",
                 "redirect-url://here",
@@ -209,7 +210,7 @@ public class ConnectUrlHelperTest {
         locales.add(Locale.ENGLISH.getLanguage());
 
         HashMap<String, String> parameters = new HashMap<>();
-        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUriStem(
                 parameters,
                 "client-id-example",
                 "redirect-url://here",
@@ -234,7 +235,7 @@ public class ConnectUrlHelperTest {
         locales.add(Locale.ENGLISH.getLanguage());
 
         HashMap<String, String> parameters = new HashMap<>();
-        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUriStem(
                 parameters,
                 "client-id-example",
                 "redirect-url://here",

@@ -10,6 +10,7 @@ import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
 import com.telenor.connect.id.Claims;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
+import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.Validator;
 
 import org.json.JSONException;
@@ -21,7 +22,7 @@ import java.util.Map;
 
 public class ConnectWebViewLoginButton extends ConnectButton {
 
-    public static final int NO_CUSTOM_LAYOUT = -1;
+    protected static final int NO_CUSTOM_LAYOUT = -1;
 
     private ArrayList<String> acrValues;
     private Map<String, String> loginParameters;
@@ -100,7 +101,8 @@ public class ConnectWebViewLoginButton extends ConnectButton {
 
             Map<String, String> parameters = new HashMap<>();
             if (getAcrValues() != null && !getAcrValues().isEmpty()) {
-                parameters.put("acr_values", TextUtils.join(" ", getAcrValues()));
+                parameters.put(ConnectUtils.ACR_VALUES_PARAM_NAME,
+                        TextUtils.join(" ", getAcrValues()));
             }
 
             if (getLoginScopeTokens() != null && !getLoginScopeTokens().isEmpty()) {

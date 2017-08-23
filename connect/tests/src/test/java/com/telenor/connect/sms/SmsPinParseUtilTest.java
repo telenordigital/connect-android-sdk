@@ -15,6 +15,41 @@ import static org.junit.Assert.assertThat;
 
 public class SmsPinParseUtilTest {
 
+    @NonNull
+    private Instruction get4DigitPinInstruction() {
+        final Instruction instruction = new Instruction();
+        instruction.setName(Instruction.PIN_INSTRUCTION_NAME);
+        List<Object> list = new ArrayList<>();
+        list.add(".* ([0-9]{4}).*");
+        list.add(".*([0-9]{4}) .*");
+        instruction.setArguments(list);
+        return instruction;
+    }
+
+    @Test
+    public void findsPinInBulgarianSmsWithNoSpaceAfterPeriod() {
+        final Instruction instruction = get4DigitPinInstruction();
+        String body = "My Contacts:Вашият CONNECT код за потвърждение е 3151.Не го споделяйте";
+        String actual = SmsPinParseUtil.findPin(body, instruction);
+        assertThat(actual, is("3151"));
+    }
+
+    @Test
+    public void findsPinInBulgarianSmsWithNoSpaceAfterPeriodAndBalance() {
+        final Instruction instruction = get4DigitPinInstruction();
+        String body = "BGN2345.56 My Contacts:Вашият CONNECT код за потвърждение е 3151.Не го споделяйте";
+        String actual = SmsPinParseUtil.findPin(body, instruction);
+        assertThat(actual, is("3151"));
+    }
+
+    @Test
+    public void findsPinInBulgarianSms() {
+        final Instruction instruction = get4DigitPinInstruction();
+        String body = "Capture: Вашият CONNECT код за потвърждение е 3151. Не го споделяйте.";
+        String actual = SmsPinParseUtil.findPin(body, instruction);
+        assertThat(actual, is("3151"));
+    }
+
     @Test
     public void findsPinInEnglishSms() {
         final Instruction instruction = get4DigitPinInstruction();
@@ -23,16 +58,12 @@ public class SmsPinParseUtilTest {
         assertThat(actual, is("3456"));
     }
 
-    @NonNull
-    private Instruction get4DigitPinInstruction() {
-        final Instruction instruction = new Instruction();
-        instruction.setName(Instruction.PIN_INSTRUCTION_NAME);
-        List<Object> list = new ArrayList<>();
-        list.add("(?:.* ([0-9]{4}) .*)");
-        list.add("(?:.* ([0-9]{4})$)");
-        list.add("(?:^([0-9]{4}) )");
-        instruction.setArguments(list);
-        return instruction;
+    @Test
+    public void findsprefixedPinInEnglishSms() {
+        final Instruction instruction = get4DigitPinInstruction();
+        String body = "3456 is your verification code for ''HipstaGram''  - CONNECT by Telenor Digital.";
+        String actual = SmsPinParseUtil.findPin(body, instruction);
+        assertThat(actual, is("3456"));
     }
 
     @Test
@@ -73,6 +104,30 @@ public class SmsPinParseUtilTest {
         String body = "RM0.00 Capture: 0022 is your verification code for CONNECT";
         String actual = SmsPinParseUtil.findPin(body, instruction);
         assertThat(actual, is("0022"));
+    }
+
+    @Test
+    public void findsPinInPrefixedUnbrandedSmsWithFourDigitBalance() {
+        final Instruction instruction = get4DigitPinInstruction();
+        String body = "RM1234.56 Your verification code is 0102 - CONNECT by Telenor Digital";
+        String actual = SmsPinParseUtil.findPin(body, instruction);
+        assertThat(actual, is("0102"));
+    }
+
+    @Test
+    public void findsPinInPrefixedCaptureBrandedSmsWithFourDigitBalance() {
+        final Instruction instruction = get4DigitPinInstruction();
+        String body = "RM1234.56 Capture: 0022 is your verification code for CONNECT";
+        String actual = SmsPinParseUtil.findPin(body, instruction);
+        assertThat(actual, is("0022"));
+    }
+
+    @Test
+    public void findsPinInPostfixedUnbrandedSmsWithFourDigitBalance() {
+        final Instruction instruction = get4DigitPinInstruction();
+        String body = "Your verification code is 0102 - CONNECT by Telenor Digital. RM1234.56";
+        String actual = SmsPinParseUtil.findPin(body, instruction);
+        assertThat(actual, is("0102"));
     }
 
     @Test

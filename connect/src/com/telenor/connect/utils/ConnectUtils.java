@@ -18,12 +18,18 @@ public class ConnectUtils {
     public static final String PAYMENT_ACTION = "com.telenor.connect.PAYMENT_ACTION";
     public static final String CUSTOM_LOADING_SCREEN_EXTRA
             = "com.telenor.connect.CUSTOM_LOADING_SCREEN_EXTRA";
+    public static final String WELL_KNOWN_CONFIG_EXTRA = "com.telenor.connect.WELL_KNOWN_CONFIG";
+    public static final String ACR_VALUES_PARAM_NAME = "acr_values";
 
-    public static void parseAuthCode(String callbackUrl, ConnectCallback callback) {
+    public static void parseAuthCode(String callbackUrl,
+                                     String originalState,
+                                     ConnectCallback callback) {
         Validator.notNullOrEmpty(callbackUrl, "callbackUrl");
 
         Uri uri = Uri.parse(callbackUrl);
-        if (!Validator.validState(uri.getQueryParameter("state"))) {
+
+        String state = uri.getQueryParameter("state");
+        if (!originalState.equals(state)) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("error", "state_changed");
             errorParams.put(
@@ -42,7 +48,7 @@ public class ConnectUtils {
 
         Map<String, String> successParams = new HashMap<>();
         successParams.put("code", uri.getQueryParameter("code"));
-        successParams.put("state", uri.getQueryParameter("state"));
+        successParams.put("state", state);
         callback.onSuccess(successParams);
     }
 
