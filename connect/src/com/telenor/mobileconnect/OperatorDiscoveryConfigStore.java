@@ -5,7 +5,7 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 
-import static com.telenor.connect.id.TokenStore.PREFERENCES_FILE;
+import static com.telenor.connect.id.ConnectStore.PREFERENCES_FILE;
 
 public class OperatorDiscoveryConfigStore {
 

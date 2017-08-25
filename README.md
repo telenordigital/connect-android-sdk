@@ -2,12 +2,11 @@
 
 * [Prerequisites](#prerequisites)
 * [Install](#install)
-* [Basic Usage](#basic-usage)
-  * [Authenticating a User and Authorizing App](#authenticating-a-user-and-authorizing-app)
-  * [Getting a Valid Access Token](#getting-a-valid-access-token)
-  * [Access User Information](#access-user-information)
-  * [Accessing User Information by getUserInfo(…)](#accessing-user-information-by-getuserinfo)
-* [Example App](#example-app)
+* [Basic usage](#basic-usage)
+  * [Authenticating a user and authorizing app](#authenticating-a-user-and-authorizing-app)
+  * [Getting a valid access token](#getting-a-valid-access-token)
+  * [Access user information](#access-user-information)
+* [Example app](#example-app)
 * [Setup](#setup)
   * [Set Staging or Production Environment](#set-staging-or-production-environment)
   * [Select Client type](#select-client-type)
@@ -42,7 +41,7 @@ The binaries are included on JCenter, so the SDK can be added by including a lin
 ```gradle
 dependencies {
     // ...
-    compile 'com.telenor.connect:connect-android-sdk:0.8.1' // add this line
+    compile 'com.telenor.connect:connect-android-sdk:1.1.0' // add this line
 }
 ```
 
@@ -55,16 +54,16 @@ allprojects {
 }
 ```
 
-## Basic Usage
+## Basic usage
 
 Notice: The AndroidManifest.xml needs to be [setup](#setup) before you can use the SDK.
 
-### Authenticating a User and Authorizing App
+### Authenticating a user and authorizing app
 
 You can authenticate the user and authorize your application by using a `ConnectLoginButton`:
 
 
-```Java
+```java
 public class SignInActivity extends Activity {
 
     @Override
@@ -78,16 +77,42 @@ public class SignInActivity extends Activity {
         ConnectLoginButton loginButton = (ConnectLoginButton) findViewById(R.id.login_button);
         // Set the scope. The user can click the button afterwords
         loginButton.setLoginScopeTokens("profile openid");
+
+        // When users have clicked the loginButton and signed in, this method call will check
+        // that, and run the success callback method.
+        // It checks if the Activity was started by a valid call to the redirect uri with a
+        // code and state, for example example-clientid://oauth2callback?code=123&state=xyz .
+        // It also takes a callback that has a onSuccess and onError function.
+        // If it is a success we have stored tokens, and can go to SignedInActivity.
+        // Not needed if not using Chrome Custom Tabs.
+        ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
+            @Override
+            public void onSuccess(Object successData) {
+                goToSignedInActivity();
+            }
+
+            @Override
+            public void onError(Object errorData) {
+                Log.e(ConnectUtils.LOG_TAG, errorData.toString());
+            }
+        });
     }
 
-    // onActivityResult will be called once the login has completed
+    private void goToSignedInActivity() {
+        final Intent intent = new Intent(getApplicationContext(), SignedInActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    // Overriding onActivityResult here serves the same purpose as
+    // handleRedirectUriCallIfPresent further up. It is needed on older devices
+    // that don't support Chrome Custom Tabs, or if the intent-filter for the redirect uri
+    // to this activity is missing.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            Intent intent = new Intent(getApplicationContext(), SignedInActivity.class);
-            startActivity(intent);
-            finish();
+            goToSignedInActivity();
         }
     }
 
@@ -95,7 +120,7 @@ public class SignInActivity extends Activity {
 ```
 
 Where `activity_sign_in.xml` looks like this:
-```XML
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -115,11 +140,11 @@ Where `activity_sign_in.xml` looks like this:
 
 ```
 
-### Getting a Valid Access Token
+### Getting a valid access token
 
 Once the user is signed in you can get a valid Access Token by calling `ConnectSdk.getValidAccessToken(…)`:
 
-```Java
+```java
 ConnectSdk.getValidAccessToken(new AccessTokenCallback() {
     @Override
     public void onSuccess(String accessToken) {
@@ -177,7 +202,7 @@ Note: The presence of the fields depend on the **scope** and **claim** variables
 
 When authenticating the user make sure to request the `openid` scope:
 
-```Java
+```java
 @Override
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -190,20 +215,20 @@ protected void onCreate(Bundle savedInstanceState) {
 ```
 
 When the user has authenticated you can call:
-```Java
+```java
 IdToken idToken = ConnectSdk.getIdToken();
 ```
 
 And access user information by calling for example:
-```Java
+```java
 String email = idToken.getEmail();
 ```
 
-### Accessing User Information by getUserInfo(…)
+#### Accessing User Information by getUserInfo(…)
 
 You can also access user information by making a network call using `getUserInfo(…)`:
 
-```Java
+```java
 ConnectSdk.getUserInfo(new Callback<UserInfo>() {
     @Override
     public void success(UserInfo userInfo, Response response) {
@@ -217,7 +242,7 @@ ConnectSdk.getUserInfo(new Callback<UserInfo>() {
 });
 ```
 
-## Example App
+## Example app
 
 For a full example, which includes both the setup in `AndroidManifest.xml` and sign in, see the [`connect-id-example` app](https://github.com/telenordigital/connect-android-sdk/tree/master/connect-id-example).
 
@@ -237,7 +262,7 @@ Telenor Connect has 2 [environments](http://docs.telenordigital.com/connect/envi
 that can be used, staging and production. The environment can be selected using the
 `com.telenor.connect.USE_STAGING` meta-data property in your AndroidManifest.xml
 
-```XML
+```xml
 <meta-data
         android:name="com.telenor.connect.USE_STAGING"
         android:value="true" />
@@ -245,27 +270,93 @@ that can be used, staging and production. The environment can be selected using 
 
 Set this to `false` if you want to use the production environment.
 
-### Select Client type
+### Adding the client ID and redirect URI
+
+The Connect ID integration requires a client ID and a redirect URI to work. You should receive these when registering your application.
+
+The client ID and redirect URI should be added to your `strings.xml` file. Add strings with the names `connect_client_id` and `connect_redirect_uri`.
+
+```xml
+<string name="connect_client_id">example-clientid</string>
+<string name="connect_redirect_uri">example-clientid://oauth2callback</string>
+```
+
+Add `meta-data` entries to the `application` section of the manifest.
+
+```xml
+<application>
+        ...
+        <meta-data
+                android:name="com.telenor.connect.CLIENT_ID"
+                android:value="@string/connect_client_id" />
+        <meta-data
+                android:name="com.telenor.connect.REDIRECT_URI"
+                android:value="@string/connect_redirect_uri" />
+        ...
+</application>
+```
+
+### Select client type and handle the redirect URI
 
 Connect ID supports two different client types: _public_ and _confidential_. Please see the
 [Native app guide](http://docs.telenordigital.com/connect/id/native_apps.html) to help you make a
 decision.
 
+#### Registering the redirect URI in Android
+**Note**: If you do not wish to use the Chrome Custom Tabs feature do not add this to the manifest.
+
+For your app to respond to calls to the redirect URI you need to add an `intent-filter` to your
+`Activity` to register this in the Android system. This will allow the
+[Chrome Custom Tab](https://developer.chrome.com/multidevice/android/customtabs) used by
+`ConnectLoginButton` and external browsers to get back to your app.
+
+
+```xml
+<activity android:name=".SignInActivity" >
+	<intent-filter>
+		<data android:scheme="@string/connect_redirect_uri_scheme" />
+		<action android:name="android.intent.action.VIEW" />
+		<category android:name="android.intent.category.DEFAULT" />
+		<category android:name="android.intent.category.BROWSABLE" />
+	</intent-filter>
+</activity>
+```
+
+#### Public clients
+
+If the app is a public client you need an `Activity` that calls `ConnectSdk.handleRedirectUriCallIfPresent`, as in the [authenticating example above](#authenticating-a-user-and-authorizing-app).
+
+If the app is not using the Chrome Custom Tab feature you only need to override the
+`onActivityResult(…)`, also as in the
+[authenticating example above](#authenticating-a-user-and-authorizing-app).
+
 #### Confidential clients
 
-The SDK will return an _authorization code_ in the `onActivityResult()` method. This authorization
-code must be sent to the server-side part of your client.
-
 Add the following to the manifest:
-```XML
+```xml
 <meta-data
 	android:name="com.telenor.connect.CONFIDENTIAL_CLIENT"
 	android:value="true" />
 ```
 
-Then the `onActivityResult(…)` method will have to be changed to send the authorization code to
+A confidential client can access the **code** parameter from the `Intent` of the Activity with the [intent-filter](#registering-the-redirect-uri-in-android), or the `onActivityResult()` method. This is the _authorization code_. This authorization code must be sent to the server-side part of your client.
+
+The helper method `ConnectSdk.hasValidRedirectUrlCall(Intent intent)` will return `true` if a valid code is present in the `Activity`'s `Intent`. The helper method `ConnectSdk.getCodeFromIntent(Intent intent)` can then be used to get the **code**:
+
+```java
+Intent intent = getIntent();
+if (ConnectSdk.hasValidRedirectUrlCall(intent)) {
+	String authorizationCode = ConnectSdk.getCodeFromIntent(intent);
+	// App code using code
+
+    // Debug line:
+    Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_LONG).show();
+}
+```
+
+The `onActivityResult(…)` method will have to be changed to send the authorization code to
 the server-side part of the client:
-```Java
+```java
 @Override
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
@@ -273,7 +364,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         return;
     }
 
-    final String authorizationCode = data.getStringExtra("code");
+    String authorizationCode = data.getStringExtra("code");
 
     // Debug line:
     Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_LONG).show();
@@ -287,53 +378,21 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 }
 ```
 
-#### Public clients
-
-Either not include the `meta-data` for `com.telenor.connect.CONFIDENTIAL_CLIENT` or explicitly set
-it to `false` (this is the default).
-
-
-### Adding the Client ID and redirect URI
-
-The Connect ID integration requires a Client ID and a redirect URI to work. You should receive these when registering your application.
-
-The Client ID and redirect URI should be added to your `strings.xml` file. Add strings with the names `connect_client_id` and `connect_redirect_uri`.
-
-```XML
-<string name="connect_client_id">example-clientid</string>
-<string name="connect_redirect_uri">example-clientid://oauth2callback</string>
-```
-
-Add `meta-data` entries to the `application` section of the manifest.
-
-```XML
-<application>
-        ...
-        <meta-data
-                android:name="com.telenor.connect.CLIENT_ID"
-                android:value="@string/connect_client_id" />
-        <meta-data
-                android:name="com.telenor.connect.REDIRECT_URI"
-                android:value="@string/connect_redirect_uri" />
-        ...
-</application>
-```
-
 ### Adding permissions
 
 Open your application's `AndroidManifest.xml` file and add the permission required to allow your
 application to access the internet.
 
-```XML
+```xml
 <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 
 Optionally you can enable the feature that automatically fills in verification PIN codes received
-on SMS by adding the following permissions.
+on SMS by adding the following permissions, when you are not using the Chrome Custom Tab feature.
 
-```XML
+```xml
 <uses-permission android:name="android.permission.RECEIVE_SMS" />
 <uses-permission android:name="android.permission.READ_SMS" />
 ```
@@ -341,11 +400,11 @@ on SMS by adding the following permissions.
 Note: You should be conscious about the security implications of using this feature. When using this feature your application will load received SMS into memory for up to 60 seconds. Upon finding an SMS with the word `CONNECT` and a PIN-code, the PIN code will be parsed and passed back to a callback JavaScript function. More discussion can be found in issue [#15](https://github.com/telenordigital/connect-android-sdk/issues/15).
 
 
-#### Add ConnectActivity for Sign In
+#### Add ConnectActivity for sign in
 
-The `ConnectActivity` needs to be added to the manifest in order to work. Add it to the `application` section.
+The `ConnectActivity` needs to be added to the manifest in order for the SDK to work on devices not using the Chrome Custom Tab feature. Also if the `intent-filter` is missing the SDK will fall back to use this `Activity`. Add it to the `application` section.
 
-```XML
+```xml
 <application>
 ...
     <activity
@@ -357,7 +416,8 @@ The `ConnectActivity` needs to be added to the manifest in order to work. Add it
 </application>
 ```
 
-## Detailed Usage
+
+## Detailed usage
 
 ### Adding a ConnectLoginButton
 
@@ -367,7 +427,7 @@ a custom `Button` implementation that has the standard Connect button look-and-f
 Firstly add a button to your layout XML files using the class name
 `com.telenor.connect.ConnectLoginButton`:
 
-```XML
+```xml
 <com.telenor.connect.ConnectLoginButton
     android:id="@+id/login_button"
     android:layout_width="wrap_content"
@@ -377,7 +437,7 @@ Firstly add a button to your layout XML files using the class name
 Then add the required [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for your
 application to the button in the `onCreate()` method of your `Activity` class.
 
-```Java
+```java
 @Override
 public void onCreate(Bundle savedInstanceState) {
     ...
@@ -389,7 +449,7 @@ public void onCreate(Bundle savedInstanceState) {
 The `onActivityResult()` method of your `Activity` will be called with `Activity.RESULT_OK` as
 `resultCode` if the login was successful or `Activity.RESULT_CANCELED` when there was an error.
 
-```Java
+```java
 @Override
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
@@ -400,6 +460,24 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // App code
     }
 }
+
+```
+
+Or if the Chrome Custom Tab feature is used, in a `ConnectCallback` in the Activity that has the
+`intent-filter` with `connect_client_id` in your AndroidManifest:
+```java
+ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
+    @Override
+    public void onSuccess(Object successData) {
+        // App code
+    }
+
+    @Override
+    public void onError(Object errorData) {
+        // App code
+    }
+});
+
 ```
 
 #### Adding claims
@@ -407,7 +485,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 To add additional [claims to your Connect request](http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-authorization),
 you can use the `setClaims` method on the `ConnectLoginButton`.
 
-```Java
+```java
 @Override
 public void onCreate(Bundle savedInstanceState) {
     ...
@@ -420,7 +498,7 @@ public void onCreate(Bundle savedInstanceState) {
 #### Example: Setting the UI locale
 To set the locale the user sees in the flows, the following is an example of how this can be done:
 
-```Java
+```java
 @Override
 public void onCreate(Bundle savedInstanceState) {
     // ...
@@ -434,10 +512,10 @@ public void onCreate(Bundle savedInstanceState) {
 ```
 
 #### Customising native loading screen
-One can customise the native loading screen that is shown before the Web View has finished loading
-in the following way:
+One can customise the native loading screen that is shown before the WebView has finished loading
+when the Chrome Custom Tab feature isn't used in the following way:
 
-```Java
+```java
 @Override
 protected void onCreate(Bundle savedInstanceState) {
     // ...
@@ -456,7 +534,7 @@ The Connect SDK contains the `ConnectTokensStateTracker` class that tracks the l
 state of the user. This is useful for handling UI changes in your app based on the login state of
 the user.
 
-```Java
+```java
 @Override
 protected void onCreate(Bundle savedInstanceState) {
     ...
@@ -469,15 +547,6 @@ protected void onCreate(Bundle savedInstanceState) {
 ```
 
 The `onTokenStateChanged(boolean hasTokens)` method will be called whenever the token state changes.
-
-#### Retrieving the access token
-
-The current Connect ID access token can be retrieved using the `ConnectSdk.getAccessToken()`
-method. When the token has expired a new set of tokens can be requested using
-`ConnectSdk.updateTokens()`.
-
-Access tokens can be used to access resources on your resource server. Please refer to the document
-about [scope tokens](http://docs.telenordigital.com/connect/id/scope.html) for more details.
 
 ### Retrieving information about the logged in user
 
@@ -505,7 +574,7 @@ a successful or cancelled transaction. The success and cancel redirect URIs shou
 application's `strings.xml` file. Add strings with the names `connect_payment_cancel_uri` and
 `connect_payment_success_uri`.
 
-```XML
+```xml
 <string name="connect_payment_cancel_uri">example-clientid://transactionCancel</string>
 <string name="connect_payment_success_uri">example-clientid://transactionSuccess</string>
 ```
@@ -515,7 +584,7 @@ application's `strings.xml` file. Add strings with the names `connect_payment_ca
 Open your application's `AndroidManifest.xml` file and add two `meta-data` entries to the
 `application` section of the manifest.
 
-```XML
+```xml
 <application>
 ...
     <meta-data
@@ -531,13 +600,13 @@ Open your application's `AndroidManifest.xml` file and add two `meta-data` entri
 If you are not using Connect ID to sign users into your application you should also add the
 permission required to allow your application to access the internet.
 
-```XML
+```xml
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 
 And add the `ConnectActivity`, which handles logging in, to the `application` section.
 
-```XML
+```xml
 <application>
 ...
     <activity
@@ -557,7 +626,7 @@ Payment text. This button can be used by adding a `ConnectPaymentButton` to your
 Add the button to your layout XML files using the class name
 `com.telenor.connect.ConnectPaymentButton`:
 
-```XML
+```xml
 <com.telenor.connect.ConnectPaymentButton
     android:id="@+id/payment_button"
     android:layout_width="wrap_content"
@@ -569,7 +638,7 @@ Add the button to your layout XML files using the class name
 To perform a transaction you would add a click handler to the payment button in the `onCreate()`
 method of your `Activity` class.
 
-```Java
+```java
 @Override
 protected void onCreate(Bundle savedInstanceState) {
     ...
@@ -609,7 +678,7 @@ notable ones.
 
 ##### Step 2: initialize SDK at the application startup
 
-```Java
+```java
 
 appConfig = ...
 

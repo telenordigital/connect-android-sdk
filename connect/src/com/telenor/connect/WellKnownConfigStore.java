@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 
-import static com.telenor.connect.id.TokenStore.PREFERENCES_FILE;
+import static com.telenor.connect.id.ConnectStore.PREFERENCES_FILE;
 
 public class WellKnownConfigStore {
 

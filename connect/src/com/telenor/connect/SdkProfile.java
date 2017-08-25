@@ -23,7 +23,7 @@ public interface SdkProfile {
     ConnectIdService getConnectIdService();
     String getExpectedIssuer();
     List<String> getExpectedAudiences();
-    Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales);
+    Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales, BrowserType browserType);
     WellKnownAPI.WellKnownConfig getWellKnownConfig();
     boolean isInitialized();
 

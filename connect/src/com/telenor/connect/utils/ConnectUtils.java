@@ -27,7 +27,9 @@ public class ConnectUtils {
         Validator.notNullOrEmpty(callbackUrl, "callbackUrl");
 
         Uri uri = Uri.parse(callbackUrl);
-        if (!originalState.equals(uri.getQueryParameter("state"))) {
+
+        String state = uri.getQueryParameter("state");
+        if (!originalState.equals(state)) {
             Map<String, String> errorParams = new HashMap<>();
             errorParams.put("error", "state_changed");
             errorParams.put(
@@ -46,7 +48,7 @@ public class ConnectUtils {
 
         Map<String, String> successParams = new HashMap<>();
         successParams.put("code", uri.getQueryParameter("code"));
-        successParams.put("state", uri.getQueryParameter("state"));
+        successParams.put("state", state);
         callback.onSuccess(successParams);
     }
 

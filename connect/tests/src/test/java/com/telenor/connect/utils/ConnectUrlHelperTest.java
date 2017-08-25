@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.telenor.connect.BrowserType;
 import com.telenor.connect.ConnectSdkProfile;
 
 import org.junit.Test;
@@ -146,12 +147,12 @@ public class ConnectUrlHelperTest {
                 .scheme("https")
                 .host("connect.telenordigital.com")
                 .build();
-
+        
         ConnectSdkProfile profile =
                 new ConnectSdkProfile(RuntimeEnvironment.application, false, false);
         profile.setClientId("client-id-example");
         profile.setRedirectUri("redirect-url://here");
-        Uri authorizeUri = profile.getAuthorizeUri(parameters, locales);
+        Uri authorizeUri = profile.getAuthorizeUri(parameters, locales, null);
 
         Uri expected
                 = Uri.parse("https://connect.telenordigital.com/oauth/authorize" +
@@ -172,5 +173,79 @@ public class ConnectUrlHelperTest {
         assertThat(authorizeUri.getScheme(), is(expected.getScheme()));
         assertThat(authorizeUri.getAuthority(), is(expected.getAuthority()));
         assertThat(authorizeUri.getPath(), is(expected.getPath()));
+    }
+
+    @Test
+    public void nullBrowserTypeOnGetAuthorizeUriReturnsNotDefinedVersionParam() {
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("connect.telenordigital.com")
+                .build();
+
+        ArrayList<String> locales = new ArrayList<>();
+        locales.add(Locale.ENGLISH.getLanguage());
+
+        HashMap<String, String> parameters = new HashMap<>();
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUriStem(
+                parameters,
+                "client-id-example",
+                "redirect-url://here",
+                locales,
+                url,
+                null);
+
+        assertThat(authorizeUri
+                .getQueryParameter("telenordigital_sdk_version")
+                .endsWith("not-defined"), is(true));
+    }
+
+    @Test
+    public void chromeCustomTabBrowserTypeOnGetAuthorizeUriReturnsChromeCustomTabParam() {
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("connect.telenordigital.com")
+                .build();
+
+        ArrayList<String> locales = new ArrayList<>();
+        locales.add(Locale.ENGLISH.getLanguage());
+
+        HashMap<String, String> parameters = new HashMap<>();
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUriStem(
+                parameters,
+                "client-id-example",
+                "redirect-url://here",
+                locales,
+                url,
+                BrowserType.CHROME_CUSTOM_TAB);
+
+        assertThat(
+                authorizeUri
+                        .getQueryParameter("telenordigital_sdk_version")
+                        .endsWith("chrome-custom-tab"), is(true));
+    }
+
+    @Test
+    public void webViewBrowserTypeOnGetAuthorizeUriReturnsWebViewParam() {
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("connect.telenordigital.com")
+                .build();
+
+        ArrayList<String> locales = new ArrayList<>();
+        locales.add(Locale.ENGLISH.getLanguage());
+
+        HashMap<String, String> parameters = new HashMap<>();
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUriStem(
+                parameters,
+                "client-id-example",
+                "redirect-url://here",
+                locales,
+                url,
+                BrowserType.WEB_VIEW);
+
+        assertThat(
+                authorizeUri
+                        .getQueryParameter("telenordigital_sdk_version")
+                        .endsWith("web-view"), is(true));
     }
 }

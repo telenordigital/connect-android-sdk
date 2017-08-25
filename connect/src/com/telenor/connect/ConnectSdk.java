@@ -14,6 +14,7 @@ import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -22,7 +23,7 @@ import android.widget.Toast;
 import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.IdToken;
-import com.telenor.connect.id.TokenStore;
+import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.ui.ConnectWebFragment;
@@ -54,6 +55,7 @@ public final class ConnectSdk {
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
     private static volatile Network defaultNetwork;
+    private static ConnectStore connectStore;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -143,7 +145,7 @@ public final class ConnectSdk {
         {
             parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
         }
-        final String url = getAuthorizeUriAndSetLastAuthState(parameters).toString();
+        final String url = getAuthorizeUri(parameters, BrowserType.WEB_VIEW).toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
         intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, wellKnownConfig);
         return intent;
@@ -233,8 +235,8 @@ public final class ConnectSdk {
         sdkProfile.getConnectIdService().getAccessTokenFromCode(code, callback);
     }
 
-    private static synchronized Uri getAuthorizeUriAndSetLastAuthState(
-            Map<String, String> parameters) {
+    public static synchronized Uri getAuthorizeUri(
+            Map<String, String> parameters, BrowserType browserType) {
         if (ConnectSdk.getClientId() == null) {
             throw new ConnectException("Client ID not specified in application manifest.");
         }
@@ -245,7 +247,7 @@ public final class ConnectSdk {
         if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
         }
-        return sdkProfile.getAuthorizeUri(parameters, getUiLocales());
+        return sdkProfile.getAuthorizeUri(parameters, getUiLocales(), browserType);
     }
 
     public static HttpUrl getConnectApiUrl() {
@@ -346,9 +348,10 @@ public final class ConnectSdk {
         Validator.notNull(context, "context");
         ConnectSdkProfile profile = loadConnectConfig(context);
         sdkProfile = profile;
+        connectStore = new ConnectStore(getContext());
         profile.setConnectIdService(
                 new ConnectIdService(
-                        new TokenStore(context),
+                        connectStore,
                         RestHelper.getConnectApi(getConnectApiUrl().toString()),
                         profile.getClientId(),
                         profile.getRedirectUri()));
@@ -481,6 +484,74 @@ public final class ConnectSdk {
     public static void getUserInfo(Callback<UserInfo> userInfoCallback) {
         Validator.sdkInitialized();
         sdkProfile.getConnectIdService().getUserInfo(userInfoCallback);
+    }
+
+    /**
+     * Checks if the Uri data of an {@code Intent} is the same as the apps registered Redirect Uri,
+     * with state matching the saved state and a code which can be used to get a valid Access Token.
+     * Useful for checking if an {@code Activity} was started by the system calling
+     * {@code "example-clientid://oauth2callback?state=xyz&code=abc"}
+     *
+     * @param intent intent to check data element of.
+     * @return true if getData() on the intent matches Redirect Uri, has valid state and code
+     * query parameters.
+     */
+    public static boolean hasValidRedirectUrlCall(Intent intent) {
+        final Uri data = intent.getData();
+        if (data == null) {
+            return false;
+        }
+
+        final boolean startsWithCorrect = data.toString().startsWith(getRedirectUri());
+        if (!startsWithCorrect) {
+            return false;
+        }
+
+        final String state = data.getQueryParameter("state");
+        String originalState = connectStore.getSessionStateParam();
+        if (originalState != null && !originalState.equals(state)) {
+            return false;
+        }
+
+        final String code = data.getQueryParameter("code");
+        if (code == null || code.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * If the intent has a valid Redirect Uri data element the query parameter authorization code
+     * will be passed to the {@code getAccessTokenFromCode} method, with the given
+     * ConnectCallback callback.
+     *
+     * @param intent intent to check data element of
+     * @param callback callback that will be called upon by the getAccessTokenFromCode method
+     *
+     * @see #hasValidRedirectUrlCall
+     * @see #getAccessTokenFromCode
+     */
+    public static void handleRedirectUriCallIfPresent(
+            Intent intent, ConnectCallback callback) {
+        if (!hasValidRedirectUrlCall(intent)) {
+            return;
+        }
+
+        final String code = getCodeFromIntent(intent);
+        getAccessTokenFromCode(code, callback);
+    }
+
+    /**
+     * Helper method to get the <b>code</b> parameter from an Intent's data Uri.
+     * Example: An Intent with a data Uri of
+     * {@code "example-clientid://oauth2callback?code=123&state=xyz"} will return "123".
+     *
+     * @param intent the Intent to get the code from.
+     * @return code parameter of an Intent
+     */
+    public static String getCodeFromIntent(@NonNull Intent intent) {
+        final Uri data = intent.getData();
+        return data.getQueryParameter("code");
     }
 
     public static synchronized void sdkInitializeMobileConnect(

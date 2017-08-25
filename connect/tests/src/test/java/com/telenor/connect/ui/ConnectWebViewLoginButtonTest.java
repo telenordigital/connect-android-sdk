@@ -32,7 +32,7 @@ import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
-public class ConnectLoginButtonTest {
+public class ConnectWebViewLoginButtonTest {
 
     @Before
     public void before() {
@@ -43,8 +43,7 @@ public class ConnectLoginButtonTest {
     @Test(expected = ConnectNotInitializedException.class)
     public void clickingLoginButtonBeforeInitializingSdkThrows() {
         Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
-
-        ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);
+        ConnectWebViewLoginButton button = (ConnectWebViewLoginButton) activity.findViewById(R.id.login_button);
         button.performClick();
     }
 
@@ -56,7 +55,7 @@ public class ConnectLoginButtonTest {
                 MOCKED_VALID_WELL_KNOWN_API);
 
         final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
-        final ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);
+        final ConnectWebViewLoginButton button = (ConnectWebViewLoginButton) activity.findViewById(R.id.login_button);
         button.setLoginScopeTokens("profile");
         button.performClick();
 

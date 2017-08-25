@@ -71,13 +71,13 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales) {
+    public Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales, BrowserType browserType) {
         return ConnectUrlHelper.getAuthorizeUriStem(
                 parameters,
                 getClientId(),
                 getRedirectUri(),
                 locales,
-                getApiUrl())
+                getApiUrl(), browserType)
                 .buildUpon()
                 .appendPath(OAUTH_PATH)
                 .appendPath("authorize")

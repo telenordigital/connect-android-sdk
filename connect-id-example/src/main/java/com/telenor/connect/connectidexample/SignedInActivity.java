@@ -21,7 +21,7 @@ public class SignedInActivity extends Activity {
             return;
         }
 
-        Button logoutButton = (Button) findViewById(R.id.logout_button);
+        Button logoutButton = findViewById(R.id.logout_button);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -29,7 +29,7 @@ public class SignedInActivity extends Activity {
             }
         });
 
-        TextView userId = (TextView) findViewById(R.id.user_id);
+        TextView userId = findViewById(R.id.user_id);
         userId.setText(ConnectSdk.getIdToken().getSubject());
 
         if (ConnectSdk.getAccessToken() == null) {

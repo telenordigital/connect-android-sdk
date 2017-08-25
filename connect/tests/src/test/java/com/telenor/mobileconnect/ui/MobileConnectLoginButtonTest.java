@@ -12,7 +12,7 @@ import com.telenor.connect.SdkProfile;
 import com.telenor.connect.TestActivity;
 import com.telenor.connect.tests.R;
 import com.telenor.connect.ui.ConnectActivity;
-import com.telenor.connect.ui.ConnectLoginButton;
+import com.telenor.connect.ui.ConnectWebViewLoginButton;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryConfig;
@@ -27,9 +27,9 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowContextImpl;
 import org.robolectric.shadows.ShadowTelephonyManager;
 
+import static com.telenor.TestHelper.BooleanSupplier;
 import static com.telenor.TestHelper.MOCKED_FAILING_WELL_KNOWN_API;
 import static com.telenor.TestHelper.MOCKED_VALID_WELL_KNOWN_API;
-import static com.telenor.TestHelper.BooleanSupplier;
 import static com.telenor.TestHelper.MOCKED_WELL_KNOWN_ENDPONT;
 import static com.telenor.TestHelper.WELL_KNOWN_API_MAP;
 import static com.telenor.TestHelper.flushForegroundTasksUntilCallerIsSatisifed;
@@ -89,7 +89,7 @@ public class MobileConnectLoginButtonTest {
         OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, MOCKED_FAILING_OPERATOR_DISCOVERY_API);
 
         final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
-        final ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);
+        final ConnectWebViewLoginButton button = activity.findViewById(R.id.login_button);
         button.setLoginScopeTokens("profile");
         button.performClick();
 
@@ -110,7 +110,7 @@ public class MobileConnectLoginButtonTest {
         OPERATOR_DISCOVERY_API_MAP.put(MOCKED_OD_ENDPONT, MOCKED_VALID_OPERATOR_DISCOVERY_API);
 
         final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
-        final ConnectLoginButton button = (ConnectLoginButton) activity.findViewById(R.id.login_button);
+        final ConnectWebViewLoginButton button = activity.findViewById(R.id.login_button);
         button.setLoginScopeTokens("profile");
         button.performClick();
 

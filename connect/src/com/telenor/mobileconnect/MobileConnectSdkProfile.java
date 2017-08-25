@@ -7,10 +7,11 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.telenor.connect.AbstractSdkProfile;
+import com.telenor.connect.BrowserType;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectTokensTO;
-import com.telenor.connect.id.TokenStore;
+import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
@@ -98,13 +99,13 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
     }
 
     @Override
-    public Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales) {
+    public Uri getAuthorizeUri(Map<String, String> parameters, List<String> locales, BrowserType browserType) {
         Uri.Builder builder = ConnectUrlHelper.getAuthorizeUriStem(
                 parameters,
                 getClientId(),
                 getRedirectUri(),
                 locales,
-                getApiUrl())
+                getApiUrl(), BrowserType.WEB_VIEW)
                 .buildUpon();
         for (String pathSeg : getApiUrl().pathSegments()) {
             builder.appendPath(pathSeg);
@@ -192,7 +193,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                                 url.scheme(),
                                 url.host()));
         return new ConnectIdService(
-                new TokenStore(context),
+                new ConnectStore(context),
                 new MobileConnectAPIAdapter(mobileConnectApi),
                 getClientId(),
                 getRedirectUri());

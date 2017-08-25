@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.telenor.connect.ui.ConnectLoginButton;
+import com.telenor.connect.ui.ConnectWebViewLoginButton;
 
 public class SignInActivity extends Activity {
 
@@ -13,7 +13,7 @@ public class SignInActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        ConnectLoginButton loginButton = (ConnectLoginButton) findViewById(R.id.login_button);
+        ConnectWebViewLoginButton loginButton = (ConnectWebViewLoginButton) findViewById(R.id.login_button);
         loginButton.setLoginScopeTokens("payment.transactions.read payment.transactions.write");
     }
 

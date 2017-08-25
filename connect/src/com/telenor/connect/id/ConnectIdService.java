@@ -25,7 +25,7 @@ import retrofit.client.Response;
 public class ConnectIdService {
 
     private final ConnectAPI connectApi;
-    private final TokenStore tokenStore;
+    private final ConnectStore connectStore;
     private final String redirectUrl;
     private final String clientId;
 
@@ -33,11 +33,11 @@ public class ConnectIdService {
     private IdToken idToken;
 
     public ConnectIdService(
-            TokenStore tokenStore, ConnectAPI connectApi, String clientId, String redirectUrl) {
+            ConnectStore connectStore, ConnectAPI connectApi, String clientId, String redirectUrl) {
         this.clientId = clientId;
         this.redirectUrl = redirectUrl;
         this.connectApi = connectApi;
-        this.tokenStore = tokenStore;
+        this.connectStore = connectStore;
     }
 
     public void getValidAccessToken(final AccessTokenCallback callback) {
@@ -88,7 +88,8 @@ public class ConnectIdService {
                                 = HeadersDateUtil.extractDate(response.getHeaders());
                         ConnectTokens connectTokens
                                 = new ConnectTokens(connectTokensTO, serverTimestamp);
-                        tokenStore.set(connectTokens);
+                        connectStore.set(connectTokens);
+                        connectStore.clearSessionStateParam();
                         currentTokens = connectTokens;
                         idToken = connectTokens.getIdToken();
                         ConnectUtils.sendTokenStateChanged(true);
@@ -111,7 +112,7 @@ public class ConnectIdService {
     }
 
     private void clearTokensAndNotify() {
-        tokenStore.clear();
+        connectStore.clear();
         currentTokens = null;
         idToken = null;
         ConnectUtils.sendTokenStateChanged(false);
@@ -158,6 +159,7 @@ public class ConnectIdService {
                         }
                     });
         }
+
         clearTokensAndNotify();
         final CookieManager cookieManager = CookieManager.getInstance();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -182,7 +184,7 @@ public class ConnectIdService {
                                 = HeadersDateUtil.extractDate(response.getHeaders());
                         ConnectTokens connectTokens
                                 = new ConnectTokens(connectTokensTO, serverTimestamp);
-                        tokenStore.update(connectTokens);
+                        connectStore.update(connectTokens);
                         currentTokens = connectTokens;
                         callback.onSuccess(connectTokens.getAccessToken());
                     }
@@ -202,14 +204,14 @@ public class ConnectIdService {
 
     private ConnectTokens retrieveTokens() {
         if (currentTokens == null) {
-            currentTokens = tokenStore.get();
+            currentTokens = connectStore.get();
         }
         return currentTokens;
     }
 
     public IdToken getIdToken() {
         if (idToken == null) {
-            idToken = tokenStore.getIdToken();
+            idToken = connectStore.getIdToken();
         }
         return idToken;
     }

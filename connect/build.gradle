@@ -9,7 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 26
-        versionName "0.8.1"
+        versionName "1.1.0"
     }
     sourceSets {
         main {
@@ -37,6 +37,7 @@ dependencies {
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
     compile 'com.nimbusds:nimbus-jose-jwt:3.10'
+    compile 'com.android.support:customtabs:26.0.0'
     compile 'com.jakewharton.retrofit:retrofit1-okhttp3-client:1.1.0'
 }
 
@@ -44,5 +45,5 @@ publish {
     userOrg = 'telenordigital'
     groupId = project.group
     artifactId = 'connect-android-sdk'
-    publishVersion = '0.8.1'
+    publishVersion = '1.1.0'
 }
