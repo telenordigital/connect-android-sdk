@@ -336,7 +336,7 @@ public final class ConnectSdk {
 
     public static void logout() {
         Validator.sdkInitialized();
-        sdkProfile.getConnectIdService().revokeTokens(getContext());
+        sdkProfile.getConnectIdService().logOut(getContext());
     }
 
     public static synchronized void sdkInitialize(Context context) {

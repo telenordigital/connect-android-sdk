@@ -10,8 +10,8 @@ import com.telenor.connect.AbstractSdkProfile;
 import com.telenor.connect.BrowserType;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.ConnectIdService;
-import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.id.ConnectStore;
+import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
@@ -273,6 +273,13 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                     operatorDiscoveryResult.getPath("tokenrevoke"),
                     token,
                     callback);
+        }
+
+        @Override
+        public void logOut(
+                String auth,
+                ResponseCallback callback) {
+            // TODO
         }
 
         @Override
