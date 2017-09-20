@@ -129,18 +129,26 @@ public class ConnectIdService {
     public void revokeTokens(Context context) {
         String accessToken = getAccessToken();
         if (!TextUtils.isEmpty(accessToken)) {
-            revokeToken(accessToken);
+            revokeAccessToken(accessToken);
         }
         String refreshToken = getRefreshToken();
         if (!TextUtils.isEmpty(refreshToken)) {
-            revokeToken(refreshToken);
+            revokeRefreshToken(refreshToken);
         }
 
         clearTokensAndNotify();
         clearCookies(context);
     }
 
-    private void revokeToken(final String token) {
+    private void revokeAccessToken(String accessToken) {
+        revokeToken(accessToken, "access");
+    }
+
+    private void revokeRefreshToken(String refreshToken) {
+        revokeToken(refreshToken, "refresh");
+    }
+
+    private void revokeToken(final String token, final String descriptor) {
         connectApi.revokeToken(
                 clientId,
                 token,
@@ -151,7 +159,8 @@ public class ConnectIdService {
 
                     @Override
                     public void failure(RetrofitError error) {
-                        Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke token on API. token=" + token , error);
+                        Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke " + descriptor +
+                                " token on API. token=" + token , error);
                     }
                 });
     }
@@ -196,7 +205,7 @@ public class ConnectIdService {
 
         String refreshToken = getRefreshToken();
         if (!TextUtils.isEmpty(refreshToken)) {
-            revokeToken(refreshToken);
+            revokeRefreshToken(refreshToken);
         }
         clearTokensAndNotify();
         clearCookies(context);
