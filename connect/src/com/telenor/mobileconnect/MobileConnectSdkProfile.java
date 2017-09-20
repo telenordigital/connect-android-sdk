@@ -279,7 +279,8 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
         public void logOut(
                 String auth,
                 ResponseCallback callback) {
-            // TODO
+            throw new UnsupportedOperationException("logOut is not supported for " +
+                    "MobileConnectSdkProfile, use revokeToken instead");
         }
 
         @Override
