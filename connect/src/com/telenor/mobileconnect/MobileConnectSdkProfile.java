@@ -225,6 +225,11 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                 Base64.NO_WRAP);
     }
 
+    @Override
+    public void logout() {
+        getConnectIdService().revokeTokens(getContext());
+    }
+
     private class MobileConnectAPIAdapter implements ConnectAPI {
 
         private MobileConnectAPI mobileConnectApi;

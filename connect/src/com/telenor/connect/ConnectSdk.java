@@ -336,13 +336,7 @@ public final class ConnectSdk {
 
     public static void logout() {
         Validator.sdkInitialized();
-
-        if (sdkProfile instanceof MobileConnectSdkProfile) {
-            sdkProfile.getConnectIdService().revokeTokens(getContext());
-            return;
-        }
-
-        sdkProfile.getConnectIdService().logOut(getContext());
+        sdkProfile.logout();
     }
 
     public static synchronized void sdkInitialize(Context context) {
