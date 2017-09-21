@@ -194,6 +194,7 @@ public class ConnectIdService {
 
             @Override
             public void onError(Object errorData) {
+                Log.i(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint. Revoking tokens.");
                 revokeTokens(context);
             }
         });
