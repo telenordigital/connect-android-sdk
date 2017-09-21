@@ -175,40 +175,41 @@ public class ConnectIdService {
         }
     }
 
-    public void logOut(Context context) {
+    public void logOut(final Context context) {
         final String accessToken = getAccessToken();
-        if (accessToken == null) {
+        final String refreshToken = getRefreshToken();
+
+        if (accessToken == null || refreshToken == null) {
             Log.w(ConnectUtils.LOG_TAG, "Trying to log out when user is already logged out.");
+            revokeTokens(context);
             return;
         }
 
-        Date accessTokenExpirationTime = getAccessTokenExpirationTime();
-        Date now = new Date();
+        updateTokens(new AccessTokenCallback() {
+            @Override
+            public void onSuccess(String accessToken) {
+                callLogOutApiEndpoint(accessToken);
+                revokeTokens(context);
+            }
 
-        boolean accessTokenHasExpired = now.after(accessTokenExpirationTime);
-        if (accessTokenHasExpired) {
-            Log.i(ConnectUtils.LOG_TAG, "Access token has expired, can not call logout endpoint. Clearing local tokens.");
-        } else {
-            String auth = "Bearer " + accessToken;
-            connectApi.logOut(auth, new ResponseCallback() {
-                @Override
-                public void success(Response response) {
+            @Override
+            public void onError(Object ignore) {}
+        });
+    }
 
-                }
+    private void callLogOutApiEndpoint(final String accessToken) {
+        String auth = "Bearer " + accessToken;
+        connectApi.logOut(auth, new ResponseCallback() {
+            @Override
+            public void success(Response response) {
 
-                @Override
-                public void failure(RetrofitError error) {
-                    Log.e(ConnectUtils.LOG_TAG, "Failed to call logout with access token on API. accessToken=" + accessToken , error);
-                }
-            });
-        }
+            }
 
-        String refreshToken = getRefreshToken();
-        if (!TextUtils.isEmpty(refreshToken)) {
-            revokeRefreshToken(refreshToken);
-        }
-        clearTokensAndNotify();
-        clearCookies(context);
+            @Override
+            public void failure(RetrofitError error) {
+                Log.e(ConnectUtils.LOG_TAG, "Failed to call logout with access token on API. accessToken=" + accessToken , error);
+            }
+        });
     }
 
     public void updateTokens(final AccessTokenCallback callback) {
