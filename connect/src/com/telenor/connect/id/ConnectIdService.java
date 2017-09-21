@@ -193,7 +193,9 @@ public class ConnectIdService {
             }
 
             @Override
-            public void onError(Object ignore) {}
+            public void onError(Object errorData) {
+                revokeTokens(context);
+            }
         });
     }
 
