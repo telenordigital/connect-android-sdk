@@ -129,38 +129,43 @@ public class ConnectIdService {
     public void revokeTokens(Context context) {
         String accessToken = getAccessToken();
         if (!TextUtils.isEmpty(accessToken)) {
-            connectApi.revokeToken(
-                    clientId,
-                    accessToken,
-                    new ResponseCallback() {
-                        @Override
-                        public void success(Response response) {
-                        }
-
-                        @Override
-                        public void failure(RetrofitError error) {
-                            Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke access token on API", error);
-                        }
-                    });
+            revokeAccessToken(accessToken);
         }
         String refreshToken = getRefreshToken();
         if (!TextUtils.isEmpty(refreshToken)) {
-            connectApi.revokeToken(
-                    clientId,
-                    refreshToken,
-                    new ResponseCallback() {
-                        @Override
-                        public void success(Response response) {
-                        }
-
-                        @Override
-                        public void failure(RetrofitError error) {
-                            Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke refresh token on API", error);
-                        }
-                    });
+            revokeRefreshToken(refreshToken);
         }
 
         clearTokensAndNotify();
+        clearCookies(context);
+    }
+
+    private void revokeAccessToken(String accessToken) {
+        revokeToken(accessToken, "access");
+    }
+
+    private void revokeRefreshToken(String refreshToken) {
+        revokeToken(refreshToken, "refresh");
+    }
+
+    private void revokeToken(final String token, final String descriptor) {
+        connectApi.revokeToken(
+                clientId,
+                token,
+                new ResponseCallback() {
+                    @Override
+                    public void success(Response response) {
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke " + descriptor +
+                                " token on API. token=" + token , error);
+                    }
+                });
+    }
+
+    private void clearCookies(Context context) {
         final CookieManager cookieManager = CookieManager.getInstance();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             cookieManager.removeAllCookies(null);
@@ -168,6 +173,46 @@ public class ConnectIdService {
             CookieSyncManager.createInstance(context);
             cookieManager.removeAllCookie();
         }
+    }
+
+    public void logOut(final Context context) {
+        final String accessToken = getAccessToken();
+        final String refreshToken = getRefreshToken();
+
+        if (accessToken == null || refreshToken == null) {
+            Log.w(ConnectUtils.LOG_TAG, "Trying to log out when user is already logged out.");
+            revokeTokens(context);
+            return;
+        }
+
+        updateTokens(new AccessTokenCallback() {
+            @Override
+            public void onSuccess(String accessToken) {
+                callLogOutApiEndpoint(accessToken);
+                revokeTokens(context);
+            }
+
+            @Override
+            public void onError(Object errorData) {
+                Log.i(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint. Revoking tokens.");
+                revokeTokens(context);
+            }
+        });
+    }
+
+    private void callLogOutApiEndpoint(final String accessToken) {
+        String auth = "Bearer " + accessToken;
+        connectApi.logOut(auth, new ResponseCallback() {
+            @Override
+            public void success(Response response) {
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.e(ConnectUtils.LOG_TAG, "Failed to call logout with access token on API. accessToken=" + accessToken , error);
+            }
+        });
     }
 
     public void updateTokens(final AccessTokenCallback callback) {

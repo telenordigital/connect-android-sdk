@@ -137,4 +137,9 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
         Validator.notNull(tokens.getExpiresIn(), "expires_in");
         Validator.notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
     }
+
+    @Override
+    public void logout() {
+        getConnectIdService().logOut(getContext());
+    }
 }

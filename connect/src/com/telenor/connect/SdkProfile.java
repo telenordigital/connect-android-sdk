@@ -19,6 +19,7 @@ public interface SdkProfile {
     String getClientId();
     String getClientSecret();
     boolean isConfidentialClient();
+    void logout();
     String getRedirectUri();
     ConnectIdService getConnectIdService();
     String getExpectedIssuer();

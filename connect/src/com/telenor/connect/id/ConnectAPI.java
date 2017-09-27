@@ -38,6 +38,10 @@ public interface ConnectAPI {
             @Field("token") String token,
             ResponseCallback callback);
 
+    @Headers("Content-Type: application/x-www-form-urlencoded")
+    @POST("/oauth/logout")
+    void logOut(@Header("Authorization") String auth, ResponseCallback callback);
+
     @Headers("Accept: application/json")
     @GET("/oauth/userinfo")
     void getUserInfo(@Header("Authorization") String auth, Callback<UserInfo> userInfoCallback);
