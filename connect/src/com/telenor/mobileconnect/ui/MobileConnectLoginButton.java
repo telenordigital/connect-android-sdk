@@ -4,9 +4,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.telenor.connect.R;
-import com.telenor.connect.ui.ConnectLoginButton;
+import com.telenor.connect.ui.ConnectWebViewLoginButton;
 
-public class MobileConnectLoginButton extends ConnectLoginButton {
+public class MobileConnectLoginButton extends ConnectWebViewLoginButton {
 
     public MobileConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
