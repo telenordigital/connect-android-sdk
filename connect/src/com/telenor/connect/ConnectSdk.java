@@ -622,15 +622,19 @@ public final class ConnectSdk {
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
                 .build();
-        connectivityManager.requestNetwork(
-                networkRequest,
-                new ConnectivityManager.NetworkCallback() {
-                    @Override
-                    public void onAvailable(Network network) {
-                        cellularNetwork = network;
+        try {
+            connectivityManager.requestNetwork(
+                    networkRequest,
+                    new ConnectivityManager.NetworkCallback() {
+                        @Override
+                        public void onAvailable(Network network) {
+                            cellularNetwork = network;
+                        }
                     }
-                }
-        );
+            );
+        } catch (SecurityException e) {
+            cellularNetwork = null;
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -638,15 +642,19 @@ public final class ConnectSdk {
         NetworkRequest networkRequest = new NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .build();
-        connectivityManager.requestNetwork(
-                networkRequest,
-                new ConnectivityManager.NetworkCallback() {
-                    @Override
-                    public void onAvailable(Network network) {
-                        defaultNetwork = network;
+        try {
+            connectivityManager.requestNetwork(
+                    networkRequest,
+                    new ConnectivityManager.NetworkCallback() {
+                        @Override
+                        public void onAvailable(Network network) {
+                            defaultNetwork = network;
+                        }
                     }
-                }
-        );
+            );
+        } catch (SecurityException e) {
+            defaultNetwork = null;
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
