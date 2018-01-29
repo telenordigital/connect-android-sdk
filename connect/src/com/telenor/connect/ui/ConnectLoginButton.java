@@ -140,7 +140,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         if (componentName == null) {
             return false;
         }
-        return context.getClass().getName().equals(componentName.getClassName());
+        return context.getPackageName().equals(componentName.getPackageName());
     }
 
     @Override
