@@ -86,11 +86,6 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
             }
         };
 
-        boolean serviceBound = CustomTabsClient.bindCustomTabsService(
-                getContext(), "com.android.chrome", connection);
-        boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
-        customTabsSupported = serviceBound && correctIntentFilter;
-        browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
         onClickListener = new LoginClickListener();
         setOnClickListener(onClickListener);
     }
@@ -141,6 +136,16 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
             return false;
         }
         return context.getPackageName().equals(componentName.getPackageName());
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        boolean serviceBound = CustomTabsClient.bindCustomTabsService(
+                getContext(), "com.android.chrome", connection);
+        boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
+        customTabsSupported = serviceBound && correctIntentFilter;
+        browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
     }
 
     @Override
