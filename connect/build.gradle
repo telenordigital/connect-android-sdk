@@ -33,11 +33,11 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:27.0.1'
+    compile 'com.android.support:appcompat-v7:27.0.2'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
     compile 'com.nimbusds:nimbus-jose-jwt:3.10'
-    compile 'com.android.support:customtabs:27.0.1'
+    compile 'com.android.support:customtabs:27.0.2'
     compile 'com.jakewharton.retrofit:retrofit1-okhttp3-client:1.1.0'
 }
 
