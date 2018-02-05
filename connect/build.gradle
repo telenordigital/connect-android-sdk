@@ -9,7 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 27
-        versionName "1.1.1"
+        versionName "1.2.1"
     }
     sourceSets {
         main {
@@ -29,6 +29,7 @@ android {
     lintOptions {
         disable 'InvalidPackage'
         disable 'AppCompatCustomView'
+        disable 'MissingPermission'
     }
 }
 
@@ -45,5 +46,5 @@ publish {
     userOrg = 'telenordigital'
     groupId = project.group
     artifactId = 'connect-android-sdk'
-    publishVersion = '1.1.1'
+    publishVersion = '1.2.1'
 }
