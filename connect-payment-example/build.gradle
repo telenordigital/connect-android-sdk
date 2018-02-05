@@ -26,5 +26,6 @@ android {
 }
 
 dependencies {
-    compile project(':connect')
+    implementation project(':connect')
+    implementation 'com.android.support:appcompat-v7:27.0.2'
 }
