@@ -7,6 +7,7 @@ import com.telenor.connect.ui.InstructionHandler;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +19,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@Config(sdk = 18)
 public class HtmlToAndroidInstructionsInterfaceTest {
 
     private final static String validInstructions = "[  \n" +

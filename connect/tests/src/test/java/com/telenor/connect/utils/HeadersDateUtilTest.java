@@ -1,6 +1,7 @@
 package com.telenor.connect.utils;
 
 import org.junit.Test;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,6 +16,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+@Config(sdk = 18)
 public class HeadersDateUtilTest {
 
     @Test(expected = NullPointerException.class)

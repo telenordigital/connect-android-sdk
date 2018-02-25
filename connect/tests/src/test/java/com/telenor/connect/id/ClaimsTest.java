@@ -1,10 +1,12 @@
 package com.telenor.connect.id;
 
 import org.junit.Test;
+import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@Config(sdk = 18)
 public class ClaimsTest {
 
     @Test
