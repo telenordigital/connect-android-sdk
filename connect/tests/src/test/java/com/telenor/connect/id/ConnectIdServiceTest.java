@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
+@Config(sdk = 18)
 @PrepareForTest({Validator.class})
 public class ConnectIdServiceTest {
 

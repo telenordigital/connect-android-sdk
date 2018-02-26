@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import com.telenor.connect.ui.Instruction;
 
 import org.junit.Test;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+@Config(sdk = 18)
 public class SmsPinParseUtilTest {
 
     @NonNull

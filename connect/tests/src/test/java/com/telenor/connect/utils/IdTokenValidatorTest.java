@@ -18,6 +18,7 @@ import org.mockito.BDDMockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.robolectric.annotation.Config;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 
 @RunWith(PowerMockRunner.class)
+@Config(sdk = 18)
 @PrepareForTest(ConnectSdk.class)
 public class IdTokenValidatorTest {
 

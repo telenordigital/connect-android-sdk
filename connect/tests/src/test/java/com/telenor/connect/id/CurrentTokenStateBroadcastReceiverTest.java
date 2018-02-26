@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/main/AndroidManifest.xml", sdk = 18)
+@Config(sdk = 18)
 public class CurrentTokenStateBroadcastReceiverTest {
 
     @Test

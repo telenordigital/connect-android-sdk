@@ -1,10 +1,12 @@
 package com.telenor.connect.ui;
 
 import org.junit.Test;
+import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
+@Config(sdk = 18)
 public class InstructionTest {
 
     @Test
