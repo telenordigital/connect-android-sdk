@@ -188,8 +188,17 @@ public class ConnectIdService {
         updateTokens(new AccessTokenCallback() {
             @Override
             public void onSuccess(String accessToken) {
-                callLogOutApiEndpoint(accessToken);
-                revokeTokens(context);
+                callLogOutApiEndpoint(accessToken, new ConnectCallback() {
+                    @Override
+                    public void onSuccess(Object successData) {
+                        revokeTokens(context);
+                    }
+
+                    @Override
+                    public void onError(Object errorData) {
+                        revokeTokens(context);
+                    }
+                });
             }
 
             @Override
@@ -200,17 +209,18 @@ public class ConnectIdService {
         });
     }
 
-    private void callLogOutApiEndpoint(final String accessToken) {
+    private void callLogOutApiEndpoint(final String accessToken, final ConnectCallback callback) {
         String auth = "Bearer " + accessToken;
         connectApi.logOut(auth, new ResponseCallback() {
             @Override
             public void success(Response response) {
-
+                callback.onSuccess(null);
             }
 
             @Override
             public void failure(RetrofitError error) {
                 Log.e(ConnectUtils.LOG_TAG, "Failed to call logout with access token on API. accessToken=" + accessToken , error);
+                callback.onError(error);
             }
         });
     }
