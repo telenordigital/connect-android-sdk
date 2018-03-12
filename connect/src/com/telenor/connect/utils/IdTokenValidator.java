@@ -84,7 +84,7 @@ public class IdTokenValidator {
 
     public static boolean isValidExpirationTime(
             Date expirationTime, Date currentDate, Date serverTimestamp) {
-        if (expirationTime == null) {
+            if (expirationTime == null) {
             return false;
         }
 
