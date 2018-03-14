@@ -3,6 +3,7 @@ package com.telenor.connect.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit.Ok3Client;
+import com.telenor.connect.BuildConfig;
 import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.IdToken;
@@ -73,7 +74,7 @@ public class RestHelper {
                 .setClient(new Ok3Client(httpClient))
                 .setEndpoint(endpoint)
                 .setRequestInterceptor(connectRetroFitInterceptor)
-                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setLogLevel(BuildConfig.DEBUG ? RestAdapter.LogLevel.FULL : RestAdapter.LogLevel.NONE)
                 .setConverter(new GsonConverter(gson))
                 .build();
     }
