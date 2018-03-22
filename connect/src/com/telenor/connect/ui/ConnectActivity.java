@@ -92,7 +92,6 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
             setResult(Activity.RESULT_OK, data);
             finish();
         }
-        ConnectSdk.getSdkProfile().onFinishAuthorization(true);
     }
 
     @Override
@@ -104,6 +103,5 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
         }
         setResult(Activity.RESULT_CANCELED, intent);
         finish();
-        ConnectSdk.getSdkProfile().onFinishAuthorization(false);
     }
 }

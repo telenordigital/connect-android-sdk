@@ -6,8 +6,6 @@ import android.content.Intent;
 import com.telenor.TestHelper;
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.ConnectSdkProfile;
-import com.telenor.connect.SdkProfile;
 import com.telenor.connect.TestActivity;
 import com.telenor.connect.tests.R;
 import com.telenor.connect.utils.ConnectUtils;
@@ -36,7 +34,6 @@ public class ConnectWebViewLoginButtonTest {
 
     @Before
     public void before() {
-        Whitebox.setInternalState(ConnectSdk.class, "sdkProfile", (SdkProfile) null);
         Whitebox.setInternalState(RestHelper.class, "wellKnownApiMap", WELL_KNOWN_API_MAP);
     }
 
@@ -48,12 +45,8 @@ public class ConnectWebViewLoginButtonTest {
     }
 
     @Test
-    public void clickingLoginButtonWithInitializedSdkStartsConnectActivityAndReturnsValidWellKnownConfig() {
+    public void clickingLoginButtonWithInitializedSdkStartsConnectActivity() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
-        WELL_KNOWN_API_MAP.put(
-                ((ConnectSdkProfile) ConnectSdk.getSdkProfile()).getWellKnownEndpoint(),
-                MOCKED_VALID_WELL_KNOWN_API);
-
         final Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
         final ConnectWebViewLoginButton button = (ConnectWebViewLoginButton) activity.findViewById(R.id.login_button);
         button.setLoginScopeTokens("profile");
@@ -70,6 +63,5 @@ public class ConnectWebViewLoginButtonTest {
         Intent startedIntent = shadowOf(activity).peekNextStartedActivityForResult().intent;
         assertThat(startedIntent.getComponent(), is(expected.getComponent()));
         assertThat(startedIntent.getAction(), is(ConnectUtils.LOGIN_ACTION));
-        assertThat(ConnectSdk.getWellKnownConfig().getIssuer(), is(DUMMY_ISSUER));
     }
 }

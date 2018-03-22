@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">Mobile Connect Example</string>
-    <string name="connect_client_id">x-abce79a0-5a73-488e-9389-4bc7f2685b5b</string>
-    <string name="connect_redirect_uri">https://localhost:8443/</string>x
-</resources>

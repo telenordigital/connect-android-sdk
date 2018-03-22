@@ -3,11 +3,8 @@ package com.telenor.connect.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.ConnectSdkProfile;
-import com.telenor.connect.SdkProfile;
 import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.id.IdToken;
 
@@ -36,11 +33,9 @@ public class ValidatorTest {
         SharedPreferences sharedPrefs = mock(SharedPreferences.class);
         when(sharedPrefs.getString(anyString(), anyString())).thenReturn(null);
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPrefs);
-        SdkProfile sdkProfile = new ConnectSdkProfile(context, false, false);
 
         PowerMockito.mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
-        BDDMockito.given(ConnectSdk.getSdkProfile()).willReturn(sdkProfile);
     }
 
     @Test(expected = NullPointerException.class)

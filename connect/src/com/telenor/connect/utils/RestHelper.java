@@ -8,8 +8,6 @@ import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.IdTokenDeserializer;
-import com.telenor.mobileconnect.id.MobileConnectAPI;
-import com.telenor.mobileconnect.operatordiscovery.OperatorDiscoveryAPI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,24 +21,14 @@ import retrofit.converter.GsonConverter;
 public class RestHelper {
 
     private static Map<String, ConnectAPI> connectApiMap = new HashMap<>();
-    private static Map<String, MobileConnectAPI> mobileConnectApiMap = new HashMap<>();
     private static Map<String, WellKnownAPI> wellKnownApiMap = new HashMap<>();
-    private static Map<String, OperatorDiscoveryAPI> operatorDiscoveryApiMap = new HashMap<>();
 
     public static ConnectAPI getConnectApi(String endpoint) {
         return getApi(connectApiMap, endpoint, ConnectAPI.class);
     }
 
-    public static MobileConnectAPI getMobileConnectApi(String endpoint) {
-        return getApi(mobileConnectApiMap, endpoint, MobileConnectAPI.class);
-    }
-
     public static WellKnownAPI getWellKnownApi(String endpoint) {
         return getApi(wellKnownApiMap, endpoint, WellKnownAPI.class);
-    }
-
-    public static OperatorDiscoveryAPI getOperatorDiscoveryApi(String endpoint) {
-        return getApi(operatorDiscoveryApiMap, endpoint, OperatorDiscoveryAPI.class);
     }
 
     private static synchronized <T> T getApi(Map<String, T> map, String endpoint, Class<T> type) {
