@@ -21,6 +21,7 @@ import java.util.Set;
 
 import okhttp3.HttpUrl;
 
+import static com.telenor.connect.ConnectSdk.OAUTH_PATH;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -135,43 +136,49 @@ public class ConnectUrlHelperTest {
 
     @Test
     public void getAuthorizeUriMatchesOauthStandard() {
-//        Map<String, String> parameters = new HashMap<>();
-//        parameters.put("scope", "profile");
-//        parameters.put("state", "abc123def456");
-//
-//        ArrayList<String> locales = new ArrayList<>();
-//        locales.add(Locale.ENGLISH.getLanguage());
-//
-//        HttpUrl url = new HttpUrl.Builder()
-//                .scheme("https")
-//                .host("connect.telenordigital.com")
-//                .build();
-//
-//        ConnectSdkProfile profile =
-//                new ConnectSdkProfile(RuntimeEnvironment.application, false, false);
-//        profile.setClientId("client-id-example");
-//        profile.setRedirectUri("redirect-url://here");
-//        Uri authorizeUri = profile.getAuthorizeUri(parameters, locales, null);
-//
-//        Uri expected
-//                = Uri.parse("https://connect.telenordigital.com/oauth/authorize" +
-//                "?ui_locales=en" +
-//                "&scope=profile" +
-//                "&response_type=code" +
-//                "&redirect_uri=redirect-url%3A%2F%2Fhere" +
-//                "&state=abc123def456" +
-//                "&client_id=client-id-example");
-//
-//        Set<String> expectedQueryParameterNames = expected.getQueryParameterNames();
-//
-//        for (String query : expectedQueryParameterNames){
-//            assertThat(
-//                    authorizeUri.getQueryParameter(query), is(expected.getQueryParameter(query)));
-//        }
-//
-//        assertThat(authorizeUri.getScheme(), is(expected.getScheme()));
-//        assertThat(authorizeUri.getAuthority(), is(expected.getAuthority()));
-//        assertThat(authorizeUri.getPath(), is(expected.getPath()));
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("scope", "profile");
+        parameters.put("state", "abc123def456");
+
+        ArrayList<String> locales = new ArrayList<>();
+        locales.add(Locale.ENGLISH.getLanguage());
+
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("connect.telenordigital.com")
+                .build();
+
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUriStem(
+                parameters,
+                "client-id-example",
+                "redirect-url://here",
+                locales,
+                url,
+                BrowserType.WEB_VIEW)
+                .buildUpon()
+                .appendPath(OAUTH_PATH)
+                .appendPath("authorize")
+                .build();;
+
+        Uri expected
+                = Uri.parse("https://connect.telenordigital.com/oauth/authorize" +
+                "?ui_locales=en" +
+                "&scope=profile" +
+                "&response_type=code" +
+                "&redirect_uri=redirect-url%3A%2F%2Fhere" +
+                "&state=abc123def456" +
+                "&client_id=client-id-example");
+
+        Set<String> expectedQueryParameterNames = expected.getQueryParameterNames();
+
+        for (String query : expectedQueryParameterNames){
+            assertThat(
+                    authorizeUri.getQueryParameter(query), is(expected.getQueryParameter(query)));
+        }
+
+        assertThat(authorizeUri.getScheme(), is(expected.getScheme()));
+        assertThat(authorizeUri.getAuthority(), is(expected.getAuthority()));
+        assertThat(authorizeUri.getPath(), is(expected.getPath()));
     }
 
     @Test
