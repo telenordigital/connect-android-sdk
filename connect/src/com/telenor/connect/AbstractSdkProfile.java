@@ -92,7 +92,7 @@ public abstract class AbstractSdkProfile implements SdkProfile {
         }
     }
 
-    protected void initializeAndContinueAuthorizationFlow(final OnStartAuthorizationCallback callback) {
+    protected void readWellknownAsync(final OnStartAuthorizationCallback callback) {
         if (isInitialized) {
             callback.onSuccess();
             return;
@@ -104,14 +104,18 @@ public abstract class AbstractSdkProfile implements SdkProfile {
                     public void success(WellKnownAPI.WellKnownConfig config, Response response) {
                         wellKnownConfig = config;
                         isInitialized = true;
-                        callback.onSuccess();
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
                         wellKnownConfig = null;
                         isInitialized = true;
-                        callback.onSuccess();
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
                     }
                 });
     }

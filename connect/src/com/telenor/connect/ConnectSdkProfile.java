@@ -30,6 +30,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
             boolean confidentialClient) {
         super(context, confidentialClient);
         this.useStaging = useStaging;
+        readWellknownAsync(null);
     }
 
     @Override
@@ -87,7 +88,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
     @Override
     public void onStartAuthorization(Map<String, String> parameters, OnStartAuthorizationCallback callback) {
         super.onStartAuthorization(parameters, callback);
-        initializeAndContinueAuthorizationFlow(callback);
+        callback.onSuccess();
     }
 
     @Override

@@ -181,7 +181,7 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
             OnStartAuthorizationCallback callback) {
         operatorDiscoveryResult = odResult;
         setConnectIdService(createConnectIdService());
-        initializeAndContinueAuthorizationFlow(callback);
+        readWellknownAsync(callback);
     }
 
     private ConnectIdService createConnectIdService() {

@@ -96,5 +96,11 @@ public interface WellKnownAPI {
                 return new WellKnownConfig[size];
             }
         };
+
+        @SerializedName("snowball-sdk-analytics-endpoint")
+        private String analyticsEndpoint;
+        public String getAnalyticsEndpoint() {
+            return analyticsEndpoint;
+        }
     }
 }

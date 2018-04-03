@@ -18,6 +18,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.telenor.connect.BrowserType;
+import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
@@ -125,6 +126,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         }
 
         parameters.put("state", connectStore.generateSessionStateParam());
+        parameters.put("lsi", ConnectSdk.getLogSessionId());
 
         if (!ConnectSdk.isCellularDataNetworkConnected()) {
             parameters.put("prompt", "no_seam");
@@ -196,6 +198,9 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         @Override
         public void onClick(View v) {
             Validator.sdkInitialized();
+
+            ConnectSdk.beforeAuthentication();
+
             if (!customTabsSupported) {
                 launchWebViewAuthentication();
             } else {

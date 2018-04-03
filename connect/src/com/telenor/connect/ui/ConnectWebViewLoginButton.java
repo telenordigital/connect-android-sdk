@@ -99,6 +99,8 @@ public class ConnectWebViewLoginButton extends ConnectButton {
         public void onClick(View v) {
             Validator.sdkInitialized();
 
+            ConnectSdk.beforeAuthentication();
+
             Map<String, String> parameters = new HashMap<>();
             if (getAcrValues() != null && !getAcrValues().isEmpty()) {
                 parameters.put(ConnectUtils.ACR_VALUES_PARAM_NAME,
