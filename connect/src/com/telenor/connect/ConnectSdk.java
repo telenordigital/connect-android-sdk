@@ -282,12 +282,13 @@ public final class ConnectSdk {
 
         String accessToken = getAccessToken();
         final String auth = accessToken != null ? "Bearer " + accessToken : null;
+        final String subject = getIdToken() != null ? getIdToken().getSubject() : null;
         RestHelper.getAnalyticsApi(endPoint).sendAnalyticsData(
                 auth,
                 new AnalyticsAPI.SDKAnalyticsData(
                         getApplicationName(),
                         getApplcationVersion(),
-                        getIdToken().getSubject(),
+                        subject,
                         getLogSessionId(),
                         getAdvertisingId(),
                         tsSdkInitiliazation,
