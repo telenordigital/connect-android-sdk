@@ -97,7 +97,7 @@ public interface WellKnownAPI {
             }
         };
 
-        @SerializedName("snowball-sdk-analytics-endpoint")
+        @SerializedName("telenordigital_sdk_analytics_endpoint")
         private String analyticsEndpoint;
         public String getAnalyticsEndpoint() {
             return analyticsEndpoint;
