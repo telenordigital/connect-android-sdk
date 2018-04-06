@@ -126,7 +126,6 @@ public final class ConnectSdk {
             Activity activity,
             int requestCode,
             String... scopeTokens) {
-
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("scope", TextUtils.join(" ", scopeTokens));
         authenticate(activity, parameters, requestCode);
@@ -137,6 +136,7 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
+        parameters.put("lsi", getLogSessionId());
         sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
             @Override
             public void onSuccess() {
@@ -149,7 +149,6 @@ public final class ConnectSdk {
                 showAuthCancelMessage(activity);
             }
         });
-
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
