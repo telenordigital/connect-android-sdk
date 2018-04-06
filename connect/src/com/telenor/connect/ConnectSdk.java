@@ -274,16 +274,14 @@ public final class ConnectSdk {
     }
 
     private static void sendAnalyticsData() {
-        String endPoint = getWellKnownConfig().getAnalyticsEndpoint();
-
         if (getWellKnownConfig().getAnalyticsEndpoint() == null) {
-            endPoint = "http://10.0.2.2:9090/extapi/analytics";
+            return;
         }
 
         String accessToken = getAccessToken();
         final String auth = accessToken != null ? "Bearer " + accessToken : null;
         final String subject = getIdToken() != null ? getIdToken().getSubject() : null;
-        RestHelper.getAnalyticsApi(endPoint).sendAnalyticsData(
+        RestHelper.getAnalyticsApi(getWellKnownConfig().getAnalyticsEndpoint()).sendAnalyticsData(
                 auth,
                 new AnalyticsAPI.SDKAnalyticsData(
                         getApplicationName(),
