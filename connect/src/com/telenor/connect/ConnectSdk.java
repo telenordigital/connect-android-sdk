@@ -18,8 +18,12 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.IdToken;
@@ -42,9 +46,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import okhttp3.HttpUrl;
 import retrofit.Callback;
+import retrofit.ResponseCallback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public final class ConnectSdk {
 
@@ -56,6 +64,12 @@ public final class ConnectSdk {
     private static volatile Network cellularNetwork;
     private static volatile Network defaultNetwork;
     private static ConnectStore connectStore;
+    private static volatile String advertisingId;
+    private static volatile long tsSdkInitiliazation;
+    private static volatile long tsLoginButtonClicked;
+    private static volatile long tsRedirectUrlInvoked;
+    private static volatile long tsTokenResponseReceived;
+    private static volatile String logSessionId;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -103,11 +117,15 @@ public final class ConnectSdk {
         return sdkProfile;
     }
 
+    public static void beforeAuthentication() {
+        logSessionId = UUID.randomUUID().toString();
+        tsLoginButtonClicked = System.currentTimeMillis();
+    }
+
     public static synchronized void authenticate(
             Activity activity,
             int requestCode,
             String... scopeTokens) {
-
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("scope", TextUtils.join(" ", scopeTokens));
         authenticate(activity, parameters, requestCode);
@@ -118,6 +136,7 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
+        parameters.put("lsi", getLogSessionId());
         sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
             @Override
             public void onSuccess() {
@@ -130,7 +149,6 @@ public final class ConnectSdk {
                 showAuthCancelMessage(activity);
             }
         });
-
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
@@ -230,9 +248,61 @@ public final class ConnectSdk {
         return sdkProfile.getConnectIdService().getAccessTokenExpirationTime();
     }
 
-    public static synchronized void getAccessTokenFromCode(String code, ConnectCallback callback) {
+    public static synchronized void getAccessTokenFromCode(String code, final ConnectCallback callback) {
         Validator.sdkInitialized();
-        sdkProfile.getConnectIdService().getAccessTokenFromCode(code, callback);
+        tsRedirectUrlInvoked = System.currentTimeMillis();
+        sdkProfile.getConnectIdService().getAccessTokenFromCode(code, new ConnectCallback() {
+            @Override
+            public void onSuccess(Object successData) {
+                tsTokenResponseReceived = System.currentTimeMillis();
+                if (callback != null) {
+                    callback.onSuccess(successData);
+                }
+                sendAnalyticsData();
+            }
+
+            @Override
+            public void onError(Object errorData) {
+                tsTokenResponseReceived = System.currentTimeMillis();
+                if (callback != null) {
+                    callback.onError(errorData);
+                }
+                sendAnalyticsData();
+            }
+        });
+    }
+
+    private static void sendAnalyticsData() {
+        if (getWellKnownConfig().getAnalyticsEndpoint() == null) {
+            return;
+        }
+
+        String accessToken = getAccessToken();
+        final String auth = accessToken != null ? "Bearer " + accessToken : null;
+        final String subject = getIdToken() != null ? getIdToken().getSubject() : null;
+        RestHelper.getAnalyticsApi(getWellKnownConfig().getAnalyticsEndpoint()).sendAnalyticsData(
+                auth,
+                new AnalyticsAPI.SDKAnalyticsData(
+                        getApplicationName(),
+                        getApplicationVersion(),
+                        subject,
+                        getLogSessionId(),
+                        getAdvertisingId(),
+                        tsSdkInitiliazation,
+                        tsLoginButtonClicked,
+                        tsRedirectUrlInvoked,
+                        tsTokenResponseReceived
+                ),
+                new ResponseCallback() {
+                    @Override
+                    public void success(Response response) {
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data", error);
+                    }
+                });
     }
 
     public static synchronized Uri getAuthorizeUri(
@@ -344,6 +414,7 @@ public final class ConnectSdk {
             return;
         }
 
+        tsSdkInitiliazation = System.currentTimeMillis();
 
         Validator.notNull(context, "context");
         ConnectSdkProfile profile = loadConnectConfig(context);
@@ -428,7 +499,6 @@ public final class ConnectSdk {
             return null;
         }
     }
-
 
     private static boolean fetchBooleanProperty(ApplicationInfo appInfo, String propertyName) {
         if (appInfo == null) {
@@ -536,7 +606,6 @@ public final class ConnectSdk {
         if (!hasValidRedirectUrlCall(intent)) {
             return;
         }
-
         final String code = getCodeFromIntent(intent);
         getAccessTokenFromCode(code, callback);
     }
@@ -590,6 +659,7 @@ public final class ConnectSdk {
         }
         initalizeCellularNetwork();
         initalizeDefaultNetwork();
+        initializeAdvertisingId();
     }
 
     public static boolean isCellularDataNetworkConnected() {
@@ -657,6 +727,23 @@ public final class ConnectSdk {
         }
     }
 
+    private static void initializeAdvertisingId() {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        if (googleAPI.isGooglePlayServicesAvailable(getContext()) == ConnectionResult.SUCCESS) {
+            new Thread(new Runnable() {
+                public void run() {
+                    AdvertisingIdClient.Info adInfo = null;
+                    try {
+                        adInfo = AdvertisingIdClient.getAdvertisingIdInfo(getContext());
+                        advertisingId = adInfo.getId();
+                    } catch (Exception e) {
+                        Log.w(ConnectUtils.LOG_TAG, "Failed to read advertising id", e);
+                    }
+                }
+            }).start();
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getCellularNetwork() {
         return cellularNetwork;
@@ -665,5 +752,31 @@ public final class ConnectSdk {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getDefaultNetwork() {
         return defaultNetwork;
+    }
+
+    private static String getAdvertisingId() {
+        return advertisingId;
+    }
+
+    public static String getLogSessionId() {
+        return logSessionId;
+    }
+
+    private static String getApplicationName() {
+        try {
+            return getContext().getApplicationInfo().loadLabel(getContext().getPackageManager()).toString();
+        } catch (Exception e) {
+            Log.e(ConnectUtils.LOG_TAG, "Failed to read application name", e);
+            return "";
+        }
+    }
+
+    private static String getApplicationVersion() {
+        try {
+            return getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName;
+        } catch (Exception e) {
+            Log.e(ConnectUtils.LOG_TAG, "Failed to read application version", e);
+            return "";
+        }
     }
 }
