@@ -285,7 +285,7 @@ public final class ConnectSdk {
                 auth,
                 new AnalyticsAPI.SDKAnalyticsData(
                         getApplicationName(),
-                        getApplcationVersion(),
+                        getApplicationVersion(),
                         subject,
                         getLogSessionId(),
                         getAdvertisingId(),
@@ -738,7 +738,7 @@ public final class ConnectSdk {
                         adInfo = AdvertisingIdClient.getAdvertisingIdInfo(getContext());
                         advertisingId = adInfo.getId();
                     } catch (Exception e) {
-                        Log.e(ConnectUtils.LOG_TAG, "Failed to read advertisment id", e);
+                        Log.w(ConnectUtils.LOG_TAG, "Failed to read advertising id", e);
                     }
                 }
             }).start();
@@ -772,7 +772,7 @@ public final class ConnectSdk {
         }
     }
 
-    private static String getApplcationVersion() {
+    private static String getApplicationVersion() {
         try {
             return getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName;
         } catch (Exception e) {
