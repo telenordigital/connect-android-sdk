@@ -2,7 +2,10 @@ package com.telenor.connect.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
+import com.telenor.TestHelper;
+import com.telenor.connect.AbstractSdkProfile;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
@@ -18,8 +21,13 @@ import org.mockito.BDDMockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import static com.telenor.TestHelper.MOCKED_VALID_WELL_KNOWN_API;
+import static com.telenor.TestHelper.WELL_KNOWN_API_MAP;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -27,19 +35,26 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @Config(sdk = 18)
-@PrepareForTest({ConnectSdk.class, IdTokenValidator.class})
+@PrepareForTest({ConnectSdk.class, IdTokenValidator.class, TextUtils.class, RestHelper.class})
 public class ValidatorTest {
 
     @Before
-    public void mockConnectSdk() {
+    public void mockConnectSdk() throws ClassNotFoundException {
         Context context = mock(Context.class);
         SharedPreferences sharedPrefs = mock(SharedPreferences.class);
+        PowerMockito.mockStatic(TextUtils.class);
         when(sharedPrefs.getString(anyString(), anyString())).thenReturn(null);
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPrefs);
-        SdkProfile sdkProfile = new ConnectSdkProfile(context, false, false);
 
         PowerMockito.mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
+
+        Class.forName(TestHelper.class.getName());
+
+        PowerMockito.mockStatic(RestHelper.class);
+        BDDMockito.given(RestHelper.getWellKnownApi(any(String.class))).willReturn(MOCKED_VALID_WELL_KNOWN_API);
+
+        SdkProfile sdkProfile = new ConnectSdkProfile(context, false, false);
         BDDMockito.given(ConnectSdk.getSdkProfile()).willReturn(sdkProfile);
     }
 
