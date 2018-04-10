@@ -148,7 +148,7 @@ public class ConnectWebViewClientTest {
     }
 
     @Test
-    public void urlsThatDoNotStartWithPaymentCancelOrSuccessOrRedirectUriDoesNotOverrideLoading() {
+    public void urlsThatDoNotStartWithCancelOrSuccessOrRedirectUriDoesNotOverrideLoading() {
         mockStatic(ConnectSdk.class);
         given(ConnectSdk.isInitialized()).willReturn(true);
 
@@ -163,59 +163,11 @@ public class ConnectWebViewClientTest {
 
         boolean result = connectWebViewClient.shouldOverrideUrlLoading(
                 webView,
-                "something not payment or redirect");
+                "something not redirect");
 
         assertThat(result, is(false));
     }
-
-    @Test
-    public void urlsThatStartWithPaymentSuccessUriFinishesActivityWithOk() {
-        mockStatic(ConnectSdk.class);
-        given(ConnectSdk.isInitialized()).willReturn(true);
-        given(ConnectSdk.getPaymentSuccessUri()).willReturn("success-uri");
-
-        ConnectCallback callback = mock(ConnectCallback.class);
-        Activity activity = mock(Activity.class);
-        WebView webView = mock(WebView.class);
-        View loadingView = mock(View.class);
-        View errorView = mock(View.class);
-
-        ConnectWebViewClient connectWebViewClient
-                = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
-
-        boolean result = connectWebViewClient.shouldOverrideUrlLoading(
-                webView,
-                "success-uri");
-
-        assertThat(result, is(true));
-        verify(activity).setResult(Activity.RESULT_OK);
-        verify(activity).finish();
-    }
-
-    @Test
-    public void urlsThatStartWithPaymentCancelUriFinishesActivityWithCancel() {
-        mockStatic(ConnectSdk.class);
-        given(ConnectSdk.isInitialized()).willReturn(true);
-        given(ConnectSdk.getPaymentCancelUri()).willReturn("cancel-uri");
-
-        ConnectCallback callback = mock(ConnectCallback.class);
-        Activity activity = mock(Activity.class);
-        WebView webView = mock(WebView.class);
-        View loadingView = mock(View.class);
-        View errorView = mock(View.class);
-
-        ConnectWebViewClient connectWebViewClient
-                = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
-
-        boolean result = connectWebViewClient.shouldOverrideUrlLoading(
-                webView,
-                "cancel-uri");
-
-        assertThat(result, is(true));
-        verify(activity).setResult(Activity.RESULT_CANCELED);
-        verify(activity).finish();
-    }
-
+    
     @Test
     public void urlsThatStartWithRedirectUriCallsParseAuthCode() {
         mockStatic(ConnectSdk.class);

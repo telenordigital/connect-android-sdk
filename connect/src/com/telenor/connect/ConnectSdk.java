@@ -57,8 +57,6 @@ import retrofit.client.Response;
 public final class ConnectSdk {
 
     private static ArrayList<Locale> sLocales;
-    private static String sPaymentCancelUri;
-    private static String sPaymentSuccessUri;
     private static SdkProfile sdkProfile;
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
@@ -82,16 +80,6 @@ public final class ConnectSdk {
     public static final String CONFIDENTIAL_CLIENT_PROPERTY = "com.telenor.connect.CONFIDENTIAL_CLIENT";
 
     /**
-     * The key to for the payment cancel URI in the Android manifest.
-     */
-    public static final String PAYMENT_CANCEL_URI_PROPERTY = "com.telenor.connect.PAYMENT_CANCEL_URI";
-
-    /**
-     * The key to for the payment success URI in the Android manifest.
-     */
-    public static final String PAYMENT_SUCCESS_URI_PROPERTY = "com.telenor.connect.PAYMENT_SUCCESS_URI";
-
-    /**
      * The key for the redirect URI in the Android manifest.
      */
     public static final String REDIRECT_URI_PROPERTY = "com.telenor.connect.REDIRECT_URI";
@@ -103,9 +91,6 @@ public final class ConnectSdk {
 
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
-
-    public static final String EXTRA_PAYMENT_LOCATION =
-            "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
 
     public static final String EXTRA_CONNECT_TOKENS =
             "com.telenor.connect.EXTRA_CONNECT_TOKENS";
@@ -340,16 +325,6 @@ public final class ConnectSdk {
         return sLocales;
     }
 
-    public static String getPaymentCancelUri() {
-        Validator.sdkInitialized();
-        return sPaymentCancelUri;
-    }
-
-    public static String getPaymentSuccessUri() {
-        Validator.sdkInitialized();
-        return sPaymentSuccessUri;
-    }
-
     public static String getRedirectUri() {
         Validator.sdkInitialized();
         return sdkProfile.getRedirectUri();
@@ -366,23 +341,6 @@ public final class ConnectSdk {
         locales.add(Locale.getDefault().toString());
         locales.add(Locale.getDefault().getLanguage());
         return locales;
-    }
-
-    public static void initializePayment(Context context, String transactionLocation) {
-        Validator.sdkInitialized();
-        if (ConnectSdk.getPaymentSuccessUri() == null
-                || ConnectSdk.getPaymentCancelUri() == null) {
-            throw new ConnectException("Payment success or cancel URI not specified in application"
-                    + "manifest.");
-        }
-
-        Intent intent = new Intent();
-        intent.setClass(getContext(), ConnectActivity.class);
-        intent.putExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION, transactionLocation);
-        intent.setAction(ConnectUtils.PAYMENT_ACTION);
-
-        Activity activity = (Activity) context;
-        activity.startActivityForResult(intent, 1);
     }
 
     public static String getExpectedIssuer() {
@@ -477,17 +435,6 @@ public final class ConnectSdk {
             profile.setRedirectUri((String) redirectUriObject);
         }
 
-        Object paymentCancelUriObject = ai.metaData.get(PAYMENT_CANCEL_URI_PROPERTY);
-        if (paymentCancelUriObject instanceof String) {
-            String paymentCancelUriString = (String) paymentCancelUriObject;
-            sPaymentCancelUri = paymentCancelUriString;
-        }
-
-        Object paymentSuccessUriObject = ai.metaData.get(PAYMENT_SUCCESS_URI_PROPERTY);
-        if (paymentSuccessUriObject instanceof String) {
-            String paymentSuccessUriString = (String) paymentSuccessUriObject;
-            sPaymentSuccessUri = paymentSuccessUriString;
-        }
         return profile;
     }
 

@@ -29,21 +29,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @Config(sdk = 18)
 public class ConnectUrlHelperTest {
 
-    @Test
-    public void paymentActionArgumentReturnsUrlArgument() {
-        Bundle arguments = new Bundle();
-        arguments.putString(
-                "com.telenor.connect.ACTION_ARGUMENT",
-                "com.telenor.connect.PAYMENT_ACTION");
-
-        arguments.putString(
-                "com.telenor.connect.URL_ARGUMENT",
-                "some-url-argument://");
-
-        String pageUrl = ConnectUrlHelper.getPageUrl(arguments);
-        assertThat(pageUrl, is("some-url-argument://"));
-    }
-
     @Test(expected = IllegalStateException.class)
     public void loginActionArgumentThrowsOnNullActivity() {
         Bundle arguments = new Bundle();
@@ -125,11 +110,11 @@ public class ConnectUrlHelperTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void actionArgumentDifferentThanLoginOrPaymentThrows() {
+    public void actionArgumentDifferentThanLoginThrows() {
         Bundle arguments = new Bundle();
         arguments.putString(
                 "com.telenor.connect.ACTION_ARGUMENT",
-                "not login or payment");
+                "not login");
 
         ConnectUrlHelper.getPageUrl(arguments);
     }

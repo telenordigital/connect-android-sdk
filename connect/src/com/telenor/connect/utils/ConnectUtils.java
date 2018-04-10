@@ -15,7 +15,6 @@ public class ConnectUtils {
     public static final String LOGIN_ACTION = "com.telenor.connect.LOGIN_ACTION";
     public static final String LOGIN_AUTH_URI = "com.telenor.connect.LOGIN_AUTH_URI";
     public static final String LOGIN_STATE = "com.telenor.connect.LOGIN_STATE";
-    public static final String PAYMENT_ACTION = "com.telenor.connect.PAYMENT_ACTION";
     public static final String CUSTOM_LOADING_SCREEN_EXTRA
             = "com.telenor.connect.CUSTOM_LOADING_SCREEN_EXTRA";
     public static final String WELL_KNOWN_CONFIG_EXTRA = "com.telenor.connect.WELL_KNOWN_CONFIG";
