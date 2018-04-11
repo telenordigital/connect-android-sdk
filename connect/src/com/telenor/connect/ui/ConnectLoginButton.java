@@ -24,6 +24,7 @@ import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
 import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
+import com.telenor.connect.utils.CustomTabsHelper;
 import com.telenor.connect.utils.Validator;
 
 import org.json.JSONException;
@@ -153,7 +154,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         boolean serviceBound = CustomTabsClient.bindCustomTabsService(
-                getContext(), "com.android.chrome", connection);
+                getContext(), CustomTabsHelper.getPackageNameToUse(getContext()), connection);
         boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
         customTabsSupported = serviceBound && correctIntentFilter;
         browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
