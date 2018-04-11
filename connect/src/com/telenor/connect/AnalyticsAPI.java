@@ -22,8 +22,8 @@ public interface AnalyticsAPI {
         @SerializedName("subject")
         private final String subject;
 
-        @SerializedName("lsi")
-        private final String lsi;
+        @SerializedName("log_session_id")
+        private final String logSessionId;
 
         @SerializedName("advertisingId")
         private final String advertisingId;
@@ -59,7 +59,7 @@ public interface AnalyticsAPI {
                 final String appName,
                 final String appVersion,
                 final String subject,
-                final String lsi,
+                final String logSessionId,
                 final String advertisingId,
                 final long tsSdkInitiliazation,
                 final long tsLoginButtonClicked,
@@ -68,7 +68,7 @@ public interface AnalyticsAPI {
             this.appName = appName;
             this.appVersion = appVersion;
             this.subject = subject;
-            this.lsi = lsi;
+            this.logSessionId = logSessionId;
             this.advertisingId = advertisingId;
             this.tsSdkInitiliazation = tsSdkInitiliazation;
             this.tsLoginButtonClicked = tsLoginButtonClicked;
