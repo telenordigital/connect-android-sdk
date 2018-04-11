@@ -258,7 +258,7 @@ public final class ConnectSdk {
     }
 
     private static void sendAnalyticsData() {
-        if (getWellKnownConfig().getAnalyticsEndpoint() == null) {
+        if (getWellKnownConfig() == null || getWellKnownConfig().getAnalyticsEndpoint() == null) {
             return;
         }
 
