@@ -121,7 +121,7 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        parameters.put("lsi", getLogSessionId());
+        parameters.put("log_session_id", getLogSessionId());
         sdkProfile.onStartAuthorization(parameters, new SdkProfile.OnStartAuthorizationCallback() {
             @Override
             public void onSuccess() {

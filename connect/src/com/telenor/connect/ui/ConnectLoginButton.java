@@ -127,7 +127,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         }
 
         parameters.put("state", connectStore.generateSessionStateParam());
-        parameters.put("lsi", ConnectSdk.getLogSessionId());
+        parameters.put("log_session_id", ConnectSdk.getLogSessionId());
 
         if (!ConnectSdk.isCellularDataNetworkConnected()) {
             parameters.put("prompt", "no_seam");
