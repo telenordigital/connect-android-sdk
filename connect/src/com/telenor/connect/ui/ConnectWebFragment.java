@@ -46,11 +46,9 @@ public class ConnectWebFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        final View view
-                = inflater.inflate(R.layout.com_telenor_connect_web_fragment, container, false);
-        webView = (WebView) view.findViewById(R.id.com_telenor_connect_fragment_webview);
-        final ViewStub loadingView
-                = (ViewStub) view.findViewById(R.id.com_telenor_connect_loading_view);
+        final View view = inflater.inflate(R.layout.com_telenor_connect_web_fragment, container, false);
+        webView = view.findViewById(R.id.com_telenor_connect_fragment_webview);
+        final ViewStub loadingView = view.findViewById(R.id.com_telenor_connect_loading_view);
         final Bundle arguments = getArguments();
         final int loadingScreenResource = arguments.getInt(
                 ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA,
@@ -59,14 +57,14 @@ public class ConnectWebFragment extends Fragment {
         loadingView.inflate();
         loadingView.setVisibility(View.VISIBLE);
         final String pageUrl = ConnectUrlHelper.getPageUrl(arguments);
-        final View errorView = view.findViewById(R.id.com_telenor_connect_error_view);
-        setupErrorView(webView, loadingView, pageUrl, errorView, view);
+        final WebErrorView webErrorView = view.findViewById(R.id.com_telenor_connect_error_view);
+        setupErrorView(webView, loadingView, pageUrl, webErrorView, view);
 
         client = new ConnectWebViewClient(
                 getActivity(),
                 webView,
                 loadingView,
-                errorView,
+                webErrorView,
                 new ParseTokenCallback(callback));
 
         WebViewHelper.setupWebView(webView, client, pageUrl);
@@ -77,12 +75,10 @@ public class ConnectWebFragment extends Fragment {
             final WebView webView,
             final ViewStub loadingView,
             final String pageUrl,
-            final View errorView,
+            final WebErrorView errorView,
             final View view) {
-        final View loadingSpinner
-                = errorView.findViewById(R.id.com_telenor_connect_error_view_loading);
-        final Button tryAgain
-                = (Button) errorView.findViewById(R.id.com_telenor_connect_error_view_try_again);
+        final View loadingSpinner = errorView.getLoadingSpinner();
+        final Button tryAgain = errorView.getTryAgainButton();
         tryAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,15 +95,6 @@ public class ConnectWebFragment extends Fragment {
                         webView.loadUrl(pageUrl);
                     }
                 }, 1000);
-            }
-        });
-        final Button networkSettings = (Button) errorView
-                .findViewById(R.id.com_telenor_connect_error_view_network_settings);
-        networkSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
-                startActivity(intent);
             }
         });
     }
