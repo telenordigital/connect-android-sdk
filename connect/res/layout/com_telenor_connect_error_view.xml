@@ -40,7 +40,31 @@
             android:textColor="@color/com_telenor_connect_light_gray"
             android:layout_marginTop="20dp"
             android:textSize="12sp"
+            android:text="ERROR"
             />
+        <Button
+            android:id="@+id/com_telenor_connect_error_view_show_more_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="More info"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:textColor="@color/com_telenor_connect_light_color"
+            android:textSize="12sp"
+            />
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/com_telenor_connect_error_view_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
+            </LinearLayout>
+        </ScrollView>
         <ProgressBar
             android:id="@+id/com_telenor_connect_error_view_loading"
             android:layout_marginTop="40dp"

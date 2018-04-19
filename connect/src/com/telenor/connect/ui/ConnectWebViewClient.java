@@ -1,7 +1,6 @@
 package com.telenor.connect.ui;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.IntentFilter;
@@ -19,11 +18,9 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.TextView;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.R;
 import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsCursorUtil;
@@ -194,7 +191,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
         super.onReceivedError(view, request, error);
         String errorText = error.getDescription() + " (" + error.getErrorCode() + ")";
-        errorView.setErrorText(errorText);
+        errorView.setErrorText(errorText, request.getUrl().toString());
         errorView.setVisibility(View.VISIBLE);
     }
 
@@ -203,7 +200,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     public void onReceivedError(WebView view, int errorCode,
                                 String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
-        errorView.setErrorText(Integer.toString(errorCode));
+        errorView.setErrorText(Integer.toString(errorCode), description + " " + failingUrl);
         errorView.setVisibility(View.VISIBLE);
     }
 

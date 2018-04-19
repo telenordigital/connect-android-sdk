@@ -3,10 +3,10 @@ package com.telenor.connect.ui;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -18,6 +18,7 @@ public class WebErrorView extends RelativeLayout {
     private TextView errorText;
     private View loadingSpinner;
     private Button tryAgain;
+    private Button showMoreToggle;
 
     public WebErrorView(Context context) {
         super(context);
@@ -57,9 +58,17 @@ public class WebErrorView extends RelativeLayout {
                 getContext().startActivity(intent);
             }
         });
+        showMoreToggle = findViewById(R.id.com_telenor_connect_error_view_show_more_toggle);
+        showMoreToggle.setPaintFlags(showMoreToggle.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        showMoreToggle.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
-    public void setErrorText(String text) {
+    public void setErrorText(String text, String details) {
         errorText.setText(text);
     }
 
