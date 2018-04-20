@@ -61,12 +61,13 @@ public class WebErrorView extends RelativeLayout {
         });
         errorDetails = findViewById(R.id.com_telenor_connect_error_view_details);
         showMoreToggle = findViewById(R.id.com_telenor_connect_error_view_show_more_toggle);
-//        showMoreToggle.setPaintFlags(showMoreToggle.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        showMoreToggle.setPaintFlags(showMoreToggle.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         showMoreToggle.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 int newVisibility = errorDetails.getVisibility() != VISIBLE ? VISIBLE : GONE;
-                errorDetails.setVisibility(newVisibility);
+                errorDetails.setVisibility(errorDetails.getVisibility() != VISIBLE ? VISIBLE : GONE);
+                showMoreToggle.setText(newVisibility != VISIBLE ? R.string.show_details : R.string.hide_details);
             }
         });
     }
