@@ -19,6 +19,7 @@ public class WebErrorView extends RelativeLayout {
     private View loadingSpinner;
     private Button tryAgain;
     private Button showMoreToggle;
+    private TextView errorDetails;
 
     public WebErrorView(Context context) {
         super(context);
@@ -58,18 +59,21 @@ public class WebErrorView extends RelativeLayout {
                 getContext().startActivity(intent);
             }
         });
+        errorDetails = findViewById(R.id.com_telenor_connect_error_view_details);
         showMoreToggle = findViewById(R.id.com_telenor_connect_error_view_show_more_toggle);
-        showMoreToggle.setPaintFlags(showMoreToggle.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+//        showMoreToggle.setPaintFlags(showMoreToggle.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         showMoreToggle.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                int newVisibility = errorDetails.getVisibility() != VISIBLE ? VISIBLE : GONE;
+                errorDetails.setVisibility(newVisibility);
             }
         });
     }
 
     public void setErrorText(String text, String details) {
-        errorText.setText(text);
+        errorText.setText(text != null ? text : "");
+        errorDetails.setText(details != null ? details : "");
     }
 
     public View getLoadingSpinner() {
