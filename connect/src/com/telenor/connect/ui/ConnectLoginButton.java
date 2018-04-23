@@ -60,7 +60,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         super(context, attributeSet);
         connectStore = new ConnectStore(getContext());
         setText(R.string.com_telenor_connect_login_button_text);
-        connection = new MyCustomTabsServiceConnection(new WeakReference<>(this));
+        connection = new WeakReferenceCustomTabsServiceConnection(new WeakReference<>(this));
         onClickListener = new LoginClickListener();
         setOnClickListener(onClickListener);
     }
@@ -187,11 +187,11 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
     }
 
-    private static class MyCustomTabsServiceConnection extends CustomTabsServiceConnection {
+    private static class WeakReferenceCustomTabsServiceConnection extends CustomTabsServiceConnection {
 
         private final WeakReference<ConnectLoginButton> weakButton;
 
-        MyCustomTabsServiceConnection(WeakReference<ConnectLoginButton> weakButton) {
+        WeakReferenceCustomTabsServiceConnection(WeakReference<ConnectLoginButton> weakButton) {
             this.weakButton = weakButton;
         }
 
@@ -202,7 +202,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
                 return;
             }
             client.warmup(0);
-            final CustomTabsSession session = client.newSession(new MyCustomTabsCallback(weakButton));
+            final CustomTabsSession session = client.newSession(new WeakReferenceCustomTabsCallback(weakButton));
             connectLoginButton.setSession(session);
             if (session != null) {
                 session.mayLaunchUrl(PRE_FETCH_URL, null, null);
@@ -214,11 +214,11 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         }
     }
 
-    private static class MyCustomTabsCallback extends CustomTabsCallback {
+    private static class WeakReferenceCustomTabsCallback extends CustomTabsCallback {
 
         private final WeakReference<ConnectLoginButton> weakButton;
 
-        MyCustomTabsCallback(WeakReference<ConnectLoginButton> weakButton) {
+        WeakReferenceCustomTabsCallback(WeakReference<ConnectLoginButton> weakButton) {
             this.weakButton = weakButton;
         }
 
