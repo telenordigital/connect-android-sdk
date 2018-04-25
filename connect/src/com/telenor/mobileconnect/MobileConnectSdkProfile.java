@@ -6,6 +6,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.google.gson.JsonObject;
 import com.telenor.connect.AbstractSdkProfile;
 import com.telenor.connect.BrowserType;
 import com.telenor.connect.id.ConnectAPI;
@@ -296,6 +297,11 @@ public class MobileConnectSdkProfile extends AbstractSdkProfile {
                     auth,
                     operatorDiscoveryResult.getPath("userinfo"),
                     userInfoCallback);
+        }
+
+        @Override
+        public void getHeaderEnrichmentToken(Callback<JsonObject> callback) {
+
         }
     }
 }

@@ -7,11 +7,14 @@ import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
+import com.google.gson.JsonObject;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectNotSignedInException;
 import com.telenor.connect.ConnectRefreshTokenMissingException;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.HeadersDateUtil;
+
+import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -280,6 +283,10 @@ public class ConnectIdService {
         }
         final String auth = "Bearer " + accessToken;
         connectApi.getUserInfo(auth, userInfoCallback);
+    }
+
+    public void getHeaderEnrichmentToken(Callback<JsonObject> callback) {
+        connectApi.getHeaderEnrichmentToken(callback);
     }
 
 }

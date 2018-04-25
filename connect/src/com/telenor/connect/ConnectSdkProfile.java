@@ -38,7 +38,8 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
         return new HttpUrl.Builder()
                 .scheme("https")
                 .host(useStaging
-                        ? "connect.staging.telenordigital.com"
+//                        ? "connect.staging.telenordigital.com"
+                        ? "grumpy-turkey-95.localtunnel.me"
                         : "connect.telenordigital.com")
                 .build();
     }
@@ -100,7 +101,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
                 builder.addPathSegment(pathSegment);
             }
         }
-        return applyUseStaginfOnEndpoint(builder.build().toString());
+        return applyUseStagingOnEndpoint(builder.build().toString());
     }
 
     public void setUseStaging(boolean useStaging) {
@@ -124,7 +125,7 @@ public class ConnectSdkProfile extends AbstractSdkProfile {
         return true;
     }
 
-    private String applyUseStaginfOnEndpoint(String endpoint) {
+    private String applyUseStagingOnEndpoint(String endpoint) {
         if (!useStaging) {
             return endpoint;
         }

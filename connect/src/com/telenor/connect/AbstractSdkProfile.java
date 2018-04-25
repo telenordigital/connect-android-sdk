@@ -1,6 +1,7 @@
 package com.telenor.connect;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.telenor.connect.id.ConnectIdService;
