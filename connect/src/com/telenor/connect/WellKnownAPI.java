@@ -96,5 +96,11 @@ public interface WellKnownAPI {
                 return new WellKnownConfig[size];
             }
         };
+
+        @SerializedName("telenordigital_sdk_analytics_endpoint")
+        private String analyticsEndpoint;
+        public String getAnalyticsEndpoint() {
+            return analyticsEndpoint;
+        }
     }
 }

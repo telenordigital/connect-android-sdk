@@ -23,10 +23,12 @@ import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
 import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
+import com.telenor.connect.utils.CustomTabsHelper;
 import com.telenor.connect.utils.Validator;
 
 import org.json.JSONException;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,35 +60,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         super(context, attributeSet);
         connectStore = new ConnectStore(getContext());
         setText(R.string.com_telenor_connect_login_button_text);
-
-        connection = new CustomTabsServiceConnection() {
-            @Override
-            public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-                client.warmup(0);
-                session = client.newSession(new CustomTabsCallback() {
-                    @Override
-                    public void onNavigationEvent(int navigationEvent, Bundle extras) {
-                        switch (navigationEvent) {
-                            case CustomTabsCallback.TAB_HIDDEN:
-                                ConnectLoginButton.this.setEnabled(true);
-                                return;
-                            case CustomTabsCallback.TAB_SHOWN:
-                                ConnectLoginButton.this.setEnabled(false);
-                                return;
-                            default:
-                        }
-                    }
-                });
-                if (session != null) {
-                    session.mayLaunchUrl(PRE_FETCH_URL, null, null);
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        };
-
+        connection = new WeakReferenceCustomTabsServiceConnection(new WeakReference<>(this));
         onClickListener = new LoginClickListener();
         setOnClickListener(onClickListener);
     }
@@ -125,6 +99,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         }
 
         parameters.put("state", connectStore.generateSessionStateParam());
+        parameters.put("log_session_id", ConnectSdk.getLogSessionId());
 
         if (!ConnectSdk.isCellularDataNetworkConnected()) {
             parameters.put("prompt", "no_seam");
@@ -151,7 +126,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         boolean serviceBound = CustomTabsClient.bindCustomTabsService(
-                getContext(), "com.android.chrome", connection);
+                getContext(), CustomTabsHelper.getPackageNameToUse(getContext()), connection);
         boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
         customTabsSupported = serviceBound && correctIntentFilter;
         browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
@@ -191,11 +166,18 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         cctIntent.launchUrl(getActivity(), authorizeUri);
     }
 
+    private void setSession(CustomTabsSession session) {
+        this.session = session;
+    }
+
     private class LoginClickListener implements OnClickListener {
 
         @Override
         public void onClick(View v) {
             Validator.sdkInitialized();
+
+            ConnectSdk.beforeAuthentication();
+
             if (!customTabsSupported) {
                 launchWebViewAuthentication();
             } else {
@@ -203,5 +185,58 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
             }
         }
 
+    }
+
+    private static class WeakReferenceCustomTabsServiceConnection extends CustomTabsServiceConnection {
+
+        private final WeakReference<ConnectLoginButton> weakButton;
+
+        WeakReferenceCustomTabsServiceConnection(WeakReference<ConnectLoginButton> weakButton) {
+            this.weakButton = weakButton;
+        }
+
+        @Override
+        public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
+            final ConnectLoginButton connectLoginButton = weakButton.get();
+            if (connectLoginButton == null) {
+                return;
+            }
+            client.warmup(0);
+            final CustomTabsSession session = client.newSession(new WeakReferenceCustomTabsCallback(weakButton));
+            connectLoginButton.setSession(session);
+            if (session != null) {
+                session.mayLaunchUrl(PRE_FETCH_URL, null, null);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+    }
+
+    private static class WeakReferenceCustomTabsCallback extends CustomTabsCallback {
+
+        private final WeakReference<ConnectLoginButton> weakButton;
+
+        WeakReferenceCustomTabsCallback(WeakReference<ConnectLoginButton> weakButton) {
+            this.weakButton = weakButton;
+        }
+
+        @Override
+        public void onNavigationEvent(int navigationEvent, Bundle extras) {
+            final ConnectLoginButton connectLoginButton = weakButton.get();
+            if (connectLoginButton == null) {
+                return;
+            }
+            switch (navigationEvent) {
+                case CustomTabsCallback.TAB_HIDDEN:
+                    connectLoginButton.setEnabled(true);
+                    return;
+                case CustomTabsCallback.TAB_SHOWN:
+                    connectLoginButton.setEnabled(false);
+                    return;
+                default:
+            }
+        }
     }
 }

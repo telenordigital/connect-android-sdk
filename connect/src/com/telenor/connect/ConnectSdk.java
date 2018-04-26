@@ -18,10 +18,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
-import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.id.UserInfo;
@@ -29,7 +32,6 @@ import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
-import com.telenor.connect.utils.IdTokenValidator;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
@@ -45,6 +47,7 @@ import java.util.UUID;
 
 import okhttp3.HttpUrl;
 import retrofit.Callback;
+import retrofit.ResponseCallback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
@@ -52,8 +55,6 @@ public final class ConnectSdk {
     public static final String OAUTH_PATH = "oauth";
 
     private static ArrayList<Locale> sLocales;
-    private static String sPaymentCancelUri;
-    private static String sPaymentSuccessUri;
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
     private static volatile Network defaultNetwork;
@@ -67,6 +68,12 @@ public final class ConnectSdk {
     private static String clientId;
     private static String redirectUri;
     private static boolean useStaging;
+    private static volatile String advertisingId;
+    private static volatile long tsSdkInitiliazation;
+    private static volatile long tsLoginButtonClicked;
+    private static volatile long tsRedirectUrlInvoked;
+    private static volatile long tsTokenResponseReceived;
+    private static volatile String logSessionId;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -77,16 +84,6 @@ public final class ConnectSdk {
      * The key for the client ID in the Android manifest.
      */
     public static final String CONFIDENTIAL_CLIENT_PROPERTY = "com.telenor.connect.CONFIDENTIAL_CLIENT";
-
-    /**
-     * The key to for the payment cancel URI in the Android manifest.
-     */
-    public static final String PAYMENT_CANCEL_URI_PROPERTY = "com.telenor.connect.PAYMENT_CANCEL_URI";
-
-    /**
-     * The key to for the payment success URI in the Android manifest.
-     */
-    public static final String PAYMENT_SUCCESS_URI_PROPERTY = "com.telenor.connect.PAYMENT_SUCCESS_URI";
 
     /**
      * The key for the redirect URI in the Android manifest.
@@ -101,19 +98,20 @@ public final class ConnectSdk {
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
 
-    public static final String EXTRA_PAYMENT_LOCATION =
-            "com.telenor.connect.EXTRA_PAYMENT_LOCATION";
-
     public static final String EXTRA_CONNECT_TOKENS =
             "com.telenor.connect.EXTRA_CONNECT_TOKENS";
 
     public static final int MAX_REDIRECTS_TO_FOLLOW_FOR_HE = 5;
 
+    public static void beforeAuthentication() {
+        logSessionId = UUID.randomUUID().toString();
+        tsLoginButtonClicked = System.currentTimeMillis();
+    }
+
     public static synchronized void authenticate(
             Activity activity,
             int requestCode,
             String... scopeTokens) {
-
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("scope", TextUtils.join(" ", scopeTokens));
         authenticate(activity, parameters, requestCode);
@@ -124,12 +122,13 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        if (TextUtils.isEmpty(parameters.get("state"))) {
+        if (TextUtils.isEmpty(parameters.get("state"))) { // todo, make DRY
             parameters.put("state", UUID.randomUUID().toString());
         }
         if (!ConnectSdk.isCellularDataNetworkConnected()) {
             parameters.put("prompt", "no_seam");
         }
+        parameters.put("log_session_id", getLogSessionId()); // todo, make DRY
         Intent intent = getAuthIntent(parameters);
         activity.startActivityForResult(intent, requestCode);
     }
@@ -221,9 +220,61 @@ public final class ConnectSdk {
         return connectIdService.getAccessTokenExpirationTime();
     }
 
-    public static synchronized void getAccessTokenFromCode(String code, ConnectCallback callback) {
+    public static synchronized void getAccessTokenFromCode(String code, final ConnectCallback callback) {
         Validator.sdkInitialized();
-        connectIdService.getAccessTokenFromCode(code, callback);
+        tsRedirectUrlInvoked = System.currentTimeMillis();
+        connectIdService.getAccessTokenFromCode(code, new ConnectCallback() {
+            @Override
+            public void onSuccess(Object successData) {
+                tsTokenResponseReceived = System.currentTimeMillis();
+                if (callback != null) {
+                    callback.onSuccess(successData);
+                }
+                sendAnalyticsData();
+            }
+
+            @Override
+            public void onError(Object errorData) {
+                tsTokenResponseReceived = System.currentTimeMillis();
+                if (callback != null) {
+                    callback.onError(errorData);
+                }
+                sendAnalyticsData();
+            }
+        });
+    }
+
+    private static void sendAnalyticsData() {
+        if (getWellKnownConfig() == null || getWellKnownConfig().getAnalyticsEndpoint() == null) {
+            return;
+        }
+
+        String accessToken = getAccessToken();
+        final String auth = accessToken != null ? "Bearer " + accessToken : null;
+        final String subject = getIdToken() != null ? getIdToken().getSubject() : null;
+        RestHelper.getAnalyticsApi(getWellKnownConfig().getAnalyticsEndpoint()).sendAnalyticsData(
+                auth,
+                new AnalyticsAPI.SDKAnalyticsData(
+                        getApplicationName(),
+                        getApplicationVersion(),
+                        subject,
+                        getLogSessionId(),
+                        getAdvertisingId(),
+                        tsSdkInitiliazation,
+                        tsLoginButtonClicked,
+                        tsRedirectUrlInvoked,
+                        tsTokenResponseReceived
+                ),
+                new ResponseCallback() {
+                    @Override
+                    public void success(Response response) {
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data", error);
+                    }
+                });
     }
 
     public static synchronized Uri getAuthorizeUri(
@@ -274,16 +325,6 @@ public final class ConnectSdk {
         return sLocales;
     }
 
-    public static String getPaymentCancelUri() {
-        Validator.sdkInitialized();
-        return sPaymentCancelUri;
-    }
-
-    public static String getPaymentSuccessUri() {
-        Validator.sdkInitialized();
-        return sPaymentSuccessUri;
-    }
-
     public static String getRedirectUri() {
         Validator.sdkInitialized();
         return redirectUri;
@@ -300,23 +341,6 @@ public final class ConnectSdk {
         locales.add(Locale.getDefault().toString());
         locales.add(Locale.getDefault().getLanguage());
         return locales;
-    }
-
-    public static void initializePayment(Context context, String transactionLocation) {
-        Validator.sdkInitialized();
-        if (ConnectSdk.getPaymentSuccessUri() == null
-                || ConnectSdk.getPaymentCancelUri() == null) {
-            throw new ConnectException("Payment success or cancel URI not specified in application"
-                    + "manifest.");
-        }
-
-        Intent intent = new Intent();
-        intent.setClass(getContext(), ConnectActivity.class);
-        intent.putExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION, transactionLocation);
-        intent.setAction(ConnectUtils.PAYMENT_ACTION);
-
-        Activity activity = (Activity) context;
-        activity.startActivityForResult(intent, 1);
     }
 
     public static String getExpectedIssuer() {
@@ -382,7 +406,9 @@ public final class ConnectSdk {
         if (connectivityManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             initalizeCellularNetwork();
             initalizeDefaultNetwork();
+            initializeAdvertisingId();
         }
+        tsSdkInitiliazation = System.currentTimeMillis();
         isInitialized = true;
     }
 
@@ -441,18 +467,6 @@ public final class ConnectSdk {
         Object redirectUriObject = ai.metaData.get(REDIRECT_URI_PROPERTY);
         if (redirectUriObject instanceof String) {
             redirectUri = (String) redirectUriObject;
-        }
-
-        Object paymentCancelUriObject = ai.metaData.get(PAYMENT_CANCEL_URI_PROPERTY);
-        if (paymentCancelUriObject instanceof String) {
-            String paymentCancelUriString = (String) paymentCancelUriObject;
-            sPaymentCancelUri = paymentCancelUriString;
-        }
-
-        Object paymentSuccessUriObject = ai.metaData.get(PAYMENT_SUCCESS_URI_PROPERTY);
-        if (paymentSuccessUriObject instanceof String) {
-            String paymentSuccessUriString = (String) paymentSuccessUriObject;
-            sPaymentSuccessUri = paymentSuccessUriString;
         }
     }
 
@@ -571,7 +585,6 @@ public final class ConnectSdk {
         if (!hasValidRedirectUrlCall(intent)) {
             return;
         }
-
         final String code = getCodeFromIntent(intent);
         getAccessTokenFromCode(code, callback);
     }
@@ -654,6 +667,23 @@ public final class ConnectSdk {
         }
     }
 
+    private static void initializeAdvertisingId() {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        if (googleAPI.isGooglePlayServicesAvailable(getContext()) == ConnectionResult.SUCCESS) {
+            new Thread(new Runnable() {
+                public void run() {
+                    AdvertisingIdClient.Info adInfo = null;
+                    try {
+                        adInfo = AdvertisingIdClient.getAdvertisingIdInfo(getContext());
+                        advertisingId = adInfo.getId();
+                    } catch (Exception e) {
+                        Log.w(ConnectUtils.LOG_TAG, "Failed to read advertising id", e);
+                    }
+                }
+            }).start();
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getCellularNetwork() {
         return cellularNetwork;
@@ -662,5 +692,31 @@ public final class ConnectSdk {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getDefaultNetwork() {
         return defaultNetwork;
+    }
+
+    private static String getAdvertisingId() {
+        return advertisingId;
+    }
+
+    public static String getLogSessionId() {
+        return logSessionId;
+    }
+
+    private static String getApplicationName() {
+        try {
+            return getContext().getApplicationInfo().loadLabel(getContext().getPackageManager()).toString();
+        } catch (Exception e) {
+            Log.e(ConnectUtils.LOG_TAG, "Failed to read application name", e);
+            return "";
+        }
+    }
+
+    private static String getApplicationVersion() {
+        try {
+            return getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName;
+        } catch (Exception e) {
+            Log.e(ConnectUtils.LOG_TAG, "Failed to read application version", e);
+            return "";
+        }
     }
 }

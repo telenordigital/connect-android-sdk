@@ -3,6 +3,7 @@ package com.telenor.connect.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit.Ok3Client;
+import com.telenor.connect.AnalyticsAPI;
 import com.telenor.connect.BuildConfig;
 import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.id.ConnectAPI;
@@ -22,6 +23,7 @@ public class RestHelper {
 
     private static Map<String, ConnectAPI> connectApiMap = new HashMap<>();
     private static Map<String, WellKnownAPI> wellKnownApiMap = new HashMap<>();
+    private static Map<String, AnalyticsAPI> analyticsApiMap = new HashMap<>();
 
     public static ConnectAPI getConnectApi(String endpoint) {
         return getApi(connectApiMap, endpoint, ConnectAPI.class);
@@ -29,6 +31,10 @@ public class RestHelper {
 
     public static WellKnownAPI getWellKnownApi(String endpoint) {
         return getApi(wellKnownApiMap, endpoint, WellKnownAPI.class);
+    }
+
+    public static AnalyticsAPI getAnalyticsApi(String endpoint) {
+        return getApi(analyticsApiMap, endpoint, AnalyticsAPI.class);
     }
 
     private static synchronized <T> T getApi(Map<String, T> map, String endpoint, Class<T> type) {

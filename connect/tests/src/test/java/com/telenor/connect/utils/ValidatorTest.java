@@ -2,6 +2,7 @@ package com.telenor.connect.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
@@ -24,13 +25,14 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @Config(sdk = 18)
-@PrepareForTest({ConnectSdk.class, IdTokenValidator.class})
+@PrepareForTest({ConnectSdk.class, IdTokenValidator.class, TextUtils.class, RestHelper.class})
 public class ValidatorTest {
 
     @Before
     public void mockConnectSdk() {
         Context context = mock(Context.class);
         SharedPreferences sharedPrefs = mock(SharedPreferences.class);
+        PowerMockito.mockStatic(TextUtils.class);
         when(sharedPrefs.getString(anyString(), anyString())).thenReturn(null);
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPrefs);
 

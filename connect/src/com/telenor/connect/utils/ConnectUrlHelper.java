@@ -20,10 +20,6 @@ public class ConnectUrlHelper {
     public static final String URL_ARGUMENT = "com.telenor.connect.URL_ARGUMENT";
 
     public static String getPageUrl(Bundle arguments) {
-        if (ConnectUtils.PAYMENT_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
-            return arguments.getString(URL_ARGUMENT);
-        }
-
         if (ConnectUtils.LOGIN_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
             if (arguments.getString(ConnectUtils.LOGIN_AUTH_URI) == null
                     || arguments.getString(ConnectUtils.LOGIN_AUTH_URI, "").isEmpty()) {

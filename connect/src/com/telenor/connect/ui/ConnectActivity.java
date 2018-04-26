@@ -43,10 +43,6 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
             Bundle bundle = new Bundle(intent.getExtras());
             bundle.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
             bundle.putInt(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, loadingScreen);
-            if (action.equals(ConnectUtils.PAYMENT_ACTION)) {
-                bundle.putString(ConnectUrlHelper.URL_ARGUMENT,
-                        intent.getStringExtra(ConnectSdk.EXTRA_PAYMENT_LOCATION));
-            }
             fragment.setArguments(bundle);
             fragment.setRetainInstance(true);
             manager.beginTransaction()

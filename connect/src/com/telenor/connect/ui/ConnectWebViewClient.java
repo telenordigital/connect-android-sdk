@@ -94,18 +94,6 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             ConnectUtils.parseAuthCode(url, getOriginalState(), connectCallback);
             return true;
         }
-        if (ConnectSdk.getPaymentCancelUri() != null
-                && url.startsWith(ConnectSdk.getPaymentCancelUri())) {
-            activity.setResult(Activity.RESULT_CANCELED);
-            activity.finish();
-            return true;
-        }
-        if (ConnectSdk.getPaymentSuccessUri() != null
-                && url.startsWith(ConnectSdk.getPaymentSuccessUri())) {
-            activity.setResult(Activity.RESULT_OK);
-            activity.finish();
-            return true;
-        }
         return false;
     }
 
