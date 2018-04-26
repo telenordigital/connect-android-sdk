@@ -406,10 +406,10 @@ public final class ConnectSdk {
         if (connectivityManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             initalizeCellularNetwork();
             initalizeDefaultNetwork();
-            initializeAdvertisingId();
         }
         tsSdkInitiliazation = System.currentTimeMillis();
         isInitialized = true;
+        initializeAdvertisingId();
     }
 
     public static String getWellKnownEndpoint() {
