@@ -7,6 +7,7 @@
     <string name="com_telenor_connect_network_settings"><u>Network settings</u></string>
     <string name="com_telenor_mobile_connect_login_button_text">Sign in with Mobile Connect</string>
     <string name="com_telenor_authorization_cancelled" translatable="false">Authorisation cancelled (initialization failed)!</string>
-    <string name="show_details">Show details</string>
-    <string name="hide_details">Hide details</string>
+    <string name="com_telenor_connect_show_details">Show details</string>
+    <string name="com_telenor_connect_hide_details">Hide details</string>
+    <string name="com_telenor_connect_could_not_reach">An error occurred while trying to reach this address:</string>
 </resources>

@@ -21,6 +21,7 @@ import android.webkit.WebViewClient;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.R;
 import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsCursorUtil;

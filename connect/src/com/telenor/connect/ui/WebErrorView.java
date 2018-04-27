@@ -20,6 +20,7 @@ public class WebErrorView extends RelativeLayout {
     private Button tryAgain;
     private Button showMoreToggle;
     private TextView errorDetails;
+    private TextView errorDetailsDescription;
 
     public WebErrorView(Context context) {
         super(context);
@@ -60,14 +61,20 @@ public class WebErrorView extends RelativeLayout {
             }
         });
         errorDetails = findViewById(R.id.com_telenor_connect_error_view_details);
+        errorDetailsDescription = findViewById(R.id.com_telenor_connect_error_view_details_description);
         showMoreToggle = findViewById(R.id.com_telenor_connect_error_view_show_more_toggle);
         showMoreToggle.setPaintFlags(showMoreToggle.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         showMoreToggle.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 int newVisibility = errorDetails.getVisibility() != VISIBLE ? VISIBLE : GONE;
-                errorDetails.setVisibility(errorDetails.getVisibility() != VISIBLE ? VISIBLE : GONE);
-                showMoreToggle.setText(newVisibility != VISIBLE ? R.string.show_details : R.string.hide_details);
+                errorDetails.setVisibility(newVisibility);
+                errorDetailsDescription.setVisibility(newVisibility);
+                showMoreToggle.setText(
+                        newVisibility != VISIBLE
+                        ? R.string.com_telenor_connect_show_details
+                        : R.string.com_telenor_connect_hide_details
+                );
             }
         });
     }
