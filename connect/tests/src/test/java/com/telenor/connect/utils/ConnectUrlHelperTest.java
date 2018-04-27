@@ -21,7 +21,6 @@ import java.util.Set;
 
 import okhttp3.HttpUrl;
 
-import static com.telenor.connect.ConnectSdk.OAUTH_PATH;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -141,7 +140,7 @@ public class ConnectUrlHelperTest {
                 url,
                 BrowserType.WEB_VIEW)
                 .buildUpon()
-                .appendPath(OAUTH_PATH)
+                .appendPath(ConnectUrlHelper.OAUTH_PATH)
                 .appendPath("authorize")
                 .build();;
 

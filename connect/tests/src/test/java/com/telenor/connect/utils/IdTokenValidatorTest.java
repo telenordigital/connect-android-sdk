@@ -72,6 +72,7 @@ public class IdTokenValidatorTest {
     public void beforeEach() {
         PowerMockito.mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
+        BDDMockito.given(ConnectSdk.useStaging()).willReturn(false);
     }
 
     @Test(expected = ConnectException.class)
@@ -81,7 +82,7 @@ public class IdTokenValidatorTest {
 
     @Test
     public void correctIdTokenDoesNotThrow() {
-        BDDMockito.given(ConnectSdk.getConnectApiUrl())
+        BDDMockito.given(ConnectUrlHelper.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
         BDDMockito.given(ConnectSdk.getExpectedIssuer())
@@ -94,7 +95,7 @@ public class IdTokenValidatorTest {
 
     @Test(expected = ConnectException.class)
     public void unequalIssuerThrows() {
-        BDDMockito.given(ConnectSdk.getConnectApiUrl())
+        BDDMockito.given(ConnectUrlHelper.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com.fishyou.biz"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
         BDDMockito.given(ConnectSdk.getExpectedIssuer())
@@ -105,7 +106,7 @@ public class IdTokenValidatorTest {
 
     @Test(expected = ConnectException.class)
     public void mismatchingClientIdThrows() {
-        BDDMockito.given(ConnectSdk.getConnectApiUrl())
+        BDDMockito.given(ConnectUrlHelper.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("something-else");
         BDDMockito.given(ConnectSdk.getExpectedIssuer())
@@ -116,7 +117,7 @@ public class IdTokenValidatorTest {
 
     @Test(expected = ConnectException.class)
     public void authorizedPartyNotEqualClientThrows() throws Exception {
-        BDDMockito.given(ConnectSdk.getConnectApiUrl())
+        BDDMockito.given(ConnectUrlHelper.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
         BDDMockito.given(ConnectSdk.getExpectedIssuer())
@@ -139,7 +140,7 @@ public class IdTokenValidatorTest {
 
     @Test(expected = ConnectException.class)
     public void expiredTimeThrows() throws Exception {
-        BDDMockito.given(ConnectSdk.getConnectApiUrl())
+        BDDMockito.given(ConnectUrlHelper.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
         BDDMockito.given(ConnectSdk.getExpectedIssuer())
@@ -160,7 +161,7 @@ public class IdTokenValidatorTest {
 
     @Test(expected = ConnectException.class)
     public void missingIssueTimeThrows() throws Exception {
-        BDDMockito.given(ConnectSdk.getConnectApiUrl())
+        BDDMockito.given(ConnectUrlHelper.getConnectApiUrl())
                 .willReturn(HttpUrl.parse("https://connect.telenordigital.com"));
         BDDMockito.given(ConnectSdk.getClientId()).willReturn("connect-tests");
         BDDMockito.given(ConnectSdk.getExpectedIssuer())

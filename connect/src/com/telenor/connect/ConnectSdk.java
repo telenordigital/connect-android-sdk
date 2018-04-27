@@ -30,6 +30,7 @@ import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.ui.ConnectWebFragment;
+import com.telenor.connect.ui.ConnectWebViewLoginButton;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
@@ -51,9 +52,9 @@ import retrofit.ResponseCallback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public final class ConnectSdk {
-    public static final String OAUTH_PATH = "oauth";
+import static com.telenor.connect.utils.ConnectUrlHelper.OAUTH_PATH;
 
+public final class ConnectSdk {
     private static ArrayList<Locale> sLocales;
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
@@ -112,7 +113,7 @@ public final class ConnectSdk {
             Activity activity,
             int requestCode,
             String... scopeTokens) {
-        Map<String, String> parameters = new HashMap<String, String>();
+        Map<String, String> parameters = new HashMap<>();
         parameters.put("scope", TextUtils.join(" ", scopeTokens));
         authenticate(activity, parameters, requestCode);
     }
@@ -122,14 +123,18 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        if (TextUtils.isEmpty(parameters.get("state"))) { // todo, make DRY
-            parameters.put("state", UUID.randomUUID().toString());
-        }
-        if (!ConnectSdk.isCellularDataNetworkConnected()) {
-            parameters.put("prompt", "no_seam");
-        }
-        parameters.put("log_session_id", getLogSessionId()); // todo, make DRY
+        authenticate(activity, parameters, ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT, requestCode);
+    }
+
+    public static synchronized void authenticate(final Activity activity,
+                                                 final Map<String, String> parameters,
+                                                 final int customLoadingLayout,
+                                                 final int requestCode) {
+        Validator.sdkInitialized();
         Intent intent = getAuthIntent(parameters);
+        if (customLoadingLayout != ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT) {
+            intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
+        }
         activity.startActivityForResult(intent, requestCode);
     }
 
@@ -140,30 +145,13 @@ public final class ConnectSdk {
         String mccMnc = getMccMnc();
         if (!TextUtils.isEmpty(mccMnc) && wellKnownConfig != null &&
                 !(wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()
-                        && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty()))
-        {
+                        && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty())) {
             parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
         }
-        final String url = getAuthorizeUri(parameters, BrowserType.WEB_VIEW).toString();
+        final String url = ConnectUrlHelper.getAuthorizeUri(parameters, BrowserType.WEB_VIEW).toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
         intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, wellKnownConfig);
         return intent;
-    }
-
-    public static synchronized void authenticate(final Activity activity,
-                                                 final Map<String, String> parameters,
-                                                 final int customLoadingLayout,
-                                                 final int requestCode) {
-        Validator.sdkInitialized();
-        if (TextUtils.isEmpty(parameters.get("state"))) {
-            parameters.put("state", UUID.randomUUID().toString());
-        }
-        if (!ConnectSdk.isCellularDataNetworkConnected()) {
-            parameters.put("prompt", "no_seam");
-        }
-        Intent intent = getAuthIntent(parameters);
-        intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-        activity.startActivityForResult(intent, requestCode);
     }
 
     /**
@@ -277,38 +265,7 @@ public final class ConnectSdk {
                 });
     }
 
-    public static synchronized Uri getAuthorizeUri(
-            Map<String, String> parameters, BrowserType browserType) {
-        if (ConnectSdk.getClientId() == null) {
-            throw new ConnectException("Client ID not specified in application manifest.");
-        }
-        if (ConnectSdk.getRedirectUri() == null) {
-            throw new ConnectException("Redirect URI not specified in application manifest.");
-        }
 
-        if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
-            throw new IllegalStateException("Cannot log in without scope tokens.");
-        }
-        return ConnectUrlHelper.getAuthorizeUriStem(
-                parameters,
-                getClientId(),
-                getRedirectUri(),
-                getUiLocales(),
-                getConnectApiUrl(), browserType)
-                .buildUpon()
-                .appendPath(OAUTH_PATH)
-                .appendPath("authorize")
-                .build();
-    }
-
-    public static HttpUrl getConnectApiUrl() {
-        return new HttpUrl.Builder()
-                .scheme("https")
-                .host(useStaging
-                        ? "connect.staging.telenordigital.com"
-                        : "connect.telenordigital.com")
-                .build();
-    }
 
     public static Context getContext() {
         Validator.sdkInitialized();
@@ -330,7 +287,7 @@ public final class ConnectSdk {
         return redirectUri;
     }
 
-    private static ArrayList<String> getUiLocales() {
+    public static ArrayList<String> getUiLocales() {
         ArrayList<String> locales = new ArrayList<>();
         if (ConnectSdk.getLocales() != null && !ConnectSdk.getLocales().isEmpty()) {
             for (Locale locale : ConnectSdk.getLocales()) {
@@ -348,7 +305,7 @@ public final class ConnectSdk {
         if (getWellKnownConfig() != null) {
             return getWellKnownConfig().getIssuer();
         }
-        return getConnectApiUrl() + OAUTH_PATH;
+        return ConnectUrlHelper.getConnectApiUrl() + ConnectUrlHelper.OAUTH_PATH;
     }
 
     public static List<String> getExpectedAudiences() {
@@ -383,11 +340,11 @@ public final class ConnectSdk {
         wellKnownConfig = lastSeenWellKnownConfigStore.get();
         connectIdService = new ConnectIdService(
                 connectStore,
-                RestHelper.getConnectApi(getConnectApiUrl().toString()),
+                RestHelper.getConnectApi(ConnectUrlHelper.getConnectApiUrl().toString()),
                 clientId,
                 redirectUri);
         RestHelper.
-                getWellKnownApi(getWellKnownEndpoint()).getWellKnownConfig(
+                getWellKnownApi(ConnectUrlHelper.getWellKnownEndpoint()).getWellKnownConfig(
                 new Callback<WellKnownAPI.WellKnownConfig>() {
                     @Override
                     public void success(WellKnownAPI.WellKnownConfig config, Response response) {
@@ -412,20 +369,6 @@ public final class ConnectSdk {
         initializeAdvertisingId();
     }
 
-    public static String getWellKnownEndpoint() {
-        HttpUrl.Builder builder = getConnectApiUrl().newBuilder();
-        builder.addPathSegment(OAUTH_PATH);
-        for (String pathSegment : WellKnownAPI.OPENID_CONFIGURATION_PATH.split("/")) {
-            if (!TextUtils.isEmpty(pathSegment)) {
-                builder.addPathSegment(pathSegment);
-            }
-        }
-        final String wellKnownEndpoint = builder.build().toString();
-        return !useStaging
-                ? wellKnownEndpoint
-                : wellKnownEndpoint.replace(
-                        "connect.telenordigital.com", "connect.staging.telenordigital.com");
-    }
 
     public static String getMccMnc() {
         TelephonyManager tel
@@ -718,5 +661,9 @@ public final class ConnectSdk {
             Log.e(ConnectUtils.LOG_TAG, "Failed to read application version", e);
             return "";
         }
+    }
+
+    public static boolean useStaging() {
+        return useStaging;
     }
 }

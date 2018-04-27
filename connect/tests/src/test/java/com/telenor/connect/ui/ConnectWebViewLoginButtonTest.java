@@ -38,7 +38,7 @@ public class ConnectWebViewLoginButtonTest {
     @Test(expected = ConnectNotInitializedException.class)
     public void clickingLoginButtonBeforeInitializingSdkThrows() {
         Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
-        ConnectWebViewLoginButton button = (ConnectWebViewLoginButton) activity.findViewById(R.id.login_button);
+        ConnectWebViewLoginButton button = activity.findViewById(R.id.login_button);
         button.performClick();
     }
 
