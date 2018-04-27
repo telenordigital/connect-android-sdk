@@ -338,6 +338,7 @@ public final class ConnectSdk {
         connectStore = new ConnectStore(context);
         lastSeenWellKnownConfigStore = new WellKnownConfigStore(context);
         wellKnownConfig = lastSeenWellKnownConfigStore.get();
+        isInitialized = true;
         connectIdService = new ConnectIdService(
                 connectStore,
                 RestHelper.getConnectApi(ConnectUrlHelper.getConnectApiUrl().toString()),
@@ -365,7 +366,6 @@ public final class ConnectSdk {
             initalizeDefaultNetwork();
         }
         tsSdkInitiliazation = System.currentTimeMillis();
-        isInitialized = true;
         initializeAdvertisingId();
     }
 
@@ -664,6 +664,12 @@ public final class ConnectSdk {
     }
 
     public static boolean useStaging() {
+        Validator.sdkInitialized();
         return useStaging;
+    }
+
+    public static ConnectStore getConnectStore() {
+        Validator.sdkInitialized();
+        return connectStore;
     }
 }
