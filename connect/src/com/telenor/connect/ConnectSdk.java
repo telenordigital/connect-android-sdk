@@ -52,8 +52,6 @@ import retrofit.ResponseCallback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-import static com.telenor.connect.utils.ConnectUrlHelper.OAUTH_PATH;
-
 public final class ConnectSdk {
     private static ArrayList<Locale> sLocales;
     private static ConnectivityManager connectivityManager;
