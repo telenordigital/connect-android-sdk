@@ -142,7 +142,7 @@ public class ConnectUrlHelperTest {
                 .buildUpon()
                 .appendPath(ConnectUrlHelper.OAUTH_PATH)
                 .appendPath("authorize")
-                .build();;
+                .build();
 
         Uri expected
                 = Uri.parse("https://connect.telenordigital.com/oauth/authorize" +
