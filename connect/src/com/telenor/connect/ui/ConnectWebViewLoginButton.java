@@ -117,7 +117,7 @@ public class ConnectWebViewLoginButton extends ConnectButton {
             parameters.putAll(getLoginParameters());
         }
 
-        handleStatePromptAndLogSessionId(parameters);
+        handlePromptAndLogSessionId(parameters);
         return parameters;
     }
 
@@ -132,10 +132,7 @@ public class ConnectWebViewLoginButton extends ConnectButton {
         }
     }
 
-    private void handleStatePromptAndLogSessionId(Map<String, String> parameters) {
-        if (TextUtils.isEmpty(parameters.get("state"))) {
-            parameters.put("state", connectStore.generateSessionStateParam());
-        }
+    private void handlePromptAndLogSessionId(Map<String, String> parameters) {
         if (TextUtils.isEmpty(parameters.get("prompt")) && !ConnectSdk.isCellularDataNetworkConnected()) {
             parameters.put("prompt", "no_seam");
         }

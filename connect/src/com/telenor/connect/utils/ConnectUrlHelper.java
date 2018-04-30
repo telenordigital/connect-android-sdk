@@ -41,10 +41,10 @@ public class ConnectUrlHelper {
         if (ConnectSdk.getRedirectUri() == null) {
             throw new ConnectException("Redirect URI not specified in application manifest.");
         }
-
         if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
         }
+        parameters.put("state", ConnectSdk.getConnectStore().generateSessionStateParam());
         return ConnectUrlHelper.getAuthorizeUriStem(
                 parameters,
                 ConnectSdk.getClientId(),

@@ -5,7 +5,6 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.id.IdToken;
@@ -21,7 +20,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.robolectric.annotation.Config;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -30,12 +28,10 @@ import okhttp3.HttpUrl;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyString;
 
 @RunWith(PowerMockRunner.class)
 @Config(sdk = 18)
-@PrepareForTest(ConnectSdk.class)
+@PrepareForTest({ConnectSdk.class, ConnectUrlHelper.class})
 public class IdTokenValidatorTest {
 
     private static IdToken normalSerializedSignedJwt;
@@ -72,7 +68,7 @@ public class IdTokenValidatorTest {
     public void beforeEach() {
         PowerMockito.mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
-        BDDMockito.given(ConnectSdk.useStaging()).willReturn(false);
+        PowerMockito.mockStatic(ConnectUrlHelper.class);
     }
 
     @Test(expected = ConnectException.class)

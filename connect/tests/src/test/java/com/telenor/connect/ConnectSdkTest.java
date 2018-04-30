@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.telenor.connect.id.ConnectIdService;
+import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.utils.ConnectUrlHelper;
 
 import org.junit.Before;
@@ -49,12 +50,12 @@ public class ConnectSdkTest {
     public void hasValidRedirectUrlCallReturnsTrueOnRedirectLink() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         HashMap<String, String> parameters = new HashMap<>();
-        parameters.put("state", "xyz");
         parameters.put("scope", "anything");
         ConnectUrlHelper.getAuthorizeUri(parameters, null);
 
         Intent intent = new Intent();
-        intent.setData(Uri.parse("connect-tests://oauth2callback?state=xyz&code=abc"));
+        String savedState = new ConnectStore(RuntimeEnvironment.application).getSessionStateParam();
+        intent.setData(Uri.parse("connect-tests://oauth2callback?state=" + savedState + "&code=abc"));
 
         assertThat(ConnectSdk.hasValidRedirectUrlCall(intent), is(true));
     }
