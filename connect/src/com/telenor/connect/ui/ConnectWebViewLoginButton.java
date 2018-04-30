@@ -37,7 +37,7 @@ public class ConnectWebViewLoginButton extends ConnectButton {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
         setOnClickListener(new LoginClickListener());
-        connectStore = new ConnectStore(getContext());
+        connectStore = new ConnectStore(context);
     }
 
     public ArrayList<String> getAcrValues() {
