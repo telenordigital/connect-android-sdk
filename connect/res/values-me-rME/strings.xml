@@ -6,5 +6,4 @@
   <string name="com_telenor_connect_error_text2">Provjerite vaše postavke mreže ili pokušajte ponovo kasnije.</string>
   <string name="com_telenor_connect_try_again">POKUŠAJTE PONOVO</string>
   <string name="com_telenor_connect_network_settings"><u>Postavke mreže</u></string>
-    <string name="com_telenor_mobile_connect_login_button_text">Prijavite se pomoću usluge Mobile Connect</string>
 </resources>

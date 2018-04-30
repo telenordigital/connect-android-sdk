@@ -7,6 +7,9 @@ import android.text.TextUtils;
 
 import com.telenor.connect.BrowserType;
 import com.telenor.connect.BuildConfig;
+import com.telenor.connect.ConnectException;
+import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.WellKnownAPI;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +20,7 @@ import okhttp3.HttpUrl;
 public class ConnectUrlHelper {
 
     public static final String ACTION_ARGUMENT = "com.telenor.connect.ACTION_ARGUMENT";
-    public static final String URL_ARGUMENT = "com.telenor.connect.URL_ARGUMENT";
+    public static final String OAUTH_PATH = "oauth";
 
     public static String getPageUrl(Bundle arguments) {
         if (ConnectUtils.LOGIN_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
@@ -28,6 +31,39 @@ public class ConnectUrlHelper {
             return arguments.getString(ConnectUtils.LOGIN_AUTH_URI);
         }
         throw new IllegalStateException("An invalid action was used to start a Connect Activity.");
+    }
+
+    public static synchronized Uri getAuthorizeUri(
+            Map<String, String> parameters, BrowserType browserType) {
+        if (ConnectSdk.getClientId() == null) {
+            throw new ConnectException("Client ID not specified in application manifest.");
+        }
+        if (ConnectSdk.getRedirectUri() == null) {
+            throw new ConnectException("Redirect URI not specified in application manifest.");
+        }
+        if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
+            throw new IllegalStateException("Cannot log in without scope tokens.");
+        }
+        parameters.put("state", ConnectSdk.getConnectStore().generateSessionStateParam());
+        return ConnectUrlHelper.getAuthorizeUriStem(
+                parameters,
+                ConnectSdk.getClientId(),
+                ConnectSdk.getRedirectUri(),
+                ConnectSdk.getUiLocales(),
+                getConnectApiUrl(), browserType)
+                .buildUpon()
+                .appendPath(OAUTH_PATH)
+                .appendPath("authorize")
+                .build();
+    }
+
+    public static HttpUrl getConnectApiUrl() {
+        return new HttpUrl.Builder()
+                .scheme("https")
+                .host(ConnectSdk.useStaging()
+                        ? "connect.staging.telenordigital.com"
+                        : "connect.telenordigital.com")
+                .build();
     }
 
     public static Uri getAuthorizeUriStem(
@@ -61,5 +97,21 @@ public class ConnectUrlHelper {
                 BuildConfig.VERSION_NAME,
                 Build.VERSION.RELEASE,
                 browserType != null ? browserType.getVersionString() : "not-defined");
+    }
+
+
+    public static String getWellKnownEndpoint() {
+        HttpUrl.Builder builder = ConnectUrlHelper.getConnectApiUrl().newBuilder();
+        builder.addPathSegment(OAUTH_PATH);
+        for (String pathSegment : WellKnownAPI.OPENID_CONFIGURATION_PATH.split("/")) {
+            if (!TextUtils.isEmpty(pathSegment)) {
+                builder.addPathSegment(pathSegment);
+            }
+        }
+        final String wellKnownEndpoint = builder.build().toString();
+        return !ConnectSdk.useStaging()
+                ? wellKnownEndpoint
+                : wellKnownEndpoint.replace(
+                "connect.telenordigital.com", "connect.staging.telenordigital.com");
     }
 }

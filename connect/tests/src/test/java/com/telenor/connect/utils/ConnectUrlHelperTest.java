@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.telenor.connect.BrowserType;
-import com.telenor.connect.ConnectSdkProfile;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -132,12 +131,18 @@ public class ConnectUrlHelperTest {
                 .scheme("https")
                 .host("connect.telenordigital.com")
                 .build();
-        
-        ConnectSdkProfile profile =
-                new ConnectSdkProfile(RuntimeEnvironment.application, false, false);
-        profile.setClientId("client-id-example");
-        profile.setRedirectUri("redirect-url://here");
-        Uri authorizeUri = profile.getAuthorizeUri(parameters, locales, null);
+
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUriStem(
+                parameters,
+                "client-id-example",
+                "redirect-url://here",
+                locales,
+                url,
+                BrowserType.WEB_VIEW)
+                .buildUpon()
+                .appendPath(ConnectUrlHelper.OAUTH_PATH)
+                .appendPath("authorize")
+                .build();
 
         Uri expected
                 = Uri.parse("https://connect.telenordigital.com/oauth/authorize" +

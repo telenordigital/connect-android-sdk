@@ -4,13 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import com.telenor.TestHelper;
-import com.telenor.connect.AbstractSdkProfile;
-import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectNotInitializedException;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.ConnectSdkProfile;
-import com.telenor.connect.SdkProfile;
 import com.telenor.connect.id.ConnectTokensTO;
 import com.telenor.connect.id.IdToken;
 
@@ -21,13 +16,8 @@ import org.mockito.BDDMockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static com.telenor.TestHelper.MOCKED_VALID_WELL_KNOWN_API;
-import static com.telenor.TestHelper.WELL_KNOWN_API_MAP;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -39,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class ValidatorTest {
 
     @Before
-    public void mockConnectSdk() throws ClassNotFoundException {
+    public void mockConnectSdk() {
         Context context = mock(Context.class);
         SharedPreferences sharedPrefs = mock(SharedPreferences.class);
         PowerMockito.mockStatic(TextUtils.class);
@@ -48,14 +38,6 @@ public class ValidatorTest {
 
         PowerMockito.mockStatic(ConnectSdk.class);
         BDDMockito.given(ConnectSdk.isInitialized()).willReturn(true);
-
-        Class.forName(TestHelper.class.getName());
-
-        PowerMockito.mockStatic(RestHelper.class);
-        BDDMockito.given(RestHelper.getWellKnownApi(any(String.class))).willReturn(MOCKED_VALID_WELL_KNOWN_API);
-
-        SdkProfile sdkProfile = new ConnectSdkProfile(context, false, false);
-        BDDMockito.given(ConnectSdk.getSdkProfile()).willReturn(sdkProfile);
     }
 
     @Test(expected = NullPointerException.class)

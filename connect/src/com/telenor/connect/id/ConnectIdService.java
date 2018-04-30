@@ -281,5 +281,4 @@ public class ConnectIdService {
         final String auth = "Bearer " + accessToken;
         connectApi.getUserInfo(auth, userInfoCallback);
     }
-
 }
