@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.telenor.connect.id.ConnectIdService;
+import com.telenor.connect.id.ConnectStore;
+import com.telenor.connect.utils.ConnectUrlHelper;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +32,7 @@ public class ConnectSdkTest {
 
     @Test
     public void getConnectApiUrlReturnsProductionByDefault() {
-        assertThat(ConnectSdk.getConnectApiUrl().toString(),
+        assertThat(ConnectUrlHelper.getConnectApiUrl().toString(),
                 is("https://connect.telenordigital.com/"));
     }
 
@@ -48,12 +50,12 @@ public class ConnectSdkTest {
     public void hasValidRedirectUrlCallReturnsTrueOnRedirectLink() {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         HashMap<String, String> parameters = new HashMap<>();
-        parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectSdk.getAuthorizeUri(parameters, null);
+        ConnectUrlHelper.getAuthorizeUri(parameters, null);
 
         Intent intent = new Intent();
-        intent.setData(Uri.parse("connect-tests://oauth2callback?state=xyz&code=abc"));
+        String savedState = new ConnectStore(RuntimeEnvironment.application).getSessionStateParam();
+        intent.setData(Uri.parse("connect-tests://oauth2callback?state=" + savedState + "&code=abc"));
 
         assertThat(ConnectSdk.hasValidRedirectUrlCall(intent), is(true));
     }
@@ -64,7 +66,7 @@ public class ConnectSdkTest {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectSdk.getAuthorizeUri(parameters, null);
+        ConnectUrlHelper.getAuthorizeUri(parameters, null);
 
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=xyz&code=abc"));
@@ -78,7 +80,7 @@ public class ConnectSdkTest {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectSdk.getAuthorizeUri(parameters, null);
+        ConnectUrlHelper.getAuthorizeUri(parameters, null);
 
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=NNN&code=abc"));
@@ -92,7 +94,7 @@ public class ConnectSdkTest {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectSdk.getAuthorizeUri(parameters, null);
+        ConnectUrlHelper.getAuthorizeUri(parameters, null);
 
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=xyz"));

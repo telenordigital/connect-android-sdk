@@ -6,5 +6,4 @@
   <string name="com_telenor_connect_error_text2">অনুগ্রহ করে আপনার নেটওয়ার্কের সেটিংস্‌ দেখুন বা পরে আবার চেষ্টা করুন।</string>
   <string name="com_telenor_connect_try_again">আবার চেষ্টা করুন</string>
   <string name="com_telenor_connect_network_settings"><u>নেটওয়ার্ক সেটিংস্‌</u></string>
-    <string name="com_telenor_mobile_connect_login_button_text">Mobile Connect এর মাধ্যমে সাইন-ইন করুন</string>
 </resources>
