@@ -27,10 +27,6 @@ android {
             exclude module: 'bcprov-jdk16'
         }
         testImplementation 'junit:junit:4.12'
-        testImplementation 'com.android.support:support-v4:27.1.1'
-        testImplementation 'com.squareup.retrofit:retrofit:1.9.0'
-        testImplementation 'com.squareup.okhttp3:okhttp:3.8.1'
-        testImplementation 'com.nimbusds:nimbus-jose-jwt:3.10'
     }
     useLibrary 'org.apache.http.legacy'
 
