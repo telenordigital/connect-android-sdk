@@ -67,7 +67,7 @@ public class WebErrorView extends RelativeLayout {
             public void onClick(View view) {
                 int newVisibility = errorDetails.getVisibility() != VISIBLE ? VISIBLE : GONE;
                 errorDetails.setVisibility(errorDetails.getVisibility() != VISIBLE ? VISIBLE : GONE);
-                showMoreToggle.setText(newVisibility != VISIBLE ? R.string.show_details : R.string.hide_details);
+                showMoreToggle.setText(newVisibility != VISIBLE ? R.string.com_telenor_connect_show_details : R.string.com_telenor_connect_hide_details);
             }
         });
     }

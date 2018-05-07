@@ -58,7 +58,7 @@
                     android:id="@+id/com_telenor_connect_error_view_show_more_toggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/show_details"
+                    android:text="@string/com_telenor_connect_show_details"
                     style="@style/Widget.AppCompat.Button.Borderless"
                     android:textColor="@color/com_telenor_connect_light_color"
                     android:textSize="12sp"
