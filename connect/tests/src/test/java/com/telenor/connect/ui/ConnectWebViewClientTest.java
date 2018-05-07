@@ -59,7 +59,7 @@ public class ConnectWebViewClientTest {
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
-        View errorView = mock(View.class);
+        WebErrorView errorView = mock(WebErrorView.class);
 
         ConnectWebViewClient connectWebViewClient
                 = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
@@ -78,7 +78,7 @@ public class ConnectWebViewClientTest {
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
-        View errorView = mock(View.class);
+        WebErrorView errorView = mock(WebErrorView.class);
 
         ConnectWebViewClient connectWebViewClient
                 = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
@@ -94,7 +94,7 @@ public class ConnectWebViewClientTest {
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
-        View errorView = mock(View.class);
+        WebErrorView errorView = mock(WebErrorView.class);
 
         ConnectWebViewClient connectWebViewClient
                 = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
@@ -113,7 +113,7 @@ public class ConnectWebViewClientTest {
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
-        View errorView = mock(View.class);
+        WebErrorView errorView = mock(WebErrorView.class);
 
         ConnectWebViewClient connectWebViewClient
                 = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
@@ -156,7 +156,7 @@ public class ConnectWebViewClientTest {
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
-        View errorView = mock(View.class);
+        WebErrorView errorView = mock(WebErrorView.class);
 
         ConnectWebViewClient connectWebViewClient
                 = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
@@ -185,7 +185,7 @@ public class ConnectWebViewClientTest {
         when(activity.getIntent()).thenReturn(intent);
         WebView webView = mock(WebView.class);
         View loadingView = mock(View.class);
-        View errorView = mock(View.class);
+        WebErrorView errorView = mock(WebErrorView.class);
 
         ConnectWebViewClient connectWebViewClient
                 = new ConnectWebViewClient(activity, webView, loadingView, errorView, callback);
