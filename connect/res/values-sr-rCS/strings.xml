@@ -6,4 +6,6 @@
   <string name="com_telenor_connect_error_text2">Proverite svoja mrežna podešavanja ili pokušajte ponovo kasnije.</string>
   <string name="com_telenor_connect_try_again">POKUŠAJTE PONOVO</string>
   <string name="com_telenor_connect_network_settings"><u>Podešavanja mreže</u></string>
+  <string name="com_telenor_connect_show_details">Prikaži detalje</string>
+  <string name="com_telenor_connect_hide_details">Sakrij detalje</string>
 </resources>

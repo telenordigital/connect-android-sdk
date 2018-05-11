@@ -3,7 +3,9 @@
 <resources>
   <string name="com_telenor_connect_login_button_text">เข้าสู่ระบบด้วย CONNECT</string>
   <string name="com_telenor_connect_error_text1">เกิดปัญหาการเชื่อมต่อกับ CONNECT</string>
-  <string name="com_telenor_connect_error_text2">โปรดตรวจสอบการตั้งค่าเครือข่ายของคุณหรือทดลองอีกครั้งในภายหลัง</string>
-  <string name="com_telenor_connect_try_again">ทดลองอีกครั้ง</string>
+  <string name="com_telenor_connect_error_text2">โปรดตรวจสอบการตั้งค่าเครือข่ายของคุณหรือลองใหม่อีกครั้ง</string>
+  <string name="com_telenor_connect_try_again">ลองใหม่อีกครั้ง</string>
   <string name="com_telenor_connect_network_settings"><u>การตั้งค่าเครือข่าย</u></string>
+  <string name="com_telenor_connect_show_details">แสดงรายละเอียด</string>
+  <string name="com_telenor_connect_hide_details">ซ่อนรายละเอียด</string>
 </resources>

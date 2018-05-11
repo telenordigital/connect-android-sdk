@@ -6,4 +6,6 @@
   <string name="com_telenor_connect_error_text2">请检查您的网络设置，或稍后重试。</string>
   <string name="com_telenor_connect_try_again">再试一次</string>
   <string name="com_telenor_connect_network_settings"><u>网络设置</u></string>
+  <string name="com_telenor_connect_show_details">显示详情</string>
+  <string name="com_telenor_connect_hide_details">隐藏详情</string>
 </resources>
