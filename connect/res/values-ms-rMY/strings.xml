@@ -6,4 +6,6 @@
   <string name="com_telenor_connect_error_text2">Sila periksa tetapan rangkaian anda atau cuba lagi kemudian.</string>
   <string name="com_telenor_connect_try_again">CUBA SEKALI LAGI</string>
   <string name="com_telenor_connect_network_settings"><u>Tetapan rangkaian</u></string>
+  <string name="com_telenor_connect_show_details">Tunjukkan butiran</string>
+  <string name="com_telenor_connect_hide_details">Sembunyikan butiran</string>
 </resources>

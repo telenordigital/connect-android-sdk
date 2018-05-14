@@ -6,4 +6,6 @@
   <string name="com_telenor_connect_error_text2">Vänligen kontrollera dina nätverksinställningar eller försök igen senare.</string>
   <string name="com_telenor_connect_try_again">FÖRSÖK IGEN</string>
   <string name="com_telenor_connect_network_settings"><u>Nätverksinställningar</u></string>
+  <string name="com_telenor_connect_show_details">Visa detaljer</string>
+  <string name="com_telenor_connect_hide_details">Göm detaljer</string>
 </resources>

@@ -6,4 +6,6 @@
   <string name="com_telenor_connect_error_text2">ကျေးဇူးပြု၍ သင့်ကွန်ယက် အပြင်အဆင်များကို စစ်ဆေးပါ၊ သို့မဟုတ် နောက်ပိုင်းတွင် ထပ်မံကြိုးစားကြည့်ပါ။</string>
   <string name="com_telenor_connect_try_again">နောက်တစ်ကြိမ် ထပ်မံကြိုးစားပါ။</string>
   <string name="com_telenor_connect_network_settings"><u>ကွန်ယက် အပြင်အဆင်များ</u></string>
+  <string name="com_telenor_connect_show_details">အသေးစိတ်ပြ</string>
+  <string name="com_telenor_connect_hide_details">အသေးစိတ်အချက်အလက်များကိုဖုံးကွယ်</string>
 </resources>
