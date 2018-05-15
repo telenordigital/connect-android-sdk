@@ -46,6 +46,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     private CustomTabsServiceConnection connection;
     private boolean customTabsSupported = false;
     private boolean launchCustomTabInNewTask = true;
+    private boolean serviceBound = false;
     private BrowserType browserType;
     private CustomTabsSession session;
 
@@ -88,7 +89,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         if (TextUtils.isEmpty(packageNameToUse)) {
             return;
         }
-        boolean serviceBound = CustomTabsClient.bindCustomTabsService(getContext(), packageNameToUse, connection);
+        serviceBound = CustomTabsClient.bindCustomTabsService(getContext(), packageNameToUse, connection);
         boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
         customTabsSupported = serviceBound && correctIntentFilter;
         browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
@@ -97,8 +98,11 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (connection != null) {
+        if (serviceBound) {
             getContext().unbindService(connection);
+            serviceBound = false;
+        }
+        if (connection != null) {
             connection = null;
         }
     }
