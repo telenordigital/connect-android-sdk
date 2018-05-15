@@ -12,6 +12,7 @@ import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -45,13 +46,13 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     private CustomTabsServiceConnection connection;
     private boolean customTabsSupported = false;
     private boolean launchCustomTabInNewTask = true;
+    private boolean serviceBound = false;
     private BrowserType browserType;
     private CustomTabsSession session;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
-        connection = new WeakReferenceCustomTabsServiceConnection(new WeakReference<>(this));
         onClickListener = new LoginClickListener();
         setOnClickListener(onClickListener);
     }
@@ -83,8 +84,12 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        boolean serviceBound = CustomTabsClient.bindCustomTabsService(
-                getContext(), CustomTabsHelper.getPackageNameToUse(getContext()), connection);
+        String packageNameToUse = CustomTabsHelper.getPackageNameToUse(getContext());
+        if (TextUtils.isEmpty(packageNameToUse)) {
+            return;
+        }
+        connection = new WeakReferenceCustomTabsServiceConnection(new WeakReference<>(this));
+        serviceBound = CustomTabsClient.bindCustomTabsService(getContext(), packageNameToUse, connection);
         boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
         customTabsSupported = serviceBound && correctIntentFilter;
         browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
@@ -93,8 +98,11 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (connection != null) {
+        if (serviceBound) {
             getContext().unbindService(connection);
+            serviceBound = false;
+        }
+        if (connection != null) {
             connection = null;
         }
     }
