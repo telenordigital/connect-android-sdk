@@ -13,6 +13,7 @@ import com.telenor.connect.ConnectRefreshTokenMissingException;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.HeadersDateUtil;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -280,5 +281,16 @@ public class ConnectIdService {
         }
         final String auth = "Bearer " + accessToken;
         connectApi.getUserInfo(auth, userInfoCallback);
+    }
+
+    public void fakeAccessTokenExpiration() {
+        ConnectTokens connectTokens = retrieveTokens();
+        if (connectTokens == null) {
+            return;
+        }
+        Calendar instance = Calendar.getInstance();
+        instance.add(Calendar.HOUR, -1);
+        Date time = instance.getTime();
+        connectTokens.setExpirationDate(time);
     }
 }

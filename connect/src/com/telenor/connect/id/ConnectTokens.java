@@ -10,7 +10,7 @@ import java.util.Date;
 public class ConnectTokens {
 
     private final String accessToken;
-    private final Date expirationDate;
+    private Date expirationDate;
     private final IdToken idToken;
     private final String refreshToken;
     private final String scope;
@@ -57,4 +57,7 @@ public class ConnectTokens {
         return Calendar.getInstance().getTime().after(expirationDate);
     }
 
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
+    }
 }
