@@ -6,10 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectTokensStateTracker;
 
 public class SignedInActivity extends Activity {
@@ -23,8 +21,6 @@ public class SignedInActivity extends Activity {
             return;
         }
 
-        testGetValidAccessToken();
-
         Button logoutButton = findViewById(R.id.logout_button);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,6 +32,9 @@ public class SignedInActivity extends Activity {
         TextView userId = findViewById(R.id.user_id);
         userId.setText(ConnectSdk.getIdToken().getSubject());
 
+        if (ConnectSdk.getAccessToken() == null) {
+            goToLogin();
+        }
         new ConnectTokensStateTracker() {
             @Override
             protected void onTokenStateChanged(boolean hasTokens) {
@@ -44,27 +43,6 @@ public class SignedInActivity extends Activity {
                 }
             }
         };
-    }
-
-    private void testGetValidAccessToken() {
-        ConnectSdk.getValidAccessToken(new AccessTokenCallback() {
-            @Override
-            public void onSuccess(String accessToken) {
-                Toast.makeText(SignedInActivity.this, "Got valid access token: " + accessToken, Toast.LENGTH_LONG).show();
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                ConnectSdk.fakeAccessTokenExpiration();
-                testGetValidAccessToken();
-            }
-
-            @Override
-            public void onError(Object errorData) {
-                Toast.makeText(SignedInActivity.this, "Got getValidAccessToken error: " + errorData.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void goToLogin() {

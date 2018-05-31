@@ -670,9 +670,4 @@ public final class ConnectSdk {
         Validator.sdkInitialized();
         return connectStore;
     }
-
-    public static void fakeAccessTokenExpiration() {
-        Validator.sdkInitialized();
-        connectIdService.fakeAccessTokenExpiration();
-    }
 }
