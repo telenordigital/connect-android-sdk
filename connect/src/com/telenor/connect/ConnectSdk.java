@@ -89,11 +89,6 @@ public final class ConnectSdk {
      */
     public static final String REDIRECT_URI_PROPERTY = "com.telenor.connect.REDIRECT_URI";
 
-    /**
-     * The key to enable the staging environment in the Android manifest.
-     */
-    public static final String USE_STAGING_PROPERTY = "com.telenor.connect.USE_STAGING";
-
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
 
@@ -326,12 +321,18 @@ public final class ConnectSdk {
     }
 
     public static synchronized void sdkInitialize(Context applicationContext) {
+        sdkInitialize(applicationContext, false);
+    }
+
+    public static synchronized void sdkInitialize(Context applicationContext,
+                                                  boolean useStagingEnvironment) {
         if (isInitialized()) {
             return;
         }
         context = applicationContext;
         Validator.notNull(context, "context");
 
+        useStaging = useStagingEnvironment;
         loadConnectConfig(context);
         connectStore = new ConnectStore(context);
         lastSeenWellKnownConfigStore = new WellKnownConfigStore(context);
@@ -397,7 +398,6 @@ public final class ConnectSdk {
         if (ai == null || ai.metaData == null) {
             throw new ConnectException("No application metadata was found.");
         }
-        useStaging = fetchBooleanProperty(ai, USE_STAGING_PROPERTY);
         confidentialClient = fetchBooleanProperty(ai, CONFIDENTIAL_CLIENT_PROPERTY);
 
         Object clientIdObject = ai.metaData.get(CLIENT_ID_PROPERTY);
