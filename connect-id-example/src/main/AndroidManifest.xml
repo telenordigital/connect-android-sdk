@@ -39,9 +39,6 @@
         <meta-data
             android:name="com.telenor.connect.REDIRECT_URI"
             android:value="@string/connect_redirect_uri" />
-        <meta-data
-            android:name="com.telenor.connect.USE_STAGING"
-            android:value="true" />
     </application>
 
 </manifest>
