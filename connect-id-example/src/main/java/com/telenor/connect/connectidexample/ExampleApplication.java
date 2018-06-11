@@ -8,6 +8,6 @@ public class ExampleApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        ConnectSdk.sdkInitialize(getApplicationContext(), true);
+        ConnectSdk.sdkInitialize(getApplicationContext());
     }
 }

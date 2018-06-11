@@ -321,7 +321,7 @@ public final class ConnectSdk {
     }
 
     public static synchronized void sdkInitialize(Context applicationContext) {
-        sdkInitialize(applicationContext, false);
+        sdkInitialize(applicationContext, true);
     }
 
     public static synchronized void sdkInitialize(Context applicationContext,

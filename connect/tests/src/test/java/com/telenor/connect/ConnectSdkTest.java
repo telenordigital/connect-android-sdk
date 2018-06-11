@@ -31,12 +31,6 @@ public class ConnectSdkTest {
     }
 
     @Test
-    public void getConnectApiUrlReturnsProductionByDefault() {
-        assertThat(ConnectUrlHelper.getConnectApiUrl().toString(),
-                is("https://connect.telenordigital.com/"));
-    }
-
-    @Test
     public void getsClientIdFromApplicationInfoMetaData() {
         assertThat(ConnectSdk.getClientId(), is("connect-tests"));
     }
