@@ -84,15 +84,6 @@ public class ConnectStore {
                 .apply();
     }
 
-    public void update(ConnectTokens connectTokens) {
-        String jsonConnectTokens = preferencesGson.toJson(connectTokens);
-        context
-                .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
-                .edit()
-                .putString(PREFERENCE_KEY_CONNECT_TOKENS, jsonConnectTokens)
-                .apply();
-    }
-
     public ConnectTokens get() {
         String connectTokensJson = context
                 .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
