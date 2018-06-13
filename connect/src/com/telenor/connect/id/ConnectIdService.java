@@ -239,7 +239,7 @@ public class ConnectIdService {
                                 = HeadersDateUtil.extractDate(response.getHeaders());
                         ConnectTokens connectTokens
                                 = new ConnectTokens(connectTokensTO, serverTimestamp);
-                        connectStore.update(connectTokens);
+                        connectStore.set(connectTokens);
                         currentTokens = connectTokens;
                         callback.onSuccess(connectTokens.getAccessToken());
                     }
