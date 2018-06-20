@@ -46,11 +46,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-import okhttp3.HttpUrl;
-import retrofit.Callback;
-import retrofit.ResponseCallback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public final class ConnectSdk {
     private static ArrayList<Locale> sLocales;
@@ -245,14 +243,17 @@ public final class ConnectSdk {
                         tsLoginButtonClicked,
                         tsRedirectUrlInvoked,
                         tsTokenResponseReceived
-                ),
-                new ResponseCallback() {
+                ))
+                .enqueue(new Callback<Void>() {
                     @Override
-                    public void success(Response response) {
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (!response.isSuccessful()) {
+                            Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data");
+                        }
                     }
 
                     @Override
-                    public void failure(RetrofitError error) {
+                    public void onFailure(Call<Void> call, Throwable error) {
                         Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data", error);
                     }
                 });
@@ -344,16 +345,22 @@ public final class ConnectSdk {
                 clientId,
                 redirectUri);
         RestHelper.
-                getWellKnownApi(ConnectUrlHelper.getWellKnownEndpoint()).getWellKnownConfig(
-                new Callback<WellKnownAPI.WellKnownConfig>() {
+                getWellKnownApi(ConnectUrlHelper.getWellKnownEndpoint()).getWellKnownConfig()
+                .enqueue(new Callback<WellKnownAPI.WellKnownConfig>() {
                     @Override
-                    public void success(WellKnownAPI.WellKnownConfig config, Response response) {
-                        wellKnownConfig = config;
-                        lastSeenWellKnownConfigStore.set(config);
+                    public void onResponse(Call<WellKnownAPI.WellKnownConfig> call,
+                                           Response<WellKnownAPI.WellKnownConfig> response) {
+                        if (response.isSuccessful()) {
+                            final WellKnownAPI.WellKnownConfig config = response.body();
+                            wellKnownConfig = config;
+                            lastSeenWellKnownConfigStore.set(config);
+                        } else {
+                            wellKnownConfig = null;
+                        }
                     }
 
                     @Override
-                    public void failure(RetrofitError error) {
+                    public void onFailure(Call<WellKnownAPI.WellKnownConfig> call, Throwable error) {
                         wellKnownConfig = null;
                     }
                 });

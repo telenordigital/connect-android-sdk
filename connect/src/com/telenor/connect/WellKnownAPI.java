@@ -9,17 +9,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import retrofit.Callback;
-import retrofit.http.GET;
-import retrofit.http.Headers;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Headers;
 
 public interface WellKnownAPI {
 
-    public static final String OPENID_CONFIGURATION_PATH = "/.well-known/openid-configuration";
+    String OPENID_CONFIGURATION_PATH = ".well-known/openid-configuration/";
 
     @Headers("Content-Type: application/json")
     @GET("/")
-    void getWellKnownConfig(Callback<WellKnownConfig> callback);
+    Call<WellKnownConfig> getWellKnownConfig();
 
     class WellKnownConfig implements Parcelable {
 

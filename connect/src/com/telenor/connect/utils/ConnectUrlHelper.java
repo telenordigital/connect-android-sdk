@@ -101,17 +101,13 @@ public class ConnectUrlHelper {
 
 
     public static String getWellKnownEndpoint() {
-        HttpUrl.Builder builder = ConnectUrlHelper.getConnectApiUrl().newBuilder();
-        builder.addPathSegment(OAUTH_PATH);
-        for (String pathSegment : WellKnownAPI.OPENID_CONFIGURATION_PATH.split("/")) {
-            if (!TextUtils.isEmpty(pathSegment)) {
-                builder.addPathSegment(pathSegment);
-            }
-        }
-        final String wellKnownEndpoint = builder.build().toString();
-        return !ConnectSdk.useStaging()
-                ? wellKnownEndpoint
-                : wellKnownEndpoint.replace(
-                "connect.telenordigital.com", "connect.staging.telenordigital.com");
+        return ConnectUrlHelper.getConnectApiUrl().newBuilder()
+                .host(ConnectSdk.useStaging()
+                        ? "connect.staging.telenordigital.com"
+                        : "connect.telenordigital.com")
+                .addPathSegment(OAUTH_PATH)
+                .addPathSegments(WellKnownAPI.OPENID_CONFIGURATION_PATH)
+                .build()
+                .toString();
     }
 }
