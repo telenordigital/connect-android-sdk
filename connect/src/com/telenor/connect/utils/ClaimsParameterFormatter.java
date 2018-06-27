@@ -1,5 +1,7 @@
 package com.telenor.connect.utils;
 
+import android.support.annotation.NonNull;
+
 import com.telenor.connect.id.Claims;
 
 import org.json.JSONException;
@@ -22,18 +24,23 @@ public class ClaimsParameterFormatter {
      *
      * @param claims A claims object containing wanted claims.
      * @return A JSON formatted string with all {@code claims} turned into essential claims.
-     * @throws JSONException
      */
-    public static String asJson(Claims claims) throws JSONException {
-        final JSONObject essentialTrue = new JSONObject().put("essential", true);
+    public static String asJson(Claims claims) {
+        final JSONObject essentialTrue = put(new JSONObject(),"essential", true);
 
         final JSONObject essentials = new JSONObject();
         for (String claim : claims.getClaimsAsSet()) {
-            essentials.put(claim, essentialTrue);
+            put(essentials, claim, essentialTrue);
         }
 
-        return new JSONObject()
-                .put(USER_INFO, essentials)
-                .toString();
+        return put(new JSONObject(), USER_INFO, essentials).toString();
+    }
+
+    private static JSONObject put(@NonNull JSONObject jsonObject, @NonNull String key, Object value) {
+        try {
+            return jsonObject.put(key, value);
+        } catch (JSONException e) {
+            throw new RuntimeException("JSONObject unexpectedly threw on `put()`", e);
+        }
     }
 }
