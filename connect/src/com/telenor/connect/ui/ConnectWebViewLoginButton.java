@@ -123,12 +123,7 @@ public class ConnectWebViewLoginButton extends ConnectButton {
 
     private void addClaims(Map<String, String> parameters) {
         if (getClaims() != null && getClaims().getClaimsAsSet() != null) {
-            try {
-                parameters.put("claims", ClaimsParameterFormatter.asJson(getClaims()));
-            } catch (JSONException e) {
-                throw new ConnectException(
-                        "Failed to create claims Json. claims=" + getClaims(), e);
-            }
+            parameters.put("claims", ClaimsParameterFormatter.asJson(getClaims()));
         }
     }
 
