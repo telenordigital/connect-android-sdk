@@ -345,7 +345,7 @@ public final class ConnectSdk {
                 clientId,
                 redirectUri);
         RestHelper.
-                getWellKnownApi(ConnectUrlHelper.getWellKnownEndpoint()).getWellKnownConfig()
+                getWellKnownApi(ConnectUrlHelper.getConnectApiUrl().toString()).getWellKnownConfig()
                 .enqueue(new Callback<WellKnownAPI.WellKnownConfig>() {
                     @Override
                     public void onResponse(Call<WellKnownAPI.WellKnownConfig> call,

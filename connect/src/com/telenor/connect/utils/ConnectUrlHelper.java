@@ -9,7 +9,6 @@ import com.telenor.connect.BrowserType;
 import com.telenor.connect.BuildConfig;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.WellKnownAPI;
 
 import java.util.HashMap;
 import java.util.List;
@@ -97,17 +96,5 @@ public class ConnectUrlHelper {
                 BuildConfig.VERSION_NAME,
                 Build.VERSION.RELEASE,
                 browserType != null ? browserType.getVersionString() : "not-defined");
-    }
-
-
-    public static String getWellKnownEndpoint() {
-        return ConnectUrlHelper.getConnectApiUrl().newBuilder()
-                .host(ConnectSdk.useStaging()
-                        ? "connect.staging.telenordigital.com"
-                        : "connect.telenordigital.com")
-                .addPathSegment(OAUTH_PATH)
-                .addPathSegments(WellKnownAPI.OPENID_CONFIGURATION_PATH)
-                .build()
-                .toString();
     }
 }
