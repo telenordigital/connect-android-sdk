@@ -98,6 +98,14 @@ public interface WellKnownAPI {
         @SerializedName("telenordigital_sdk_analytics_endpoint")
         private String analyticsEndpoint;
         public String getAnalyticsEndpoint() {
+            if (analyticsEndpoint != null) {
+                try {
+                    if ('/' != analyticsEndpoint.charAt(analyticsEndpoint.length() - 1)) {
+                        return analyticsEndpoint + "/";
+                    }
+                } catch (IndexOutOfBoundsException ignored) {
+                }
+            }
             return analyticsEndpoint;
         }
     }

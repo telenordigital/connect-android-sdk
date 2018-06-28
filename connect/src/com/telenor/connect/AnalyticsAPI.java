@@ -82,7 +82,7 @@ public interface AnalyticsAPI {
     }
 
     @Headers("Content-Type: application/json")
-    @POST("/V1/android")
+    @POST("V1/android")
     Call<Void> sendAnalyticsData(
             @Header("Authorization") String auth,
             @Body SDKAnalyticsData analyticsData);
