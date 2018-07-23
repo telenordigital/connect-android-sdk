@@ -40,8 +40,8 @@ dependencies {
     api 'com.google.android.gms:play-services-ads-identifier:15.0.1'
     api 'com.google.android.gms:play-services-base:15.0.1'
     api 'com.nimbusds:nimbus-jose-jwt:3.10'
-    api 'com.squareup.okhttp3:okhttp:3.10.0'
-    api 'com.squareup.okhttp3:logging-interceptor:3.10.0'
+    api 'com.squareup.okhttp3:okhttp:3.11.0'
+    api 'com.squareup.okhttp3:logging-interceptor:3.11.0'
     api 'com.squareup.retrofit2:retrofit:2.4.0'
     api 'com.squareup.retrofit2:converter-gson:2.4.0'
 }
