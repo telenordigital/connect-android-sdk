@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.id.Claims;
 import com.telenor.connect.ui.ConnectLoginButton;
 import com.telenor.connect.utils.ConnectUtils;
 
@@ -23,7 +24,8 @@ public class SignInActivity extends Activity {
         loginButton = findViewById(R.id.login_button);
         progressBar = findViewById(R.id.progress_bar);
 
-        loginButton.setLoginScopeTokens("profile openid");
+        loginButton.setLoginScopeTokens("profile openid email phone");
+        loginButton.setClaims(new Claims(Claims.PHONE_NUMBER));
         final View.OnClickListener buttonClickListener = loginButton.getOnClickListener();
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
