@@ -8,10 +8,9 @@ import android.util.Log;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
-import retrofit.client.Header;
+import okhttp3.Headers;
 
 public class HeadersDateUtil {
 
@@ -20,11 +19,11 @@ public class HeadersDateUtil {
             = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
     @Nullable
-    public static Date extractDate(@NonNull List<Header> headers) {
-        for (Header header : headers) {
-            if (header.getName().equalsIgnoreCase("Date")) {
+    public static Date extractDate(@NonNull Headers headers) {
+        for (String name : headers.names()) {
+            if ("Date".equalsIgnoreCase(name)) {
                 try {
-                    return DATE_FORMAT.parse(header.getValue());
+                    return DATE_FORMAT.parse(headers.get(name));
                 } catch (ParseException e) {
                     Log.w(ConnectUtils.LOG_TAG, "Failed to call parse Date from headers. " +
                             "headers=" + headers, e);

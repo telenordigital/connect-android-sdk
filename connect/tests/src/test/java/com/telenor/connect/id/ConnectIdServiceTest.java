@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.Date;
 
-import retrofit.Callback;
+import retrofit2.Call;
 
 import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.is;
@@ -81,10 +81,12 @@ public class ConnectIdServiceTest {
         when(connectStore.get()).thenReturn(connectTokens);
 
         ConnectAPI connectApi = mock(ConnectAPI.class);
+        Call call = mock(Call.class);
+        when(connectApi.getUserInfo(anyString())).thenReturn(call);
         ConnectIdService connectIdService = new ConnectIdService(connectStore, connectApi, "", "");
 
         connectIdService.getUserInfo(null);
-        verify(connectApi).getUserInfo("Bearer access token", null);
+        verify(connectApi).getUserInfo("Bearer access token");
     }
 
     @Test(expected = ConnectRefreshTokenMissingException.class)
@@ -114,6 +116,9 @@ public class ConnectIdServiceTest {
         when(connectStore.get()).thenReturn(connectTokens);
 
         ConnectAPI connectApi = mock(ConnectAPI.class);
+        Call call = mock(Call.class);
+        when(connectApi.refreshAccessTokens(anyString(), anyString(), anyString()))
+                .thenReturn(call);
         ConnectIdService connectIdService = new ConnectIdService(connectStore, connectApi, "", "");
 
         connectIdService.getValidAccessToken(new AccessTokenCallback() {
@@ -128,8 +133,7 @@ public class ConnectIdServiceTest {
         verify(connectApi).refreshAccessTokens(
                 anyString(),
                 eq("refresh_token"),
-                anyString(),
-                Matchers.<Callback<ConnectTokensTO>>any());
+                anyString());
     }
 
     @Test

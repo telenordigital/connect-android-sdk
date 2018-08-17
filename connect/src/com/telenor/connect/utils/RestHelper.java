@@ -2,7 +2,6 @@ package com.telenor.connect.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.jakewharton.retrofit.Ok3Client;
 import com.telenor.connect.AnalyticsAPI;
 import com.telenor.connect.BuildConfig;
 import com.telenor.connect.WellKnownAPI;
@@ -10,14 +9,17 @@ import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.IdTokenDeserializer;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
-import retrofit.converter.GsonConverter;
+import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RestHelper {
 
@@ -46,30 +48,36 @@ public class RestHelper {
         return api;
     }
 
-    private static RestAdapter buildApi(String endpoint) {
-        OkHttpClient httpClient = new OkHttpClient.Builder()
+    private static Retrofit buildApi(String endpoint) {
+        final HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY :
+                HttpLoggingInterceptor.Level.NONE);
+
+        final Interceptor headers = new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                return chain.proceed(chain.request().newBuilder()
+                        .header("Accept", "application/json")
+                        .build());
+            }
+        };
+
+        final OkHttpClient httpClient = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)
+                .addInterceptor(logging)
+                .addInterceptor(headers)
                 .build();
 
         final Gson gson = new GsonBuilder()
                 .registerTypeAdapter(IdToken.class, new IdTokenDeserializer())
                 .create();
 
-        final RequestInterceptor connectRetroFitInterceptor = new RequestInterceptor() {
-            @Override
-            public void intercept(RequestFacade request) {
-                request.addHeader("Accept", "application/json");
-            }
-        };
-
-        return new RestAdapter.Builder()
-                .setClient(new Ok3Client(httpClient))
-                .setEndpoint(endpoint)
-                .setRequestInterceptor(connectRetroFitInterceptor)
-                .setLogLevel(BuildConfig.DEBUG ? RestAdapter.LogLevel.FULL : RestAdapter.LogLevel.NONE)
-                .setConverter(new GsonConverter(gson))
+        return new Retrofit.Builder()
+                .callFactory(httpClient)
+                .baseUrl(endpoint)
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
     }
 }

@@ -1,43 +1,35 @@
 # Connect SDK
 -keep class com.telenor.** { *; }
 
-# Retrofit 1.X
--keep class com.squareup.okhttp.** { *; }
--keep class retrofit.** { *; }
--keep interface com.squareup.okhttp.** { *; }
+# Retrofit 2: https://github.com/square/retrofit#r8--proguard
+# Retain generic type information for use by reflection by converters and adapters.
+-keepattributes Signature
 
--dontwarn com.squareup.okhttp.**
--dontwarn okio.**
--dontwarn retrofit.**
--dontwarn rx.**
-
--keepclasseswithmembers class * {
-    @retrofit.http.* <methods>;
+# Retain service method parameters.
+-keepclassmembers,allowshrinking,allowobfuscation interface * {
+    @retrofit2.http.* <methods>;
 }
 
-# If in your rest service interface you use methods with Callback argument.
--keepattributes Exceptions
+# Ignore annotation used for build tooling.
+-dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
 
-# If your rest service methods throw custom exceptions, because you've defined an ErrorHandler.
--keepattributes Signature
+# OkHttp 3: https://github.com/square/okhttp#proguard
+# Okio: https://github.com/square/okio#proguard
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+-dontwarn org.conscrypt.**
+# A resource is loaded with a relative path so the package of this class must be preserved.
+-keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
 # Also you must note that if you are using GSON for conversion from JSON to POJO representation, you must ignore those POJO classes from being obfuscated.
 # Here include the POJO's that have you have created for mapping JSON response to POJO for example.
 
-
-# OkHttp
--keepattributes Signature
+# GSON: https://github.com/google/gson/blob/master/examples/android-proguard-example/proguard.cfg
+# For using GSON @Expose annotation
 -keepattributes *Annotation*
--keep class okhttp3.** { *; }
--keep interface okhttp3.** { *; }
--dontwarn okhttp3.**
+# Gson specific classes
+-dontwarn sun.misc.**
 
 # bouncycastle
 -dontwarn org.bouncycastle.**
-
-# Okio
--keep class sun.misc.Unsafe { *; }
--keep class okio.** { *; }
--dontwarn java.nio.file.*
--dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
--dontwarn okio.**

@@ -3,13 +3,11 @@ package com.telenor.connect.utils;
 import org.junit.Test;
 import org.robolectric.annotation.Config;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
-import retrofit.client.Header;
+import okhttp3.Headers;
 
 import static java.lang.Math.abs;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -25,18 +23,19 @@ public class HeadersDateUtilTest {
     }
 
     @Test
-    public void getReturnsNullOnEmptyList() {
-        Date actual = HeadersDateUtil.extractDate(new ArrayList<Header>());
+    public void getReturnsNullOnEmpty() {
+        Date actual = HeadersDateUtil.extractDate(new Headers.Builder().build());
 
         assertThat(actual, is(nullValue()));
     }
 
     @Test
-    public void getReturnsDateObjectWhenPresentInList() {
-        List<Header> headers = new ArrayList<>();
-        headers.add(new Header("Something-Else", "Foo"));
-        headers.add(new Header("Not-Date", "Tue, 15 Nov 1264 08:12:31 GMT"));
-        headers.add(new Header("Date", "Tue, 15 Nov 1994 08:12:31 GMT"));
+    public void getReturnsDateObjectWhenPresent() {
+        Headers headers = new Headers.Builder()
+                .add("Something-Else", "Foo")
+                .add("Not-Date", "Tue, 15 Nov 1264 08:12:31 GMT")
+                .add("Date", "Tue, 15 Nov 1994 08:12:31 GMT")
+                .build();
 
         Date actual = HeadersDateUtil.extractDate(headers);
 
