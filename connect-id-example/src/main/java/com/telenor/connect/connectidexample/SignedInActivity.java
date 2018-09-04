@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectTokensStateTracker;
 
 public class SignedInActivity extends Activity {
@@ -48,4 +50,23 @@ public class SignedInActivity extends Activity {
         finish();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ConnectSdk.getValidAccessToken(new AccessTokenCallback() {
+            @Override
+            public void onSuccess(String accessToken) {
+                String jwt = ConnectSdk.getIdToken().getSerializedSignedJwt();
+                String subject = ConnectSdk.getIdToken().getSubject();
+                Toast.makeText(getApplicationContext(), "jwt returned \"" + jwt + "\" ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "subject returned \"" + subject + "\" ", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(Object errorData) {
+                Toast.makeText(getApplicationContext(), "onResume error occured ", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
 }
