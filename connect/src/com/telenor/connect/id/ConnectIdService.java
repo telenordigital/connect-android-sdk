@@ -209,7 +209,7 @@ public class ConnectIdService {
             }
 
             @Override
-            public void unsuccessfulResult(Response response) {
+            public void unsuccessfulResult(Response response, boolean userWasCleared) {
                 Log.w(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint. Revoking tokens." +
                         " response=" + response);
                 revokeTokens(context);
@@ -268,10 +268,11 @@ public class ConnectIdService {
                             currentTokens = connectTokens;
                             callback.success(connectTokens.getAccessToken());
                         } else {
-                            if (response.code() >= 400 && response.code() < 500) {
+                            boolean signOutUser = response.code() >= 400 && response.code() < 500;
+                            if (signOutUser) {
                                 clearTokensAndNotify();
                             }
-                            callback.unsuccessfulResult(response);
+                            callback.unsuccessfulResult(response, signOutUser);
                         }
                     }
 

@@ -167,9 +167,9 @@ public final class ConnectSdk {
 
     /**
      * Get a valid Access Token. If a non-expired one is available, that will be given to the
-     * callback {@code success(String accessToken)} method.
+     * callback {@code success(String accessToken)} method immediately.
      * <p>
-     * If it is expired, it will be refreshed and then returned. This requires a network call.
+     * If it is expired, it will be asynchronously refreshed and then returned in the same way.
      *
      * @param callback callback that will be called on success or failure to update.
      */
