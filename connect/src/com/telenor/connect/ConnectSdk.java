@@ -172,21 +172,16 @@ public final class ConnectSdk {
      * If it is expired, it will be refreshed and then returned. This requires a network call.
      *
      * @param callback callback that will be called on success or failure to update.
-     * @throws ConnectRefreshTokenMissingException if no Request Token is available
+     * @throws ConnectRefreshTokenMissingException if no Refresh Token is available
      */
     public static synchronized void getValidAccessToken(AccessTokenCallback callback) {
         Validator.sdkInitialized();
-        if (connectIdService != null) {
-            connectIdService.getValidAccessToken(callback);
-        }
+        connectIdService.getValidAccessToken(callback);
     }
 
     public static synchronized String getAccessToken() {
         Validator.sdkInitialized();
-        if (connectIdService != null) {
-            return connectIdService.getAccessToken();
-        }
-        return null;
+        return connectIdService.getAccessToken();
     }
 
     /**
@@ -338,7 +333,6 @@ public final class ConnectSdk {
         connectStore = new ConnectStore(context);
         lastSeenWellKnownConfigStore = new WellKnownConfigStore(context);
         wellKnownConfig = lastSeenWellKnownConfigStore.get();
-        isInitialized = true;
         connectIdService = new ConnectIdService(
                 connectStore,
                 RestHelper.getConnectApi(ConnectUrlHelper.getConnectApiUrl().toString()),
@@ -371,6 +365,7 @@ public final class ConnectSdk {
             initalizeCellularNetwork();
             initalizeDefaultNetwork();
         }
+        isInitialized = true;
         tsSdkInitiliazation = System.currentTimeMillis();
         initializeAdvertisingId();
     }
