@@ -56,13 +56,17 @@ public class ConnectUrlHelper {
                 .build();
     }
 
-    public static HttpUrl getConnectApiUrl() {
+    public static HttpUrl getConnectApiUrl(boolean useStaging) {
         return new HttpUrl.Builder()
                 .scheme("https")
-                .host(ConnectSdk.useStaging()
+                .host(useStaging
                         ? "connect.staging.telenordigital.com"
                         : "connect.telenordigital.com")
                 .build();
+    }
+
+    public static HttpUrl getConnectApiUrl() {
+        return getConnectApiUrl(ConnectSdk.useStaging());
     }
 
     public static Uri getAuthorizeUriStem(
