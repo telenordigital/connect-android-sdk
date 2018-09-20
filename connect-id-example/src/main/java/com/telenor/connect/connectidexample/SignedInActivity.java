@@ -69,7 +69,7 @@ public class SignedInActivity extends Activity {
             public void failure(Call<ConnectTokensTO> call, Throwable error) {
                 Toast.makeText(SignedInActivity.this,
                         "Failed to update token. Check connectivity and try again.",
-                        Toast.LENGTH_SHORT)
+                        Toast.LENGTH_LONG)
                         .show();
             }
 
