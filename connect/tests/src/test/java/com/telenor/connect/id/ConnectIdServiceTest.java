@@ -102,7 +102,7 @@ public class ConnectIdServiceTest {
             }
 
             @Override
-            public void unsuccessfulResult(Response response, boolean userWasCleared) {
+            public void unsuccessfulResult(Response response, boolean userDataRemoved) {
                 fail();
             }
 
@@ -137,7 +137,7 @@ public class ConnectIdServiceTest {
             public void success(String accessToken) {}
 
             @Override
-            public void unsuccessfulResult(Response response, boolean userWasCleared) {}
+            public void unsuccessfulResult(Response response, boolean userDataRemoved) {}
 
             @Override
             public void failure(Call<ConnectTokensTO> call, Throwable error) {}
@@ -170,7 +170,7 @@ public class ConnectIdServiceTest {
             }
 
             @Override
-            public void unsuccessfulResult(Response response, boolean userWasCleared) {
+            public void unsuccessfulResult(Response response, boolean userDataRemoved) {
                 fail();
             }
 

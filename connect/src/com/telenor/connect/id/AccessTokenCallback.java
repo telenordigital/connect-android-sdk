@@ -5,7 +5,7 @@ import retrofit2.Response;
 
 public interface AccessTokenCallback {
     void success(String accessToken);
-    void unsuccessfulResult(Response response, boolean userWasCleared);
+    void unsuccessfulResult(Response response, boolean userDataRemoved);
     void failure(Call<ConnectTokensTO> call, Throwable error);
     void noSignedInUser();
 }

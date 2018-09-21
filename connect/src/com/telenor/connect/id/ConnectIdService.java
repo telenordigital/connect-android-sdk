@@ -209,7 +209,7 @@ public class ConnectIdService {
             }
 
             @Override
-            public void unsuccessfulResult(Response response, boolean userWasCleared) {
+            public void unsuccessfulResult(Response response, boolean userDataRemoved) {
                 Log.w(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint. Revoking tokens." +
                         " response=" + response);
                 revokeTokens(context);

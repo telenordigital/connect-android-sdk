@@ -58,9 +58,9 @@ public class SignedInActivity extends Activity {
             }
 
             @Override
-            public void unsuccessfulResult(Response response, boolean userWasCleared) {
+            public void unsuccessfulResult(Response response, boolean userDataRemoved) {
                 // a 4xx response will sign out any signed in user
-                if (userWasCleared) {
+                if (userDataRemoved) {
                     goToLogin();
                 }
             }
