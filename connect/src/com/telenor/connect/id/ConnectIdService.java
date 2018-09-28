@@ -14,16 +14,13 @@ import com.telenor.connect.ConnectRefreshTokenMissingException;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.HeadersDateUtil;
 
-import org.json.JSONObject;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import retrofit.Callback;
-import retrofit.ResponseCallback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ConnectIdService {
 
@@ -83,26 +80,31 @@ public class ConnectIdService {
                 "authorization_code",
                 authCode,
                 redirectUrl,
-                clientId,
-                new Callback<ConnectTokensTO>() {
+                clientId)
+                .enqueue(new Callback<ConnectTokensTO>() {
                     @Override
-                    public void success(ConnectTokensTO connectTokensTO, Response response) {
-                        Date serverTimestamp
-                                = HeadersDateUtil.extractDate(response.getHeaders());
-                        ConnectTokens connectTokens
-                                = new ConnectTokens(connectTokensTO, serverTimestamp);
-                        connectStore.set(connectTokens);
-                        connectStore.clearSessionStateParam();
-                        currentTokens = connectTokens;
-                        idToken = connectTokens.getIdToken();
-                        ConnectUtils.sendTokenStateChanged(true);
-                        if (callback != null) {
-                            callback.onSuccess(connectTokens);
+                    public void onResponse(Call<ConnectTokensTO> call, Response<ConnectTokensTO> response) {
+                        if (response.isSuccessful()) {
+                            Date serverTimestamp = HeadersDateUtil.extractDate(response.headers());
+                            ConnectTokens connectTokens = new ConnectTokens(response.body(), serverTimestamp);
+                            connectStore.set(connectTokens);
+                            connectStore.clearSessionStateParam();
+                            currentTokens = connectTokens;
+                            idToken = connectTokens.getIdToken();
+                            ConnectUtils.sendTokenStateChanged(true);
+                            if (callback != null) {
+                                callback.onSuccess(connectTokens);
+                            }
+                        } else {
+                            clearTokensAndNotify();
+                            if (callback != null) {
+                                callback.onError(null);
+                            }
                         }
                     }
 
                     @Override
-                    public void failure(RetrofitError error) {
+                    public void onFailure(Call<ConnectTokensTO> call, Throwable error) {
                         clearTokensAndNotify();
                         if (callback != null) {
                             Map<String, String> errorParams = new HashMap<>();
@@ -154,14 +156,18 @@ public class ConnectIdService {
     private void revokeToken(final String token, final String descriptor) {
         connectApi.revokeToken(
                 clientId,
-                token,
-                new ResponseCallback() {
+                token)
+                .enqueue(new Callback<Void>() {
                     @Override
-                    public void success(Response response) {
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (!response.isSuccessful()) {
+                            Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke " + descriptor +
+                                    " token on API. token=" + token);
+                        }
                     }
 
                     @Override
-                    public void failure(RetrofitError error) {
+                    public void onFailure(Call<Void> call, Throwable error) {
                         Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke " + descriptor +
                                 " token on API. token=" + token , error);
                     }
@@ -214,14 +220,19 @@ public class ConnectIdService {
 
     private void callLogOutApiEndpoint(final String accessToken, final ConnectCallback callback) {
         String auth = "Bearer " + accessToken;
-        connectApi.logOut(auth, new ResponseCallback() {
+        connectApi.logOut(auth).enqueue(new Callback<Void>() {
             @Override
-            public void success(Response response) {
-                callback.onSuccess(null);
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(null);
+                } else {
+                    Log.e(ConnectUtils.LOG_TAG, "Failed to call logout with access token on API. accessToken=" + accessToken);
+                    callback.onError(null);
+                }
             }
 
             @Override
-            public void failure(RetrofitError error) {
+            public void onFailure(Call<Void> call, Throwable error) {
                 Log.e(ConnectUtils.LOG_TAG, "Failed to call logout with access token on API. accessToken=" + accessToken , error);
                 callback.onError(error);
             }
@@ -235,26 +246,25 @@ public class ConnectIdService {
                     "can't update tokens.");
         }
         connectApi.refreshAccessTokens("refresh_token", refreshToken,
-                clientId, new Callback<ConnectTokensTO>() {
+                clientId).enqueue(new Callback<ConnectTokensTO>() {
                     @Override
-                    public void success(ConnectTokensTO connectTokensTO, Response response) {
-                        Date serverTimestamp
-                                = HeadersDateUtil.extractDate(response.getHeaders());
-                        ConnectTokens connectTokens
-                                = new ConnectTokens(connectTokensTO, serverTimestamp);
-                        connectStore.update(connectTokens);
-                        currentTokens = connectTokens;
-                        callback.onSuccess(connectTokens.getAccessToken());
+                    public void onResponse(Call<ConnectTokensTO> call, Response<ConnectTokensTO> response) {
+                        if (response.isSuccessful()) {
+                            Date serverTimestamp = HeadersDateUtil.extractDate(response.headers());
+                            ConnectTokens connectTokens = new ConnectTokens(response.body(), serverTimestamp);
+                            connectStore.update(connectTokens);
+                            currentTokens = connectTokens;
+                            callback.onSuccess(connectTokens.getAccessToken());
+                        } else {
+                            if (response.code() >= 400 && response.code() < 500) {
+                                clearTokensAndNotify();
+                            }
+                            callback.onError(null);
+                        }
                     }
 
                     @Override
-                    public void failure(RetrofitError error) {
-                        if (error != null
-                                && error.getResponse() != null
-                                && error.getResponse().getStatus() >= 400
-                                && error.getResponse().getStatus() < 500) {
-                            clearTokensAndNotify();
-                        }
+                    public void onFailure(Call<ConnectTokensTO> call, Throwable error) {
                         callback.onError(error);
                     }
                 });
@@ -282,11 +292,11 @@ public class ConnectIdService {
                     "No user is signed in. accessToken="+accessToken);
         }
         final String auth = "Bearer " + accessToken;
-        connectApi.getUserInfo(auth, userInfoCallback);
+        connectApi.getUserInfo(auth).enqueue(userInfoCallback);
     }
 
-    public void getHeaderEnrichmentToken(Callback<JsonObject> callback) {
-        connectApi.getHeaderEnrichmentToken(callback);
+    public Call<JsonObject> getHeaderEnrichmentToken(Call<JsonObject> call) {
+        return connectApi.getHeaderEnrichmentToken();
     }
 
 }

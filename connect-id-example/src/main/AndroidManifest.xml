@@ -2,9 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.telenor.connect.connectidexample" >
 
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
 
@@ -42,9 +39,6 @@
         <meta-data
             android:name="com.telenor.connect.REDIRECT_URI"
             android:value="@string/connect_redirect_uri" />
-        <meta-data
-            android:name="com.telenor.connect.USE_STAGING"
-            android:value="true" />
     </application>
 
 </manifest>

@@ -34,7 +34,13 @@ public class Validator {
     }
 
     public static void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
-        sdkInitialized();
-        ConnectSdk.getSdkProfile().validateTokens(tokens, serverTimestamp);
+        Validator.notNullOrEmpty(tokens.getAccessToken(), "access_token");
+        Validator.notNullOrEmpty(tokens.getTokenType(), "token_type");
+        if (tokens.getIdToken() != null) {
+            IdTokenValidator.validate(tokens.getIdToken(), serverTimestamp);
+        }
+        Validator.notNullOrEmpty(tokens.getScope(), "scope");
+        Validator.notNull(tokens.getExpiresIn(), "expires_in");
+        Validator.notNullOrEmpty(tokens.getRefreshToken(), "refresh_token");
     }
 }

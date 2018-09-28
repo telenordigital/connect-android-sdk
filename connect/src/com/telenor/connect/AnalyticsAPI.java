@@ -4,12 +4,11 @@ import android.os.Build;
 
 import com.google.gson.annotations.SerializedName;
 
-import retrofit.Callback;
-import retrofit.ResponseCallback;
-import retrofit.http.Body;
-import retrofit.http.Header;
-import retrofit.http.Headers;
-import retrofit.http.POST;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.Header;
+import retrofit2.http.Headers;
+import retrofit2.http.POST;
 
 public interface AnalyticsAPI {
     class SDKAnalyticsData {
@@ -83,9 +82,8 @@ public interface AnalyticsAPI {
     }
 
     @Headers("Content-Type: application/json")
-    @POST("/V1/android")
-    void sendAnalyticsData(
+    @POST("V1/android")
+    Call<Void> sendAnalyticsData(
             @Header("Authorization") String auth,
-            @Body SDKAnalyticsData analyticsData,
-            ResponseCallback callback);
+            @Body SDKAnalyticsData analyticsData);
 }

@@ -13,73 +13,11 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <RelativeLayout
+    <com.telenor.connect.ui.WebErrorView
         android:id="@+id/com_telenor_connect_error_view"
-        android:background="@color/com_telenor_connect_darker_gray"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:visibility="gone" >
-        <LinearLayout
-            android:gravity="center"
-            android:layout_centerInParent="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/com_telenor_connect_error_text1"
-                android:textColor="@color/com_telenor_connect_light_color"
-                android:paddingLeft="50dp"
-                android:paddingRight="50dp"
-                android:textSize="16sp" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingLeft="50dp"
-                android:paddingRight="50dp"
-                android:text="@string/com_telenor_connect_error_text2"
-                android:textColor="@color/com_telenor_connect_light_color"
-                android:layout_marginTop="16sp"
-                android:textSize="16sp" />
-            <ProgressBar
-                android:id="@+id/com_telenor_connect_error_view_loading"
-                android:layout_marginTop="40dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:theme="@style/ConnectTheme"
-                android:visibility="invisible" />
-            <Button
-                android:id="@+id/com_telenor_connect_error_view_try_again"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/com_telenor_connect_try_again"
-                android:theme="@style/Theme.AppCompat.Light"
-                android:paddingTop="16sp"
-                android:paddingBottom="16sp"
-                android:textSize="16sp"
-                android:layout_marginTop="20sp"
-                />
-            <Button
-                android:id="@+id/com_telenor_connect_error_view_network_settings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:text="@string/com_telenor_connect_network_settings"
-                android:layout_marginTop="8sp"
-                android:textSize="16sp"
-                android:paddingTop="16sp"
-                android:paddingBottom="16sp"
-                android:textColor="@color/com_telenor_connect_light_color"/>
-        </LinearLayout>
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/connect_by_telenordigital" />
-    </RelativeLayout>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        />
+
 </RelativeLayout>

@@ -32,9 +32,6 @@ public class SignedInActivity extends Activity {
         TextView userId = findViewById(R.id.user_id);
         userId.setText(ConnectSdk.getIdToken().getSubject());
 
-        if (ConnectSdk.getAccessToken() == null) {
-            goToLogin();
-        }
         new ConnectTokensStateTracker() {
             @Override
             protected void onTokenStateChanged(boolean hasTokens) {

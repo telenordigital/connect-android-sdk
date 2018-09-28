@@ -1,54 +1,49 @@
 package com.telenor.connect.id;
 
 import com.google.gson.JsonObject;
-
-import retrofit.Callback;
-import retrofit.ResponseCallback;
-import retrofit.http.Field;
-import retrofit.http.FormUrlEncoded;
-import retrofit.http.GET;
-import retrofit.http.Header;
-import retrofit.http.Headers;
-import retrofit.http.POST;
+import retrofit2.Call;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.Headers;
+import retrofit2.http.POST;
 
 public interface ConnectAPI {
 
     @FormUrlEncoded
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @POST("/oauth/token")
-    void getAccessTokens(
+    Call<ConnectTokensTO> getAccessTokens(
             @Field("grant_type") String grant_type,
             @Field("code") String code,
             @Field("redirect_uri") String redirect_uri,
-            @Field("client_id") String client_id,
-            Callback<ConnectTokensTO> tokens);
+            @Field("client_id") String client_id);
 
     @FormUrlEncoded
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @POST("/oauth/token")
-    void refreshAccessTokens(
+    Call<ConnectTokensTO> refreshAccessTokens(
             @Field("grant_type") String grant_type,
             @Field("refresh_token") String refresh_token,
-            @Field("client_id") String client_id,
-            Callback<ConnectTokensTO> tokens);
+            @Field("client_id") String client_id);
 
     @FormUrlEncoded
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @POST("/oauth/revoke")
-    void revokeToken(
+    Call<Void> revokeToken(
             @Field("client_id") String client_id,
-            @Field("token") String token,
-            ResponseCallback callback);
+            @Field("token") String token);
 
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @POST("/oauth/logout")
-    void logOut(@Header("Authorization") String auth, ResponseCallback callback);
+    Call<Void> logOut(@Header("Authorization") String auth);
 
     @Headers("Accept: application/json")
     @GET("/oauth/userinfo")
-    void getUserInfo(@Header("Authorization") String auth, Callback<UserInfo> userInfoCallback);
+    Call<UserInfo> getUserInfo(@Header("Authorization") String auth);
 
     @Headers("Accept: application/json")
     @GET("/id/api/get-header-enrichment-token")
-    void getHeaderEnrichmentToken(Callback<JsonObject> callback);
+    Call<JsonObject> getHeaderEnrichmentToken();
 }

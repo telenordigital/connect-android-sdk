@@ -6,3 +6,6 @@
 /captures
 *.iml
 .gradletasknamecache
+.project
+.classpath
+.settings

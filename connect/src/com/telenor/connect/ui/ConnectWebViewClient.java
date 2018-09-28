@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.net.Network;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceError;
@@ -62,7 +63,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
     private final Activity activity;
     private final View loadingView;
-    private final View errorView;
+    private final WebErrorView errorView;
     private final WebView webView;
     private final SmsBroadcastReceiver smsBroadcastReceiver;
     private final ConnectCallback connectCallback;
@@ -77,7 +78,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             Activity activity,
             WebView webView,
             View loadingView,
-            View errorView,
+            WebErrorView errorView,
             ConnectCallback callback) {
         this.webView = webView;
         this.activity = activity;
@@ -185,9 +186,12 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         return null;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
         super.onReceivedError(view, request, error);
+        String errorText = error.getDescription() + " (" + error.getErrorCode() + ")";
+        errorView.setErrorText(errorText, request.getUrl().toString());
         errorView.setVisibility(View.VISIBLE);
     }
 
@@ -196,6 +200,8 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     public void onReceivedError(WebView view, int errorCode,
                                 String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
+        String errorText = description + " (" + errorCode + ")";
+        errorView.setErrorText(errorText, failingUrl);
         errorView.setVisibility(View.VISIBLE);
     }
 
