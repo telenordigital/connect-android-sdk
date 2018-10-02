@@ -167,26 +167,20 @@ public final class ConnectSdk {
 
     /**
      * Get a valid Access Token. If a non-expired one is available, that will be given to the
-     * callback {@code onSuccess(String accessToken)} method.
+     * callback {@code success(String accessToken)} method immediately.
      * <p>
-     * If it is expired, it will be refreshed and then returned. This requires a network call.
+     * If it is expired, it will be asynchronously refreshed and then returned in the same way.
      *
      * @param callback callback that will be called on success or failure to update.
-     * @throws ConnectRefreshTokenMissingException if no Request Token is available
      */
     public static synchronized void getValidAccessToken(AccessTokenCallback callback) {
         Validator.sdkInitialized();
-        if (connectIdService != null) {
-            connectIdService.getValidAccessToken(callback);
-        }
+        connectIdService.getValidAccessToken(callback);
     }
 
     public static synchronized String getAccessToken() {
         Validator.sdkInitialized();
-        if (connectIdService != null) {
-            return connectIdService.getAccessToken();
-        }
-        return null;
+        return connectIdService.getAccessToken();
     }
 
     /**
@@ -338,14 +332,14 @@ public final class ConnectSdk {
         connectStore = new ConnectStore(context);
         lastSeenWellKnownConfigStore = new WellKnownConfigStore(context);
         wellKnownConfig = lastSeenWellKnownConfigStore.get();
-        isInitialized = true;
+        String apiUrl = ConnectUrlHelper.getConnectApiUrl(useStaging).toString();
         connectIdService = new ConnectIdService(
                 connectStore,
-                RestHelper.getConnectApi(ConnectUrlHelper.getConnectApiUrl().toString()),
+                RestHelper.getConnectApi(apiUrl),
                 clientId,
                 redirectUri);
         RestHelper.
-                getWellKnownApi(ConnectUrlHelper.getConnectApiUrl().toString()).getWellKnownConfig()
+                getWellKnownApi(apiUrl).getWellKnownConfig()
                 .enqueue(new Callback<WellKnownAPI.WellKnownConfig>() {
                     @Override
                     public void onResponse(Call<WellKnownAPI.WellKnownConfig> call,
@@ -371,8 +365,9 @@ public final class ConnectSdk {
             initalizeCellularNetwork();
             initalizeDefaultNetwork();
         }
+        initializeAdvertisingId(context);
+        isInitialized = true;
         tsSdkInitiliazation = System.currentTimeMillis();
-        initializeAdvertisingId();
     }
 
 
@@ -615,14 +610,14 @@ public final class ConnectSdk {
         }
     }
 
-    private static void initializeAdvertisingId() {
+    private static void initializeAdvertisingId(final Context context) {
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
-        if (googleAPI.isGooglePlayServicesAvailable(getContext()) == ConnectionResult.SUCCESS) {
+        if (googleAPI.isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS) {
             new Thread(new Runnable() {
                 public void run() {
-                    AdvertisingIdClient.Info adInfo = null;
+                    AdvertisingIdClient.Info adInfo;
                     try {
-                        adInfo = AdvertisingIdClient.getAdvertisingIdInfo(getContext());
+                        adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
                         advertisingId = adInfo.getId();
                     } catch (Exception e) {
                         Log.w(ConnectUtils.LOG_TAG, "Failed to read advertising id", e);
