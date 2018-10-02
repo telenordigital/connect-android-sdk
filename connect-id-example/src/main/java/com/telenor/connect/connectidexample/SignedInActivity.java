@@ -63,6 +63,10 @@ public class SignedInActivity extends Activity {
                 if (userDataRemoved) {
                     goToLogin();
                 }
+                String text = response.body() != null
+                        ? response.body().toString()
+                        : "<empty response body>";
+                Toast.makeText(SignedInActivity.this, text, Toast.LENGTH_SHORT).show();
             }
 
             @Override
