@@ -31,6 +31,7 @@ public class SignedInActivity extends Activity {
             @Override
             public void onClick(View v) {
                 ConnectSdk.logout();
+                goToLogin();
             }
         });
 
