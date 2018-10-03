@@ -10,7 +10,6 @@ import android.webkit.CookieSyncManager;
 import com.google.gson.JsonObject;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectNotSignedInException;
-import com.telenor.connect.ConnectRefreshTokenMissingException;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.HeadersDateUtil;
 
@@ -43,8 +42,8 @@ public class ConnectIdService {
     public void getValidAccessToken(final AccessTokenCallback callback) {
         ConnectTokens connectTokens = retrieveTokens();
         if (connectTokens == null) {
-            throw new ConnectRefreshTokenMissingException(
-                    "retrieveTokens() returned null. Tokens are missing. Is the user signed in?");
+            callback.noSignedInUser();
+            return;
         }
 
         if (connectTokens.accessTokenHasExpired()) {
@@ -52,7 +51,7 @@ public class ConnectIdService {
             return;
         }
 
-        callback.onSuccess(connectTokens.getAccessToken());
+        callback.success(connectTokens.getAccessToken());
     }
 
     public String getAccessToken() {
@@ -196,7 +195,7 @@ public class ConnectIdService {
 
         updateTokens(new AccessTokenCallback() {
             @Override
-            public void onSuccess(String accessToken) {
+            public void success(String accessToken) {
                 callLogOutApiEndpoint(accessToken, new ConnectCallback() {
                     @Override
                     public void onSuccess(Object successData) {
@@ -211,8 +210,23 @@ public class ConnectIdService {
             }
 
             @Override
-            public void onError(Object errorData) {
-                Log.i(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint. Revoking tokens.");
+            public void unsuccessfulResult(Response response, boolean userDataRemoved) {
+                Log.w(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint. Revoking tokens." +
+                        " response=" + response);
+                revokeTokens(context);
+            }
+
+            @Override
+            public void failure(Call<ConnectTokensTO> call, Throwable error) {
+                Log.w(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint. Revoking tokens." +
+                        " error=" + error);
+                revokeTokens(context);
+            }
+
+            @Override
+            public void noSignedInUser() {
+                Log.w(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint." +
+                        " No signed in user. Revoking any remaining tokens.");
                 revokeTokens(context);
             }
         });
@@ -242,8 +256,7 @@ public class ConnectIdService {
     public void updateTokens(final AccessTokenCallback callback) {
         final String refreshToken = getRefreshToken();
         if (refreshToken == null) {
-            throw new ConnectRefreshTokenMissingException("Refresh token missing, " +
-                    "can't update tokens.");
+            callback.noSignedInUser();
         }
         connectApi.refreshAccessTokens("refresh_token", refreshToken,
                 clientId).enqueue(new Callback<ConnectTokensTO>() {
@@ -254,18 +267,19 @@ public class ConnectIdService {
                             ConnectTokens connectTokens = new ConnectTokens(response.body(), serverTimestamp);
                             connectStore.update(connectTokens);
                             currentTokens = connectTokens;
-                            callback.onSuccess(connectTokens.getAccessToken());
+                            callback.success(connectTokens.getAccessToken());
                         } else {
-                            if (response.code() >= 400 && response.code() < 500) {
+                            boolean signOutUser = response.code() >= 400 && response.code() < 500;
+                            if (signOutUser) {
                                 clearTokensAndNotify();
                             }
-                            callback.onError(null);
+                            callback.unsuccessfulResult(response, signOutUser);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<ConnectTokensTO> call, Throwable error) {
-                        callback.onError(error);
+                        callback.failure(call, error);
                     }
                 });
     }
@@ -289,7 +303,7 @@ public class ConnectIdService {
         String accessToken = getAccessToken();
         if (accessToken == null) {
             throw new ConnectNotSignedInException(
-                    "No user is signed in. accessToken="+accessToken);
+                    "No user is signed in. accessToken=null");
         }
         final String auth = "Bearer " + accessToken;
         connectApi.getUserInfo(auth).enqueue(userInfoCallback);

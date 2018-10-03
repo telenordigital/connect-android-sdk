@@ -1,12 +1,10 @@
 package com.telenor.connect.id;
 
 import com.telenor.connect.ConnectNotSignedInException;
-import com.telenor.connect.ConnectRefreshTokenMissingException;
 import com.telenor.connect.utils.Validator;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -14,6 +12,7 @@ import org.robolectric.annotation.Config;
 import java.util.Date;
 
 import retrofit2.Call;
+import retrofit2.Response;
 
 import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.is;
@@ -89,20 +88,32 @@ public class ConnectIdServiceTest {
         verify(connectApi).getUserInfo("Bearer access token");
     }
 
-    @Test(expected = ConnectRefreshTokenMissingException.class)
-    public void getValidAccessTokenThrowsWhenTokensAreMissing() {
+    @Test
+    public void getValidAccessTokenCallsNoSignedInUserWhenTokensAreMissing() {
         ConnectStore connectStore = mock(ConnectStore.class);
         when(connectStore.get()).thenReturn(null);
 
         ConnectAPI connectApi = mock(ConnectAPI.class);
         ConnectIdService connectIdService = new ConnectIdService(connectStore, connectApi, "", "");
-
         connectIdService.getValidAccessToken(new AccessTokenCallback() {
             @Override
-            public void onSuccess(String accessToken) {
+            public void success(String accessToken) {
+                fail();
             }
+
             @Override
-            public void onError(Object errorData) {
+            public void unsuccessfulResult(Response response, boolean userDataRemoved) {
+                fail();
+            }
+
+            @Override
+            public void failure(Call<ConnectTokensTO> call, Throwable error) {
+                fail();
+            }
+
+            @Override
+            public void noSignedInUser() {
+                return; // success
             }
         });
     }
@@ -123,11 +134,16 @@ public class ConnectIdServiceTest {
 
         connectIdService.getValidAccessToken(new AccessTokenCallback() {
             @Override
-            public void onSuccess(String accessToken) {
-            }
+            public void success(String accessToken) {}
+
             @Override
-            public void onError(Object errorData) {
-            }
+            public void unsuccessfulResult(Response response, boolean userDataRemoved) {}
+
+            @Override
+            public void failure(Call<ConnectTokensTO> call, Throwable error) {}
+
+            @Override
+            public void noSignedInUser() {}
         });
 
         verify(connectApi).refreshAccessTokens(
@@ -149,11 +165,22 @@ public class ConnectIdServiceTest {
 
         connectIdService.getValidAccessToken(new AccessTokenCallback() {
             @Override
-            public void onSuccess(String accessToken) {
+            public void success(String accessToken) {
                 assertThat(accessToken, is("access_token"));
             }
+
             @Override
-            public void onError(Object errorData) {
+            public void unsuccessfulResult(Response response, boolean userDataRemoved) {
+                fail();
+            }
+
+            @Override
+            public void failure(Call<ConnectTokensTO> call, Throwable error) {
+                fail();
+            }
+
+            @Override
+            public void noSignedInUser() {
                 fail();
             }
         });
