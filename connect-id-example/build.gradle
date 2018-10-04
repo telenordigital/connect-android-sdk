@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "com.telenor.connect.connectidexample"
         minSdkVersion 15
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
     }
