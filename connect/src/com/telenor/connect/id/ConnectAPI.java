@@ -1,6 +1,5 @@
 package com.telenor.connect.id;
 
-import com.google.gson.JsonObject;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -42,8 +41,4 @@ public interface ConnectAPI {
     @Headers("Accept: application/json")
     @GET("/oauth/userinfo")
     Call<UserInfo> getUserInfo(@Header("Authorization") String auth);
-
-    @Headers("Accept: application/json")
-    @GET("/id/api/get-header-enrichment-token")
-    Call<JsonObject> getHeaderEnrichmentToken();
 }

@@ -7,7 +7,6 @@ import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
-import com.google.gson.JsonObject;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectNotSignedInException;
 import com.telenor.connect.utils.ConnectUtils;
@@ -308,9 +307,4 @@ public class ConnectIdService {
         final String auth = "Bearer " + accessToken;
         connectApi.getUserInfo(auth).enqueue(userInfoCallback);
     }
-
-    public Call<JsonObject> getHeaderEnrichmentToken(Call<JsonObject> call) {
-        return connectApi.getHeaderEnrichmentToken();
-    }
-
 }
