@@ -5,11 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsClient;
-import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
 import android.text.TextUtils;
@@ -19,14 +17,12 @@ import android.view.View;
 import com.telenor.connect.BrowserType;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.headerenrichment.AuthEventHandler;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.CustomTabsHelper;
-import com.telenor.connect.utils.Validator;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
@@ -63,11 +59,6 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
     public OnClickListener getOnClickListener() {
         return onClickListener;
-    }
-
-    private Uri getAuthorizeUri() {
-        final Map<String, String> parameters = getParameters();
-        return ConnectUrlHelper.getAuthorizeUri(parameters, browserType);
     }
 
     private static boolean contextIntentFilterMatchesRedirectUri(Context context) {
@@ -107,23 +98,20 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         }
     }
 
-    private void launchWebViewAuthentication() {
-        startWebViewAuthentication();
-    }
-
     private void launchChromeCustomTabAuthentication() {
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(session);
-        CustomTabsIntent cctIntent = builder.build();
-        Intent intent = cctIntent.intent;
-        if (launchCustomTabInNewTask) {
-            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            intent.putExtra(Intent.EXTRA_REFERRER,
-                    Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getContext().getPackageName()));
-        }
-        Uri authorizeUri = getAuthorizeUri();
-        cctIntent.launchUrl(getActivity(), authorizeUri);
+        ConnectSdk.authenticate(
+                session,
+                launchCustomTabInNewTask,
+                getContext().getPackageName(),
+                getParameters(),
+                browserType,
+                getActivity(),
+                new AuthEventHandler() {
+                    @Override
+                    public void done() {
+                        setText(R.string.com_telenor_connect_login_button_text);
+                    }
+                });
     }
 
     private void setSession(CustomTabsSession session) {
@@ -134,16 +122,14 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
         @Override
         public void onClick(View v) {
-            Validator.sdkInitialized();
-            ConnectSdk.beforeAuthentication();
+            beforeUserAuthSession();
 
             if (!customTabsSupported) {
-                launchWebViewAuthentication();
+                startWebViewAuthentication();
             } else {
                 launchChromeCustomTabAuthentication();
             }
         }
-
     }
 
     private static class WeakReferenceCustomTabsServiceConnection extends CustomTabsServiceConnection {

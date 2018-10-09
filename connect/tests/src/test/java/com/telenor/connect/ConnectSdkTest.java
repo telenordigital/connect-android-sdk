@@ -45,7 +45,7 @@ public class ConnectSdkTest {
         ConnectSdk.sdkInitialize(RuntimeEnvironment.application);
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("scope", "anything");
-        ConnectUrlHelper.getAuthorizeUri(parameters, null);
+        ConnectUrlHelper.getAuthorizeUri(parameters, null, null);
 
         Intent intent = new Intent();
         String savedState = new ConnectStore(RuntimeEnvironment.application).getSessionStateParam();
@@ -60,7 +60,7 @@ public class ConnectSdkTest {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectUrlHelper.getAuthorizeUri(parameters, null);
+        ConnectUrlHelper.getAuthorizeUri(parameters, null, null);
 
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=xyz&code=abc"));
@@ -74,7 +74,7 @@ public class ConnectSdkTest {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectUrlHelper.getAuthorizeUri(parameters, null);
+        ConnectUrlHelper.getAuthorizeUri(parameters, null, null);
 
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=NNN&code=abc"));
@@ -88,7 +88,7 @@ public class ConnectSdkTest {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("state", "xyz");
         parameters.put("scope", "anything");
-        ConnectUrlHelper.getAuthorizeUri(parameters, null);
+        ConnectUrlHelper.getAuthorizeUri(parameters, null, null);
 
         Intent intent = new Intent();
         intent.setData(Uri.parse("something-not-registed://oauth2callback?state=xyz"));

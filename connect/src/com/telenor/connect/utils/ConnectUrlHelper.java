@@ -9,7 +9,9 @@ import com.telenor.connect.BrowserType;
 import com.telenor.connect.BuildConfig;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.headerenrichment.HeToken;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,15 +35,19 @@ public class ConnectUrlHelper {
     }
 
     public static synchronized Uri getAuthorizeUri(
-            Map<String, String> parameters, BrowserType browserType) {
+            Map<String, String> parameters, BrowserType browserType, String heToken) {
         if (ConnectSdk.getClientId() == null) {
             throw new ConnectException("Client ID not specified in application manifest.");
         }
         if (ConnectSdk.getRedirectUri() == null) {
             throw new ConnectException("Redirect URI not specified in application manifest.");
         }
-        if (parameters.get("scope") == null || parameters.get("scope").isEmpty()) {
+        String scope = parameters.get("scope");
+        if (scope == null || scope.isEmpty()) {
             throw new IllegalStateException("Cannot log in without scope tokens.");
+        }
+        if (heToken != null) {
+            parameters.put("telenordigital_he_token", heToken);
         }
         parameters.put("state", ConnectSdk.getConnectStore().generateSessionStateParam());
         return ConnectUrlHelper.getAuthorizeUriStem(

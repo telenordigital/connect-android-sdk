@@ -1,6 +1,6 @@
 package com.telenor.connect.headerenrichment;
 
-public class AuthEventHandler {
+public abstract class AuthEventHandler {
     public static final long TIMEOUT_MILLISECONDS = 25_000;
 
     // handle all the timestamps and events.
@@ -10,4 +10,5 @@ public class AuthEventHandler {
     // kick off things.
     // handle events
 
+    public abstract void done();
 }

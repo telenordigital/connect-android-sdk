@@ -15,6 +15,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.customtabs.CustomTabsSession;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -23,6 +25,7 @@ import android.util.Log;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.telenor.connect.headerenrichment.AuthEventHandler;
 import com.telenor.connect.headerenrichment.GetHeaderEnrichmentGifTask;
 import com.telenor.connect.headerenrichment.HeToken;
 import com.telenor.connect.id.AccessTokenCallback;
@@ -52,6 +55,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 public final class ConnectSdk {
     private static ArrayList<Locale> sLocales;
     private static ConnectivityManager connectivityManager;
@@ -73,6 +78,10 @@ public final class ConnectSdk {
     private static volatile long tsRedirectUrlInvoked;
     private static volatile long tsTokenResponseReceived;
     private static volatile String logSessionId;
+    private static HeToken heToken;
+    private static boolean isHeTokenRequestOngoing;
+    private static boolean heTokenSuccess;
+    private static AuthEventHandler authEventHandler;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -100,6 +109,71 @@ public final class ConnectSdk {
     public static void beforeAuthentication() {
         logSessionId = UUID.randomUUID().toString();
         tsLoginButtonClicked = System.currentTimeMillis();
+    }
+
+    public static synchronized void authenticate(
+            final CustomTabsSession session,
+            final boolean launchCustomTabInNewTask,
+            final String packageName,
+            final Map<String, String> parameters,
+            final BrowserType browserType,
+            final Activity activity,
+            final AuthEventHandler authEventHandler) {
+
+        if (isHeTokenRequestOngoing) {
+            ConnectSdk.authEventHandler = new AuthEventHandler() {
+                @Override
+                public void done() {
+                    authEventHandler.done();
+                    authenticate(session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
+                }
+            };
+            return;
+        }
+
+        // TODO something about prompt
+
+        if (!heTokenSuccess) {
+            authEventHandler.done();
+            Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, null);
+            launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
+            return;
+        }
+
+        if (new Date().after(heToken.getExpiration())) {
+            ConnectSdk.authEventHandler = new AuthEventHandler() {
+                @Override
+                public void done() {
+                    authEventHandler.done();
+                    authenticate(session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
+                }
+            };
+            initializeHeaderEnrichment();
+            return;
+        }
+
+        authEventHandler.done();
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, heToken.getToken());
+        launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
+    }
+
+    private static void launchChromeCustomTabAuthentication(
+            CustomTabsSession session,
+            boolean launchCustomTabInNewTask,
+            String packageName,
+            Uri authorizeUri,
+            Activity activity) {
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(session);
+        CustomTabsIntent cctIntent = builder.build();
+        Intent intent = cctIntent.intent;
+        if (launchCustomTabInNewTask) {
+            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            intent.putExtra(Intent.EXTRA_REFERRER,
+                    Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + packageName));
+        }
+        cctIntent.launchUrl(activity, authorizeUri);
     }
 
     public static synchronized void authenticate(
@@ -141,7 +215,7 @@ public final class ConnectSdk {
                         && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty())) {
             parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
         }
-        final String url = ConnectUrlHelper.getAuthorizeUri(parameters, BrowserType.WEB_VIEW).toString();
+        String url = ConnectUrlHelper.getAuthorizeUri(parameters, BrowserType.WEB_VIEW, null).toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
         intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, wellKnownConfig);
         return intent;
@@ -640,30 +714,20 @@ public final class ConnectSdk {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-//                ConnectSdk.gifTaskInProgress = true;
+                ConnectSdk.isHeTokenRequestOngoing = true;
             }
 
             @Override
             protected void onPostExecute(HeToken heToken) {
-//                ConnectSdk.gifTaskInProgress = false;
-//                ConnectSdk.gifTaskSuccess = heToken != null;
-//                ConnectSdk.this.heToken = heToken;
-
-//                if (userHasPressedButton) {
-//
-//                }
-
-                if (heToken == null) {
-                    // failed
-                    return;
+                ConnectSdk.isHeTokenRequestOngoing = false;
+                ConnectSdk.heToken = heToken;
+                ConnectSdk.heTokenSuccess = heToken != null;
+                if (ConnectSdk.authEventHandler != null) {
+                    ConnectSdk.authEventHandler.done();
                 }
-
-
-                // hasUserClicked?
             }
         };
-        getGifTask.execute("https://bitter-seahorse-9.localtunnel.me/id/extapi/v1/header-enrichment-token/mysession");
-        // http://localhost:8080/id/extapi/v1/header-enrichment-token/mysession
+        getGifTask.execute("https://dull-panther-98.localtunnel.me/id/extapi/v1/header-enrichment-token/mysession");
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -712,4 +776,5 @@ public final class ConnectSdk {
         Validator.sdkInitialized();
         return connectStore;
     }
+
 }

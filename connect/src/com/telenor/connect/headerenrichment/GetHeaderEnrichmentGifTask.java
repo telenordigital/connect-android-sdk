@@ -24,21 +24,19 @@ public class GetHeaderEnrichmentGifTask extends AsyncTask<String, Void, HeToken>
     @Override
     protected HeToken doInBackground(String... strings) {
         long startTime = System.currentTimeMillis();
-        FetchThroughMobileDataTask fetchToken = new FetchThroughMobileDataTask();
-        fetchToken.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, strings[0]);
-        String getTokenResponse;
-        try {
-            getTokenResponse = fetchToken.get(AuthEventHandler.TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
-        } catch (ExecutionException e) {
-            Log.w(ConnectUtils.LOG_TAG, "Failed to fetch header-enrichment-token", e);
-            return null;
-        } catch (InterruptedException e) {
-            Log.w(ConnectUtils.LOG_TAG, "Interrupted fetching header-enrichment-token", e);
-            return null;
-        } catch (TimeoutException e) {
-            Log.w(ConnectUtils.LOG_TAG, "Timed out fetching header-enrichment-token", e);
-            return null;
-        }
+        String getTokenResponse = MobileDataFetcher.fetchUrlTroughCellular(strings[0]);
+//        try {
+//            getTokenResponse = fetchToken.get(AuthEventHandler.TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
+//        } catch (ExecutionException e) {
+//            Log.w(ConnectUtils.LOG_TAG, "Failed to fetch header-enrichment-token", e);
+//            return null;
+//        } catch (InterruptedException e) {
+//            Log.w(ConnectUtils.LOG_TAG, "Interrupted fetching header-enrichment-token", e);
+//            return null;
+//        } catch (TimeoutException e) {
+//            Log.w(ConnectUtils.LOG_TAG, "Timed out fetching header-enrichment-token", e);
+//            return null;
+//        }
         if (getTokenResponse == null) {
             return null;
         }
@@ -53,21 +51,24 @@ public class GetHeaderEnrichmentGifTask extends AsyncTask<String, Void, HeToken>
         if (remainingTimeout < 0) {
             return null;
         }
-        FetchThroughMobileDataTask fetchGif = new FetchThroughMobileDataTask();
-        fetchGif.execute(heToken.getGifUrl());
-        try {
-            fetchGif.get(remainingTimeout, TimeUnit.MILLISECONDS);
-            return heToken;
-        } catch (ExecutionException e) {
-            Log.w(ConnectUtils.LOG_TAG, "Failed fetching gifUrl", e);
-            return null;
-        } catch (InterruptedException e) {
-            Log.w(ConnectUtils.LOG_TAG, "Interrupted fetching gifUrl", e);
-            return null;
-        } catch (TimeoutException e) {
-            Log.w(ConnectUtils.LOG_TAG, "Timed out fetching gifUrl", e);
-            return null;
-        }
+        return MobileDataFetcher.fetchUrlTroughCellular(heToken.getGifUrl()) != null
+                ? heToken
+                : null;
+//        FetchThroughMobileDataTask fetchGif = new FetchThroughMobileDataTask();
+//        fetchGif.execute(heToken.getGifUrl());
+//        try {
+//            fetchGif.get(remainingTimeout, TimeUnit.MILLISECONDS);
+//            return heToken;
+//        } catch (ExecutionException e) {
+//            Log.w(ConnectUtils.LOG_TAG, "Failed fetching gifUrl", e);
+//            return null;
+//        } catch (InterruptedException e) {
+//            Log.w(ConnectUtils.LOG_TAG, "Interrupted fetching gifUrl", e);
+//            return null;
+//        } catch (TimeoutException e) {
+//            Log.w(ConnectUtils.LOG_TAG, "Timed out fetching gifUrl", e);
+//            return null;
+//        }
     }
 
     private static HeToken getHeToken(String getTokenResponse) {
@@ -77,7 +78,7 @@ public class GetHeaderEnrichmentGifTask extends AsyncTask<String, Void, HeToken>
         try {
             JSONObject jsonResponse = new JSONObject(getTokenResponse);
             gifUrl = jsonResponse.getString("gifUrl");
-            token = jsonResponse.getString("token");
+            token = jsonResponse.getString("heToken");
             exp = jsonResponse.getInt("exp");
         } catch (JSONException e) {
             Log.w(ConnectUtils.LOG_TAG, "Failed to parse header-enrichment-token", e);

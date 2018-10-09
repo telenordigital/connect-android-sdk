@@ -31,13 +31,11 @@ public class ConnectWebViewLoginButton extends ConnectButton {
     private int requestCode = 0xa987;
     private Claims claims;
     private int customLoadingLayout = NO_CUSTOM_LAYOUT;
-    private ConnectStore connectStore;
 
     public ConnectWebViewLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
         setOnClickListener(new LoginClickListener());
-        connectStore = new ConnectStore(context);
     }
 
     public ArrayList<String> getAcrValues() {
@@ -136,15 +134,18 @@ public class ConnectWebViewLoginButton extends ConnectButton {
         }
     }
 
+    protected void beforeUserAuthSession() {
+        Validator.sdkInitialized();
+        ConnectSdk.beforeAuthentication();
+        setText("Loading...");
+    }
 
     private class LoginClickListener implements OnClickListener {
 
         @Override
         public void onClick(View v) {
-            Validator.sdkInitialized();
-            ConnectSdk.beforeAuthentication();
+            beforeUserAuthSession();
             startWebViewAuthentication();
         }
-
     }
 }

@@ -18,7 +18,7 @@ import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 
-public class MobileDataFetcher {
+class MobileDataFetcher {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private static WebResourceResponse fetchWebResourceResponse(String originalUrl) {
@@ -41,6 +41,9 @@ public class MobileDataFetcher {
                     return new WebResourceResponse(
                             connection.getContentType(),
                             connection.getContentEncoding(),
+                            connection.getResponseCode(),
+                            "OK",
+                            null,
                             connection.getInputStream());
                 }
                 newUrl = connection.getHeaderField("Location");
@@ -61,6 +64,11 @@ public class MobileDataFetcher {
     static String fetchUrlTroughCellular(String url) {
         WebResourceResponse webResourceResponse = MobileDataFetcher.fetchWebResourceResponse(url);
         if (webResourceResponse == null) {
+            return null;
+        }
+
+        int statusCode = webResourceResponse.getStatusCode();
+        if (statusCode < 200 || statusCode >= 300) {
             return null;
         }
 
