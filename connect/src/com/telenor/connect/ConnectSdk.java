@@ -131,9 +131,10 @@ public final class ConnectSdk {
             return;
         }
 
-        // TODO something about prompt
-
-        if (!heTokenSuccess) {
+        boolean autenticateNow
+                = !heTokenSuccess
+                || parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
+        if (autenticateNow) {
             authEventHandler.done();
             Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, null);
             launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
