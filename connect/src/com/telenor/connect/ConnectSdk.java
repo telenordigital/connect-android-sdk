@@ -12,28 +12,24 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.webkit.WebResourceResponse;
-import android.widget.Toast;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.telenor.connect.headerenrichment.GetHeaderEnrichmentGifTask;
+import com.telenor.connect.headerenrichment.HeToken;
 import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.id.UserInfo;
-import com.telenor.connect.network.MobileDataFetcher;
 import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.ui.ConnectWebViewLoginButton;
@@ -42,16 +38,8 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
-import org.apache.commons.io.IOUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -66,8 +54,6 @@ import retrofit2.Response;
 
 public final class ConnectSdk {
     private static ArrayList<Locale> sLocales;
-    private static String heToken;
-    private static Date heTokenExpiration;
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
     private static volatile Network defaultNetwork;
@@ -650,42 +636,34 @@ public final class ConnectSdk {
             return;
         }
 
-        GetTokenTask getTokenTask = new GetTokenTask();
-        getTokenTask.execute("https://chatty-starfish-12.localtunnel.me/id/api/get-header-enrichment-token");
+        GetHeaderEnrichmentGifTask getGifTask = new GetHeaderEnrichmentGifTask() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+//                ConnectSdk.gifTaskInProgress = true;
+            }
 
+            @Override
+            protected void onPostExecute(HeToken heToken) {
+//                ConnectSdk.gifTaskInProgress = false;
+//                ConnectSdk.gifTaskSuccess = heToken != null;
+//                ConnectSdk.this.heToken = heToken;
 
-//        sdkProfile.getConnectIdService().getHeaderEnrichmentToken(new Callback<JsonObject>() {
-//            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-//            @Override
-//            public void success(JsonObject jsonObject, Response response) {
-////                Toast.makeText(getContext(), jsonObject.toString(), Toast.LENGTH_LONG).show();
-////                JsonObject heToken = jsonObject.get("he-token").getAsJsonObject();
-//                String gifUrl;
-//                try {
-//                    String heTokenString = jsonObject.get("he-token").getAsString();
-//                    gifUrl = new JSONObject(heTokenString).getString("gifInject.gif");
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                    return;
-//                }
-////                Map<String, Object> tokenClaimsSet;
-////                try {
-////                    tokenClaimsSet = SignedJWT.parse(heToken).getJWTClaimsSet().getCustomClaims();
-////                } catch (ParseException e) {
-////                    e.printStackTrace();
-////                    return;
-////                }
-//                if (gifUrl == null || gifUrl.isEmpty()) {
-//                    return;
-//                }
-//                MobileDataFetcher.fetchUrlTroughCellular(gifUrl);
-//            }
+//                if (userHasPressedButton) {
 //
-//            @Override
-//            public void failure(RetrofitError error) {
-//                Toast.makeText(getContext(), error.toString(), Toast.LENGTH_LONG).show();
-//            }
-//        });
+//                }
+
+                if (heToken == null) {
+                    // failed
+                    return;
+                }
+
+
+                // hasUserClicked?
+            }
+        };
+        getGifTask.execute("https://bitter-seahorse-9.localtunnel.me/id/extapi/v1/header-enrichment-token/mysession");
+        // http://localhost:8080/id/extapi/v1/header-enrichment-token/mysession
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -722,75 +700,6 @@ public final class ConnectSdk {
         } catch (Exception e) {
             Log.e(ConnectUtils.LOG_TAG, "Failed to read application version", e);
             return "";
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    static class GetTokenTask extends AsyncTask<String, Void, WebResourceResponse> {
-
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        @Override
-        protected WebResourceResponse doInBackground(String... strings) {
-            return MobileDataFetcher.fetchUrlTroughCellular(strings[0]);
-        }
-
-        @Override
-        protected void onPostExecute(WebResourceResponse webResourceResponse) {
-            if (webResourceResponse == null) {
-                return;
-            }
-            String response;
-            try {
-                InputStream inputStream = webResourceResponse.getData();
-                response = IOUtils.toString(inputStream, "UTF-8");
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-
-            String gifUrl;
-            JSONObject jsonResponse;
-            try {
-                jsonResponse = new JSONObject(response);
-                gifUrl = jsonResponse.getString("gifUrl");
-                heToken = jsonResponse.getString("heToken");
-                Calendar instance = Calendar.getInstance();
-                int exp = jsonResponse.getInt("exp");
-                instance.add(Calendar.MILLISECOND, exp);
-                heTokenExpiration = instance.getTime();
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return;
-            }
-
-            if (TextUtils.isEmpty(gifUrl)) {
-                return;
-            }
-
-            new GetHeaderEnrichmentGifTask().execute(gifUrl);
-//            Toast.makeText(getContext(), response, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.CUPCAKE)
-    static class GetHeaderEnrichmentGifTask extends AsyncTask<String, Void, WebResourceResponse> {
-
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        @Override
-        protected WebResourceResponse doInBackground(String... strings) {
-            return MobileDataFetcher.fetchUrlTroughCellular(strings[0]);
-        }
-
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        @Override
-        protected void onPostExecute(WebResourceResponse webResourceResponse) {
-            Toast.makeText(getContext(), "Success!", Toast.LENGTH_LONG).show();
-//            String url = "https://grumpy-turkey-95.localtunnel.me/id/signin?gui_config=eyJraWQiOiJ1aV9jYWxsYmFjayIsImFsZyI6IlJTMjU2In0.eyJsb2MiOiJlbiIsImxzaSI6IjA2MmJmMGJhLTU3OGYtNDA2ZC05OTIxLWUyNDY4YjY3N2FiMSIsImxvaCI6W10sInNkdiI6IiIsInVzYyI6ImNvbm5lY3RfaWQiLCJwdWwiOmZhbHNlLCJzc2kiOm51bGwsImhlZSI6dHJ1ZSwicHV0IjoibXNpc2RuIiwibWNkIjpmYWxzZSwiYWNyIjpbIjEiXSwiYnJkIjoiZ29sZGVucnllIiwic2VuIjoic2ltdWxhdG9yIiwicmVzIjoiQklHUkFORE9NU1RSSU5HT0ZHQVJCQUdFVEhBVFdJTExNRUFOTk9USElOR1RPWU9VIiwiYXB0IjoibmF0aXZlIiwidHBhIjpmYWxzZSwib2xkIjpmYWxzZSwidGF1IjpmYWxzZSwidWF0IjpudWxsLCJhdWMiOiJ0ZWxlbm9yZGlnaXRhbC1jb25uZWN0ZXhhbXBsZS1hbmRyb2lkOlwvXC9vYXV0aDJjYWxsYmFjayIsImxwciI6ZmFsc2UsImxobCI6ZmFsc2UsImVzYyI6W10sInZwciI6ZmFsc2UsImJ1biI6IlNpbXVsYXRlZEJ1TmFtZSIsInNscyI6ZmFsc2UsInNsdSI6ZmFsc2UsImNpZCI6ImU5OTgzZWZmLWRlMTktNDQyZi05M2FjLWRlYWJkNzViYjAxZSJ9.f186-zkl35eC-Yw3-Aj9jZaekRRmHI4nZts4jWTvHgP6qkHV5nTdwel8Z_KbhDrLbqNt18vSLdinEQLEUVve5-Ghldm3_r1zZQVUh5xHbncEYYkli8Bi_0vTHQgDK7sOnpjP75r9vkTzLQFhNhiEMTloSFkczt1mxooHiNC0ZoHmydUYV9EKoa8E68fFqEMfEmzPDGEDcKod9f3GWAu1IliEmfPOqN1ZST25DsdZgK3xu60WduSkz1eU3paLo2jaDPwkvFKw0Pz_J5hEf1yovmed4hzy7oXNYpaDv5u5WDlihu_wbEgLWFF3lTDqCtGNLh3xRlqru98gZELuDWh24w";
-            String url = "https://grumpy-turkey-95.localtunnel.me/id/signin?gui_config=eyJraWQiOiJ1aV9jYWxsYmFjayIsImFsZyI6IlJTMjU2In0.eyJsb2MiOiJlbiIsImxzaSI6ImQ4MjMyNjgyLWYxMDAtNDAyYy05ZDc2LTMxMTcwYzhmNzZiYSIsImxvaCI6W10sInNkdiI6IiIsInVzYyI6ImNvbm5lY3RfaWQiLCJwdWwiOmZhbHNlLCJzc2kiOm51bGwsImhlZSI6dHJ1ZSwicHV0IjoibXNpc2RuIiwibWNkIjpmYWxzZSwiYWNyIjpbIjIiXSwiYnJkIjoiZ29sZGVucnllIiwic2VuIjoic2ltdWxhdG9yIiwicmVzIjoiQklHUkFORE9NU1RSSU5HT0ZHQVJCQUdFVEhBVFdJTExNRUFOTk9USElOR1RPWU9VIiwiYXB0Ijoid2ViIiwidHBhIjpmYWxzZSwib2xkIjpmYWxzZSwidGF1IjpmYWxzZSwidWF0IjpudWxsLCJhdWMiOiJcL2lkXC9kZWJ1Z1wvbGFuZGluZyIsImxwciI6ZmFsc2UsImxobCI6ZmFsc2UsImVzYyI6W10sInZwciI6ZmFsc2UsImJ1biI6IlNpbXVsYXRlZEJ1TmFtZSIsInNscyI6ZmFsc2UsInNsdSI6ZmFsc2UsImNpZCI6IjM0NjczMjA3LTZlZjEtNDc2NS04ZGViLTNmZDRjY2RmNGM1MiJ9.y_eCDW0yKK-UUcjKi9SNAwtVbREUrgwRaE25zFcilarSp0RBAQM_2hkrjy5hk-sNp01TZn87sKEbH_hgyRlAQheV8oK_hZEP5M_9ytcjoJC7YruwF2vn0gKIg5yqNLFSwuRspqRPQxxDTTrBI3HBGUbP4eB6kAIG5MpvXqETib9gmpsKBrsR9JR5KvEe9T5VxlLVUWXR0VgCX3rs6-VeLRhFbUa_UDk5XKhdQvlJkg37UGtDmOExcoaQHuTorwvUnTR7hz5EivyFEP07aIJxJUhA2_XmVJFnY1gY0PZ2ccOac2ZFdxLBTfO9k2YF8nSq3HicZJxEuLhoLgqvamHFpg";
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-            CustomTabsIntent customTabsIntent = builder.build();
-            customTabsIntent.launchUrl(getContext(), Uri.parse(url));
         }
     }
 
