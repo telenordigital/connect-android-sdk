@@ -30,8 +30,8 @@ import com.telenor.connect.headerenrichment.GetHeaderEnrichmentGifTask;
 import com.telenor.connect.headerenrichment.HeToken;
 import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
-import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.ConnectStore;
+import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.ui.ConnectWebFragment;
@@ -728,7 +728,7 @@ public final class ConnectSdk {
                 }
             }
         };
-        getGifTask.execute("https://dull-panther-98.localtunnel.me/id/extapi/v1/header-enrichment-token/mysession");
+        getGifTask.execute();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
