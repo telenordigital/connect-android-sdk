@@ -120,35 +120,26 @@ public final class ConnectSdk {
             final Activity activity,
             final AuthEventHandler authEventHandler) {
 
-        if (isHeTokenRequestOngoing) {
-            ConnectSdk.authEventHandler = new AuthEventHandler() {
-                @Override
-                public void done() {
-                    authEventHandler.done();
-                    authenticate(session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
-                }
-            };
-            return;
-        }
-
-        boolean autenticateNow
-                = !heTokenSuccess
-                || parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
-        if (autenticateNow) {
+        boolean finishedUnSuccessfully = !heTokenSuccess && !isHeTokenRequestOngoing;
+        boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
+        boolean authenticateNow = finishedUnSuccessfully || promptBlocksUseOfHe;
+        if (authenticateNow) {
             authEventHandler.done();
             Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, null);
             launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
             return;
         }
 
-        if (new Date().after(heToken.getExpiration())) {
-            ConnectSdk.authEventHandler = new AuthEventHandler() {
-                @Override
-                public void done() {
-                    authEventHandler.done();
-                    authenticate(session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
-                }
-            };
+        if (isHeTokenRequestOngoing) {
+            setFutureAuthEventHandler(
+                    session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
+            return;
+        }
+
+        boolean tokenHasExpired = new Date().after(heToken.getExpiration());
+        if (tokenHasExpired) {
+            setFutureAuthEventHandler(
+                    session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
             initializeHeaderEnrichment();
             return;
         }
@@ -156,6 +147,24 @@ public final class ConnectSdk {
         authEventHandler.done();
         Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, heToken.getToken());
         launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
+    }
+
+    private static void setFutureAuthEventHandler(
+            final CustomTabsSession session,
+            final boolean launchCustomTabInNewTask,
+            final String packageName,
+            final Map<String, String> parameters,
+            final BrowserType browserType,
+            final Activity activity,
+            final AuthEventHandler authEventHandler) {
+        ConnectSdk.authEventHandler = new AuthEventHandler() {
+            @Override
+            public void done() {
+                ConnectSdk.authEventHandler = null;
+                authEventHandler.done();
+                authenticate(session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
+            }
+        };
     }
 
     private static void launchChromeCustomTabAuthentication(
