@@ -49,6 +49,7 @@ public class ConnectUrlHelper {
         if (heToken != null) {
             parameters.put("telenordigital_he_token", heToken);
         }
+        handlePromptAndLogSessionId(parameters);
         parameters.put("state", ConnectSdk.getConnectStore().generateSessionStateParam());
         return ConnectUrlHelper.getAuthorizeUriStem(
                 parameters,
@@ -70,6 +71,16 @@ public class ConnectUrlHelper {
                         : "connect.telenordigital.com")
                 .build();
     }
+
+    private static void handlePromptAndLogSessionId(Map<String, String> parameters) {
+        if (TextUtils.isEmpty(parameters.get("prompt")) && !ConnectSdk.isCellularDataNetworkConnected()) {
+            parameters.put("prompt", "no_seam");
+        }
+        if (TextUtils.isEmpty(parameters.get("log_session_id"))) {
+            parameters.put("log_session_id", ConnectSdk.getLogSessionId());
+        }
+    }
+
 
     public static HttpUrl getConnectApiUrl() {
         return getConnectApiUrl(ConnectSdk.useStaging());

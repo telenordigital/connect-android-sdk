@@ -51,6 +51,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import okhttp3.HttpUrl;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -80,7 +81,7 @@ public final class ConnectSdk {
     private static volatile String logSessionId;
     private static HeToken heToken;
     private static boolean isHeTokenRequestOngoing;
-    private static boolean heTokenSuccess;
+    private static boolean heTokenSuccess = true;
     private static AuthEventHandler authEventHandler;
 
     /**
@@ -114,6 +115,7 @@ public final class ConnectSdk {
             final BrowserType browserType,
             final Activity activity,
             final AuthEventHandler authEventHandler) {
+        setButtonClickedTimestamp();
 
         boolean finishedUnSuccessfully = !heTokenSuccess && !isHeTokenRequestOngoing;
         boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
@@ -131,16 +133,18 @@ public final class ConnectSdk {
             return;
         }
 
-        boolean tokenHasExpired = new Date().after(heToken.getExpiration());
-        if (tokenHasExpired) {
+        boolean heWasNeverInitialized = heTokenSuccess && heToken == null;
+        boolean tokenIsExpired = heToken != null && new Date().after(heToken.getExpiration());
+        if (heWasNeverInitialized || tokenIsExpired) {
             setFutureAuthEventHandler(
                     session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
-            initializeHeaderEnrichment();
+            initializeHeaderEnrichment(useStaging());
             return;
         }
 
+        boolean failedToGetToken = heToken == null || !heTokenSuccess;
         if (authEventHandler != null) authEventHandler.done();
-        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, heToken.getToken());
+        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, failedToGetToken ? null : heToken.getToken());
         launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
     }
 
@@ -204,7 +208,7 @@ public final class ConnectSdk {
                                                  final int requestCode,
                                                  final AuthEventHandler authEventHandler) {
         Validator.sdkInitialized();
-        beforeAuthentication();
+        setButtonClickedTimestamp();
         Intent intent = getAuthIntent(parameters);
         if (customLoadingLayout != ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT) {
             intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
@@ -248,11 +252,9 @@ public final class ConnectSdk {
         return fragment;
     }
 
-    public static void beforeAuthentication() {
-        logSessionId = UUID.randomUUID().toString();
+    private static void setButtonClickedTimestamp() {
         tsLoginButtonClicked = System.currentTimeMillis();
     }
-
 
     /**
      * Get a valid Access Token. If a non-expired one is available, that will be given to the
@@ -333,6 +335,7 @@ public final class ConnectSdk {
                         if (!response.isSuccessful()) {
                             Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data");
                         }
+                        setRandomLogSessionId();
                     }
 
                     @Override
@@ -342,7 +345,9 @@ public final class ConnectSdk {
                 });
     }
 
-
+    private static void setRandomLogSessionId() {
+        logSessionId = UUID.randomUUID().toString();
+    }
 
     public static Context getContext() {
         Validator.sdkInitialized();
@@ -427,6 +432,7 @@ public final class ConnectSdk {
                 RestHelper.getConnectApi(apiUrl),
                 clientId,
                 redirectUri);
+        setRandomLogSessionId();
         RestHelper.
                 getWellKnownApi(apiUrl).getWellKnownConfig()
                 .enqueue(new Callback<WellKnownAPI.WellKnownConfig>() {
@@ -451,7 +457,7 @@ public final class ConnectSdk {
         connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            initializeCellularNetwork();
+            initializeCellularNetwork(useStaging);
             initalizeDefaultNetwork();
         }
         initializeAdvertisingId(context);
@@ -660,7 +666,7 @@ public final class ConnectSdk {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static void initializeCellularNetwork() {
+    private static void initializeCellularNetwork(final boolean useStaging) {
         NetworkRequest networkRequest = new NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
@@ -672,7 +678,10 @@ public final class ConnectSdk {
                         @Override
                         public void onAvailable(Network network) {
                             cellularNetwork = network;
-                            initializeHeaderEnrichment();
+                            boolean noSignedInUser = getAccessToken() == null;
+                            if (noSignedInUser) {
+                                initializeHeaderEnrichment(useStaging);
+                            }
                         }
                     }
             );
@@ -718,7 +727,7 @@ public final class ConnectSdk {
         }
     }
 
-    private static void initializeHeaderEnrichment() {
+    private static void initializeHeaderEnrichment(boolean useStaging) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return;
         }
@@ -740,7 +749,12 @@ public final class ConnectSdk {
                 }
             }
         };
-        getGifTask.execute();
+
+        HttpUrl connectApiSchemeAndHost = ConnectUrlHelper.getConnectApiUrl(useStaging);
+        String url = connectApiSchemeAndHost
+                + GetHeaderEnrichmentGifTask.HE_TOKEN_API_BASE_PATH
+                + logSessionId;
+        getGifTask.execute(url);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

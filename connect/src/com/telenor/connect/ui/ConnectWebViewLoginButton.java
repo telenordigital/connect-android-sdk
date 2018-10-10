@@ -113,22 +113,12 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
             parameters.putAll(getLoginParameters());
         }
 
-        handlePromptAndLogSessionId(parameters);
         return parameters;
     }
 
     private void addClaims(Map<String, String> parameters) {
         if (getClaims() != null && getClaims().getClaimsAsSet() != null) {
             parameters.put("claims", ClaimsParameterFormatter.asJson(getClaims()));
-        }
-    }
-
-    private void handlePromptAndLogSessionId(Map<String, String> parameters) {
-        if (TextUtils.isEmpty(parameters.get("prompt")) && !ConnectSdk.isCellularDataNetworkConnected()) {
-            parameters.put("prompt", "no_seam");
-        }
-        if (TextUtils.isEmpty(parameters.get("log_session_id"))) {
-            parameters.put("log_session_id", ConnectSdk.getLogSessionId());
         }
     }
 
