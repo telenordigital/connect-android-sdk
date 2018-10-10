@@ -123,7 +123,7 @@
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:theme="@style/ConnectTheme"
+            android:theme="@style/ConnectTheme.Dark"
             android:layout_gravity="center"
             />
     </FrameLayout>

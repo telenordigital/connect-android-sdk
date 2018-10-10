@@ -6,22 +6,18 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.headerenrichment.AuthEventHandler;
 import com.telenor.connect.id.Claims;
-import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
-import com.telenor.connect.utils.Validator;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConnectWebViewLoginButton extends ConnectButton {
+public class ConnectWebViewLoginButton extends ConnectButton implements AuthenticationButton {
 
     public static final int NO_CUSTOM_LAYOUT = -1;
 
@@ -31,11 +27,17 @@ public class ConnectWebViewLoginButton extends ConnectButton {
     private int requestCode = 0xa987;
     private Claims claims;
     private int customLoadingLayout = NO_CUSTOM_LAYOUT;
+    private AuthEventHandler authEventHandler;
 
     public ConnectWebViewLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
-        setOnClickListener(new LoginClickListener());
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                authenticate();
+            }
+        });
     }
 
     public ArrayList<String> getAcrValues() {
@@ -94,10 +96,6 @@ public class ConnectWebViewLoginButton extends ConnectButton {
         this.customLoadingLayout = customLoadingLayout;
     }
 
-    protected void startWebViewAuthentication() {
-        ConnectSdk.authenticate(getActivity(), getParameters(), getCustomLoadingLayout(), getRequestCode());
-    }
-
     @NonNull
     protected Map<String, String> getParameters() {
         Map<String, String> parameters = new HashMap<>();
@@ -134,18 +132,21 @@ public class ConnectWebViewLoginButton extends ConnectButton {
         }
     }
 
-    protected void beforeUserAuthSession() {
-        Validator.sdkInitialized();
-        ConnectSdk.beforeAuthentication();
-        setText("Loading...");
+    protected void authenticate() {
+        ConnectSdk.authenticate(
+                getActivity(),
+                getParameters(),
+                getCustomLoadingLayout(),
+                getRequestCode(),
+                getAuthEventHandler()
+        );
     }
 
-    private class LoginClickListener implements OnClickListener {
+    public AuthEventHandler getAuthEventHandler() {
+        return authEventHandler;
+    }
 
-        @Override
-        public void onClick(View v) {
-            beforeUserAuthSession();
-            startWebViewAuthentication();
-        }
+    public void setAuthEventHandler(AuthEventHandler authEventHandler) {
+        this.authEventHandler = authEventHandler;
     }
 }

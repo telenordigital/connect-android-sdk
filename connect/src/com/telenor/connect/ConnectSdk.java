@@ -106,11 +106,6 @@ public final class ConnectSdk {
 
     public static final int MAX_REDIRECTS_TO_FOLLOW_FOR_HE = 5;
 
-    public static void beforeAuthentication() {
-        logSessionId = UUID.randomUUID().toString();
-        tsLoginButtonClicked = System.currentTimeMillis();
-    }
-
     public static synchronized void authenticate(
             final CustomTabsSession session,
             final boolean launchCustomTabInNewTask,
@@ -124,7 +119,7 @@ public final class ConnectSdk {
         boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
         boolean authenticateNow = finishedUnSuccessfully || promptBlocksUseOfHe;
         if (authenticateNow) {
-            authEventHandler.done();
+            if (authEventHandler != null) authEventHandler.done();
             Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, null);
             launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
             return;
@@ -144,7 +139,7 @@ public final class ConnectSdk {
             return;
         }
 
-        authEventHandler.done();
+        if (authEventHandler != null) authEventHandler.done();
         Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, heToken.getToken());
         launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
     }
@@ -200,14 +195,16 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        authenticate(activity, parameters, ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT, requestCode);
+        authenticate(activity, parameters, ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT, requestCode, null);
     }
 
     public static synchronized void authenticate(final Activity activity,
                                                  final Map<String, String> parameters,
                                                  final int customLoadingLayout,
-                                                 final int requestCode) {
+                                                 final int requestCode,
+                                                 final AuthEventHandler authEventHandler) {
         Validator.sdkInitialized();
+        beforeAuthentication();
         Intent intent = getAuthIntent(parameters);
         if (customLoadingLayout != ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT) {
             intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
@@ -250,6 +247,12 @@ public final class ConnectSdk {
         fragment.setRetainInstance(true);
         return fragment;
     }
+
+    public static void beforeAuthentication() {
+        logSessionId = UUID.randomUUID().toString();
+        tsLoginButtonClicked = System.currentTimeMillis();
+    }
+
 
     /**
      * Get a valid Access Token. If a non-expired one is available, that will be given to the

@@ -1,5 +1,6 @@
 package com.telenor.connect.ui;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,12 +18,10 @@ import android.view.View;
 import com.telenor.connect.BrowserType;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
-import com.telenor.connect.headerenrichment.AuthEventHandler;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.CustomTabsHelper;
 
 import java.lang.ref.WeakReference;
-import java.util.Map;
 
 public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
@@ -49,8 +48,29 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
-        onClickListener = new LoginClickListener();
+        onClickListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                authenticate();
+            }
+        };
         setOnClickListener(onClickListener);
+    }
+
+    @Override
+    protected void authenticate() {
+        if (!customTabsSupported) {
+            super.authenticate();
+            return;
+        }
+        ConnectSdk.authenticate(
+                session,
+                launchCustomTabInNewTask,
+                getContext().getPackageName(),
+                getParameters(),
+                browserType,
+                getActivity(),
+                getAuthEventHandler());
     }
 
     public void setLaunchCustomTabInNewTask(boolean launchCustomTabInNewTask) {
@@ -98,38 +118,8 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         }
     }
 
-    private void launchChromeCustomTabAuthentication() {
-        ConnectSdk.authenticate(
-                session,
-                launchCustomTabInNewTask,
-                getContext().getPackageName(),
-                getParameters(),
-                browserType,
-                getActivity(),
-                new AuthEventHandler() {
-                    @Override
-                    public void done() {
-                        setText(R.string.com_telenor_connect_login_button_text);
-                    }
-                });
-    }
-
     private void setSession(CustomTabsSession session) {
         this.session = session;
-    }
-
-    private class LoginClickListener implements OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-            beforeUserAuthSession();
-
-            if (!customTabsSupported) {
-                startWebViewAuthentication();
-            } else {
-                launchChromeCustomTabAuthentication();
-            }
-        }
     }
 
     private static class WeakReferenceCustomTabsServiceConnection extends CustomTabsServiceConnection {
