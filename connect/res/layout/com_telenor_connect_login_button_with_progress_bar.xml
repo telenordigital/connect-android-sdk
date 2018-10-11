@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -8,7 +8,7 @@
         android:id="@+id/com_telenor_connect_login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_gravity="center"
         />
 
     <!-- Elevation warning can be ignored, on older versions
@@ -18,9 +18,9 @@
         android:id="@+id/com_telenor_connect_login_button_progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_gravity="center"
         android:elevation="2dp"
         android:visibility="gone"
         />
 
-</RelativeLayout>
+</FrameLayout>
