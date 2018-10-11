@@ -121,7 +121,9 @@ public final class ConnectSdk {
         boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
         boolean authenticateNow = finishedUnSuccessfully || promptBlocksUseOfHe;
         if (authenticateNow) {
-            if (authEventHandler != null) authEventHandler.done();
+            if (authEventHandler != null) {
+                authEventHandler.done();
+            }
             Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, null);
             launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
             return;
@@ -143,7 +145,9 @@ public final class ConnectSdk {
         }
 
         boolean failedToGetToken = heToken == null || !heTokenSuccess;
-        if (authEventHandler != null) authEventHandler.done();
+        if (authEventHandler != null) {
+            authEventHandler.done();
+        }
         Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, failedToGetToken ? null : heToken.getToken());
         launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
     }
