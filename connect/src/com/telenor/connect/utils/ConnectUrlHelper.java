@@ -81,7 +81,6 @@ public class ConnectUrlHelper {
         }
     }
 
-
     public static HttpUrl getConnectApiUrl() {
         return getConnectApiUrl(ConnectSdk.useStaging());
     }

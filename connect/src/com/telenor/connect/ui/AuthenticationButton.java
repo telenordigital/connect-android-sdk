@@ -6,31 +6,31 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public interface AuthenticationButton {
-    public ArrayList<String> getAcrValues();
+    ArrayList<String> getAcrValues();
 
-    public Map<String, String> getLoginParameters();
+    Map<String, String> getLoginParameters();
 
-    public ArrayList<String> getLoginScopeTokens();
+    ArrayList<String> getLoginScopeTokens();
 
-    public int getRequestCode();
+    int getRequestCode();
 
-    public Claims getClaims();
+    Claims getClaims();
 
-    public int getCustomLoadingLayout();
+    int getCustomLoadingLayout();
 
-    public void setAcrValues(String... acrValues);
+    void setAcrValues(String... acrValues);
 
-    public void setAcrValues(ArrayList<String> acrValues);
+    void setAcrValues(ArrayList<String> acrValues);
 
-    public void setLoginScopeTokens(String... scopeTokens);
+    void setLoginScopeTokens(String... scopeTokens);
 
-    public void setLoginScopeTokens(ArrayList<String> scopeTokens);
+    void setLoginScopeTokens(ArrayList<String> scopeTokens);
 
-    public void addLoginParameters(Map<String, String> parameters);
+    void addLoginParameters(Map<String, String> parameters);
 
-    public void setRequestCode(int requestCode);
+    void setRequestCode(int requestCode);
 
-    public void setClaims(Claims claims);
+    void setClaims(Claims claims);
 
-    public void setCustomLoadingLayout(int customLoadingLayout);
+    void setCustomLoadingLayout(int customLoadingLayout);
 }
