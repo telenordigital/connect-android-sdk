@@ -9,9 +9,8 @@ import com.telenor.connect.BrowserType;
 import com.telenor.connect.BuildConfig;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.headerenrichment.HeToken;
+import com.telenor.connect.headerenrichment.GetHeaderEnrichmentGifTask;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +21,7 @@ public class ConnectUrlHelper {
 
     public static final String ACTION_ARGUMENT = "com.telenor.connect.ACTION_ARGUMENT";
     public static final String OAUTH_PATH = "oauth";
+    private static final String HE_TOKEN_API_BASE_PATH = "id/extapi/v1/header-enrichment-token/";
 
     public static String getPageUrl(Bundle arguments) {
         if (ConnectUtils.LOGIN_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
@@ -117,5 +117,12 @@ public class ConnectUrlHelper {
                 BuildConfig.VERSION_NAME,
                 Build.VERSION.RELEASE,
                 browserType != null ? browserType.getVersionString() : "not-defined");
+    }
+
+    public static String getHeApiUrl(boolean useStaging, String logSessionId) {
+        HttpUrl connectApiSchemeAndHost = ConnectUrlHelper.getConnectApiUrl(useStaging);
+        return connectApiSchemeAndHost
+                + HE_TOKEN_API_BASE_PATH
+                + logSessionId;
     }
 }

@@ -25,9 +25,10 @@ import android.util.Log;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.telenor.connect.headerenrichment.AuthEventHandler;
 import com.telenor.connect.headerenrichment.GetHeaderEnrichmentGifTask;
+import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.headerenrichment.HeToken;
+import com.telenor.connect.headerenrichment.HeTokenCallback;
 import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectStore;
@@ -51,7 +52,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-import okhttp3.HttpUrl;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -79,10 +79,11 @@ public final class ConnectSdk {
     private static volatile long tsRedirectUrlInvoked;
     private static volatile long tsTokenResponseReceived;
     private static volatile String logSessionId;
-    private static HeToken heToken;
-    private static boolean isHeTokenRequestOngoing;
     private static boolean heTokenSuccess = true;
-    private static AuthEventHandler authEventHandler;
+    private static HeTokenCallback heTokenCallback;
+    private static boolean isHeTokenRequestOngoing;
+    private static HeToken heToken;
+    private static final long HE_TOKEN_TIMEOUT_MILLISECONDS = 10_000;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -114,60 +115,67 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final BrowserType browserType,
             final Activity activity,
-            final AuthEventHandler authEventHandler) {
+            final ShowLoadingCallback showLoadingCallback) {
         setButtonClickedTimestamp();
+        HeTokenCallback heTokenCallback = new HeTokenCallback() {
+            @Override
+            public void done() {
+                Uri authorizeUri = getAuthorizeUri(parameters, browserType);
+                launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
+            }
+        };
+        handleHeToken(parameters, showLoadingCallback, heTokenCallback);
+    }
 
+    private static Uri getAuthorizeUri(Map<String, String> parameters, BrowserType browserType) {
+        boolean failedToGetToken = heToken == null || !heTokenSuccess;
+        return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, failedToGetToken ? null : heToken.getToken());
+    }
+
+    private static void handleHeToken(
+            final Map<String, String> parameters,
+            final ShowLoadingCallback showLoadingCallback,
+            final HeTokenCallback heTokenCallback) {
         boolean finishedUnSuccessfully = !heTokenSuccess && !isHeTokenRequestOngoing;
         boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
         boolean authenticateNow = finishedUnSuccessfully || promptBlocksUseOfHe;
         if (authenticateNow) {
-            if (authEventHandler != null) {
-                authEventHandler.done();
+            if (showLoadingCallback != null) {
+                showLoadingCallback.stop();
             }
-            Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, null);
-            launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
+            heTokenCallback.done();
             return;
         }
 
         if (isHeTokenRequestOngoing) {
-            setFutureAuthEventHandler(
-                    session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
+            ConnectSdk.heTokenCallback = new HeTokenCallback() {
+                @Override
+                public void done() {
+                    ConnectSdk.heTokenCallback = null;
+                    handleHeToken(parameters, showLoadingCallback, heTokenCallback);
+                }
+            };
             return;
         }
 
         boolean heWasNeverInitialized = heTokenSuccess && heToken == null;
         boolean tokenIsExpired = heToken != null && new Date().after(heToken.getExpiration());
         if (heWasNeverInitialized || tokenIsExpired) {
-            setFutureAuthEventHandler(
-                    session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
+            ConnectSdk.heTokenCallback = new HeTokenCallback() {
+                @Override
+                public void done() {
+                    ConnectSdk.heTokenCallback = null;
+                    handleHeToken(parameters, showLoadingCallback, heTokenCallback);
+                }
+            };
             initializeHeaderEnrichment(useStaging());
             return;
         }
 
-        boolean failedToGetToken = heToken == null || !heTokenSuccess;
-        if (authEventHandler != null) {
-            authEventHandler.done();
+        if (showLoadingCallback != null) {
+            showLoadingCallback.stop();
         }
-        Uri authorizeUri = ConnectUrlHelper.getAuthorizeUri(parameters, browserType, failedToGetToken ? null : heToken.getToken());
-        launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
-    }
-
-    private static void setFutureAuthEventHandler(
-            final CustomTabsSession session,
-            final boolean launchCustomTabInNewTask,
-            final String packageName,
-            final Map<String, String> parameters,
-            final BrowserType browserType,
-            final Activity activity,
-            final AuthEventHandler authEventHandler) {
-        ConnectSdk.authEventHandler = new AuthEventHandler() {
-            @Override
-            public void done() {
-                ConnectSdk.authEventHandler = null;
-                authEventHandler.done();
-                authenticate(session, launchCustomTabInNewTask, packageName, parameters, browserType, activity, authEventHandler);
-            }
-        };
+        heTokenCallback.done();
     }
 
     private static void launchChromeCustomTabAuthentication(
@@ -210,39 +218,48 @@ public final class ConnectSdk {
                                                  final Map<String, String> parameters,
                                                  final int customLoadingLayout,
                                                  final int requestCode,
-                                                 final AuthEventHandler authEventHandler) {
+                                                 final ShowLoadingCallback showLoadingCallback) {
         Validator.sdkInitialized();
         setButtonClickedTimestamp();
-        Intent intent = getAuthIntent(parameters);
-        if (customLoadingLayout != ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT) {
-            intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-        }
-        activity.startActivityForResult(intent, requestCode);
+        HeTokenCallback heTokenCallback = new HeTokenCallback() {
+            @Override
+            public void done() {
+                Intent intent = getAuthIntent(parameters);
+                if (customLoadingLayout != ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT) {
+                    intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
+                }
+                activity.startActivityForResult(intent, requestCode);
+            }
+        };
+        handleHeToken(parameters, showLoadingCallback, heTokenCallback);
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
-        final Intent intent = new Intent();
+        Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
+        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, wellKnownConfig);
         String mccMnc = getMccMnc();
         if (!TextUtils.isEmpty(mccMnc) && wellKnownConfig != null &&
                 !(wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()
                         && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty())) {
             parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
         }
-        String url = ConnectUrlHelper.getAuthorizeUri(parameters, BrowserType.WEB_VIEW, null).toString();
+        String url = getAuthorizeUri(parameters, BrowserType.WEB_VIEW).toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
-        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, wellKnownConfig);
         return intent;
     }
 
     /**
+     * @deprecated Undocumented feature that might be removed in the future.
+     *
      * Get a {@code Fragment} that can be used for authorizing and getting a tokens.
      * {@code Activity} that uses the {@code Fragment} must implement {@code ConnectCallback}.
      *
      * @param parameters authorization parameters
      * @return authorization fragment
      */
+    @Deprecated
     public static Fragment getAuthFragment(Map<String, String> parameters) {
         Validator.sdkInitialized();
 
@@ -470,7 +487,7 @@ public final class ConnectSdk {
     }
 
 
-    public static String getMccMnc() {
+    private static String getMccMnc() {
         TelephonyManager tel
                 = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
         return tel.getNetworkOperator();
@@ -736,29 +753,33 @@ public final class ConnectSdk {
             return;
         }
 
-        GetHeaderEnrichmentGifTask getGifTask = new GetHeaderEnrichmentGifTask() {
+        String url = ConnectUrlHelper.getHeApiUrl(useStaging, logSessionId);
+        GetHeaderEnrichmentGifTask getGifTask = new GetHeaderEnrichmentGifTask(url, HE_TOKEN_TIMEOUT_MILLISECONDS) {
             @Override
             protected void onPreExecute() {
-                super.onPreExecute();
                 ConnectSdk.isHeTokenRequestOngoing = true;
+                super.onPreExecute();
+            }
+            @Override
+            protected void onPostExecute(HeToken heToken) {
+                handleHeTokenResult(heToken);
             }
 
             @Override
-            protected void onPostExecute(HeToken heToken) {
-                ConnectSdk.isHeTokenRequestOngoing = false;
-                ConnectSdk.heToken = heToken;
-                ConnectSdk.heTokenSuccess = heToken != null;
-                if (ConnectSdk.authEventHandler != null) {
-                    ConnectSdk.authEventHandler.done();
-                }
+            protected void onCancelled(HeToken heToken) {
+                handleHeTokenResult(heToken);
             }
         };
+        getGifTask.execute();
+    }
 
-        HttpUrl connectApiSchemeAndHost = ConnectUrlHelper.getConnectApiUrl(useStaging);
-        String url = connectApiSchemeAndHost
-                + GetHeaderEnrichmentGifTask.HE_TOKEN_API_BASE_PATH
-                + logSessionId;
-        getGifTask.execute(url);
+    private static void handleHeTokenResult(HeToken heToken) {
+        ConnectSdk.isHeTokenRequestOngoing = false;
+        ConnectSdk.heToken = heToken;
+        ConnectSdk.heTokenSuccess = heToken != null;
+        if (ConnectSdk.heTokenCallback != null) {
+            ConnectSdk.heTokenCallback.done();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

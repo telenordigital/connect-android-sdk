@@ -8,7 +8,7 @@ import android.view.View;
 
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
-import com.telenor.connect.headerenrichment.AuthEventHandler;
+import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
 
@@ -27,7 +27,7 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
     private int requestCode = 0xa987;
     private Claims claims;
     private int customLoadingLayout = NO_CUSTOM_LAYOUT;
-    private AuthEventHandler authEventHandler;
+    private ShowLoadingCallback showLoadingCallback;
 
     public ConnectWebViewLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -128,15 +128,15 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
                 getParameters(),
                 getCustomLoadingLayout(),
                 getRequestCode(),
-                getAuthEventHandler()
+                getShowLoadingCallback()
         );
     }
 
-    public AuthEventHandler getAuthEventHandler() {
-        return authEventHandler;
+    public ShowLoadingCallback getShowLoadingCallback() {
+        return showLoadingCallback;
     }
 
-    public void setAuthEventHandler(AuthEventHandler authEventHandler) {
-        this.authEventHandler = authEventHandler;
+    public void setShowLoadingCallback(ShowLoadingCallback showLoadingCallback) {
+        this.showLoadingCallback = showLoadingCallback;
     }
 }

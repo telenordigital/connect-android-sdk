@@ -1,6 +1,5 @@
 package com.telenor.connect.ui;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -70,7 +69,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
                 getParameters(),
                 browserType,
                 getActivity(),
-                getAuthEventHandler());
+                getShowLoadingCallback());
     }
 
     public void setLaunchCustomTabInNewTask(boolean launchCustomTabInNewTask) {

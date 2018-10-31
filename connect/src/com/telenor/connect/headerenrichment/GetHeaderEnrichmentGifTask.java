@@ -16,11 +16,15 @@ import java.util.Calendar;
 import java.util.Date;
 
 @TargetApi(Build.VERSION_CODES.CUPCAKE)
-public class GetHeaderEnrichmentGifTask extends AsyncTask<String, Void, HeToken> {
+public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeToken> {
 
-    public final static String HE_TOKEN_API_BASE_PATH = "id/extapi/v1/header-enrichment-token/";
+    private final String url;
+    private final long timeout;
 
-    private final static long TIMEOUT_MILLISECONDS = 10_000;
+    public GetHeaderEnrichmentGifTask(String url, long timeout) {
+        this.url = url;
+        this.timeout = timeout;
+    }
 
     @Override
     protected void onPreExecute() {
@@ -33,13 +37,13 @@ public class GetHeaderEnrichmentGifTask extends AsyncTask<String, Void, HeToken>
                     GetHeaderEnrichmentGifTask.this.cancel(true);
                 }
             }
-        }, TIMEOUT_MILLISECONDS);
+        }, timeout);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
-    protected HeToken doInBackground(String... strings) {
-        String getTokenResponse = MobileDataFetcher.fetchUrlTroughCellular(strings[0]);
+    protected HeToken doInBackground(Void... voids) {
+        String getTokenResponse = MobileDataFetcher.fetchUrlTroughCellular(url);
         if (getTokenResponse == null) {
             return null;
         }

@@ -3,6 +3,7 @@ package com.telenor.connect.headerenrichment;
 import android.net.Network;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.text.TextUtils;
 import android.webkit.WebResourceResponse;
 
 import com.telenor.connect.ConnectSdk;
@@ -13,15 +14,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 
-class MobileDataFetcher {
+public class MobileDataFetcher {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private static WebResourceResponse fetchWebResourceResponse(String originalUrl) {
+    public static WebResourceResponse fetchWebResourceResponse(String originalUrl) {
         String newUrl = originalUrl;
         int attempts = 0;
         Network interfaceToUse = ConnectSdk.getCellularNetwork();
@@ -42,8 +46,8 @@ class MobileDataFetcher {
                             connection.getContentType(),
                             connection.getContentEncoding(),
                             connection.getResponseCode(),
-                            "OK",
-                            null,
+                            connection.getResponseMessage(),
+                            getHeadersAsCommaJoinedList(connection.getHeaderFields()),
                             connection.getInputStream());
                 }
                 newUrl = connection.getHeaderField("Location");
@@ -60,8 +64,21 @@ class MobileDataFetcher {
         return null;
     }
 
+    private static Map<String, String> getHeadersAsCommaJoinedList(Map<String, List<String>> headerFields) {
+        Map<String, String> result = new HashMap<>();
+        for (String header : headerFields.keySet()) {
+            List<String> strings = headerFields.get(header);
+            if (strings == null || strings.isEmpty()) {
+                continue;
+            }
+            String commaJoinedList = TextUtils.join(",", strings);
+            result.put(header, commaJoinedList);
+        }
+        return result;
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    static String fetchUrlTroughCellular(String url) {
+    public static String fetchUrlTroughCellular(String url) {
         WebResourceResponse webResourceResponse = MobileDataFetcher.fetchWebResourceResponse(url);
         if (webResourceResponse == null) {
             return null;

@@ -11,7 +11,7 @@ import android.widget.RelativeLayout;
 
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
-import com.telenor.connect.headerenrichment.AuthEventHandler;
+import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
 
 import java.util.ArrayList;
@@ -30,9 +30,9 @@ public class ConnectLoginButtonWithProgressBar extends RelativeLayout implements
         inflate(getContext(), R.layout.com_telenor_connect_login_button_with_progress_bar, this);
         progressBar = findViewById(R.id.com_telenor_connect_login_button_progress_bar);
         loginButton = findViewById(R.id.com_telenor_connect_login_button);
-        loginButton.setAuthEventHandler(new AuthEventHandler() {
+        loginButton.setShowLoadingCallback(new ShowLoadingCallback() {
             @Override
-            public void done() {
+            public void stop() {
                 setLoading(false);
             }
         });

@@ -1,5 +1,5 @@
 package com.telenor.connect.headerenrichment;
 
-public interface AuthEventHandler {
+public interface HeTokenCallback {
     void done();
 }
