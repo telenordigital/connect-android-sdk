@@ -6,8 +6,6 @@ import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.webkit.WebResourceResponse;
 
-import com.telenor.connect.ConnectSdk;
-
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -28,15 +26,17 @@ public class MobileDataFetcher {
     public static WebResourceResponse fetchWebResourceResponse(String originalUrl) {
         String newUrl = originalUrl;
         int attempts = 0;
-        Network interfaceToUse = ConnectSdk.getCellularNetwork();
+        Network interfaceToUse = HeLogic.getCellularNetwork();
+        if (interfaceToUse == null) {
+            return null;
+        }
         do {
-            int responseCode;
             try {
                 HttpURLConnection connection
                         = (HttpURLConnection)interfaceToUse.openConnection(new URL(newUrl));
                 connection.setInstanceFollowRedirects(false);
                 connection.connect();
-                responseCode = connection.getResponseCode();
+                int responseCode = connection.getResponseCode();
                 attempts += 1;
                 if (responseCode != HTTP_SEE_OTHER
                         && responseCode != HTTP_MOVED_TEMP
@@ -57,10 +57,7 @@ public class MobileDataFetcher {
             } catch (final IOException e) {
                 return null;
             }
-            interfaceToUse = ConnectSdk.getCellularNetwork() != null
-                    ? ConnectSdk.getCellularNetwork()
-                    : ConnectSdk.getDefaultNetwork();
-        } while (attempts <= ConnectSdk.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
+        } while (attempts <= HeLogic.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
         return null;
     }
 

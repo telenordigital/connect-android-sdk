@@ -6,11 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,7 +21,7 @@ import android.util.Log;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.telenor.connect.headerenrichment.GetHeaderEnrichmentGifTask;
+import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.headerenrichment.HeToken;
 import com.telenor.connect.headerenrichment.HeTokenCallback;
@@ -60,9 +56,6 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public final class ConnectSdk {
     private static ArrayList<Locale> sLocales;
-    private static ConnectivityManager connectivityManager;
-    private static volatile Network cellularNetwork;
-    private static volatile Network defaultNetwork;
     private static ConnectStore connectStore;
     private static WellKnownConfigStore lastSeenWellKnownConfigStore;
     private static ConnectIdService connectIdService;
@@ -79,11 +72,6 @@ public final class ConnectSdk {
     private static volatile long tsRedirectUrlInvoked;
     private static volatile long tsTokenResponseReceived;
     private static volatile String logSessionId;
-    private static boolean heTokenSuccess = true;
-    private static HeTokenCallback heTokenCallback;
-    private static boolean isHeTokenRequestOngoing;
-    private static HeToken heToken;
-    private static final long HE_TOKEN_TIMEOUT_MILLISECONDS = 10_000;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -106,8 +94,6 @@ public final class ConnectSdk {
     public static final String EXTRA_CONNECT_TOKENS =
             "com.telenor.connect.EXTRA_CONNECT_TOKENS";
 
-    public static final int MAX_REDIRECTS_TO_FOLLOW_FOR_HE = 5;
-
     public static synchronized void authenticate(
             final CustomTabsSession session,
             final boolean launchCustomTabInNewTask,
@@ -124,58 +110,13 @@ public final class ConnectSdk {
                 launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
             }
         };
-        handleHeToken(parameters, showLoadingCallback, heTokenCallback);
+        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
     }
 
     private static Uri getAuthorizeUri(Map<String, String> parameters, BrowserType browserType) {
-        boolean failedToGetToken = heToken == null || !heTokenSuccess;
+        boolean failedToGetToken = HeLogic.failedToGetToken();
+        HeToken heToken = HeLogic.getHeToken();
         return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, failedToGetToken ? null : heToken.getToken());
-    }
-
-    private static void handleHeToken(
-            final Map<String, String> parameters,
-            final ShowLoadingCallback showLoadingCallback,
-            final HeTokenCallback heTokenCallback) {
-        boolean finishedUnSuccessfully = !heTokenSuccess && !isHeTokenRequestOngoing;
-        boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
-        boolean authenticateNow = finishedUnSuccessfully || promptBlocksUseOfHe;
-        if (authenticateNow) {
-            if (showLoadingCallback != null) {
-                showLoadingCallback.stop();
-            }
-            heTokenCallback.done();
-            return;
-        }
-
-        if (isHeTokenRequestOngoing) {
-            ConnectSdk.heTokenCallback = new HeTokenCallback() {
-                @Override
-                public void done() {
-                    ConnectSdk.heTokenCallback = null;
-                    handleHeToken(parameters, showLoadingCallback, heTokenCallback);
-                }
-            };
-            return;
-        }
-
-        boolean heWasNeverInitialized = heTokenSuccess && heToken == null;
-        boolean tokenIsExpired = heToken != null && new Date().after(heToken.getExpiration());
-        if (heWasNeverInitialized || tokenIsExpired) {
-            ConnectSdk.heTokenCallback = new HeTokenCallback() {
-                @Override
-                public void done() {
-                    ConnectSdk.heTokenCallback = null;
-                    handleHeToken(parameters, showLoadingCallback, heTokenCallback);
-                }
-            };
-            initializeHeaderEnrichment(useStaging());
-            return;
-        }
-
-        if (showLoadingCallback != null) {
-            showLoadingCallback.stop();
-        }
-        heTokenCallback.done();
     }
 
     private static void launchChromeCustomTabAuthentication(
@@ -231,7 +172,7 @@ public final class ConnectSdk {
                 activity.startActivityForResult(intent, requestCode);
             }
         };
-        handleHeToken(parameters, showLoadingCallback, heTokenCallback);
+        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
@@ -475,17 +416,11 @@ public final class ConnectSdk {
                     }
                 });
 
-        connectivityManager
-                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            initializeCellularNetwork(useStaging);
-            initalizeDefaultNetwork();
-        }
+        HeLogic.initializeNetworks(context, useStaging);
         initializeAdvertisingId(context);
         isInitialized = true;
         tsSdkInitialization = System.currentTimeMillis();
     }
-
 
     private static String getMccMnc() {
         TelephonyManager tel
@@ -662,75 +597,6 @@ public final class ConnectSdk {
         return data.getQueryParameter("code");
     }
 
-    public static boolean isCellularDataNetworkConnected() {
-        if (connectivityManager == null) {
-            return false;
-        }
-        NetworkInfo networkInfo;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        } else {
-            if (cellularNetwork == null) {
-                return false;
-            }
-            networkInfo = connectivityManager.getNetworkInfo(cellularNetwork);
-        }
-        return (networkInfo != null) && networkInfo.isConnected();
-    }
-
-    public static boolean isCellularDataNetworkDefault() {
-        if (connectivityManager == null) {
-            return false;
-        }
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE;
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static void initializeCellularNetwork(final boolean useStaging) {
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                .build();
-        try {
-            connectivityManager.requestNetwork(
-                    networkRequest,
-                    new ConnectivityManager.NetworkCallback() {
-                        @Override
-                        public void onAvailable(Network network) {
-                            cellularNetwork = network;
-                            boolean noSignedInUser = getAccessToken() == null;
-                            if (noSignedInUser) {
-                                initializeHeaderEnrichment(useStaging);
-                            }
-                        }
-                    }
-            );
-        } catch (SecurityException e) {
-            cellularNetwork = null;
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static void initalizeDefaultNetwork() {
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .build();
-        try {
-            connectivityManager.requestNetwork(
-                    networkRequest,
-                    new ConnectivityManager.NetworkCallback() {
-                        @Override
-                        public void onAvailable(Network network) {
-                            defaultNetwork = network;
-                        }
-                    }
-            );
-        } catch (SecurityException e) {
-            defaultNetwork = null;
-        }
-    }
-
     private static void initializeAdvertisingId(final Context context) {
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
         if (googleAPI.isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS) {
@@ -748,48 +614,21 @@ public final class ConnectSdk {
         }
     }
 
-    private static void initializeHeaderEnrichment(boolean useStaging) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return;
-        }
-
-        String url = ConnectUrlHelper.getHeApiUrl(useStaging, logSessionId);
-        GetHeaderEnrichmentGifTask getGifTask = new GetHeaderEnrichmentGifTask(url, HE_TOKEN_TIMEOUT_MILLISECONDS) {
-            @Override
-            protected void onPreExecute() {
-                ConnectSdk.isHeTokenRequestOngoing = true;
-                super.onPreExecute();
-            }
-            @Override
-            protected void onPostExecute(HeToken heToken) {
-                handleHeTokenResult(heToken);
-            }
-
-            @Override
-            protected void onCancelled(HeToken heToken) {
-                handleHeTokenResult(heToken);
-            }
-        };
-        getGifTask.execute();
-    }
-
-    private static void handleHeTokenResult(HeToken heToken) {
-        ConnectSdk.isHeTokenRequestOngoing = false;
-        ConnectSdk.heToken = heToken;
-        ConnectSdk.heTokenSuccess = heToken != null;
-        if (ConnectSdk.heTokenCallback != null) {
-            ConnectSdk.heTokenCallback.done();
-        }
-    }
-
+    /**
+     * @deprecated Use {@link HeLogic#getCellularNetwork()}
+     */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Deprecated
     public static Network getCellularNetwork() {
-        return cellularNetwork;
+        return HeLogic.getCellularNetwork();
     }
 
+    /**
+     * @deprecated Use {@link HeLogic#getDefaultNetwork()} ()}
+     */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getDefaultNetwork() {
-        return defaultNetwork;
+        return HeLogic.getDefaultNetwork();
     }
 
     private static String getAdvertisingId() {

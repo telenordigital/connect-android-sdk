@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.net.Network;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -22,6 +21,7 @@ import android.webkit.WebViewClient;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.WellKnownAPI;
+import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.MobileDataFetcher;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsCursorUtil;
@@ -30,18 +30,12 @@ import com.telenor.connect.sms.SmsPinParseUtil;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
-import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
-import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 
 public class ConnectWebViewClient extends WebViewClient implements SmsHandler, InstructionHandler {
 
@@ -107,8 +101,8 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     @Override
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        if (!ConnectSdk.isCellularDataNetworkConnected()
-                || ConnectSdk.isCellularDataNetworkDefault()) {
+        if (!HeLogic.isCellularDataNetworkConnected()
+                || HeLogic.isCellularDataNetworkDefault()) {
             return null;
         }
         if (shouldFetchThroughCellular(request.getUrl().toString())) {

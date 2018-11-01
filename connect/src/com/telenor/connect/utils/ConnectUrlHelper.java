@@ -9,7 +9,7 @@ import com.telenor.connect.BrowserType;
 import com.telenor.connect.BuildConfig;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.headerenrichment.GetHeaderEnrichmentGifTask;
+import com.telenor.connect.headerenrichment.HeLogic;
 
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +73,7 @@ public class ConnectUrlHelper {
     }
 
     private static void handlePromptAndLogSessionId(Map<String, String> parameters) {
-        if (TextUtils.isEmpty(parameters.get("prompt")) && !ConnectSdk.isCellularDataNetworkConnected()) {
+        if (TextUtils.isEmpty(parameters.get("prompt")) && !HeLogic.isCellularDataNetworkConnected()) {
             parameters.put("prompt", "no_seam");
         }
         if (TextUtils.isEmpty(parameters.get("log_session_id"))) {
