@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     >
-    <com.telenor.connect.ui.ConnectLoginButton
+    <com.telenor.connect.ui.ConnectLoginButtonWithoutProgressBar
         android:id="@+id/com_telenor_connect_login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

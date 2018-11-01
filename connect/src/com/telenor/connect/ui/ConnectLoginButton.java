@@ -1,176 +1,148 @@
 package com.telenor.connect.ui;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.customtabs.CustomTabsCallback;
-import android.support.customtabs.CustomTabsClient;
-import android.support.customtabs.CustomTabsServiceConnection;
-import android.support.customtabs.CustomTabsSession;
-import android.text.TextUtils;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
-import com.telenor.connect.BrowserType;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
-import com.telenor.connect.utils.ConnectUrlHelper;
-import com.telenor.connect.utils.CustomTabsHelper;
+import com.telenor.connect.headerenrichment.ShowLoadingCallback;
+import com.telenor.connect.id.Claims;
 
-import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Map;
 
-public class ConnectLoginButton extends ConnectWebViewLoginButton {
+public class ConnectLoginButton extends RelativeLayout implements AuthenticationButton {
+    ConnectLoginButtonWithoutProgressBar loginButton;
+    ProgressBar progressBar;
 
-    private static final Uri PRE_FETCH_URL
-            = Uri.parse(
-            ConnectUrlHelper
-                    .getConnectApiUrl()
-                    .newBuilder()
-                    .addPathSegment("id")
-                    .addPathSegment("android-sdk-prefetch-static-resources")
-                    .build()
-                    .uri()
-                    .toString()
-    );
+    public ConnectLoginButton(Context context) {
+        super(context);
+        init();
+    }
 
-    private OnClickListener onClickListener;
-    private CustomTabsServiceConnection connection;
-    private boolean customTabsSupported = false;
-    private boolean launchCustomTabInNewTask = true;
-    private boolean serviceBound = false;
-    private BrowserType browserType;
-    private CustomTabsSession session;
+    private void init() {
+        inflate(getContext(), R.layout.com_telenor_connect_login_button_with_progress_bar, this);
+        progressBar = findViewById(R.id.com_telenor_connect_login_button_progress_bar);
+        loginButton = findViewById(R.id.com_telenor_connect_login_button);
+        loginButton.setShowLoadingCallback(new ShowLoadingCallback() {
+            @Override
+            public void stop() {
+                setLoading(false);
+            }
+        });
 
-    public ConnectLoginButton(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-        setText(R.string.com_telenor_connect_login_button_text);
-        onClickListener = new OnClickListener() {
+        final View.OnClickListener loginClickListener = loginButton.getOnClickListener();
+        loginButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                authenticate();
+                setLoading(true);
+                loginClickListener.onClick(v);
             }
-        };
-        setOnClickListener(onClickListener);
+        });
     }
 
-    @Override
-    protected void authenticate() {
-        if (!customTabsSupported) {
-            super.authenticate();
-            return;
-        }
-        ConnectSdk.authenticate(
-                session,
-                launchCustomTabInNewTask,
-                getContext().getPackageName(),
-                getParameters(),
-                browserType,
-                getActivity(),
-                getShowLoadingCallback());
+    private void setLoading(boolean loading) {
+        progressBar.setVisibility(loading ? VISIBLE : INVISIBLE);
+        loginButton.setEnabled(!loading);
     }
 
-    public void setLaunchCustomTabInNewTask(boolean launchCustomTabInNewTask) {
-        this.launchCustomTabInNewTask = launchCustomTabInNewTask;
+    public ConnectLoginButton(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
     }
 
-    public OnClickListener getOnClickListener() {
-        return onClickListener;
+    public ConnectLoginButton(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
     }
 
-    private static boolean contextIntentFilterMatchesRedirectUri(Context context) {
-        final Uri parse = Uri.parse(ConnectSdk.getRedirectUri());
-        final Intent intent = new Intent().setData(parse);
-        final PackageManager manager = context.getPackageManager();
-        final ComponentName componentName = intent.resolveActivity(manager);
-        if (componentName == null) {
-            return false;
-        }
-        return context.getPackageName().equals(componentName.getPackageName());
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public ConnectLoginButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        init();
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        String packageNameToUse = CustomTabsHelper.getPackageNameToUse(getContext());
-        if (TextUtils.isEmpty(packageNameToUse)) {
-            return;
-        }
-        connection = new WeakReferenceCustomTabsServiceConnection(new WeakReference<>(this));
-        serviceBound = CustomTabsClient.bindCustomTabsService(getContext(), packageNameToUse, connection);
-        boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
-        customTabsSupported = serviceBound && correctIntentFilter;
-        browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
+        Intent intent = loginButton.getActivity().getIntent();
+        boolean ongoingAuth = intent != null && ConnectSdk.hasValidRedirectUrlCall(intent);
+        setLoading(ongoingAuth);
     }
 
     @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (serviceBound) {
-            getContext().unbindService(connection);
-            serviceBound = false;
-        }
-        if (connection != null) {
-            connection = null;
-        }
+    public ArrayList<String> getAcrValues() {
+        return loginButton.getAcrValues();
     }
 
-    private void setSession(CustomTabsSession session) {
-        this.session = session;
+    @Override
+    public Map<String, String> getLoginParameters() {
+        return loginButton.getLoginParameters();
     }
 
-    private static class WeakReferenceCustomTabsServiceConnection extends CustomTabsServiceConnection {
-
-        private final WeakReference<ConnectLoginButton> weakButton;
-
-        WeakReferenceCustomTabsServiceConnection(WeakReference<ConnectLoginButton> weakButton) {
-            this.weakButton = weakButton;
-        }
-
-        @Override
-        public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-            final ConnectLoginButton connectLoginButton = weakButton.get();
-            if (connectLoginButton == null) {
-                return;
-            }
-            client.warmup(0);
-            final CustomTabsSession session = client.newSession(new WeakReferenceCustomTabsCallback(weakButton));
-            connectLoginButton.setSession(session);
-            if (session != null) {
-                session.mayLaunchUrl(PRE_FETCH_URL, null, null);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-        }
+    @Override
+    public ArrayList<String> getLoginScopeTokens() {
+        return loginButton.getLoginScopeTokens();
     }
 
-    private static class WeakReferenceCustomTabsCallback extends CustomTabsCallback {
+    @Override
+    public int getRequestCode() {
+        return loginButton.getRequestCode();
+    }
 
-        private final WeakReference<ConnectLoginButton> weakButton;
+    @Override
+    public Claims getClaims() {
+        return loginButton.getClaims();
+    }
 
-        WeakReferenceCustomTabsCallback(WeakReference<ConnectLoginButton> weakButton) {
-            this.weakButton = weakButton;
-        }
+    @Override
+    public int getCustomLoadingLayout() {
+        return loginButton.getCustomLoadingLayout();
+    }
 
-        @Override
-        public void onNavigationEvent(int navigationEvent, Bundle extras) {
-            final ConnectLoginButton connectLoginButton = weakButton.get();
-            if (connectLoginButton == null) {
-                return;
-            }
-            switch (navigationEvent) {
-                case CustomTabsCallback.TAB_HIDDEN:
-                    connectLoginButton.setEnabled(true);
-                    return;
-                case CustomTabsCallback.TAB_SHOWN:
-                    connectLoginButton.setEnabled(false);
-                    return;
-                default:
-            }
-        }
+    @Override
+    public void setAcrValues(String... acrValues) {
+        loginButton.setAcrValues(acrValues);
+    }
+
+    @Override
+    public void setAcrValues(ArrayList<String> acrValues) {
+        loginButton.setAcrValues(acrValues);
+    }
+
+    @Override
+    public void setLoginScopeTokens(String... scopeTokens) {
+        loginButton.setLoginScopeTokens(scopeTokens);
+    }
+
+    @Override
+    public void setLoginScopeTokens(ArrayList<String> scopeTokens) {
+        loginButton.setLoginScopeTokens(scopeTokens);
+    }
+
+    @Override
+    public void addLoginParameters(Map<String, String> parameters) {
+        loginButton.addLoginParameters(parameters);
+    }
+
+    @Override
+    public void setRequestCode(int requestCode) {
+        loginButton.setRequestCode(requestCode);
+    }
+
+    @Override
+    public void setClaims(Claims claims) {
+        loginButton.setClaims(claims);
+    }
+
+    @Override
+    public void setCustomLoadingLayout(int customLoadingLayout) {
+        loginButton.setCustomLoadingLayout(customLoadingLayout);
     }
 }

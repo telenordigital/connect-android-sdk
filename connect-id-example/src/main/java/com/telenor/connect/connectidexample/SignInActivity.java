@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.ui.ConnectLoginButtonWithProgressBar;
+import com.telenor.connect.ui.ConnectLoginButton;
 import com.telenor.connect.utils.ConnectUtils;
 
 public class SignInActivity extends Activity {
@@ -16,7 +16,7 @@ public class SignInActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        ConnectLoginButtonWithProgressBar loginButton = findViewById(R.id.login_button);
+        ConnectLoginButton loginButton = findViewById(R.id.login_button);
         loginButton.setLoginScopeTokens("profile openid");
 
         ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
