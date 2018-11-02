@@ -87,8 +87,8 @@ public class MobileDataFetcher {
             }
             if (allowedToToggleNetworkToUse) {
                 interfaceToUse = shouldFetchThroughCellular(newUrl)
-                        ? ConnectSdk.getCellularNetwork()
-                        : ConnectSdk.getDefaultNetwork();
+                        ? HeLogic.getCellularNetwork()
+                        : HeLogic.getDefaultNetwork();
             }
         } while (attempts <= HeLogic.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
         return null;
