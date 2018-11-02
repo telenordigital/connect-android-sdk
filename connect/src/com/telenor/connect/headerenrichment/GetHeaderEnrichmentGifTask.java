@@ -1,6 +1,5 @@
 package com.telenor.connect.headerenrichment;
 
-import android.annotation.TargetApi;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -15,9 +14,7 @@ import org.json.JSONObject;
 import java.util.Calendar;
 import java.util.Date;
 
-@TargetApi(Build.VERSION_CODES.CUPCAKE)
 public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeTokenResponse> {
-
     private final String url;
     private final long timeout;
 

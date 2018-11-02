@@ -539,7 +539,6 @@ public final class ConnectSdk {
      * @return true if getData() on the intent matches Redirect Uri, has valid state and code
      * query parameters.
      */
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     public static boolean hasValidRedirectUrlCall(Intent intent) {
         final Uri data = intent.getData();
         if (data == null) {
@@ -639,7 +638,6 @@ public final class ConnectSdk {
         return logSessionId;
     }
 
-    @TargetApi(Build.VERSION_CODES.DONUT)
     private static String getApplicationName() {
         try {
             return getContext().getApplicationInfo().loadLabel(getContext().getPackageManager()).toString();
@@ -667,5 +665,4 @@ public final class ConnectSdk {
         Validator.sdkInitialized();
         return connectStore;
     }
-
 }
