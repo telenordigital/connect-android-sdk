@@ -113,6 +113,10 @@ public final class ConnectSdk {
         HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
     }
 
+    private static void setButtonClickedTimestamp() {
+        tsLoginButtonClicked = System.currentTimeMillis();
+    }
+
     private static Uri getAuthorizeUri(Map<String, String> parameters, BrowserType browserType) {
         boolean failedToGetToken = HeLogic.failedToGetToken();
         HeTokenResponse heTokenResponse = HeLogic.getHeTokenResponse();
@@ -212,10 +216,6 @@ public final class ConnectSdk {
         fragment.setArguments(bundle);
         fragment.setRetainInstance(true);
         return fragment;
-    }
-
-    private static void setButtonClickedTimestamp() {
-        tsLoginButtonClicked = System.currentTimeMillis();
     }
 
     /**
