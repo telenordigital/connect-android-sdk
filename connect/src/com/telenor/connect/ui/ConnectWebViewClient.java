@@ -20,7 +20,6 @@ import android.webkit.WebViewClient;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.MobileDataFetcher;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
@@ -30,10 +29,6 @@ import com.telenor.connect.sms.SmsPinParseUtil;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -105,47 +100,11 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
                 || HeLogic.isCellularDataNetworkDefault()) {
             return null;
         }
-        if (shouldFetchThroughCellular(request.getUrl().toString())) {
-            return fetchUrlTroughCellular(request.getUrl().toString());
+        if (MobileDataFetcher.shouldFetchThroughCellular(request.getUrl().toString())) {
+            return MobileDataFetcher.fetchWebResourceResponse(
+                    request.getUrl().toString(), true);
         }
         return null;
-    }
-
-    public boolean shouldFetchThroughCellular(String url) {
-        WellKnownAPI.WellKnownConfig wellKnownConfig =
-                (WellKnownAPI.WellKnownConfig) this.activity
-                .getIntent()
-                .getExtras()
-                .get(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA);
-        if (wellKnownConfig == null ||
-                (wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()
-                 && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty())) {
-            return false;
-        }
-        if (!wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty()) {
-            for (String urlPrefix : wellKnownConfig.getNetworkAuthenticationTargetUrls()) {
-                if (url.contains(urlPrefix)) {
-                    return true;
-                }
-            }
-            return false;
-        } else {
-            String hostIp;
-            try {
-                String host = (new URL(url)).getHost();
-                hostIp = InetAddress.getByName(host).getHostAddress();
-            } catch (MalformedURLException | UnknownHostException e) {
-                return false;
-            }
-            return wellKnownConfig
-                    .getNetworkAuthenticationTargetIps()
-                    .contains(hostIp);
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public WebResourceResponse fetchUrlTroughCellular(String originalUrl) {
-        return MobileDataFetcher.fetchWebResourceResponse(originalUrl);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

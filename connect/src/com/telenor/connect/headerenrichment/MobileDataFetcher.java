@@ -6,12 +6,18 @@ import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.webkit.WebResourceResponse;
 
+import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.WellKnownAPI;
+
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +29,29 @@ import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 public class MobileDataFetcher {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static WebResourceResponse fetchWebResourceResponse(String originalUrl) {
+    public static String fetchUrlTroughCellular(String url) {
+        WebResourceResponse webResourceResponse = MobileDataFetcher.fetchWebResourceResponse(url, false);
+        if (webResourceResponse == null) {
+            return null;
+        }
+
+        int statusCode = webResourceResponse.getStatusCode();
+        if (statusCode < 200 || statusCode >= 300) {
+            return null;
+        }
+
+        try {
+            InputStream inputStream = webResourceResponse.getData();
+            String response = IOUtils.toString(inputStream, "UTF-8");
+            inputStream.close();
+            return response;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static WebResourceResponse fetchWebResourceResponse(String originalUrl, boolean allowedToToggleNetworkToUse) {
         String newUrl = originalUrl;
         int attempts = 0;
         Network interfaceToUse = HeLogic.getCellularNetwork();
@@ -57,6 +85,11 @@ public class MobileDataFetcher {
             } catch (final IOException e) {
                 return null;
             }
+            if (allowedToToggleNetworkToUse) {
+                interfaceToUse = shouldFetchThroughCellular(newUrl)
+                        ? ConnectSdk.getCellularNetwork()
+                        : ConnectSdk.getDefaultNetwork();
+            }
         } while (attempts <= HeLogic.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
         return null;
     }
@@ -74,25 +107,31 @@ public class MobileDataFetcher {
         return result;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static String fetchUrlTroughCellular(String url) {
-        WebResourceResponse webResourceResponse = MobileDataFetcher.fetchWebResourceResponse(url);
-        if (webResourceResponse == null) {
-            return null;
+    public static boolean shouldFetchThroughCellular(String url) {
+        WellKnownAPI.WellKnownConfig wellKnownConfig = ConnectSdk.getWellKnownConfig();
+        if (wellKnownConfig == null ||
+                (wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()
+                        && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty())) {
+            return false;
         }
-
-        int statusCode = webResourceResponse.getStatusCode();
-        if (statusCode < 200 || statusCode >= 300) {
-            return null;
-        }
-
-        try {
-            InputStream inputStream = webResourceResponse.getData();
-            String response = IOUtils.toString(inputStream, "UTF-8");
-            inputStream.close();
-            return response;
-        } catch (IOException e) {
-            return null;
+        if (!wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty()) {
+            for (String urlPrefix : wellKnownConfig.getNetworkAuthenticationTargetUrls()) {
+                if (url.contains(urlPrefix)) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            String hostIp;
+            try {
+                String host = (new URL(url)).getHost();
+                hostIp = InetAddress.getByName(host).getHostAddress();
+            } catch (MalformedURLException | UnknownHostException e) {
+                return false;
+            }
+            return wellKnownConfig
+                    .getNetworkAuthenticationTargetIps()
+                    .contains(hostIp);
         }
     }
 }
