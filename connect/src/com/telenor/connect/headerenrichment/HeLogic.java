@@ -50,7 +50,7 @@ public class HeLogic {
                             cellularNetwork = network;
                             boolean noSignedInUser = ConnectSdk.getAccessToken() == null;
                             if (noSignedInUser) {
-                                HeLogic.initializeHeaderEnrichment(useStaging, ConnectSdk.getLogSessionId());
+                                initializeHeaderEnrichment(useStaging, ConnectSdk.getLogSessionId());
                             }
                         }
                     }
