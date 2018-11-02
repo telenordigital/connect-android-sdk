@@ -22,7 +22,7 @@ public class HeLogic {
     private static boolean heTokenSuccess = true;
     private static HeTokenCallback heTokenCallback;
     private static boolean isHeTokenRequestOngoing;
-    private static HeToken heToken;
+    private static HeTokenResponse heTokenResponse;
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
     private static volatile Network defaultNetwork;
@@ -93,12 +93,12 @@ public class HeLogic {
                 super.onPreExecute();
             }
             @Override
-            protected void onPostExecute(HeToken heToken) {
+            protected void onPostExecute(HeTokenResponse heToken) {
                 handleHeTokenResult(heToken);
             }
 
             @Override
-            protected void onCancelled(HeToken heToken) {
+            protected void onCancelled(HeTokenResponse heToken) {
                 handleHeTokenResult(heToken);
             }
         };
@@ -124,8 +124,8 @@ public class HeLogic {
             return;
         }
 
-        boolean heWasNeverInitialized = heTokenSuccess && heToken == null;
-        boolean tokenIsExpired = heToken != null && new Date().after(heToken.getExpiration());
+        boolean heWasNeverInitialized = heTokenSuccess && heTokenResponse == null;
+        boolean tokenIsExpired = heTokenResponse != null && new Date().after(heTokenResponse.getExpiration());
         if (heWasNeverInitialized || tokenIsExpired) {
             setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
             initializeHeaderEnrichment(useStaging, logSessionId);
@@ -157,21 +157,21 @@ public class HeLogic {
         };
     }
 
-    private static void handleHeTokenResult(HeToken heToken) {
+    private static void handleHeTokenResult(HeTokenResponse heTokenResponse) {
         isHeTokenRequestOngoing = false;
-        HeLogic.heToken = heToken;
-        heTokenSuccess = heToken != null;
+        HeLogic.heTokenResponse = heTokenResponse;
+        heTokenSuccess = heTokenResponse != null;
         if (heTokenCallback != null) {
             heTokenCallback.done();
         }
     }
 
     public static boolean failedToGetToken() {
-        return !heTokenSuccess || heToken == null;
+        return !heTokenSuccess || heTokenResponse == null;
     }
 
-    public static HeToken getHeToken() {
-        return heToken;
+    public static HeTokenResponse getHeTokenResponse() {
+        return heTokenResponse;
     }
 
     public static boolean isCellularDataNetworkConnected() {

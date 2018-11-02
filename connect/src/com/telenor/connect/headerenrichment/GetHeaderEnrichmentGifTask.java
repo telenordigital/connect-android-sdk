@@ -16,7 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 @TargetApi(Build.VERSION_CODES.CUPCAKE)
-public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeToken> {
+public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeTokenResponse> {
 
     private final String url;
     private final long timeout;
@@ -42,22 +42,22 @@ public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeToken> {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
-    protected HeToken doInBackground(Void... voids) {
+    protected HeTokenResponse doInBackground(Void... voids) {
         String getTokenResponse = MobileDataFetcher.fetchUrlTroughCellular(url);
         if (getTokenResponse == null) {
             return null;
         }
 
-        HeToken heToken = getHeToken(getTokenResponse);
-        if (heToken == null) {
+        HeTokenResponse heTokenResponse = getHeTokenResponse(getTokenResponse);
+        if (heTokenResponse == null) {
             return null;
         }
 
-        String getGifResponse = MobileDataFetcher.fetchUrlTroughCellular(heToken.getGifUrl());
-        return getGifResponse != null ? heToken : null;
+        String getGifResponse = MobileDataFetcher.fetchUrlTroughCellular(heTokenResponse.getGifUrl());
+        return getGifResponse != null ? heTokenResponse : null;
     }
 
-    private static HeToken getHeToken(String getTokenResponse) {
+    private static HeTokenResponse getHeTokenResponse(String getTokenResponse) {
         String gifUrl;
         String token;
         int exp;
@@ -73,6 +73,6 @@ public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeToken> {
         Calendar instance = Calendar.getInstance();
         instance.add(Calendar.MILLISECOND, exp);
         Date expiration = instance.getTime();
-        return new HeToken(token, expiration, gifUrl);
+        return new HeTokenResponse(token, expiration, gifUrl);
     }
 }

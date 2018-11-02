@@ -23,7 +23,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
-import com.telenor.connect.headerenrichment.HeToken;
+import com.telenor.connect.headerenrichment.HeTokenResponse;
 import com.telenor.connect.headerenrichment.HeTokenCallback;
 import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
@@ -115,8 +115,8 @@ public final class ConnectSdk {
 
     private static Uri getAuthorizeUri(Map<String, String> parameters, BrowserType browserType) {
         boolean failedToGetToken = HeLogic.failedToGetToken();
-        HeToken heToken = HeLogic.getHeToken();
-        return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, failedToGetToken ? null : heToken.getToken());
+        HeTokenResponse heTokenResponse = HeLogic.getHeTokenResponse();
+        return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, failedToGetToken ? null : heTokenResponse.getToken());
     }
 
     private static void launchChromeCustomTabAuthentication(
