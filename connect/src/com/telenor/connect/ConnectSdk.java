@@ -183,7 +183,6 @@ public final class ConnectSdk {
         Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
-        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, wellKnownConfig);
         String mccMnc = getMccMnc();
         if (!TextUtils.isEmpty(mccMnc) && wellKnownConfig != null &&
                 !(wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()
