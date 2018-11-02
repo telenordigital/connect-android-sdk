@@ -28,6 +28,9 @@ import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 
 public class MobileDataFetcher {
 
+    private static final int MAX_REDIRECTS_TO_FOLLOW_FOR_HE = 5;
+
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static String fetchUrlTroughCellular(String url) {
         WebResourceResponse webResourceResponse = MobileDataFetcher.fetchWebResourceResponse(url, false);
@@ -90,7 +93,7 @@ public class MobileDataFetcher {
                         ? HeLogic.getCellularNetwork()
                         : HeLogic.getDefaultNetwork();
             }
-        } while (attempts <= HeLogic.MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
+        } while (attempts <= MAX_REDIRECTS_TO_FOLLOW_FOR_HE);
         return null;
     }
 

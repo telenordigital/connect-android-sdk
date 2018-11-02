@@ -16,8 +16,6 @@ import java.util.Date;
 import java.util.Map;
 
 public class HeLogic {
-    static final int MAX_REDIRECTS_TO_FOLLOW_FOR_HE = 5;
-
     private static final long HE_TOKEN_TIMEOUT_MILLISECONDS = 10_000;
     private static final boolean cantDirectNetworkTraffic = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
     private static boolean heTokenSuccess = true;
