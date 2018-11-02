@@ -19,6 +19,7 @@ public class HeLogic {
     static final int MAX_REDIRECTS_TO_FOLLOW_FOR_HE = 5;
 
     private static final long HE_TOKEN_TIMEOUT_MILLISECONDS = 10_000;
+    private static final boolean cantDirectNetworkTraffic = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
     private static boolean heTokenSuccess = true;
     private static HeTokenCallback heTokenCallback;
     private static boolean isHeTokenRequestOngoing;
@@ -60,28 +61,8 @@ public class HeLogic {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static void initializeDefaultNetwork() {
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .build();
-        try {
-            connectivityManager.requestNetwork(
-                    networkRequest,
-                    new ConnectivityManager.NetworkCallback() {
-                        @Override
-                        public void onAvailable(Network network) {
-                            defaultNetwork = network;
-                        }
-                    }
-            );
-        } catch (SecurityException e) {
-            defaultNetwork = null;
-        }
-    }
-
     private static void initializeHeaderEnrichment(boolean useStaging, String logSessionId) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if (cantDirectNetworkTraffic) {
             return;
         }
 
@@ -105,6 +86,26 @@ public class HeLogic {
         getGifTask.execute();
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private static void initializeDefaultNetwork() {
+        NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build();
+        try {
+            connectivityManager.requestNetwork(
+                    networkRequest,
+                    new ConnectivityManager.NetworkCallback() {
+                        @Override
+                        public void onAvailable(Network network) {
+                            defaultNetwork = network;
+                        }
+                    }
+            );
+        } catch (SecurityException e) {
+            defaultNetwork = null;
+        }
+    }
+
     public static void handleHeToken(
             final Map<String, String> parameters,
             final ShowLoadingCallback showLoadingCallback,
@@ -113,7 +114,7 @@ public class HeLogic {
             final boolean useStaging) {
         boolean finishedUnSuccessfully = !heTokenSuccess && !isHeTokenRequestOngoing;
         boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
-        boolean authenticateNow = finishedUnSuccessfully || promptBlocksUseOfHe;
+        boolean authenticateNow = finishedUnSuccessfully || promptBlocksUseOfHe || cantDirectNetworkTraffic;
         if (authenticateNow) {
             callCallbacks(showLoadingCallback, heTokenCallback);
             return;
@@ -179,7 +180,7 @@ public class HeLogic {
             return false;
         }
         NetworkInfo networkInfo;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if (cantDirectNetworkTraffic) {
             networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         } else {
             if (cellularNetwork == null) {
