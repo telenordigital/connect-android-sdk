@@ -73,6 +73,7 @@ public class HeLogic {
                 HeLogic.isHeTokenRequestOngoing = true;
                 super.onPreExecute();
             }
+
             @Override
             protected void onPostExecute(HeTokenResponse heToken) {
                 handleHeTokenResult(heToken);
