@@ -63,14 +63,6 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        singleFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
     public void onSuccess(Object successData) {
         if (ConnectSdk.isConfidentialClient()) {
             Map<String, String> authCodeData = (Map<String, String>) successData;

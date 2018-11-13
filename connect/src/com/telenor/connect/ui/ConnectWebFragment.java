@@ -103,20 +103,11 @@ public class ConnectWebFragment extends Fragment {
     public void onPause() {
         super.onPause();
         webView.onPause();
-        client.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         webView.onResume();
-        client.onResume();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        client.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

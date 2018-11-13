@@ -7,13 +7,8 @@ import java.util.regex.Pattern;
 
 public class SmsPinParseUtil {
 
-    private static final String MUST_CONTAIN = "CONNECT";
-    // For security reasons all SMS that are going to be checked for PIN codes needs to be
-    // checked for the keyword `CONNECT`. Otherwise a malicious person might use a regex that
-    // grabs the entire sms, from all senders.
-
     public static String findPin(String body, Instruction instruction) {
-        if (body == null || body.isEmpty() || !body.contains(MUST_CONTAIN)) {
+        if (body == null || body.isEmpty()) {
             return null;
         }
 
