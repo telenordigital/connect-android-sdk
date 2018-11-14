@@ -28,7 +28,6 @@ import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.id.UserInfo;
-import com.telenor.connect.sms.AppSignatureHelper;
 import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.ui.ConnectWebViewLoginButton;
