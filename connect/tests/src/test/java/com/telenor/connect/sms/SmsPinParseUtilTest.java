@@ -224,4 +224,10 @@ public class SmsPinParseUtilTest {
         String body = "RM1234.56 <#> 7627 is your TelenorID code. CYqONjqLRCh";
         assertThat(SmsPinParseUtil.findPin(body), is("7627"));
     }
+
+    @Test
+    public void findsPinInMinimalSms() {
+        String body = "<#>7627CYqONjqLRCh";
+        assertThat(SmsPinParseUtil.findPin(body), is("7627"));
+    }
 }
