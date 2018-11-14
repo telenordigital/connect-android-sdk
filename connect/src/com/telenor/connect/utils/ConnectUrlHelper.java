@@ -101,4 +101,12 @@ public class ConnectUrlHelper {
                 Build.VERSION.RELEASE,
                 browserType != null ? browserType.getVersionString() : "not-defined");
     }
+
+    public static String getSubmitPinUrl(String pin) {
+        return ConnectUrlHelper.getConnectApiUrl().newBuilder()
+                .addPathSegments("id/submit-pin")
+                .addQueryParameter("pin", pin)
+                .build()
+                .toString();
+    }
 }

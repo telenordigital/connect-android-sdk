@@ -42,8 +42,6 @@ import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 public class ConnectWebViewClient extends WebViewClient implements SmsHandler, InstructionHandler {
 
     private static final int DELAY_HIDE_NATIVE_LOADING_VIEW = 50;
-    private static final IntentFilter SMS_FILTER = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-
     private static final Pattern TD_HTTPS_PATTERN
             = Pattern.compile("^https://.*telenordigital.com(?:$|/)");
     private static final String JAVASCRIPT_PROCESSES_INSTRUCTIONS
@@ -75,7 +73,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         this.connectCallback = callback;
         SmsRetrieverUtil.startSmsRetriever(activity);
         SmsBroadcastReceiver smsBroadcastReceiver = new SmsBroadcastReceiver(this);
-        activity.registerReceiver(smsBroadcastReceiver, SMS_FILTER);
+        activity.registerReceiver(smsBroadcastReceiver, SmsRetrieverUtil.SMS_FILTER);
     }
 
     @Override

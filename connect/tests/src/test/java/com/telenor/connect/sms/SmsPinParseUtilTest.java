@@ -133,14 +133,6 @@ public class SmsPinParseUtilTest {
     }
 
     @Test
-    public void pinWithoutCONNECTInItReturnsNull() {
-        final Instruction instruction = get4DigitPinInstruction();
-        String body = "Google: 0022 is your verification code";
-        String actual = SmsPinParseUtil.findPin(body, instruction);
-        assertThat(actual, is(nullValue()));
-    }
-
-    @Test
     public void smsWithNonMatchingPatternReturnsNull() {
         final Instruction instruction = get4DigitPinInstruction();
         String body = "RM0.00 Hi. Please click on the link below to change " +
@@ -207,5 +199,29 @@ public class SmsPinParseUtilTest {
         String body = "<s>99999999</s> သို့ မှန်ကန်ကြောင်းအတည်ပြုတဲ့ ကုတ်နံပါတ် ပို့ပေးလိုက်ပါပြီ။ ကျေးဇူးပြုပြီး သင့်ဖုန်းနံပါတ်ကို အတည်ပြုဖို့ အဲဒီကုတ်နံပါတ်ကို အောက်ဖက်မှာ ရိုက်ထည့်လိုက်ပါ။";
         String actual = SmsPinParseUtil.findPin(body, instruction);
         assertThat(actual, nullValue());
+    }
+
+    @Test
+    public void findsPinInAppHashSms() {
+        String body = "<#> 7627 is your TelenorID code. CYqONjqLRCh";
+        assertThat(SmsPinParseUtil.findPin(body), is("7627"));
+    }
+
+    @Test
+    public void doesNotRequireSpaceBetweenLessThanSignAndPin() {
+        String body = "<#>7627 is your TelenorID code. CYqONjqLRCh";
+        assertThat(SmsPinParseUtil.findPin(body), is("7627"));
+    }
+
+    @Test
+    public void doesNotRequireSpaceBetweenLastCharInMessageAndHash() {
+        String body = "<#> 7627 is your TelenorID code.CYqONjqLRCh";
+        assertThat(SmsPinParseUtil.findPin(body), is("7627"));
+    }
+
+    @Test
+    public void findsPinInAppHashSmsThatIsPrefixed() {
+        String body = "RM1234.56 <#> 7627 is your TelenorID code. CYqONjqLRCh";
+        assertThat(SmsPinParseUtil.findPin(body), is("7627"));
     }
 }

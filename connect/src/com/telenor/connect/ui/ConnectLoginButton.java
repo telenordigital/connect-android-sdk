@@ -19,6 +19,10 @@ import android.view.View;
 import com.telenor.connect.BrowserType;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.sms.SmsBroadcastReceiver;
+import com.telenor.connect.sms.SmsHandler;
+import com.telenor.connect.sms.SmsPinParseUtil;
+import com.telenor.connect.sms.SmsRetrieverUtil;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.CustomTabsHelper;
 import com.telenor.connect.utils.Validator;
@@ -112,6 +116,25 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     }
 
     private void launchChromeCustomTabAuthentication() {
+        SmsRetrieverUtil.startSmsRetriever(getContext());
+        SmsBroadcastReceiver smsBroadcastReceiver = new SmsBroadcastReceiver(new SmsHandler() {
+            @Override
+            public void receivedSms(String messageBody) {
+                String pin = SmsPinParseUtil.findPin(messageBody);
+                if (pin == null) {
+                    return;
+                }
+                String url = ConnectUrlHelper.getSubmitPinUrl(pin);
+                Uri uri = Uri.parse(url);
+                launchUrlInCustomTab(uri);
+            }
+        });
+        getContext().registerReceiver(smsBroadcastReceiver, SmsRetrieverUtil.SMS_FILTER);
+        Uri authorizeUri = getAuthorizeUri();
+        launchUrlInCustomTab(authorizeUri);
+    }
+
+    private void launchUrlInCustomTab(Uri uri) {
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(session);
         CustomTabsIntent cctIntent = builder.build();
         Intent intent = cctIntent.intent;
@@ -122,8 +145,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
             intent.putExtra(Intent.EXTRA_REFERRER,
                     Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getContext().getPackageName()));
         }
-        Uri authorizeUri = getAuthorizeUri();
-        cctIntent.launchUrl(getActivity(), authorizeUri);
+        cctIntent.launchUrl(getContext(), uri);
     }
 
     private void setSession(CustomTabsSession session) {

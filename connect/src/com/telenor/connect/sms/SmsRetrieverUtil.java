@@ -1,6 +1,7 @@
 package com.telenor.connect.sms;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -12,6 +13,8 @@ import com.google.android.gms.tasks.Task;
 import com.telenor.connect.utils.ConnectUtils;
 
 public class SmsRetrieverUtil {
+    public static final IntentFilter SMS_FILTER = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
+
     public static void startSmsRetriever(Context context) {
         SmsRetrieverClient client = SmsRetriever.getClient(context);
         Task<Void> task = client.startSmsRetriever();
