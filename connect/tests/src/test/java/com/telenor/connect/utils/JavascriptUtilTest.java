@@ -1,7 +1,5 @@
 package com.telenor.connect.utils;
 
-import android.test.AndroidTestCase;
-
 import com.telenor.connect.ui.Instruction;
 
 import org.junit.Test;
@@ -14,10 +12,11 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
-public class JavascriptUtilTest extends AndroidTestCase {
+public class JavascriptUtilTest {
 
     @Test
     public void nameAndArgumentGivesJavascriptFunctionCallString() throws Exception {
