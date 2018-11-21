@@ -230,4 +230,10 @@ public class SmsPinParseUtilTest {
         String body = "<#>7627CYqONjqLRCh";
         assertThat(SmsPinParseUtil.findPin(body), is("7627"));
     }
+
+    @Test
+    public void findsPinWithPlusAndForwardSlashInHash() {
+        String body = "<#> 7627 is your TelenorID code. 7627CYqONjqLR+/";
+        assertThat(SmsPinParseUtil.findPin(body), is("7627"));
+    }
 }

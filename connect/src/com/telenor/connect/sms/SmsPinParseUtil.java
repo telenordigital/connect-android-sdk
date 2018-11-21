@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public class SmsPinParseUtil {
 
-    private static final Pattern PIN_PATTERN = Pattern.compile("<#>.*([0-9]{4}).*.{11}");
+    private static final Pattern PIN_PATTERN = Pattern.compile("<#>.*([0-9]{4}).*[A-Za-z0-9+/]{11}");
 
     public static String findPin(String body, Instruction instruction) {
         if (body == null || body.isEmpty()) {
