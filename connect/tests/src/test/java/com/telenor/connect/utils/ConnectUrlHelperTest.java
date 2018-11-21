@@ -10,14 +10,19 @@ import com.telenor.connect.BrowserType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import okhttp3.HttpUrl;
 
@@ -237,5 +242,49 @@ public class ConnectUrlHelperTest {
                 authorizeUri
                         .getQueryParameter("telenordigital_sdk_version")
                         .endsWith("web-view"), is(true));
+    }
+
+    @Test
+    public void obfuscatesPinCorrectly() throws Exception {
+        String logSessionId = UUID.randomUUID().toString();
+        String pin = "1234";
+        String obfuscatedPin = ConnectUrlHelper.getObfuscatedPin(pin, logSessionId);
+        String urlEncoded = URLEncoder.encode(obfuscatedPin, "UTF-8");
+
+        String value = serverImplementation(urlEncoded, logSessionId).get();
+        assertThat(pin, is(value));
+    }
+
+    private Optional<String> serverImplementation(String urlEncoded, String logSessionId) {
+        String urlDecoded;
+        try {
+            urlDecoded = URLDecoder.decode(urlEncoded, "UTF-8");
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 not supported.", e);
+        }
+        byte[] decodedBytes;
+        try {
+            decodedBytes = Base64.getDecoder().decode(urlDecoded);
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
+        String base64decoded = new String(decodedBytes);
+        String[] split = base64decoded.split(":");
+        if (split.length != 2) {
+            return Optional.empty();
+        }
+
+        String submittedLogSessionId = split[1];
+        if (!logSessionId.equals(submittedLogSessionId)) {
+            return Optional.empty();
+        }
+
+        String queryParamPin = split[0];
+        if (!queryParamPin.matches("[0-9]{4,}")) {
+            return Optional.empty();
+        }
+        return Optional.of(queryParamPin);
     }
 }

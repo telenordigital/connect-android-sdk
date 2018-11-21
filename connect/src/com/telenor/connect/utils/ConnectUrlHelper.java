@@ -4,12 +4,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
 
 import com.telenor.connect.BrowserType;
 import com.telenor.connect.BuildConfig;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,10 +105,29 @@ public class ConnectUrlHelper {
     }
 
     public static String getSubmitPinUrl(String pin) {
+        String obfuscatedPin = getObfuscatedPin(pin, ConnectSdk.getLogSessionId());
         return ConnectUrlHelper.getConnectApiUrl().newBuilder()
                 .addPathSegments("id/submit-pin")
-                .addQueryParameter("pin", pin)
+                .addQueryParameter("pin", obfuscatedPin)
                 .build()
                 .toString();
+    }
+
+    protected static String getObfuscatedPin(String pin, String logSessionId) {
+        String combined = pin + ":" + logSessionId;
+        byte[] bytes;
+        try {
+            bytes = combined.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 not supported.", e);
+        }
+        byte[] encoded = Base64.encode(bytes, Base64.NO_WRAP);
+        try {
+            return new String(encoded, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 not supported.", e);
+        }
+        // custom tabs automatically url encodes the result, so it's not done here, to avoid
+        // double encoding it.
     }
 }
