@@ -30,6 +30,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.support.customtabs.CustomTabsService;
+
 /**
  * Helper class for Custom Tabs.
  */
