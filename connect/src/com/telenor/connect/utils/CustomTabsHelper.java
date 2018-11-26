@@ -30,8 +30,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.support.customtabs.CustomTabsService;
-
 /**
  * Helper class for Custom Tabs.
  */
@@ -43,6 +41,10 @@ public class CustomTabsHelper {
     static final String LOCAL_PACKAGE = "com.google.android.apps.chrome";
 
     private static String sPackageNameToUse;
+    
+    @SuppressWarnings("StringBufferReplaceableByString")
+    private static final String ACTION_CUSTOM_TABS_CONNECTION = new StringBuilder("android")
+            .append(".support.customtabs.action.CustomTabsService").toString();
 
     private CustomTabsHelper() {}
 
@@ -73,7 +75,7 @@ public class CustomTabsHelper {
         List<String> packagesSupportingCustomTabs = new ArrayList<>();
         for (ResolveInfo info : resolvedActivityList) {
             Intent serviceIntent = new Intent();
-            serviceIntent.setAction(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);
+            serviceIntent.setAction(ACTION_CUSTOM_TABS_CONNECTION);
             serviceIntent.setPackage(info.activityInfo.packageName);
             if (pm.resolveService(serviceIntent, 0) != null) {
                 packagesSupportingCustomTabs.add(info.activityInfo.packageName);
