@@ -16,7 +16,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignInActivity" >
+        <activity android:name=".SignInActivity" android:launchMode="singleTask">
             <!-- enable this filter to activate chrome custom tabs and sso <intent-filter>
                 <data android:scheme="@string/connect_redirect_uri_scheme" />
                 <action android:name="android.intent.action.VIEW" />
