@@ -49,7 +49,6 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     private OnClickListener onClickListener;
     private CustomTabsServiceConnection connection;
     private boolean customTabsSupported = false;
-    private boolean launchCustomTabInNewTask = true;
     private boolean serviceBound = false;
     private BrowserType browserType;
     private CustomTabsSession session;
@@ -59,10 +58,6 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         setText(R.string.com_telenor_connect_login_button_text);
         onClickListener = new LoginClickListener();
         setOnClickListener(onClickListener);
-    }
-
-    public void setLaunchCustomTabInNewTask(boolean launchCustomTabInNewTask) {
-        this.launchCustomTabInNewTask = launchCustomTabInNewTask;
     }
 
     public OnClickListener getOnClickListener() {
@@ -138,9 +133,6 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(session);
         CustomTabsIntent cctIntent = builder.build();
         Intent intent = cctIntent.intent;
-        if (launchCustomTabInNewTask) {
-            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             intent.putExtra(Intent.EXTRA_REFERRER,
                     Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getContext().getPackageName()));
