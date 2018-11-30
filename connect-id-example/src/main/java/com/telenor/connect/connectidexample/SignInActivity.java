@@ -32,6 +32,21 @@ public class SignInActivity extends Activity {
                 buttonClickListener.onClick(v);
             }
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (ConnectSdk.hasValidRedirectUrlCall(getIntent())) {
+            showLoading();
+        } else {
+            showEnabledButton();
+        }
 
         ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
             @Override
@@ -44,16 +59,6 @@ public class SignInActivity extends Activity {
                 Log.e(ConnectUtils.LOG_TAG, errorData.toString());
             }
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (ConnectSdk.hasValidRedirectUrlCall(getIntent())) {
-            showLoading();
-        } else {
-            showEnabledButton();
-        }
     }
 
     private void showLoading() {

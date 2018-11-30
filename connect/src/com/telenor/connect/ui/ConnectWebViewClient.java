@@ -1,17 +1,13 @@
 package com.telenor.connect.ui;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Network;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -19,13 +15,14 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
-import com.telenor.connect.sms.SmsCursorUtil;
 import com.telenor.connect.sms.SmsHandler;
 import com.telenor.connect.sms.SmsPinParseUtil;
+import com.telenor.connect.sms.SmsRetrieverUtil;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.JavascriptUtil;
 
@@ -44,14 +41,7 @@ import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 
 public class ConnectWebViewClient extends WebViewClient implements SmsHandler, InstructionHandler {
 
-    private static final int RACE_CONDITION_DELAY_CHECK_ALREADY_RECEIVED_SMS = 700;
-    private static final int READ_RECEIVE_SMS_REQUEST_CODE = 0x2321;
-    private static final String[] SMS_PERMISSIONS
-            = new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS};
-    private static long CHECK_FOR_SMS_BACK_IN_TIME_MILLIS = 2500;
-    private static long CHECK_FOR_SMS_TIMEOUT = 60000;
     private static final int DELAY_HIDE_NATIVE_LOADING_VIEW = 50;
-
     private static final Pattern TD_HTTPS_PATTERN
             = Pattern.compile("^https://.*telenordigital.com(?:$|/)");
     private static final String JAVASCRIPT_PROCESSES_INSTRUCTIONS
@@ -59,20 +49,16 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             "window.AndroidInterface.processInstructions(document.getElementById('android-instructions').innerHTML)" +
             "}";
 
-    private final IntentFilter SMS_FILTER
-            = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
     private final Activity activity;
     private final View loadingView;
     private final WebErrorView errorView;
     private final WebView webView;
-    private final SmsBroadcastReceiver smsBroadcastReceiver;
     private final ConnectCallback connectCallback;
 
     private boolean waitingForPinSms = false;
     private boolean instructionsReceived;
-    private long pageLoadStarted;
     private Instruction callbackInstruction;
-    private List<Instruction> smsPermissionsCallbackInstructions;
+    private String savedSmsBody;
 
     public ConnectWebViewClient(
             Activity activity,
@@ -85,7 +71,9 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         this.loadingView = loadingView;
         this.errorView = errorView;
         this.connectCallback = callback;
-        this.smsBroadcastReceiver = new SmsBroadcastReceiver(this);
+        SmsRetrieverUtil.startSmsRetriever(activity);
+        SmsBroadcastReceiver smsBroadcastReceiver = new SmsBroadcastReceiver(this);
+        activity.registerReceiver(smsBroadcastReceiver, SmsRetrieverUtil.SMS_FILTER);
     }
 
     @Override
@@ -207,7 +195,6 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        pageLoadStarted = System.currentTimeMillis();
         hideLoadingViewWithDelayIfHEILoading(url);
         instructionsReceived = false;
         super.onPageStarted(view, url, favicon);
@@ -245,15 +232,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             return;
         }
         instructionsReceived = true;
-
         if (containsSmsInstruction(instructions)) {
-            if (hasPermissionToReadSms()) {
-                executeInstructions(instructions);
-            } else {
-                smsPermissionsCallbackInstructions = instructions;
-                requestSmsPermissions();
-            }
-        } else {
             executeInstructions(instructions);
         }
     }
@@ -265,22 +244,6 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             }
         }
         return false;
-    }
-
-    private boolean hasPermissionToReadSms() {
-        int res1 = activity.checkCallingOrSelfPermission(Manifest.permission.RECEIVE_SMS);
-        int res2 = activity.checkCallingOrSelfPermission(Manifest.permission.READ_SMS);
-
-        return res1 == PackageManager.PERMISSION_GRANTED
-                && res2 == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestSmsPermissions() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return;
-        }
-
-        activity.requestPermissions(SMS_PERMISSIONS, READ_RECEIVE_SMS_REQUEST_CODE);
     }
 
     private void executeInstructions(List<Instruction> instructions) {
@@ -306,73 +269,36 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     private void getPinFromSms(final Instruction instruction) {
         callbackInstruction = instruction;
         waitingForPinSms = true;
-
-        subscribeToNewSms();
-        handleIfSmsAlreadyArrived(instruction);
-        stopGetPin(CHECK_FOR_SMS_TIMEOUT);
+        handleIfSmsAlreadyArrived();
     }
 
-    private void subscribeToNewSms() {
-        activity.registerReceiver(smsBroadcastReceiver, SMS_FILTER);
-    }
-
-    private void stopGetPin(long delay) {
-        webView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ConnectWebViewClient.this.stopGetPin();
-            }
-        }, delay);
-    }
-
-    private void stopGetPin() {
+    private void stopWaitingForPin() {
         waitingForPinSms = false;
-        safeUnSubscribeToSmsReceived();
+        savedSmsBody = null;
+        callbackInstruction = null;
     }
 
-    private void safeUnSubscribeToSmsReceived() {
-        try {
-            activity.unregisterReceiver(smsBroadcastReceiver);
-        } catch (IllegalArgumentException ignore) {}
-    }
-
-    private void handleIfSmsAlreadyArrived(final Instruction instruction) {
-        webView.postDelayed(new Runnable() {
+    private void handleIfSmsAlreadyArrived() {
+        if (savedSmsBody == null) {
+            return;
+        }
+        webView.post(new Runnable() {
             @Override
             public void run() {
-                Cursor cursor = null;
-                try {
-                    cursor = SmsCursorUtil.getSmsCursor(activity,
-                            pageLoadStarted-CHECK_FOR_SMS_BACK_IN_TIME_MILLIS);
-                } catch (SecurityException e) {
-                    Log.e(ConnectUtils.LOG_TAG, "Failed to acquire SMS cursor", e);
-                    return;
-                }
-
-                if (cursor == null || cursor.getCount() <= 0) {
-                    return;
-                }
-
-                if (!cursor.moveToFirst()) {
-                    return;
-                }
-
-                String body = cursor.getString(0);
-                handlePinFromSmsBodyIfPresent(body, instruction);
+                receivedSms(savedSmsBody);
             }
-        }, RACE_CONDITION_DELAY_CHECK_ALREADY_RECEIVED_SMS);
+        });
     }
 
     private synchronized void handlePinFromSmsBodyIfPresent(String body, final Instruction instruction) {
         final String foundPin = SmsPinParseUtil.findPin(body, instruction);
         if (waitingForPinSms && foundPin != null && instruction.getPinCallbackName() != null) {
-            stopGetPin();
+            stopWaitingForPin();
             webView.post(new Runnable() {
                 @Override
                 public void run() {
                     String javascript = JavascriptUtil.getJavascriptString(
-                            instruction.getPinCallbackName()
-                            , "'"+foundPin+"'");
+                            instruction.getPinCallbackName(), "'"+foundPin+"'");
                     webView.loadUrl("javascript:" + javascript);
                 }
             });
@@ -380,31 +306,12 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     }
 
     @Override
-    public void receivedSms(String originatingAddress, String messageBody) {
+    public void receivedSms(String messageBody) {
+        if (callbackInstruction == null) {
+            savedSmsBody = messageBody;
+            return;
+        }
         handlePinFromSmsBodyIfPresent(messageBody, callbackInstruction);
     }
 
-    public void onPause() {
-        safeUnSubscribeToSmsReceived();
-    }
-
-    public void onResume() {
-        if (waitingForPinSms) {
-            subscribeToNewSms();
-            handleIfSmsAlreadyArrived(callbackInstruction);
-        }
-    }
-
-    public void onRequestPermissionsResult(int requestCode,
-                                           String[] permissions,
-                                           int[] grantResults) {
-        if (requestCode != READ_RECEIVE_SMS_REQUEST_CODE
-                || grantResults.length != 2
-                || grantResults[0] != PackageManager.PERMISSION_GRANTED
-                || grantResults[1] != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        executeInstructions(smsPermissionsCallbackInstructions);
-        smsPermissionsCallbackInstructions = null;
-    }
 }

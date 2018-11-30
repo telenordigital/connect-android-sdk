@@ -7,9 +7,11 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.webkit.WebView;
 
+import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
+import com.telenor.connect.sms.SmsRetrieverUtil;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.id.ParseTokenCallback;
 
@@ -44,17 +46,18 @@ import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 18)
 @PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*" })
-@PrepareForTest({ConnectSdk.class, ConnectUtils.class})
+@PrepareForTest({ConnectSdk.class, ConnectUtils.class, SmsRetrieverUtil.class})
 public class ConnectWebViewClientTest {
 
     @Rule
     public PowerMockRule rule = new PowerMockRule(); // needed to activate PowerMock
 
     private IntentFilter smsReceivedFilter
-            = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+            = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
 
     @Test
     public void checkForInstructionsIsCalledOnAnyTelenorDigitalHttpsPage() throws Exception {
+        mockStatic(SmsRetrieverUtil.class);
         ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
@@ -74,6 +77,7 @@ public class ConnectWebViewClientTest {
 
     @Test
     public void checkForInstructionsIsNotCalledOnNonHttpsPages() throws Exception {
+        mockStatic(SmsRetrieverUtil.class);
         ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
@@ -90,6 +94,7 @@ public class ConnectWebViewClientTest {
 
     @Test
     public void checkForInstructionsIsNotCalledOnNonTelenorDigitalPages() throws Exception {
+        mockStatic(SmsRetrieverUtil.class);
         ConnectCallback callback = mock(ConnectCallback.class);
         Activity activity = mock(Activity.class);
         WebView webView = mock(WebView.class);
@@ -107,6 +112,7 @@ public class ConnectWebViewClientTest {
     @Test
     public void activityRegisterReceiverWithSmsReceivedFilterIsCalledOnPinInstruction()
             throws Exception {
+        mockStatic(SmsRetrieverUtil.class);
         ConnectCallback callback = mock(ConnectCallback.class);
         Instruction instruction = getPinInstruction();
 
@@ -149,6 +155,7 @@ public class ConnectWebViewClientTest {
 
     @Test
     public void urlsThatDoNotStartWithCancelOrSuccessOrRedirectUriDoesNotOverrideLoading() {
+        mockStatic(SmsRetrieverUtil.class);
         mockStatic(ConnectSdk.class);
         given(ConnectSdk.isInitialized()).willReturn(true);
 
@@ -170,6 +177,7 @@ public class ConnectWebViewClientTest {
     
     @Test
     public void urlsThatStartWithRedirectUriCallsParseAuthCode() {
+        mockStatic(SmsRetrieverUtil.class);
         mockStatic(ConnectSdk.class);
         given(ConnectSdk.isInitialized()).willReturn(true);
         given(ConnectSdk.getRedirectUri()).willReturn("redirect-uri");
