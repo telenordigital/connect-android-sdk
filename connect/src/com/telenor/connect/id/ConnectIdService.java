@@ -96,7 +96,7 @@ public class ConnectIdService {
                         } else {
                             clearTokensAndNotify();
                             if (callback != null) {
-                                callback.onError(null);
+                                callback.onError(response.errorBody());
                             }
                         }
                     }
