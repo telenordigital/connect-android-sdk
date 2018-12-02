@@ -39,7 +39,6 @@ public class ConnectLoginButtonWithoutProgressBar extends ConnectWebViewLoginBut
     private OnClickListener onClickListener;
     private CustomTabsServiceConnection connection;
     private boolean customTabsSupported = false;
-    private boolean launchCustomTabInNewTask = true;
     private boolean serviceBound = false;
     private BrowserType browserType;
     private CustomTabsSession session;
@@ -64,16 +63,10 @@ public class ConnectLoginButtonWithoutProgressBar extends ConnectWebViewLoginBut
         }
         ConnectSdk.authenticate(
                 session,
-                launchCustomTabInNewTask,
-                getContext().getPackageName(),
                 getParameters(),
                 browserType,
                 getActivity(),
                 getShowLoadingCallback());
-    }
-
-    public void setLaunchCustomTabInNewTask(boolean launchCustomTabInNewTask) {
-        this.launchCustomTabInNewTask = launchCustomTabInNewTask;
     }
 
     public OnClickListener getOnClickListener() {

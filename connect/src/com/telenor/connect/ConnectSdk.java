@@ -30,6 +30,10 @@ import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.UserInfo;
+import com.telenor.connect.sms.SmsBroadcastReceiver;
+import com.telenor.connect.sms.SmsHandler;
+import com.telenor.connect.sms.SmsPinParseUtil;
+import com.telenor.connect.sms.SmsRetrieverUtil;
 import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.ui.ConnectWebViewLoginButton;
@@ -51,8 +55,6 @@ import java.util.UUID;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public final class ConnectSdk {
     private static ArrayList<Locale> sLocales;
@@ -96,8 +98,6 @@ public final class ConnectSdk {
 
     public static synchronized void authenticate(
             final CustomTabsSession session,
-            final boolean launchCustomTabInNewTask,
-            final String packageName,
             final Map<String, String> parameters,
             final BrowserType browserType,
             final Activity activity,
@@ -107,7 +107,7 @@ public final class ConnectSdk {
             @Override
             public void done() {
                 Uri authorizeUri = getAuthorizeUri(parameters, browserType);
-                launchChromeCustomTabAuthentication(session, launchCustomTabInNewTask, packageName, authorizeUri, activity);
+                launchChromeCustomTabAuthentication(session, authorizeUri, activity);
             }
         };
         HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
@@ -124,22 +124,35 @@ public final class ConnectSdk {
     }
 
     private static void launchChromeCustomTabAuthentication(
-            CustomTabsSession session,
-            boolean launchCustomTabInNewTask,
-            String packageName,
+            final CustomTabsSession session,
             Uri authorizeUri,
-            Activity activity) {
+            final Activity activity) {
+        SmsRetrieverUtil.startSmsRetriever(getContext());
+        SmsBroadcastReceiver smsBroadcastReceiver = new SmsBroadcastReceiver(new SmsHandler() {
+            @Override
+            public void receivedSms(String messageBody) {
+                String pin = SmsPinParseUtil.findPin(messageBody);
+                if (pin == null) {
+                    return;
+                }
+                String url = ConnectUrlHelper.getSubmitPinUrl(pin);
+                Uri uri = Uri.parse(url);
+                launchUrlInCustomTab(activity, session, uri);
+            }
+        });
+        getContext().registerReceiver(smsBroadcastReceiver, SmsRetrieverUtil.SMS_FILTER);
+        launchUrlInCustomTab(activity, session, authorizeUri);
+    }
+
+    private static void launchUrlInCustomTab(Activity activity, CustomTabsSession session, Uri uri) {
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(session);
         CustomTabsIntent cctIntent = builder.build();
         Intent intent = cctIntent.intent;
-        if (launchCustomTabInNewTask) {
-            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             intent.putExtra(Intent.EXTRA_REFERRER,
-                    Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + packageName));
+                    Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + activity.getPackageName()));
         }
-        cctIntent.launchUrl(activity, authorizeUri);
+        cctIntent.launchUrl(activity, uri);
     }
 
     public static synchronized void authenticate(
@@ -578,6 +591,7 @@ public final class ConnectSdk {
         if (!hasValidRedirectUrlCall(intent)) {
             return;
         }
+        connectStore.clearSessionStateParam();
         final String code = getCodeFromIntent(intent);
         getAccessTokenFromCode(code, callback);
     }

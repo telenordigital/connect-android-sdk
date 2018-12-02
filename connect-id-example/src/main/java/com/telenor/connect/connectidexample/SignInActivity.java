@@ -18,7 +18,16 @@ public class SignInActivity extends Activity {
         setContentView(R.layout.activity_sign_in);
         ConnectLoginButton loginButton = findViewById(R.id.login_button);
         loginButton.setLoginScopeTokens("profile openid");
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
             @Override
             public void onSuccess(Object successData) {
