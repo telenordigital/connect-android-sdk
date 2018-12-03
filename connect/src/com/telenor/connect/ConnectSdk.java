@@ -528,7 +528,6 @@ public final class ConnectSdk {
         if (!hasValidRedirectUrlCall(intent)) {
             return;
         }
-        connectStore.clearSessionStateParam();
         final String code = getCodeFromIntent(intent);
         getAccessTokenFromCode(code, callback);
     }
