@@ -23,11 +23,6 @@ public class SignInActivity extends Activity {
     @Override
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
             @Override
             public void onSuccess(Object successData) {
