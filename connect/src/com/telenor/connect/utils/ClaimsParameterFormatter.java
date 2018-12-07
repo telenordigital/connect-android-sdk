@@ -1,6 +1,6 @@
 package com.telenor.connect.utils;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.telenor.connect.id.Claims;
 

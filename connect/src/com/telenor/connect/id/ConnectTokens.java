@@ -1,6 +1,6 @@
 package com.telenor.connect.id;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.telenor.connect.utils.Validator;
 

@@ -2,7 +2,7 @@ package com.telenor.connect.sms;
 
 import android.content.Context;
 import android.content.IntentFilter;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;

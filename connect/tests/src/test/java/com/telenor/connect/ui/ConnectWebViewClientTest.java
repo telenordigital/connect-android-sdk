@@ -3,7 +3,7 @@ package com.telenor.connect.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.View;
 import android.webkit.WebView;
 

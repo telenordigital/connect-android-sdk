@@ -1,8 +1,8 @@
 package com.telenor.connect.utils;
 
 import android.annotation.SuppressLint;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.text.ParseException;

@@ -1,6 +1,6 @@
 package com.telenor.connect.sms;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.telenor.connect.ui.Instruction;
 import com.telenor.connect.ui.InstructionHandler;

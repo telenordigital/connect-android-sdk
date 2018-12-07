@@ -1,20 +1,17 @@
 package com.telenor.connect.ui;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
 import com.telenor.connect.id.Claims;
 import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
 import com.telenor.connect.utils.Validator;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
