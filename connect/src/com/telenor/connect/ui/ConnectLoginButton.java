@@ -30,8 +30,6 @@ import com.telenor.connect.utils.Validator;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-
 public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
     private static final Uri PRE_FETCH_URL
@@ -52,6 +50,7 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
     private boolean serviceBound = false;
     private BrowserType browserType;
     private CustomTabsSession session;
+    private SmsBroadcastReceiver smsBroadcastReceiver;
 
     public ConnectLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -112,13 +111,14 @@ public class ConnectLoginButton extends ConnectWebViewLoginButton {
 
     private void launchChromeCustomTabAuthentication() {
         SmsRetrieverUtil.startSmsRetriever(getContext());
-        SmsBroadcastReceiver smsBroadcastReceiver = new SmsBroadcastReceiver(new SmsHandler() {
+        smsBroadcastReceiver = new SmsBroadcastReceiver(new SmsHandler() {
             @Override
             public void receivedSms(String messageBody) {
                 String pin = SmsPinParseUtil.findPin(messageBody);
                 if (pin == null) {
                     return;
                 }
+                getContext().unregisterReceiver(smsBroadcastReceiver);
                 String url = ConnectUrlHelper.getSubmitPinUrl(pin);
                 Uri uri = Uri.parse(url);
                 launchUrlInCustomTab(uri);
