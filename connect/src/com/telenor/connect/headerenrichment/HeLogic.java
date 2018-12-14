@@ -62,9 +62,7 @@ public class HeLogic {
     }
 
     private static void initializeHeaderEnrichment(boolean useStaging, String logSessionId) {
-        if (cantDirectNetworkTraffic) {
-            return;
-        }
+        if (cantDirectNetworkTraffic) { return; }
 
         String url = ConnectUrlHelper.getHeApiUrl(useStaging, logSessionId);
         GetHeaderEnrichmentGifTask getGifTask = new GetHeaderEnrichmentGifTask(url, HE_TOKEN_TIMEOUT_MILLISECONDS) {
