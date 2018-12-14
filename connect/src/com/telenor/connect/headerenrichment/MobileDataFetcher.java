@@ -30,7 +30,6 @@ public class MobileDataFetcher {
 
     private static final int MAX_REDIRECTS_TO_FOLLOW_FOR_HE = 5;
 
-
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static String fetchUrlTroughCellular(String url) {
         WebResourceResponse webResourceResponse = MobileDataFetcher.fetchWebResourceResponse(url, false);
