@@ -28,7 +28,9 @@ public class HeLogic {
 
     public static void initializeNetworks(Context context, boolean useStaging) {
         connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        boolean connectivityManagerAvailableAndNotTooOldAndroid = connectivityManager != null
+                        && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        if (connectivityManagerAvailableAndNotTooOldAndroid) {
             initializeCellularNetwork(useStaging);
             initializeDefaultNetwork();
         }
