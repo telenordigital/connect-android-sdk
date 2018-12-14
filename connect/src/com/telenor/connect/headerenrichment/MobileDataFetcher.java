@@ -38,7 +38,8 @@ public class MobileDataFetcher {
         }
 
         int statusCode = webResourceResponse.getStatusCode();
-        if (statusCode < 200 || statusCode >= 300) {
+        boolean successStatus = statusCode < 200 || statusCode >= 300;
+        if (successStatus) {
             return null;
         }
 
