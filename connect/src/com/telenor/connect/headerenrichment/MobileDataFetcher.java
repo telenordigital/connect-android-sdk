@@ -33,15 +33,11 @@ public class MobileDataFetcher {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static String fetchUrlThroughCellular(String url) {
         WebResourceResponse webResourceResponse = MobileDataFetcher.fetchWebResourceResponse(url, false);
-        if (webResourceResponse == null) {
-            return null;
-        }
+        if (webResourceResponse == null) { return null; }
 
         int statusCode = webResourceResponse.getStatusCode();
         boolean successStatus = statusCode < 200 || statusCode >= 300;
-        if (successStatus) {
-            return null;
-        }
+        if (successStatus) { return null; }
 
         try {
             InputStream inputStream = webResourceResponse.getData();
@@ -58,9 +54,7 @@ public class MobileDataFetcher {
         String newUrl = originalUrl;
         int attempts = 0;
         Network interfaceToUse = HeLogic.getCellularNetwork();
-        if (interfaceToUse == null) {
-            return null;
-        }
+        if (interfaceToUse == null) { return null; }
         do {
             try {
                 HttpURLConnection connection
