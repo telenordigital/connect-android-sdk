@@ -187,7 +187,7 @@ public class HeLogic {
             }
             networkInfo = connectivityManager.getNetworkInfo(cellularNetwork);
         }
-        return (networkInfo != null) && networkInfo.isConnected();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     public static boolean isCellularDataNetworkDefault() {
