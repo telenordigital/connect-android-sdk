@@ -22,6 +22,10 @@ import com.telenor.connect.utils.CustomTabsHelper;
 
 import java.lang.ref.WeakReference;
 
+/**
+ * Uses custom tabs, unless not available. If not available falls back to ConnectWebViewLoginButton
+ * logic.
+ */
 public class ConnectLoginButtonWithoutProgressBar extends ConnectWebViewLoginButton {
 
     private static final Uri PRE_FETCH_URL
