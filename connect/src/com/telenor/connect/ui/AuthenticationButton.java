@@ -26,7 +26,7 @@ public interface AuthenticationButton {
 
     void setLoginScopeTokens(ArrayList<String> scopeTokens);
 
-    void addLoginParameters(Map<String, String> parameters);
+    void setExtraLoginParameters(Map<String, String> parameters);
 
     void setRequestCode(int requestCode);
 

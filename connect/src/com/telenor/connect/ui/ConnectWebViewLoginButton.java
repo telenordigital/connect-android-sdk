@@ -80,7 +80,7 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
         loginScopeTokens = scopeTokens;
     }
 
-    public void addLoginParameters(Map<String, String> parameters) {
+    public void setExtraLoginParameters(Map<String, String> parameters) {
         loginParameters = parameters;
     }
 

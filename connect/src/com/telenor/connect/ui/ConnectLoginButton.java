@@ -127,8 +127,8 @@ public class ConnectLoginButton extends RelativeLayout implements Authentication
     }
 
     @Override
-    public void addLoginParameters(Map<String, String> parameters) {
-        loginButton.addLoginParameters(parameters);
+    public void setExtraLoginParameters(Map<String, String> parameters) {
+        loginButton.setExtraLoginParameters(parameters);
     }
 
     @Override
