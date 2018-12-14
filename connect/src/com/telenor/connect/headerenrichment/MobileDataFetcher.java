@@ -111,6 +111,7 @@ public class MobileDataFetcher {
                         && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty())) {
             return false;
         }
+
         if (!wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty()) {
             for (String urlPrefix : wellKnownConfig.getNetworkAuthenticationTargetUrls()) {
                 if (url.contains(urlPrefix)) {
@@ -118,17 +119,17 @@ public class MobileDataFetcher {
                 }
             }
             return false;
-        } else {
-            String hostIp;
-            try {
-                String host = (new URL(url)).getHost();
-                hostIp = InetAddress.getByName(host).getHostAddress();
-            } catch (MalformedURLException | UnknownHostException e) {
-                return false;
-            }
-            return wellKnownConfig
-                    .getNetworkAuthenticationTargetIps()
-                    .contains(hostIp);
         }
+
+        String hostIp;
+        try {
+            String host = (new URL(url)).getHost();
+            hostIp = InetAddress.getByName(host).getHostAddress();
+        } catch (MalformedURLException | UnknownHostException e) {
+            return false;
+        }
+        return wellKnownConfig
+                .getNetworkAuthenticationTargetIps()
+                .contains(hostIp);
     }
 }
