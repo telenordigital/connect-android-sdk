@@ -40,24 +40,24 @@ public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeTokenRes
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected HeTokenResponse doInBackground(Void... voids) {
-        String getTokenResponse = MobileDataFetcher.fetchUrlTroughCellular(url);
-        if (getTokenResponse == null) { return null; }
+        String fetchedTokenResponse = MobileDataFetcher.fetchUrlTroughCellular(url);
+        if (fetchedTokenResponse == null) { return null; }
 
-        HeTokenResponse heTokenResponse = getHeTokenResponse(getTokenResponse);
+        HeTokenResponse heTokenResponse = convertHeTokenResponse(fetchedTokenResponse);
         if (heTokenResponse == null) { return null; }
 
-        String getGifResponse = MobileDataFetcher.fetchUrlTroughCellular(heTokenResponse.getGifUrl());
-        if (getGifResponse == null) { return null; }
+        String fetchedGifResponse = MobileDataFetcher.fetchUrlTroughCellular(heTokenResponse.getGifUrl());
+        if (fetchedGifResponse == null) { return null; }
 
         return heTokenResponse;
     }
 
-    private static HeTokenResponse getHeTokenResponse(String getTokenResponse) {
+    private static HeTokenResponse convertHeTokenResponse(String heTokenResponse) {
         String gifUrl;
         String token;
         int exp;
         try {
-            JSONObject jsonResponse = new JSONObject(getTokenResponse);
+            JSONObject jsonResponse = new JSONObject(heTokenResponse);
             gifUrl = jsonResponse.getString("gifUrl");
             token = jsonResponse.getString("heToken");
             exp = jsonResponse.getInt("exp");
