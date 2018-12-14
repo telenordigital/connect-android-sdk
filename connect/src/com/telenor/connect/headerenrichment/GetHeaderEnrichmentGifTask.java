@@ -40,13 +40,13 @@ public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeTokenRes
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected HeTokenResponse doInBackground(Void... voids) {
-        String fetchedTokenResponse = MobileDataFetcher.fetchUrlTroughCellular(url);
+        String fetchedTokenResponse = MobileDataFetcher.fetchUrlThroughCellular(url);
         if (fetchedTokenResponse == null) { return null; }
 
         HeTokenResponse heTokenResponse = convertHeTokenResponse(fetchedTokenResponse);
         if (heTokenResponse == null) { return null; }
 
-        String fetchedGifResponse = MobileDataFetcher.fetchUrlTroughCellular(heTokenResponse.getGifUrl());
+        String fetchedGifResponse = MobileDataFetcher.fetchUrlThroughCellular(heTokenResponse.getGifUrl());
         if (fetchedGifResponse == null) { return null; }
 
         return heTokenResponse;
