@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class HeLogic {
     private static final long HE_TOKEN_TIMEOUT_MILLISECONDS = 10_000;
-    private static final boolean cantDirectNetworkTraffic = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
+    private static final boolean canNotDirectNetworkTraffic = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
     private static boolean heTokenSuccess = true;
     private static HeTokenCallback heTokenCallback;
     private static boolean isHeTokenRequestOngoing;
@@ -62,7 +62,7 @@ public class HeLogic {
     }
 
     private static void initializeHe(boolean useStaging, String logSessionId) {
-        if (cantDirectNetworkTraffic) { return; }
+        if (canNotDirectNetworkTraffic) { return; }
 
         String url = ConnectUrlHelper.getHeApiUrl(useStaging, logSessionId);
         GetHeaderEnrichmentGifTask getGifTask = new GetHeaderEnrichmentGifTask(url, HE_TOKEN_TIMEOUT_MILLISECONDS) {
@@ -113,7 +113,7 @@ public class HeLogic {
             final boolean useStaging) {
         boolean finishedUnSuccessfully = !heTokenSuccess && !isHeTokenRequestOngoing;
         boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
-        boolean authenticateNow = finishedUnSuccessfully || promptBlocksUseOfHe || cantDirectNetworkTraffic;
+        boolean authenticateNow = finishedUnSuccessfully || promptBlocksUseOfHe || canNotDirectNetworkTraffic;
         if (authenticateNow) {
             callCallbacks(showLoadingCallback, heTokenCallback);
             return;
@@ -179,7 +179,7 @@ public class HeLogic {
             return false;
         }
         NetworkInfo networkInfo;
-        if (cantDirectNetworkTraffic) {
+        if (canNotDirectNetworkTraffic) {
             networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         } else {
             if (cellularNetwork == null) {
