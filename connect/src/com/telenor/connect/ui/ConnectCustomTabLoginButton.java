@@ -26,7 +26,7 @@ import java.lang.ref.WeakReference;
  * Uses custom tabs, unless not available. If not available falls back to ConnectWebViewLoginButton
  * logic.
  */
-public class ConnectLoginButtonWithoutProgressBar extends ConnectWebViewLoginButton {
+public class ConnectCustomTabLoginButton extends ConnectWebViewLoginButton {
 
     private static final Uri PRE_FETCH_URL
             = Uri.parse(
@@ -47,7 +47,7 @@ public class ConnectLoginButtonWithoutProgressBar extends ConnectWebViewLoginBut
     private BrowserType browserType;
     private CustomTabsSession session;
 
-    public ConnectLoginButtonWithoutProgressBar(Context context, AttributeSet attributeSet) {
+    public ConnectCustomTabLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
         onClickListener = new OnClickListener() {
@@ -120,21 +120,21 @@ public class ConnectLoginButtonWithoutProgressBar extends ConnectWebViewLoginBut
 
     private static class WeakReferenceCustomTabsServiceConnection extends CustomTabsServiceConnection {
 
-        private final WeakReference<ConnectLoginButtonWithoutProgressBar> weakButton;
+        private final WeakReference<ConnectCustomTabLoginButton> weakButton;
 
-        WeakReferenceCustomTabsServiceConnection(WeakReference<ConnectLoginButtonWithoutProgressBar> weakButton) {
+        WeakReferenceCustomTabsServiceConnection(WeakReference<ConnectCustomTabLoginButton> weakButton) {
             this.weakButton = weakButton;
         }
 
         @Override
         public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-            final ConnectLoginButtonWithoutProgressBar connectLoginButtonWithoutProgressBar = weakButton.get();
-            if (connectLoginButtonWithoutProgressBar == null) {
+            final ConnectCustomTabLoginButton connectCustomTabLoginButton = weakButton.get();
+            if (connectCustomTabLoginButton == null) {
                 return;
             }
             client.warmup(0);
             final CustomTabsSession session = client.newSession(new WeakReferenceCustomTabsCallback(weakButton));
-            connectLoginButtonWithoutProgressBar.setSession(session);
+            connectCustomTabLoginButton.setSession(session);
             if (session != null) {
                 session.mayLaunchUrl(PRE_FETCH_URL, null, null);
             }
@@ -147,24 +147,24 @@ public class ConnectLoginButtonWithoutProgressBar extends ConnectWebViewLoginBut
 
     private static class WeakReferenceCustomTabsCallback extends CustomTabsCallback {
 
-        private final WeakReference<ConnectLoginButtonWithoutProgressBar> weakButton;
+        private final WeakReference<ConnectCustomTabLoginButton> weakButton;
 
-        WeakReferenceCustomTabsCallback(WeakReference<ConnectLoginButtonWithoutProgressBar> weakButton) {
+        WeakReferenceCustomTabsCallback(WeakReference<ConnectCustomTabLoginButton> weakButton) {
             this.weakButton = weakButton;
         }
 
         @Override
         public void onNavigationEvent(int navigationEvent, Bundle extras) {
-            final ConnectLoginButtonWithoutProgressBar connectLoginButtonWithoutProgressBar = weakButton.get();
-            if (connectLoginButtonWithoutProgressBar == null) {
+            final ConnectCustomTabLoginButton connectCustomTabLoginButton = weakButton.get();
+            if (connectCustomTabLoginButton == null) {
                 return;
             }
             switch (navigationEvent) {
                 case CustomTabsCallback.TAB_HIDDEN:
-                    connectLoginButtonWithoutProgressBar.setEnabled(true);
+                    connectCustomTabLoginButton.setEnabled(true);
                     return;
                 case CustomTabsCallback.TAB_SHOWN:
-                    connectLoginButtonWithoutProgressBar.setEnabled(false);
+                    connectCustomTabLoginButton.setEnabled(false);
                     return;
                 default:
             }

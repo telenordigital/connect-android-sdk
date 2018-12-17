@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class ConnectLoginButton extends RelativeLayout implements AuthenticationButton {
-    ConnectLoginButtonWithoutProgressBar loginButton;
+    ConnectCustomTabLoginButton loginButton;
     ProgressBar progressBar;
 
     public ConnectLoginButton(Context context) {
