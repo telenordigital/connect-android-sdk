@@ -94,11 +94,11 @@ public class MobileDataFetcher {
     private static Map<String, String> getHeadersAsCommaJoinedList(Map<String, List<String>> headerFields) {
         Map<String, String> result = new HashMap<>();
         for (String header : headerFields.keySet()) {
-            List<String> strings = headerFields.get(header);
-            if (strings == null || strings.isEmpty()) {
+            List<String> headerStringList = headerFields.get(header);
+            if (headerStringList == null || headerStringList.isEmpty()) {
                 continue;
             }
-            String commaJoinedList = TextUtils.join(",", strings);
+            String commaJoinedList = TextUtils.join(",", headerStringList);
             result.put(header, commaJoinedList);
         }
         return result;
