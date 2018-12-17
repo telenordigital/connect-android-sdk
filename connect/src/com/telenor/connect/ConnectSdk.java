@@ -68,6 +68,7 @@ public final class ConnectSdk {
     private static String clientId;
     private static String redirectUri;
     private static boolean useStaging;
+    private static SmsBroadcastReceiver smsBroadcastReceiver;
     private static volatile String advertisingId;
     private static volatile long tsSdkInitialization;
     private static volatile long tsLoginButtonClicked;
@@ -128,13 +129,14 @@ public final class ConnectSdk {
             Uri authorizeUri,
             final Activity activity) {
         SmsRetrieverUtil.startSmsRetriever(getContext());
-        SmsBroadcastReceiver smsBroadcastReceiver = new SmsBroadcastReceiver(new SmsHandler() {
+        smsBroadcastReceiver = new SmsBroadcastReceiver(new SmsHandler() {
             @Override
             public void receivedSms(String messageBody) {
                 String pin = SmsPinParseUtil.findPin(messageBody);
                 if (pin == null) {
                     return;
                 }
+                getContext().unregisterReceiver(smsBroadcastReceiver);
                 String url = ConnectUrlHelper.getSubmitPinUrl(pin);
                 Uri uri = Uri.parse(url);
                 launchUrlInCustomTab(activity, session, uri);

@@ -49,6 +49,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     private boolean instructionsReceived;
     private Instruction callbackInstruction;
     private String savedSmsBody;
+    private SmsBroadcastReceiver smsBroadcastReceiver;
 
     public ConnectWebViewClient(
             Activity activity,
@@ -62,7 +63,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         this.errorView = errorView;
         this.connectCallback = callback;
         SmsRetrieverUtil.startSmsRetriever(activity);
-        SmsBroadcastReceiver smsBroadcastReceiver = new SmsBroadcastReceiver(this);
+        smsBroadcastReceiver = new SmsBroadcastReceiver(this);
         activity.registerReceiver(smsBroadcastReceiver, SmsRetrieverUtil.SMS_FILTER);
     }
 
@@ -197,6 +198,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
         waitingForPinSms = false;
         savedSmsBody = null;
         callbackInstruction = null;
+        activity.unregisterReceiver(smsBroadcastReceiver);
     }
 
     private void handleIfSmsAlreadyArrived() {
