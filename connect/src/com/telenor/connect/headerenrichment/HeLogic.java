@@ -16,7 +16,9 @@ import java.util.Date;
 import java.util.Map;
 
 public class HeLogic {
-    private static final long HE_TOKEN_TIMEOUT_MILLISECONDS = 10_000;
+    private static final long HE_TOKEN_TIMEOUT_MILLISECONDS = 10_000; // Timeout is a best guess
+    // at what would be long enough to succeed and short enough for users to wait it out if
+    // it should fail/time out, and do a normal flow
     private static final boolean canNotDirectNetworkTraffic = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
     private static boolean heTokenSuccess = true;
     private static HeTokenCallback heTokenCallback;
