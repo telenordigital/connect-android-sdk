@@ -3,6 +3,7 @@ package com.telenor.connect.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.View;
@@ -69,8 +70,8 @@ public class ConnectLoginButton extends RelativeLayout implements Authentication
     }
 
     @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
         Intent intent = loginButton.getActivity().getIntent();
         boolean ongoingAuth = intent != null && ConnectSdk.hasValidRedirectUrlCall(intent);
         setLoading(ongoingAuth);
