@@ -6,22 +6,18 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
-import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
-import com.telenor.connect.utils.Validator;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConnectWebViewLoginButton extends ConnectButton {
+public class ConnectWebViewLoginButton extends ConnectButton implements AuthenticationButton {
 
     public static final int NO_CUSTOM_LAYOUT = -1;
 
@@ -31,13 +27,17 @@ public class ConnectWebViewLoginButton extends ConnectButton {
     private int requestCode = 0xa987;
     private Claims claims;
     private int customLoadingLayout = NO_CUSTOM_LAYOUT;
-    private ConnectStore connectStore;
+    private ShowLoadingCallback showLoadingCallback;
 
     public ConnectWebViewLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
-        setOnClickListener(new LoginClickListener());
-        connectStore = new ConnectStore(context);
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                authenticate();
+            }
+        });
     }
 
     public ArrayList<String> getAcrValues() {
@@ -80,7 +80,7 @@ public class ConnectWebViewLoginButton extends ConnectButton {
         loginScopeTokens = scopeTokens;
     }
 
-    public void addLoginParameters(Map<String, String> parameters) {
+    public void setExtraLoginParameters(Map<String, String> parameters) {
         loginParameters = parameters;
     }
 
@@ -94,10 +94,6 @@ public class ConnectWebViewLoginButton extends ConnectButton {
 
     public void setCustomLoadingLayout(int customLoadingLayout) {
         this.customLoadingLayout = customLoadingLayout;
-    }
-
-    protected void startWebViewAuthentication() {
-        ConnectSdk.authenticate(getActivity(), getParameters(), getCustomLoadingLayout(), getRequestCode());
     }
 
     @NonNull
@@ -117,7 +113,6 @@ public class ConnectWebViewLoginButton extends ConnectButton {
             parameters.putAll(getLoginParameters());
         }
 
-        handlePromptAndLogSessionId(parameters);
         return parameters;
     }
 
@@ -127,24 +122,21 @@ public class ConnectWebViewLoginButton extends ConnectButton {
         }
     }
 
-    private void handlePromptAndLogSessionId(Map<String, String> parameters) {
-        if (TextUtils.isEmpty(parameters.get("prompt")) && !ConnectSdk.isCellularDataNetworkConnected()) {
-            parameters.put("prompt", "no_seam");
-        }
-        if (TextUtils.isEmpty(parameters.get("log_session_id"))) {
-            parameters.put("log_session_id", ConnectSdk.getLogSessionId());
-        }
+    protected void authenticate() {
+        ConnectSdk.authenticate(
+                getActivity(),
+                getParameters(),
+                getCustomLoadingLayout(),
+                getRequestCode(),
+                getShowLoadingCallback()
+        );
     }
 
+    public ShowLoadingCallback getShowLoadingCallback() {
+        return showLoadingCallback;
+    }
 
-    private class LoginClickListener implements OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-            Validator.sdkInitialized();
-            ConnectSdk.beforeAuthentication();
-            startWebViewAuthentication();
-        }
-
+    public void setShowLoadingCallback(ShowLoadingCallback showLoadingCallback) {
+        this.showLoadingCallback = showLoadingCallback;
     }
 }

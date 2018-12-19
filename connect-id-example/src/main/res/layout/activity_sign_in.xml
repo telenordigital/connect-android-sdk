@@ -7,20 +7,11 @@
     tools:context="com.telenor.connect.connectidexample.SignInActivity">
 
     <com.telenor.connect.ui.ConnectLoginButton
-        android:layout_centerInParent="true"
         android:id="@+id/login_button"
+        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/com_telenor_ConnectButton.Dark"/>
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/login_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:visibility="gone"
+        android:theme="@style/ConnectTheme.Dark"
         />
 
 </RelativeLayout>

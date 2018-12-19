@@ -2,5 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@drawable/connect_btn_dark_pressed"
           android:state_pressed="true" />
+    <item android:drawable="@drawable/connect_btn_dark_disabled"
+        android:state_enabled="false"/>
     <item android:drawable="@drawable/connect_btn_dark" />
 </selector>

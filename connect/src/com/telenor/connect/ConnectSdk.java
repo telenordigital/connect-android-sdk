@@ -6,15 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.customtabs.CustomTabsSession;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -23,11 +21,19 @@ import android.util.Log;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.telenor.connect.headerenrichment.HeLogic;
+import com.telenor.connect.headerenrichment.ShowLoadingCallback;
+import com.telenor.connect.headerenrichment.HeTokenResponse;
+import com.telenor.connect.headerenrichment.HeTokenCallback;
 import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
-import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.ConnectStore;
+import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.UserInfo;
+import com.telenor.connect.sms.SmsBroadcastReceiver;
+import com.telenor.connect.sms.SmsHandler;
+import com.telenor.connect.sms.SmsPinParseUtil;
+import com.telenor.connect.sms.SmsRetrieverUtil;
 import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.ui.ConnectWebViewLoginButton;
@@ -52,9 +58,6 @@ import retrofit2.Response;
 
 public final class ConnectSdk {
     private static ArrayList<Locale> sLocales;
-    private static ConnectivityManager connectivityManager;
-    private static volatile Network cellularNetwork;
-    private static volatile Network defaultNetwork;
     private static ConnectStore connectStore;
     private static WellKnownConfigStore lastSeenWellKnownConfigStore;
     private static ConnectIdService connectIdService;
@@ -65,8 +68,9 @@ public final class ConnectSdk {
     private static String clientId;
     private static String redirectUri;
     private static boolean useStaging;
+    private static SmsBroadcastReceiver smsBroadcastReceiver;
     private static volatile String advertisingId;
-    private static volatile long tsSdkInitiliazation;
+    private static volatile long tsSdkInitialization;
     private static volatile long tsLoginButtonClicked;
     private static volatile long tsRedirectUrlInvoked;
     private static volatile long tsTokenResponseReceived;
@@ -93,11 +97,64 @@ public final class ConnectSdk {
     public static final String EXTRA_CONNECT_TOKENS =
             "com.telenor.connect.EXTRA_CONNECT_TOKENS";
 
-    public static final int MAX_REDIRECTS_TO_FOLLOW_FOR_HE = 5;
+    public static synchronized void authenticate(
+            final CustomTabsSession session,
+            final Map<String, String> parameters,
+            final BrowserType browserType,
+            final Activity activity,
+            final ShowLoadingCallback showLoadingCallback) {
+        setButtonClickedTimestamp();
+        HeTokenCallback heTokenCallback = new HeTokenCallback() {
+            @Override
+            public void done() {
+                Uri authorizeUri = getAuthorizeUri(parameters, browserType);
+                launchChromeCustomTabAuthentication(session, authorizeUri, activity);
+            }
+        };
+        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
+    }
 
-    public static void beforeAuthentication() {
-        logSessionId = UUID.randomUUID().toString();
+    private static void setButtonClickedTimestamp() {
         tsLoginButtonClicked = System.currentTimeMillis();
+    }
+
+    private static Uri getAuthorizeUri(Map<String, String> parameters, BrowserType browserType) {
+        boolean failedToGetToken = HeLogic.failedToGetToken();
+        HeTokenResponse heTokenResponse = HeLogic.getHeTokenResponse();
+        return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, failedToGetToken ? null : heTokenResponse.getToken());
+    }
+
+    private static void launchChromeCustomTabAuthentication(
+            final CustomTabsSession session,
+            Uri authorizeUri,
+            final Activity activity) {
+        SmsRetrieverUtil.startSmsRetriever(getContext());
+        smsBroadcastReceiver = new SmsBroadcastReceiver(new SmsHandler() {
+            @Override
+            public void receivedSms(String messageBody) {
+                String pin = SmsPinParseUtil.findPin(messageBody);
+                if (pin == null) {
+                    return;
+                }
+                getContext().unregisterReceiver(smsBroadcastReceiver);
+                String url = ConnectUrlHelper.getSubmitPinUrl(pin);
+                Uri uri = Uri.parse(url);
+                launchUrlInCustomTab(activity, session, uri);
+            }
+        });
+        getContext().registerReceiver(smsBroadcastReceiver, SmsRetrieverUtil.SMS_FILTER);
+        launchUrlInCustomTab(activity, session, authorizeUri);
+    }
+
+    private static void launchUrlInCustomTab(Activity activity, CustomTabsSession session, Uri uri) {
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(session);
+        CustomTabsIntent cctIntent = builder.build();
+        Intent intent = cctIntent.intent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            intent.putExtra(Intent.EXTRA_REFERRER,
+                    Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + activity.getPackageName()));
+        }
+        cctIntent.launchUrl(activity, uri);
     }
 
     public static synchronized void authenticate(
@@ -114,23 +171,31 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        authenticate(activity, parameters, ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT, requestCode);
+        authenticate(activity, parameters, ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT, requestCode, null);
     }
 
     public static synchronized void authenticate(final Activity activity,
                                                  final Map<String, String> parameters,
                                                  final int customLoadingLayout,
-                                                 final int requestCode) {
+                                                 final int requestCode,
+                                                 final ShowLoadingCallback showLoadingCallback) {
         Validator.sdkInitialized();
-        Intent intent = getAuthIntent(parameters);
-        if (customLoadingLayout != ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT) {
-            intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-        }
-        activity.startActivityForResult(intent, requestCode);
+        setButtonClickedTimestamp();
+        HeTokenCallback heTokenCallback = new HeTokenCallback() {
+            @Override
+            public void done() {
+                Intent intent = getAuthIntent(parameters);
+                if (customLoadingLayout != ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT) {
+                    intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
+                }
+                activity.startActivityForResult(intent, requestCode);
+            }
+        };
+        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
-        final Intent intent = new Intent();
+        Intent intent = new Intent();
         intent.setClass(getContext(), ConnectActivity.class);
         intent.setAction(ConnectUtils.LOGIN_ACTION);
         String mccMnc = getMccMnc();
@@ -139,19 +204,21 @@ public final class ConnectSdk {
                         && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty())) {
             parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
         }
-        final String url = ConnectUrlHelper.getAuthorizeUri(parameters, BrowserType.WEB_VIEW).toString();
+        String url = getAuthorizeUri(parameters, BrowserType.WEB_VIEW).toString();
         intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
-        intent.putExtra(ConnectUtils.WELL_KNOWN_CONFIG_EXTRA, wellKnownConfig);
         return intent;
     }
 
     /**
+     * @deprecated Undocumented feature that might be removed in the future.
+     *
      * Get a {@code Fragment} that can be used for authorizing and getting a tokens.
      * {@code Activity} that uses the {@code Fragment} must implement {@code ConnectCallback}.
      *
      * @param parameters authorization parameters
      * @return authorization fragment
      */
+    @Deprecated
     public static Fragment getAuthFragment(Map<String, String> parameters) {
         Validator.sdkInitialized();
 
@@ -233,7 +300,7 @@ public final class ConnectSdk {
                         subject,
                         getLogSessionId(),
                         getAdvertisingId(),
-                        tsSdkInitiliazation,
+                        tsSdkInitialization,
                         tsLoginButtonClicked,
                         tsRedirectUrlInvoked,
                         tsTokenResponseReceived
@@ -244,6 +311,7 @@ public final class ConnectSdk {
                         if (!response.isSuccessful()) {
                             Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data");
                         }
+                        setRandomLogSessionId();
                     }
 
                     @Override
@@ -253,7 +321,9 @@ public final class ConnectSdk {
                 });
     }
 
-
+    private static void setRandomLogSessionId() {
+        logSessionId = UUID.randomUUID().toString();
+    }
 
     public static Context getContext() {
         Validator.sdkInitialized();
@@ -338,6 +408,7 @@ public final class ConnectSdk {
                 RestHelper.getConnectApi(apiUrl),
                 clientId,
                 redirectUri);
+        setRandomLogSessionId();
         RestHelper.
                 getWellKnownApi(apiUrl).getWellKnownConfig()
                 .enqueue(new Callback<WellKnownAPI.WellKnownConfig>() {
@@ -359,19 +430,13 @@ public final class ConnectSdk {
                     }
                 });
 
-        connectivityManager
-                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            initalizeCellularNetwork();
-            initalizeDefaultNetwork();
-        }
+        HeLogic.initializeNetworks(context, useStaging);
         initializeAdvertisingId(context);
         isInitialized = true;
-        tsSdkInitiliazation = System.currentTimeMillis();
+        tsSdkInitialization = System.currentTimeMillis();
     }
 
-
-    public static String getMccMnc() {
+    private static String getMccMnc() {
         TelephonyManager tel
                 = (TelephonyManager)getContext().getSystemService(Context.TELEPHONY_SERVICE);
         return tel.getNetworkOperator();
@@ -545,71 +610,6 @@ public final class ConnectSdk {
         return data.getQueryParameter("code");
     }
 
-    public static boolean isCellularDataNetworkConnected() {
-        if (connectivityManager == null) {
-            return false;
-        }
-        NetworkInfo networkInfo = null;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        } else {
-            if (cellularNetwork == null) {
-                return false;
-            }
-            networkInfo = connectivityManager.getNetworkInfo(cellularNetwork);
-        }
-        return (networkInfo != null) && networkInfo.isConnected();
-    }
-
-    public static boolean isCellularDataNetworkDefault() {
-        if (connectivityManager == null) {
-            return false;
-        }
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE;
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static void initalizeCellularNetwork() {
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                .build();
-        try {
-            connectivityManager.requestNetwork(
-                    networkRequest,
-                    new ConnectivityManager.NetworkCallback() {
-                        @Override
-                        public void onAvailable(Network network) {
-                            cellularNetwork = network;
-                        }
-                    }
-            );
-        } catch (SecurityException e) {
-            cellularNetwork = null;
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static void initalizeDefaultNetwork() {
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .build();
-        try {
-            connectivityManager.requestNetwork(
-                    networkRequest,
-                    new ConnectivityManager.NetworkCallback() {
-                        @Override
-                        public void onAvailable(Network network) {
-                            defaultNetwork = network;
-                        }
-                    }
-            );
-        } catch (SecurityException e) {
-            defaultNetwork = null;
-        }
-    }
-
     private static void initializeAdvertisingId(final Context context) {
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
         if (googleAPI.isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS) {
@@ -627,14 +627,21 @@ public final class ConnectSdk {
         }
     }
 
+    /**
+     * @deprecated Use {@link HeLogic#getCellularNetwork()}
+     */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Deprecated
     public static Network getCellularNetwork() {
-        return cellularNetwork;
+        return HeLogic.getCellularNetwork();
     }
 
+    /**
+     * @deprecated Use {@link HeLogic#getDefaultNetwork()} ()}
+     */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getDefaultNetwork() {
-        return defaultNetwork;
+        return HeLogic.getDefaultNetwork();
     }
 
     private static String getAdvertisingId() {
