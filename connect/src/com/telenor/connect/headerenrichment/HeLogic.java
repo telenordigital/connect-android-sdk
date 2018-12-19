@@ -52,7 +52,7 @@ public class HeLogic {
                         public void onAvailable(Network network) {
                             cellularNetwork = network;
                             boolean noSignedInUser = ConnectSdk.getAccessToken() == null;
-                            if (noSignedInUser) {
+                            if (noSignedInUser && instantVerificationEnabled()) {
                                 initializeHe(useStaging, ConnectSdk.getLogSessionId());
                             }
                         }
@@ -61,6 +61,10 @@ public class HeLogic {
         } catch (SecurityException e) {
             cellularNetwork = null;
         }
+    }
+
+    private static boolean instantVerificationEnabled() {
+        return ConnectSdk.useStaging();
     }
 
     private static void initializeHe(boolean useStaging, String logSessionId) {
@@ -115,7 +119,10 @@ public class HeLogic {
             final boolean useStaging) {
         boolean finishedUnSuccessfully = !heTokenSuccess && !isHeTokenRequestOngoing;
         boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
-        boolean authenticateNow = finishedUnSuccessfully || promptBlocksUseOfHe || canNotDirectNetworkTraffic;
+        boolean authenticateNow = finishedUnSuccessfully
+                || promptBlocksUseOfHe
+                || canNotDirectNetworkTraffic
+                || !instantVerificationEnabled();
         if (authenticateNow) {
             callCallbacks(showLoadingCallback, heTokenCallback);
             return;
