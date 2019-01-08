@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.utils.ConnectUtils;
 
 import org.json.JSONException;
@@ -62,7 +63,8 @@ public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeTokenRes
             token = jsonResponse.getString("heToken");
             exp = jsonResponse.getInt("exp");
         } catch (JSONException e) {
-            Log.w(ConnectUtils.LOG_TAG, "Failed to parse header-enrichment-token", e);
+            Log.e(ConnectUtils.LOG_TAG, "Failed to parse header-enrichment-token", e);
+            ConnectSdk.sendDebugErrorDataToAnalyticsEndpoint(e);
             return null;
         }
         Calendar instance = Calendar.getInstance();

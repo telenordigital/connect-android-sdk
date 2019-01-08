@@ -4,10 +4,12 @@ import android.net.Network;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
+import android.util.Log;
 import android.webkit.WebResourceResponse;
 
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.WellKnownAPI;
+import com.telenor.connect.utils.ConnectUtils;
 
 import org.apache.commons.io.IOUtils;
 
@@ -36,8 +38,8 @@ public class MobileDataFetcher {
         if (webResourceResponse == null) { return null; }
 
         int statusCode = webResourceResponse.getStatusCode();
-        boolean successStatus = statusCode < 200 || statusCode >= 300;
-        if (successStatus) { return null; }
+        boolean notSuccessStatus = statusCode < 200 || statusCode >= 300;
+        if (notSuccessStatus) { return null; }
 
         try {
             InputStream inputStream = webResourceResponse.getData();
@@ -45,6 +47,7 @@ public class MobileDataFetcher {
             inputStream.close();
             return response;
         } catch (IOException e) {
+            ConnectSdk.sendDebugErrorDataToAnalyticsEndpoint(e);
             return null;
         }
     }
@@ -80,6 +83,8 @@ public class MobileDataFetcher {
                 // be reused during the next request.
                 connection.getInputStream().close();
             } catch (final IOException e) {
+                Log.e(ConnectUtils.LOG_TAG, "Exception fetching resource", e);
+                ConnectSdk.sendDebugErrorDataToAnalyticsEndpoint(e);
                 return null;
             }
             if (allowedToToggleNetworkToUse) {
@@ -126,6 +131,7 @@ public class MobileDataFetcher {
             String host = (new URL(url)).getHost();
             hostIp = InetAddress.getByName(host).getHostAddress();
         } catch (MalformedURLException | UnknownHostException e) {
+            ConnectSdk.sendDebugErrorDataToAnalyticsEndpoint(e);
             return false;
         }
         return wellKnownConfig

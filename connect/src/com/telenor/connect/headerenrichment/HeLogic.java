@@ -189,7 +189,7 @@ public class HeLogic {
         }
         NetworkInfo networkInfo;
         if (canNotDirectNetworkTraffic) {
-            networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            networkInfo = getCellularNetworkInfo();
         } else {
             if (cellularNetwork == null) {
                 return false;
@@ -199,12 +199,22 @@ public class HeLogic {
         return networkInfo != null && networkInfo.isConnected();
     }
 
+    public static NetworkInfo getCellularNetworkInfo() {
+        if (connectivityManager == null) { return null; }
+        return connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+    }
+
     public static boolean isCellularDataNetworkDefault() {
         if (connectivityManager == null) {
             return false;
         }
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_MOBILE;
+    }
+
+    public static NetworkInfo getActiveNetworkInfo() {
+        if (connectivityManager == null) { return null; }
+        return connectivityManager.getActiveNetworkInfo();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

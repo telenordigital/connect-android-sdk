@@ -42,6 +42,9 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -285,6 +288,10 @@ public final class ConnectSdk {
     }
 
     private static void sendAnalyticsData() {
+        sendAnalyticsData(null);
+    }
+
+    private static void sendAnalyticsData(JSONObject extraDebugData) {
         if (getWellKnownConfig() == null || getWellKnownConfig().getAnalyticsEndpoint() == null) {
             return;
         }
@@ -303,7 +310,8 @@ public final class ConnectSdk {
                         tsSdkInitialization,
                         tsLoginButtonClicked,
                         tsRedirectUrlInvoked,
-                        tsTokenResponseReceived
+                        tsTokenResponseReceived,
+                        extraDebugData
                 ))
                 .enqueue(new Callback<Void>() {
                     @Override
@@ -319,6 +327,26 @@ public final class ConnectSdk {
                         Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data", error);
                     }
                 });
+    }
+
+    public static void sendDebugErrorDataToAnalyticsEndpoint(Throwable e) {
+        JSONObject debugInformation = new JSONObject();
+        TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        String carrierName = manager != null ? manager.getNetworkOperatorName() : null;
+        try {
+            debugInformation
+                    .put("exception", e.getMessage())
+                    .put("exceptionStackTrace", e.getStackTrace())
+                    .put("activeNetworkInfo", HeLogic.getActiveNetworkInfo())
+                    .put("cellularNetworkInfo", HeLogic.getCellularNetworkInfo())
+                    .put("deviceTimestamp", new Date())
+                    .put("carrierName", carrierName)
+                    .put("sdkVersion", BuildConfig.VERSION_NAME);
+        } catch (JSONException e1) {
+            Log.e(ConnectUtils.LOG_TAG, "Exception making exception json", e1);
+            return;
+        }
+        sendAnalyticsData(debugInformation);
     }
 
     private static void setRandomLogSessionId() {
