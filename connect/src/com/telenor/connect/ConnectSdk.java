@@ -409,8 +409,9 @@ public final class ConnectSdk {
                 clientId,
                 redirectUri);
         setRandomLogSessionId();
-        boolean signedInUser = connectIdService.getAccessToken() != null;
-        if (!signedInUser) {
+        boolean noSignedInUser = connectIdService.getAccessToken() == null;
+        boolean noStoredWellKnownConfig = wellKnownConfig == null;
+        if (noSignedInUser || noStoredWellKnownConfig) {
             updateWellKnownConfig(apiUrl);
         }
 
