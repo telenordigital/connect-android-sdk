@@ -330,9 +330,9 @@ public final class ConnectSdk {
     }
 
     public static void sendDebugErrorDataToAnalyticsEndpoint(Throwable e) {
-        JSONObject debugInformation = new JSONObject();
         TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         String carrierName = manager != null ? manager.getNetworkOperatorName() : null;
+        JSONObject debugInformation = new JSONObject();
         try {
             debugInformation
                     .put("exception", e.getMessage())
