@@ -4,6 +4,8 @@ import android.os.Build;
 
 import com.google.gson.annotations.SerializedName;
 
+import org.json.JSONObject;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Header;
@@ -54,6 +56,9 @@ public interface AnalyticsAPI {
         @SerializedName("os_sdk_version")
         private final int osSdkVersion;
 
+        @SerializedName("debug_data")
+        private final JSONObject extraDebugData;
+
         public SDKAnalyticsData(
                 final String appName,
                 final String appVersion,
@@ -63,7 +68,8 @@ public interface AnalyticsAPI {
                 final long tsSdkInitiliazation,
                 final long tsLoginButtonClicked,
                 final long tsRedirectUrlInvoked,
-                final long tsTokenResponseReceived) {
+                final long tsTokenResponseReceived,
+                final JSONObject extraDebugData) {
             this.appName = appName;
             this.appVersion = appVersion;
             this.subject = subject;
@@ -78,6 +84,7 @@ public interface AnalyticsAPI {
             this.osName = System.getProperty("os.name");
             this.osVersion = System.getProperty("os.version");
             this.osSdkVersion = Build.VERSION.SDK_INT;
+            this.extraDebugData = extraDebugData;
         }
     }
 
