@@ -437,6 +437,19 @@ public final class ConnectSdk {
                 clientId,
                 redirectUri);
         setRandomLogSessionId();
+        boolean noSignedInUser = connectIdService.getAccessToken() == null;
+        boolean noStoredWellKnownConfig = wellKnownConfig == null;
+        if (noSignedInUser || noStoredWellKnownConfig) {
+            updateWellKnownConfig(apiUrl);
+        }
+
+        HeLogic.initializeNetworks(context, useStaging);
+        initializeAdvertisingId(context);
+        isInitialized = true;
+        tsSdkInitialization = System.currentTimeMillis();
+    }
+
+    private static void updateWellKnownConfig(String apiUrl) {
         RestHelper.
                 getWellKnownApi(apiUrl).getWellKnownConfig()
                 .enqueue(new Callback<WellKnownAPI.WellKnownConfig>() {
@@ -457,11 +470,6 @@ public final class ConnectSdk {
                         wellKnownConfig = null;
                     }
                 });
-
-        HeLogic.initializeNetworks(context, useStaging);
-        initializeAdvertisingId(context);
-        isInitialized = true;
-        tsSdkInitialization = System.currentTimeMillis();
     }
 
     private static String getMccMnc() {
