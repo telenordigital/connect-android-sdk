@@ -256,6 +256,7 @@ public class ConnectIdService {
         final String refreshToken = getRefreshToken();
         if (refreshToken == null) {
             callback.noSignedInUser();
+            return;
         }
         connectApi.refreshAccessTokens("refresh_token", refreshToken,
                 clientId).enqueue(new Callback<ConnectTokensTO>() {
