@@ -1,7 +1,9 @@
 package com.telenor.connect.ui;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,12 +19,17 @@ import com.telenor.connect.id.ConnectTokens;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ConnectActivity extends FragmentActivity implements ConnectCallback {
 
     private final Gson gson = new Gson();
     private Fragment singleFragment;
+    private Set<BroadcastReceiver> receivers = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,5 +98,22 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
         }
         setResult(Activity.RESULT_CANCELED, intent);
         finish();
+    }
+
+    @Override
+    public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+        this.receivers.add(receiver);
+        return super.registerReceiver(receiver, filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for (BroadcastReceiver broadcastReceiver : receivers) {
+            try {
+                unregisterReceiver(broadcastReceiver);
+            } catch (IllegalArgumentException ignore) {}
+            receivers.remove(broadcastReceiver);
+        }
     }
 }
