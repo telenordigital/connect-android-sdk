@@ -13,11 +13,9 @@ import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.View;
 
 import com.telenor.connect.BrowserType;
 import com.telenor.connect.ConnectSdk;
-import com.telenor.connect.R;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.CustomTabsHelper;
 
@@ -41,7 +39,6 @@ public class ConnectCustomTabLoginButton extends ConnectWebViewLoginButton {
                     .toString()
     );
 
-    private OnClickListener onClickListener;
     private CustomTabsServiceConnection connection;
     private boolean customTabsSupported = false;
     private boolean serviceBound = false;
@@ -50,14 +47,6 @@ public class ConnectCustomTabLoginButton extends ConnectWebViewLoginButton {
 
     public ConnectCustomTabLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        setText(R.string.com_telenor_connect_login_button_text);
-        onClickListener = new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                authenticate();
-            }
-        };
-        setOnClickListener(onClickListener);
     }
 
     @Override
@@ -72,10 +61,6 @@ public class ConnectCustomTabLoginButton extends ConnectWebViewLoginButton {
                 browserType,
                 getActivity(),
                 getShowLoadingCallback());
-    }
-
-    public OnClickListener getOnClickListener() {
-        return onClickListener;
     }
 
     private static boolean contextIntentFilterMatchesRedirectUri(Context context) {
