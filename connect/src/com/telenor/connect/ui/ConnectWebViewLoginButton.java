@@ -28,16 +28,18 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
     private Claims claims;
     private int customLoadingLayout = NO_CUSTOM_LAYOUT;
     private ShowLoadingCallback showLoadingCallback;
+    private OnClickListener onClickListener;
 
     public ConnectWebViewLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setText(R.string.com_telenor_connect_login_button_text);
-        setOnClickListener(new OnClickListener() {
+        onClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
                 authenticate();
             }
-        });
+        };
+        setOnClickListener(onClickListener);
     }
 
     public ArrayList<String> getAcrValues() {
@@ -62,6 +64,11 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
 
     public int getCustomLoadingLayout() {
         return customLoadingLayout;
+    }
+
+    @Override
+    public OnClickListener getOnClickListener() {
+        return onClickListener;
     }
 
     public void setAcrValues(String... acrValues) {
