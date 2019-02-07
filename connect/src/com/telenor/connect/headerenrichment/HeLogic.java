@@ -117,8 +117,7 @@ public class HeLogic {
         boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
         boolean authenticateNow = finishedUnSuccessfully
                 || promptBlocksUseOfHe
-                || canNotDirectNetworkTraffic
-                || !instantVerificationEnabled();
+                || canNotDirectNetworkTraffic;
         if (authenticateNow) {
             callCallbacks(showLoadingCallback, heTokenCallback);
             return;
