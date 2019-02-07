@@ -52,7 +52,7 @@ public class HeLogic {
                         public void onAvailable(Network network) {
                             cellularNetwork = network;
                             boolean noSignedInUser = ConnectSdk.getAccessToken() == null;
-                            if (noSignedInUser && instantVerificationEnabled()) {
+                            if (noSignedInUser) {
                                 initializeHe(useStaging, ConnectSdk.getLogSessionId());
                             }
                         }
@@ -61,10 +61,6 @@ public class HeLogic {
         } catch (SecurityException e) {
             cellularNetwork = null;
         }
-    }
-
-    private static boolean instantVerificationEnabled() {
-        return ConnectSdk.useStaging();
     }
 
     private static void initializeHe(boolean useStaging, String logSessionId) {
