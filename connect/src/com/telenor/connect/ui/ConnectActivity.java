@@ -88,6 +88,7 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
 
     @Override
     public void onError(Object errorData) {
+        ConnectSdk.setRandomLogSessionId();
         Intent intent = new Intent();
         Map<String, String> authCodeData = (Map<String, String>) errorData;
         for (Map.Entry<String, String> entry : authCodeData.entrySet()) {

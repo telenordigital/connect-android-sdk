@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsServiceConnection;
@@ -111,6 +112,15 @@ public class ConnectCustomTabLoginButton extends ConnectWebViewLoginButton {
         }
         if (connection != null) {
             connection = null;
+        }
+    }
+
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        Intent intent = getActivity().getIntent();
+        if (ConnectSdk.hasErrorRedirectUrlCall(intent)) {
+            ConnectSdk.setRandomLogSessionId();
         }
     }
 

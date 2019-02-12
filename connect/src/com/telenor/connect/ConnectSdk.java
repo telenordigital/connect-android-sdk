@@ -47,6 +47,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -78,6 +79,7 @@ public final class ConnectSdk {
     private static volatile long tsRedirectUrlInvoked;
     private static volatile long tsTokenResponseReceived;
     private static volatile String logSessionId;
+    private static volatile Date logSessionIdSetTime;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -106,7 +108,7 @@ public final class ConnectSdk {
             final BrowserType browserType,
             final Activity activity,
             final ShowLoadingCallback showLoadingCallback) {
-        setButtonClickedTimestamp();
+        handleButtonClickedAnalytics();
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
@@ -117,8 +119,18 @@ public final class ConnectSdk {
         HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
     }
 
-    private static void setButtonClickedTimestamp() {
+    private static void handleButtonClickedAnalytics() {
+        updateLogSessionIdIfTooOld();
         tsLoginButtonClicked = System.currentTimeMillis();
+    }
+
+    private static void updateLogSessionIdIfTooOld() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, -10);
+        Date _10MinutesAgo = calendar.getTime();
+        if (logSessionIdSetTime.before(_10MinutesAgo)) {
+            setRandomLogSessionId();
+        }
     }
 
     private static Uri getAuthorizeUri(Map<String, String> parameters, BrowserType browserType) {
@@ -183,7 +195,7 @@ public final class ConnectSdk {
                                                  final int requestCode,
                                                  final ShowLoadingCallback showLoadingCallback) {
         Validator.sdkInitialized();
-        setButtonClickedTimestamp();
+        handleButtonClickedAnalytics();
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
@@ -325,6 +337,7 @@ public final class ConnectSdk {
                     @Override
                     public void onFailure(Call<Void> call, Throwable error) {
                         Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data", error);
+                        setRandomLogSessionId();
                     }
                 });
     }
@@ -349,8 +362,9 @@ public final class ConnectSdk {
         sendAnalyticsData(debugInformation);
     }
 
-    private static void setRandomLogSessionId() {
+    public static void setRandomLogSessionId() {
         logSessionId = UUID.randomUUID().toString();
+        logSessionIdSetTime = new Date();
     }
 
     public static Context getContext() {
@@ -611,6 +625,23 @@ public final class ConnectSdk {
             return false;
         }
         return true;
+    }
+
+    public static boolean hasErrorRedirectUrlCall(Intent intent) {
+        if (intent == null) {
+            return false;
+        }
+        final Uri uri = intent.getData();
+        if (uri == null) {
+            return false;
+        }
+
+        final boolean startsWithCorrect = uri.toString().startsWith(getRedirectUri());
+        if (!startsWithCorrect) {
+            return false;
+        }
+
+        return uri.getQueryParameter("error") != null;
     }
 
     /**
