@@ -61,6 +61,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public final class ConnectSdk {
+    public static final int SESSION_TIMEOUT_MINUTES = 10;
     private static ArrayList<Locale> sLocales;
     private static ConnectStore connectStore;
     private static WellKnownConfigStore lastSeenWellKnownConfigStore;
@@ -125,12 +126,16 @@ public final class ConnectSdk {
     }
 
     private static void updateLogSessionIdIfTooOld() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, -10);
-        Date _10MinutesAgo = calendar.getTime();
+        Date _10MinutesAgo = getSessionTimeoutDate();
         if (logSessionIdSetTime.before(_10MinutesAgo)) {
             setRandomLogSessionId();
         }
+    }
+
+    private static Date getSessionTimeoutDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, -SESSION_TIMEOUT_MINUTES);
+        return calendar.getTime();
     }
 
     private static Uri getAuthorizeUri(Map<String, String> parameters, BrowserType browserType) {
