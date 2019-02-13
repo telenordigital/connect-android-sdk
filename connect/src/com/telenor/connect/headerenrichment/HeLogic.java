@@ -53,7 +53,7 @@ public class HeLogic {
                             cellularNetwork = network;
                             boolean noSignedInUser = ConnectSdk.getAccessToken() == null;
                             if (noSignedInUser) {
-                                initializeHe(useStaging, ConnectSdk.getLogSessionId());
+                                initializeHeaderEnrichment(useStaging, ConnectSdk.getLogSessionId());
                             }
                         }
                     }
@@ -63,7 +63,7 @@ public class HeLogic {
         }
     }
 
-    private static void initializeHe(boolean useStaging, String logSessionId) {
+    private static void initializeHeaderEnrichment(boolean useStaging, String logSessionId) {
         if (canNotDirectNetworkTraffic) { return; }
 
         String url = ConnectUrlHelper.getHeApiUrl(useStaging, logSessionId);
@@ -132,7 +132,7 @@ public class HeLogic {
         boolean tokenIsExpired = heTokenResponse != null && new Date().after(heTokenResponse.getExpiration());
         if (heWasNeverInitialized || tokenIsExpired) {
             setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
-            initializeHe(useStaging, logSessionId);
+            initializeHeaderEnrichment(useStaging, logSessionId);
             return;
         }
 
