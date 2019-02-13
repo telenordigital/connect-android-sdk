@@ -61,7 +61,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public final class ConnectSdk {
-    public static final int SESSION_TIMEOUT_MINUTES = 10;
+    private static final int SESSION_TIMEOUT_MINUTES = 10;
     private static ArrayList<Locale> sLocales;
     private static ConnectStore connectStore;
     private static WellKnownConfigStore lastSeenWellKnownConfigStore;
