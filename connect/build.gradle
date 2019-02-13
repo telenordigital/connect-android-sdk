@@ -9,7 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 28
-        versionName "1.10.1-beta"
+        versionName "1.10.2-beta"
     }
     sourceSets {
         main {
