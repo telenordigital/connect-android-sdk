@@ -3,7 +3,6 @@
     package="com.telenor.connect.tests" >
 
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-sdk android:minSdkVersion="15" />
 
     <application>
         <activity android:name="com.telenor.connect.TestActivity" android:label="tests" >
