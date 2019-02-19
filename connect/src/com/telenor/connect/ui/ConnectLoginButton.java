@@ -50,7 +50,6 @@ public class ConnectLoginButton extends RelativeLayout implements Authentication
 
     private void setLoading(boolean loading) {
         progressBar.setVisibility(loading ? VISIBLE : INVISIBLE);
-        loginButton.setEnabled(!loading);
     }
 
     public ConnectLoginButton(Context context, AttributeSet attrs) {
