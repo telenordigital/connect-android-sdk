@@ -7,4 +7,7 @@
     <string name="com_telenor_connect_network_settings"><u>Network settings</u></string>
     <string name="com_telenor_connect_show_details">Show details</string>
     <string name="com_telenor_connect_hide_details">Hide details</string>
+    <string name="com_telenor_connect_enable_mobile_data" translatable="false">Turn on Mobile data</string>
+    <string name="com_telenor_connect_enable_mobile_data_explanation" translatable="false">Turn on mobile data/3G/4G to automatically verify your phone number</string>
+    <string name="com_telenor_connect_continue" translatable="false">Continue</string>
 </resources>

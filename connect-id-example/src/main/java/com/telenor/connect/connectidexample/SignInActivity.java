@@ -3,20 +3,26 @@ package com.telenor.connect.connectidexample;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.ui.ConnectLoginButton;
+import com.telenor.connect.ui.EnableMobileDataDialogFragment;
 import com.telenor.connect.utils.ConnectUtils;
 
-public class SignInActivity extends Activity {
+public class SignInActivity extends FragmentActivity {
+
+    ConnectLoginButton loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        ConnectLoginButton loginButton = findViewById(R.id.login_button);
+        loginButton = findViewById(R.id.login_button);
         loginButton.setLoginScopeTokens("profile openid");
     }
 
