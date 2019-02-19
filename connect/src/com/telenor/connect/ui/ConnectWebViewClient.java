@@ -2,11 +2,9 @@ package com.telenor.connect.ui;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -14,7 +12,6 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.headerenrichment.HeLogic;
@@ -28,6 +25,8 @@ import com.telenor.connect.utils.JavascriptUtil;
 
 import java.util.List;
 import java.util.regex.Pattern;
+
+import androidx.annotation.RequiresApi;
 
 public class ConnectWebViewClient extends WebViewClient implements SmsHandler, InstructionHandler {
 

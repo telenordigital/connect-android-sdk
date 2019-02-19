@@ -1,7 +1,6 @@
 package com.telenor.connect.ui;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -16,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
 
 public class ConnectWebViewLoginButton extends ConnectButton implements AuthenticationButton {
 

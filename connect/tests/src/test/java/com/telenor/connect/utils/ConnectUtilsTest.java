@@ -3,7 +3,6 @@ package com.telenor.connect.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
@@ -20,6 +19,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.Map;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;

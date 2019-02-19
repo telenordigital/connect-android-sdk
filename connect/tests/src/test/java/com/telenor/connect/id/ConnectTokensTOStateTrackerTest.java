@@ -1,7 +1,6 @@
 package com.telenor.connect.id;
 
 import android.content.Context;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.telenor.connect.ConnectSdk;
 
@@ -15,6 +14,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

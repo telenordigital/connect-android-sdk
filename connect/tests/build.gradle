@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
+    testOptions.unitTests.includeAndroidResources = true
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 28
@@ -20,13 +21,14 @@ android {
         testImplementation 'org.powermock:powermock-module-junit4-rule:1.6.5'
         testImplementation 'org.powermock:powermock-api-mockito:1.6.5'
         testImplementation 'org.powermock:powermock-classloading-xstream:1.6.5'
-        testImplementation ("org.robolectric:robolectric:3.4.2") {
+        testImplementation ("org.robolectric:robolectric:4.2") {
             exclude module: 'bcprov-jdk16'
         }
-        testImplementation ('org.robolectric:shadows-support-v4:3.0') {
+        testImplementation ("org.robolectric:shadows-support-v4:3.0") {
             exclude module: 'bcprov-jdk16'
         }
         testImplementation 'junit:junit:4.12'
+        testImplementation 'com.google.android.material:material:1.0.0'
     }
     useLibrary 'org.apache.http.legacy'
 
