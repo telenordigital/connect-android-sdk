@@ -11,6 +11,7 @@ import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.View;
 
 import com.telenor.connect.BrowserType;
 import com.telenor.connect.ConnectSdk;
@@ -70,13 +71,7 @@ public class ConnectCustomTabLoginButton extends ConnectWebViewLoginButton {
             return;
         }
         serviceBound = CustomTabsClient.bindCustomTabsService(getContext(), packageNameToUse, connection);
-        boolean correctIntentFilter = 
-          
-          
-          
-          
-          
-          (getContext());
+        boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
         customTabsSupported = serviceBound && correctIntentFilter;
         browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.WEB_VIEW;
     }
