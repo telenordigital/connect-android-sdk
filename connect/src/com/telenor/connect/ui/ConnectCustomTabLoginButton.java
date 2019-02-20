@@ -13,6 +13,7 @@ import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.View;
 
 import com.telenor.connect.BrowserType;
 import com.telenor.connect.ConnectSdk;
