@@ -52,8 +52,8 @@ public class HeLogic {
                         public void onAvailable(Network network) {
                             cellularNetwork = network;
                             boolean noSignedInUser = ConnectSdk.getAccessToken() == null;
-                            if (noSignedInUser) {
-                                initializeHeaderEnrichment(useStaging, ConnectSdk.getLogSessionId());
+                            if (noSignedInUser && instantVerificationEnabled()) {
+                                initializeHe(useStaging, ConnectSdk.getLogSessionId());
                             }
                         }
                     }
@@ -63,7 +63,11 @@ public class HeLogic {
         }
     }
 
-    private static void initializeHeaderEnrichment(boolean useStaging, String logSessionId) {
+    private static boolean instantVerificationEnabled() {
+        return ConnectSdk.useStaging();
+    }
+
+    private static void initializeHe(boolean useStaging, String logSessionId) {
         if (canNotDirectNetworkTraffic) { return; }
 
         String url = ConnectUrlHelper.getHeApiUrl(useStaging, logSessionId);
@@ -117,7 +121,8 @@ public class HeLogic {
         boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
         boolean authenticateNow = finishedUnSuccessfully
                 || promptBlocksUseOfHe
-                || canNotDirectNetworkTraffic;
+                || canNotDirectNetworkTraffic
+                || !instantVerificationEnabled();
         if (authenticateNow) {
             callCallbacks(showLoadingCallback, heTokenCallback);
             return;
@@ -132,7 +137,7 @@ public class HeLogic {
         boolean tokenIsExpired = heTokenResponse != null && new Date().after(heTokenResponse.getExpiration());
         if (heWasNeverInitialized || tokenIsExpired) {
             setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
-            initializeHeaderEnrichment(useStaging, logSessionId);
+            initializeHe(useStaging, logSessionId);
             return;
         }
 
