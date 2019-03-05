@@ -156,7 +156,7 @@ public final class ConnectSdk {
                 if (pin == null) {
                     return;
                 }
-                getContext().unregisterReceiver(smsBroadcastReceiver);
+                safeUnregisterAndRemoveBroadcastReceiver();
                 String url = ConnectUrlHelper.getSubmitPinUrl(pin);
                 Uri uri = Uri.parse(url);
                 launchUrlInCustomTab(activity, session, uri);
@@ -665,12 +665,18 @@ public final class ConnectSdk {
         if (!hasValidRedirectUrlCall(intent)) {
             return;
         }
-        if (smsBroadcastReceiver != null) {
-            getContext().unregisterReceiver(smsBroadcastReceiver);
-            smsBroadcastReceiver = null;
-        }
+        safeUnregisterAndRemoveBroadcastReceiver();
         final String code = getCodeFromIntent(intent);
         getAccessTokenFromCode(code, callback);
+    }
+
+    private static void safeUnregisterAndRemoveBroadcastReceiver() {
+        try {
+            getContext().unregisterReceiver(smsBroadcastReceiver);
+        } catch (IllegalArgumentException ignored) {
+        } finally {
+            smsBroadcastReceiver = null;
+        }
     }
 
     /**
