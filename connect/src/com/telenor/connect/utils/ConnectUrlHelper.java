@@ -153,17 +153,4 @@ public class ConnectUrlHelper {
         // custom tabs automatically url encodes the result, so it's not done here, to avoid
         // double encoding it.
     }
-
-    public static Uri getPreFetchUrl() {
-        return Uri.parse(
-                ConnectUrlHelper
-                        .getConnectApiUrl()
-                        .newBuilder()
-                        .addPathSegment("id")
-                        .addPathSegment("android-sdk-prefetch-static-resources")
-                        .build()
-                        .uri()
-                        .toString()
-        );
-    }
 }
