@@ -665,6 +665,10 @@ public final class ConnectSdk {
         if (!hasValidRedirectUrlCall(intent)) {
             return;
         }
+        if (smsBroadcastReceiver != null) {
+            getContext().unregisterReceiver(smsBroadcastReceiver);
+            smsBroadcastReceiver = null;
+        }
         final String code = getCodeFromIntent(intent);
         getAccessTokenFromCode(code, callback);
     }
