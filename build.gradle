@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.1'
+        classpath 'com.android.tools.build:gradle:3.3.2'
         classpath 'com.novoda:bintray-release:0.9'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.2'
 
@@ -21,8 +21,3 @@ allprojects {
         jcenter()
     }
 }
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.4'
-}
-

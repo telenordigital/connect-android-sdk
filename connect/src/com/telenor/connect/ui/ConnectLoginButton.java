@@ -135,6 +135,11 @@ public class ConnectLoginButton extends RelativeLayout
     }
 
     @Override
+    public OnClickListener getOnClickListener() {
+        return loginButton.getOnClickListener();
+    }
+
+    @Override
     public void setAcrValues(String... acrValues) {
         loginButton.setAcrValues(acrValues);
     }
