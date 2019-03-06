@@ -51,7 +51,9 @@ public class ConnectLoginButton extends RelativeLayout
             @Override
             public void onClick(View v) {
                 setLoading(true);
-                if (!HeLogic.isCellularDataNetworkConnected()) {
+                boolean cellularDataIsDisabledAndCanDirectNetworkTraffic
+                        = !HeLogic.canNotDirectNetworkTraffic && !HeLogic.isCellularDataNetworkConnected();
+                if (cellularDataIsDisabledAndCanDirectNetworkTraffic) {
                     EnableMobileDataDialogFragment enableMobileDataDialogFragment = new EnableMobileDataDialogFragment();
                     FragmentManager fragmentManager = ((FragmentActivity) loginButton.getActivity()).getSupportFragmentManager();
                     enableMobileDataDialogFragment.show(fragmentManager, "EnableMobileDataFragment");
