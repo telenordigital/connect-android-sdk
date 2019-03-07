@@ -7,7 +7,10 @@
     <string name="com_telenor_connect_network_settings"><u>Network settings</u></string>
     <string name="com_telenor_connect_show_details">Show details</string>
     <string name="com_telenor_connect_hide_details">Hide details</string>
-    <string name="com_telenor_connect_enable_mobile_data" translatable="false">Turn on Mobile data</string>
-    <string name="com_telenor_connect_enable_mobile_data_explanation" translatable="false">Turn on mobile data/3G/4G to automatically verify your phone number</string>
-    <string name="com_telenor_connect_continue" translatable="false">Continue</string>
+    <string name="com_telenor_enable_mobile_data_header">Sign in automatically</string>
+    <string name="com_telenor_enable_mobile_data_text1">Turn on mobile data (3G/4G) so we can recognise you and enable automatic sign-in.</string>
+    <string name="com_telenor_enable_mobile_data_text2">Mobile data is free when you sign in. You can also keep Wi-Fi on now and for the rest of the session.</string>
+    <string name="com_telenor_signin_automatically">Sign in automatically</string>
+    <string name="com_telenor_divider_or">or</string>
+    <string name="com_telenor_regular_signin">Continue with regular sign-in</string>
 </resources>
