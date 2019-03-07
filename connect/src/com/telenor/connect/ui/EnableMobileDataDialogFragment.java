@@ -17,8 +17,11 @@ import android.view.View;
 import com.telenor.connect.R;
 import com.telenor.connect.headerenrichment.HeLogic;
 
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class EnableMobileDataDialogFragment extends DialogFragment {
 
+    private ConnectivityManager.NetworkCallback cellularNetworkCallback;
+    private View automaticSignInButton;
     private ContinueListener listener;
     private View.OnClickListener continueCallback = new View.OnClickListener() {
         @Override
@@ -34,26 +37,55 @@ public class EnableMobileDataDialogFragment extends DialogFragment {
 
     @NonNull
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.com_telenor_connect_fragment_enable_mobile_data, null);
-        final View automaticSignInButton = view
+        automaticSignInButton = view
                 .findViewById(R.id.com_telenor_connect_fragment_enable_mobile_data_sign_in_automatically_button);
         automaticSignInButton.setOnClickListener(continueCallback);
         view.findViewById(R.id.com_telenor_connect_fragment_enable_mobile_data_sign_in_regular_button)
                 .setOnClickListener(continueCallback);
 
-        HeLogic.registerCellularNetworkCallback(new ConnectivityManager.NetworkCallback() {
-            @Override
-            public void onAvailable(Network network) {
-                automaticSignInButton.setEnabled(network != null);
-            }
-        });
-
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .create();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cellularNetworkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(final Network network) {
+                enableButton(true);
+            }
+
+            private void enableButton(final boolean b) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        automaticSignInButton.setEnabled(b);
+                    }
+                });
+            }
+
+            @Override
+            public void onUnavailable() {
+                enableButton(false);
+            }
+
+            @Override
+            public void onLost(Network network) {
+                enableButton(false);
+            }
+        };
+        HeLogic.registerCellularNetworkCallback(cellularNetworkCallback);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        HeLogic.unRegisterCellularNetworkCallback(cellularNetworkCallback);
     }
 
     public void setContinueListener(ContinueListener listener) {

@@ -66,6 +66,15 @@ public class HeLogic {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void unRegisterCellularNetworkCallback(ConnectivityManager.NetworkCallback cellularNetworkCallback) {
+        try {
+            connectivityManager.unregisterNetworkCallback(cellularNetworkCallback);
+        } catch (SecurityException e) {
+            cellularNetwork = null;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private static NetworkRequest getCellularNetworkRequest() {
         return new NetworkRequest.Builder()
                     .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
