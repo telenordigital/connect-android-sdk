@@ -19,6 +19,7 @@ import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -107,11 +108,11 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        for (BroadcastReceiver broadcastReceiver : receivers) {
+        for (Iterator<BroadcastReceiver> iterator = receivers.iterator(); iterator.hasNext();) {
             try {
-                unregisterReceiver(broadcastReceiver);
+                unregisterReceiver(iterator.next());
             } catch (IllegalArgumentException ignore) {}
-            receivers.remove(broadcastReceiver);
+            iterator.remove();
         }
     }
 }
