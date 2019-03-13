@@ -108,11 +108,11 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        for (Iterator<BroadcastReceiver> it = receivers.iterator(); it.hasNext();) {
+        for (Iterator<BroadcastReceiver> iterator = receivers.iterator(); iterator.hasNext();) {
             try {
-                unregisterReceiver(it.next());
+                unregisterReceiver(iterator.next());
             } catch (IllegalArgumentException ignore) {}
-            it.remove();
+            iterator.remove();
         }
     }
 }
