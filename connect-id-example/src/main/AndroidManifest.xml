@@ -16,14 +16,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignInActivity" android:launchMode="singleTask">
-            <intent-filter>
-                <data android:scheme="@string/connect_redirect_uri_scheme" />
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".SignInActivity" android:launchMode="singleTask" />
         <activity
             android:name="com.telenor.connect.ui.ConnectActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -36,6 +29,10 @@
         <meta-data
             android:name="com.telenor.connect.REDIRECT_URI"
             android:value="@string/connect_redirect_uri" />
+
+        <meta-data
+            android:name="com.telenor.connect.CONFIDENTIAL_CLIENT"
+            android:value="true" />
     </application>
 
 </manifest>

@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.id.ConnectTokens;
 import com.telenor.connect.ui.ConnectLoginButton;
 import com.telenor.connect.utils.ConnectUtils;
 
@@ -48,8 +50,22 @@ public class SignInActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            goToSignedInActivity();
+        if (resultCode == Activity.RESULT_OK && data.hasExtra("code")) {
+            String authorizationCode = data.getStringExtra("code");
+            Toast.makeText(this, "authorizationCode=" + authorizationCode, Toast.LENGTH_SHORT).show();
+            // Don't do this 👇. Instead send the authorizationCode to your confidential web server.
+            ConnectSdk.getAccessTokenFromCode(authorizationCode, new ConnectCallback() {
+                @Override
+                public void onSuccess(Object successData) {
+                    ConnectTokens tokens = (ConnectTokens) successData;
+                    Toast.makeText(SignInActivity.this, tokens.getAccessToken(), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(Object errorData) {
+                    Toast.makeText(SignInActivity.this, errorData.toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 }
