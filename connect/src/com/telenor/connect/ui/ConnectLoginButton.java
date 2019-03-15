@@ -53,7 +53,7 @@ public class ConnectLoginButton extends RelativeLayout
                 setLoading(true);
                 boolean cellularDataIsDisabledAndCanDirectNetworkTraffic
                         = !HeLogic.canNotDirectNetworkTraffic && !HeLogic.isCellularDataNetworkConnected();
-                if (cellularDataIsDisabledAndCanDirectNetworkTraffic) {
+                if (cellularDataIsDisabledAndCanDirectNetworkTraffic && ConnectSdk.showMobileDataDialog()) {
                     EnableMobileDataDialogFragment enableMobileDataDialogFragment = new EnableMobileDataDialogFragment();
                     FragmentManager fragmentManager = ((FragmentActivity) loginButton.getActivity()).getSupportFragmentManager();
                     enableMobileDataDialogFragment.show(fragmentManager, "EnableMobileDataFragment");
