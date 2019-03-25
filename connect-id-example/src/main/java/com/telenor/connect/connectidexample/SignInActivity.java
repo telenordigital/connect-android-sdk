@@ -13,13 +13,11 @@ import com.telenor.connect.utils.ConnectUtils;
 
 public class SignInActivity extends AppCompatActivity {
 
-    ConnectLoginButton loginButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        loginButton = findViewById(R.id.login_button);
+        ConnectLoginButton loginButton = findViewById(R.id.login_button);
         loginButton.setLoginScopeTokens("profile openid");
     }
 
