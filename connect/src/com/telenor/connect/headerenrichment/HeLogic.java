@@ -8,6 +8,7 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.utils.ConnectUrlHelper;
@@ -16,10 +17,11 @@ import java.util.Date;
 import java.util.Map;
 
 public class HeLogic {
+    public static final boolean canNotDirectNetworkTraffic = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
+
     private static final long HE_TOKEN_TIMEOUT_MILLISECONDS = 10_000; // Timeout is a best guess
     // at what would be long enough to succeed and short enough for users to wait it out if
     // it should fail/time out, and do a normal flow
-    private static final boolean canNotDirectNetworkTraffic = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
     private static boolean heTokenSuccess = true;
     private static HeTokenCallback heTokenCallback;
     private static boolean isHeTokenRequestOngoing;
@@ -40,27 +42,44 @@ public class HeLogic {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static void initializeCellularNetwork(final boolean useStaging) {
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                .build();
+        ConnectivityManager.NetworkCallback cellularNetworkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                cellularNetwork = network;
+                boolean noSignedInUser = ConnectSdk.getAccessToken() == null;
+                if (noSignedInUser) {
+                    initializeHeaderEnrichment(useStaging, ConnectSdk.getLogSessionId());
+                }
+            }
+        };
+        registerCellularNetworkCallback(cellularNetworkCallback);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void registerCellularNetworkCallback(ConnectivityManager.NetworkCallback cellularNetworkCallback) {
+        NetworkRequest cellularNetworkRequest = getCellularNetworkRequest();
         try {
-            connectivityManager.requestNetwork(
-                    networkRequest,
-                    new ConnectivityManager.NetworkCallback() {
-                        @Override
-                        public void onAvailable(Network network) {
-                            cellularNetwork = network;
-                            boolean noSignedInUser = ConnectSdk.getAccessToken() == null;
-                            if (noSignedInUser) {
-                                initializeHeaderEnrichment(useStaging, ConnectSdk.getLogSessionId());
-                            }
-                        }
-                    }
-            );
+            connectivityManager.requestNetwork(cellularNetworkRequest, cellularNetworkCallback);
         } catch (SecurityException e) {
             cellularNetwork = null;
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void unRegisterCellularNetworkCallback(ConnectivityManager.NetworkCallback cellularNetworkCallback) {
+        try {
+            connectivityManager.unregisterNetworkCallback(cellularNetworkCallback);
+        } catch (SecurityException e) {
+            cellularNetwork = null;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private static NetworkRequest getCellularNetworkRequest() {
+        return new NetworkRequest.Builder()
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                    .build();
     }
 
     private static void initializeHeaderEnrichment(boolean useStaging, String logSessionId) {

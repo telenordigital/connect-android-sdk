@@ -5,6 +5,9 @@
     <color name="com_telenor_connect_darker_gray">#222</color>
     <color name="com_telenor_connect_darker_gray_transparent">#80222222</color>
     <color name="com_telenor_connect_light_color">#fff</color>
+    <color name="com_telenor_connect_medium_blue">#007AD0</color>
+    <color name="com_telenor_connect_text_dark">#1A1A1A</color>
+    <color name="com_telenor_connect_text_gray_divider">#979797</color>
 
     <style name="com_telenor_ConnectButton.Dark" parent="com_telenor_ConnectButton">
         <item name="android:background">@drawable/connect_btn_dark_selector</item>
@@ -26,6 +29,10 @@
     <style name="ConnectTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorAccent">@color/com_telenor_connect_darker_gray</item>
         <item name="android:buttonStyle">@style/com_telenor_ConnectButton</item>
+    </style>
+
+    <style name="ConnectTheme.Button.Blue" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:colorAccent">@color/com_telenor_connect_medium_blue</item>
     </style>
 
 </resources>

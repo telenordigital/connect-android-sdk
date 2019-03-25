@@ -11,6 +11,7 @@ import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -46,7 +47,7 @@ public class ConnectCustomTabLoginButton extends ConnectWebViewLoginButton {
     private BrowserType browserType;
     private CustomTabsSession session;
 
-    public ConnectCustomTabLoginButton(Context context, AttributeSet attributeSet) {
+    public ConnectCustomTabLoginButton(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
     }
 
@@ -78,6 +79,10 @@ public class ConnectCustomTabLoginButton extends ConnectWebViewLoginButton {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        if (!(getActivity() instanceof FragmentActivity)) {
+            throw new ClassCastException(getActivity().toString()
+                    + " must be a FragmentActivity");
+        }
         String packageNameToUse = CustomTabsHelper.getPackageNameToUse(getContext());
         if (TextUtils.isEmpty(packageNameToUse)) {
             return;

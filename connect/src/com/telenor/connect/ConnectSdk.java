@@ -72,6 +72,7 @@ public final class ConnectSdk {
     private static volatile boolean isInitialized = false;
     private static String clientId;
     private static String redirectUri;
+    private static boolean showMobileDataDialog;
     private static boolean useStaging;
     private static SmsBroadcastReceiver smsBroadcastReceiver;
     private static volatile String advertisingId;
@@ -96,6 +97,8 @@ public final class ConnectSdk {
      * The key for the redirect URI in the Android manifest.
      */
     public static final String REDIRECT_URI_PROPERTY = "com.telenor.connect.REDIRECT_URI";
+
+    public static final String SHOW_MOBILE_DATA_DIALOG_PROPERTY = "com.telenor.connect.SHOW_MOBILE_DATA_DIALOG";
 
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
@@ -382,6 +385,11 @@ public final class ConnectSdk {
         return clientId;
     }
 
+    public static boolean showMobileDataDialog() {
+        Validator.sdkInitialized();
+        return showMobileDataDialog;
+    }
+
     public static ArrayList<Locale> getLocales() {
         Validator.sdkInitialized();
         return sLocales;
@@ -530,6 +538,11 @@ public final class ConnectSdk {
         Object redirectUriObject = ai.metaData.get(REDIRECT_URI_PROPERTY);
         if (redirectUriObject instanceof String) {
             redirectUri = (String) redirectUriObject;
+        }
+
+        Object showMobileDataDialogObject = ai.metaData.get(SHOW_MOBILE_DATA_DIALOG_PROPERTY);
+        if (showMobileDataDialogObject instanceof Boolean) {
+            showMobileDataDialog = (boolean) showMobileDataDialogObject;
         }
     }
 

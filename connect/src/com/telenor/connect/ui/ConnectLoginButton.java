@@ -1,10 +1,14 @@
 package com.telenor.connect.ui;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -12,15 +16,19 @@ import android.widget.RelativeLayout;
 
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-public class ConnectLoginButton extends RelativeLayout implements AuthenticationButton {
-    ConnectCustomTabLoginButton loginButton;
-    ProgressBar progressBar;
+public class ConnectLoginButton extends RelativeLayout
+        implements AuthenticationButton, EnableMobileDataDialogFragment.ContinueListener {
+
+    private ConnectCustomTabLoginButton loginButton;
+    private ProgressBar progressBar;
+    private View.OnClickListener loginClickListener;
 
     public ConnectLoginButton(Context context) {
         super(context);
@@ -38,11 +46,20 @@ public class ConnectLoginButton extends RelativeLayout implements Authentication
             }
         });
 
-        final View.OnClickListener loginClickListener = loginButton.getOnClickListener();
+        loginClickListener = loginButton.getOnClickListener();
         loginButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 setLoading(true);
+                boolean cellularDataIsDisabledAndCanDirectNetworkTraffic
+                        = !HeLogic.canNotDirectNetworkTraffic && !HeLogic.isCellularDataNetworkConnected();
+                if (cellularDataIsDisabledAndCanDirectNetworkTraffic && ConnectSdk.showMobileDataDialog()) {
+                    EnableMobileDataDialogFragment enableMobileDataDialogFragment = new EnableMobileDataDialogFragment();
+                    FragmentManager fragmentManager = ((FragmentActivity) loginButton.getActivity()).getSupportFragmentManager();
+                    enableMobileDataDialogFragment.show(fragmentManager, "EnableMobileDataFragment");
+                    enableMobileDataDialogFragment.setContinueListener(ConnectLoginButton.this);
+                    return;
+                }
                 loginClickListener.onClick(v);
             }
         });
@@ -51,6 +68,16 @@ public class ConnectLoginButton extends RelativeLayout implements Authentication
     private void setLoading(boolean loading) {
         progressBar.setVisibility(loading ? VISIBLE : INVISIBLE);
         loginButton.setEnabled(!loading);
+    }
+
+    @Override
+    public void onContinueClicked(DialogFragment dialog) {
+        loginClickListener.onClick(null);
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        setLoading(false);
     }
 
     public ConnectLoginButton(Context context, AttributeSet attrs) {
