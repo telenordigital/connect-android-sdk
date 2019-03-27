@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
@@ -28,6 +29,7 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
     private Claims claims;
     private int customLoadingLayout = NO_CUSTOM_LAYOUT;
     private ShowLoadingCallback showLoadingCallback;
+    private DismissDialogCallback dismissDialogCallback;
     private OnClickListener onClickListener;
 
     public ConnectWebViewLoginButton(Context context, AttributeSet attributeSet) {
@@ -135,7 +137,8 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
                 getParameters(),
                 getCustomLoadingLayout(),
                 getRequestCode(),
-                getShowLoadingCallback()
+                getShowLoadingCallback(),
+                getDismissDialogCallback()
         );
     }
 
@@ -145,5 +148,13 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
 
     public void setShowLoadingCallback(ShowLoadingCallback showLoadingCallback) {
         this.showLoadingCallback = showLoadingCallback;
+    }
+
+    public void setDismissDialogCallback(DismissDialogCallback dismissDialogCallback) {
+        this.dismissDialogCallback = dismissDialogCallback;
+    }
+
+    public DismissDialogCallback getDismissDialogCallback() {
+        return dismissDialogCallback;
     }
 }

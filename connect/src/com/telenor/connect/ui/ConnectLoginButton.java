@@ -16,6 +16,7 @@ import android.widget.RelativeLayout;
 
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
@@ -54,7 +55,13 @@ public class ConnectLoginButton extends RelativeLayout
                 boolean cellularDataIsDisabledAndCanDirectNetworkTraffic
                         = !HeLogic.canNotDirectNetworkTraffic && !HeLogic.isCellularDataNetworkConnected();
                 if (cellularDataIsDisabledAndCanDirectNetworkTraffic && ConnectSdk.showMobileDataDialog()) {
-                    EnableMobileDataDialogFragment enableMobileDataDialogFragment = new EnableMobileDataDialogFragment();
+                    final EnableMobileDataDialogFragment enableMobileDataDialogFragment = new EnableMobileDataDialogFragment();
+                    loginButton.setDismissDialogCallback(new DismissDialogCallback() {
+                        @Override
+                        public void dismiss() {
+                            enableMobileDataDialogFragment.dismiss();
+                        }
+                    });
                     FragmentManager fragmentManager = ((FragmentActivity) loginButton.getActivity()).getSupportFragmentManager();
                     enableMobileDataDialogFragment.show(fragmentManager, "EnableMobileDataFragment");
                     enableMobileDataDialogFragment.setContinueListener(ConnectLoginButton.this);
