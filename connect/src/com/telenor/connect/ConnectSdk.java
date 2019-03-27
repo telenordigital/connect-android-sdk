@@ -311,9 +311,28 @@ public final class ConnectSdk {
         sendAnalyticsData(null);
     }
 
-    private static void sendAnalyticsData(JSONObject extraDebugData) {
+    public static void sendAnalyticsData(Throwable e) {
         if (getWellKnownConfig() == null || getWellKnownConfig().getAnalyticsEndpoint() == null) {
             return;
+        }
+
+        TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        String carrierName = manager != null ? manager.getNetworkOperatorName() : null;
+        JSONObject debugInformation = new JSONObject();
+        try {
+            debugInformation
+                    .put("activeNetworkInfo", HeLogic.getActiveNetworkInfo())
+                    .put("cellularNetworkInfo", HeLogic.getCellularNetworkInfo())
+                    .put("deviceTimestamp", new Date())
+                    .put("carrierName", carrierName)
+                    .put("sdkVersion", BuildConfig.VERSION_NAME);
+            if (e != null) {
+                debugInformation
+                        .put("exception", e.getMessage())
+                        .put("exceptionStackTrace", e.getStackTrace());
+            }
+        } catch (JSONException e1) {
+            Log.e(ConnectUtils.LOG_TAG, "Exception making exception json", e1);
         }
 
         String accessToken = getAccessToken();
@@ -331,7 +350,7 @@ public final class ConnectSdk {
                         tsLoginButtonClicked,
                         tsRedirectUrlInvoked,
                         tsTokenResponseReceived,
-                        extraDebugData
+                        debugInformation
                 ))
                 .enqueue(new Callback<Void>() {
                     @Override
@@ -348,26 +367,6 @@ public final class ConnectSdk {
                         setRandomLogSessionId();
                     }
                 });
-    }
-
-    public static void sendDebugErrorDataToAnalyticsEndpoint(Throwable e) {
-        TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-        String carrierName = manager != null ? manager.getNetworkOperatorName() : null;
-        JSONObject debugInformation = new JSONObject();
-        try {
-            debugInformation
-                    .put("exception", e.getMessage())
-                    .put("exceptionStackTrace", e.getStackTrace())
-                    .put("activeNetworkInfo", HeLogic.getActiveNetworkInfo())
-                    .put("cellularNetworkInfo", HeLogic.getCellularNetworkInfo())
-                    .put("deviceTimestamp", new Date())
-                    .put("carrierName", carrierName)
-                    .put("sdkVersion", BuildConfig.VERSION_NAME);
-        } catch (JSONException e1) {
-            Log.e(ConnectUtils.LOG_TAG, "Exception making exception json", e1);
-            return;
-        }
-        sendAnalyticsData(debugInformation);
     }
 
     public static void setRandomLogSessionId() {

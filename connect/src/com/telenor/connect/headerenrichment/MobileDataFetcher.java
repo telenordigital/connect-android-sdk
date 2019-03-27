@@ -47,7 +47,7 @@ public class MobileDataFetcher {
             inputStream.close();
             return response;
         } catch (IOException e) {
-            ConnectSdk.sendDebugErrorDataToAnalyticsEndpoint(e);
+            ConnectSdk.sendAnalyticsData(e);
             return null;
         }
     }
@@ -84,7 +84,7 @@ public class MobileDataFetcher {
                 connection.getInputStream().close();
             } catch (final IOException e) {
                 Log.e(ConnectUtils.LOG_TAG, "Exception fetching resource", e);
-                ConnectSdk.sendDebugErrorDataToAnalyticsEndpoint(e);
+                ConnectSdk.sendAnalyticsData(e);
                 return null;
             }
             if (allowedToToggleNetworkToUse) {
@@ -131,7 +131,7 @@ public class MobileDataFetcher {
             String host = (new URL(url)).getHost();
             hostIp = InetAddress.getByName(host).getHostAddress();
         } catch (MalformedURLException | UnknownHostException e) {
-            ConnectSdk.sendDebugErrorDataToAnalyticsEndpoint(e);
+            ConnectSdk.sendAnalyticsData(e);
             return false;
         }
         return wellKnownConfig
