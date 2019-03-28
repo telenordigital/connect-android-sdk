@@ -21,6 +21,7 @@ import android.util.Log;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.headerenrichment.HeTokenResponse;
@@ -111,7 +112,8 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final BrowserType browserType,
             final Activity activity,
-            final ShowLoadingCallback showLoadingCallback) {
+            final ShowLoadingCallback showLoadingCallback,
+            final DismissDialogCallback dismissDialogCallback) {
         handleButtonClickedAnalytics();
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
             @Override
@@ -120,7 +122,7 @@ public final class ConnectSdk {
                 launchChromeCustomTabAuthentication(session, authorizeUri, activity);
             }
         };
-        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
+        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging, dismissDialogCallback);
     }
 
     private static void handleButtonClickedAnalytics() {
@@ -194,14 +196,15 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        authenticate(activity, parameters, ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT, requestCode, null);
+        authenticate(activity, parameters, ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT, requestCode, null, null);
     }
 
     public static synchronized void authenticate(final Activity activity,
                                                  final Map<String, String> parameters,
                                                  final int customLoadingLayout,
                                                  final int requestCode,
-                                                 final ShowLoadingCallback showLoadingCallback) {
+                                                 final ShowLoadingCallback showLoadingCallback,
+                                                 final DismissDialogCallback dismissDialogCallback) {
         Validator.sdkInitialized();
         handleButtonClickedAnalytics();
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
@@ -214,7 +217,7 @@ public final class ConnectSdk {
                 activity.startActivityForResult(intent, requestCode);
             }
         };
-        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging);
+        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging, dismissDialogCallback);
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
