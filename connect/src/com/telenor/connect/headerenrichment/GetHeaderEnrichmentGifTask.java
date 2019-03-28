@@ -64,7 +64,7 @@ public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeTokenRes
             exp = jsonResponse.getInt("exp");
         } catch (JSONException e) {
             Log.e(ConnectUtils.LOG_TAG, "Failed to parse header-enrichment-token", e);
-            ConnectSdk.sendDebugErrorDataToAnalyticsEndpoint(e);
+            ConnectSdk.sendAnalyticsData(e);
             return null;
         }
         Calendar instance = Calendar.getInstance();
