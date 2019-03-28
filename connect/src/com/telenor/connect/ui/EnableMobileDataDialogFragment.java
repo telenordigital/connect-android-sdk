@@ -23,12 +23,23 @@ public class EnableMobileDataDialogFragment extends DialogFragment {
     private ConnectivityManager.NetworkCallback cellularNetworkCallback;
     private View automaticSignInButton;
     private ContinueListener listener;
-    private View.OnClickListener continueCallback = new View.OnClickListener() {
+    private View.OnClickListener automaticSignInButtonContinueCallback = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            automaticButtonPressed = true;
             listener.onContinueClicked(EnableMobileDataDialogFragment.this);
         }
     };
+    private View.OnClickListener regularSignInButtonContinueCallback = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            manualButtonPressed = true;
+            listener.onContinueClicked(EnableMobileDataDialogFragment.this);
+        }
+    };
+
+    private boolean automaticButtonPressed = false;
+    private boolean manualButtonPressed = false;
 
     public interface ContinueListener {
         void onContinueClicked(DialogFragment dialog);
@@ -42,9 +53,9 @@ public class EnableMobileDataDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.com_telenor_connect_fragment_enable_mobile_data, null);
         automaticSignInButton = view
                 .findViewById(R.id.com_telenor_connect_fragment_enable_mobile_data_sign_in_automatically_button);
-        automaticSignInButton.setOnClickListener(continueCallback);
+        automaticSignInButton.setOnClickListener(automaticSignInButtonContinueCallback);
         view.findViewById(R.id.com_telenor_connect_fragment_enable_mobile_data_sign_in_regular_button)
-                .setOnClickListener(continueCallback);
+                .setOnClickListener(regularSignInButtonContinueCallback);
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
@@ -108,5 +119,13 @@ public class EnableMobileDataDialogFragment extends DialogFragment {
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
         listener.onCancel(dialog);
+    }
+
+    public boolean isAtomaticButtonPressed() {
+        return automaticButtonPressed;
+    }
+
+    public boolean isManualButtonPressed() {
+        return manualButtonPressed;
     }
 }

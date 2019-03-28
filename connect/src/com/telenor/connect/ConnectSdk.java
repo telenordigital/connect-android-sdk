@@ -84,6 +84,8 @@ public final class ConnectSdk {
     private static volatile String logSessionId;
     private static volatile Date logSessionIdSetTime;
 
+    private static JSONObject mobileDialogAnalytics;
+
     /**
      * The key for the client ID in the Android manifest.
      */
@@ -115,6 +117,7 @@ public final class ConnectSdk {
             final ShowLoadingCallback showLoadingCallback,
             final DismissDialogCallback dismissDialogCallback) {
         handleButtonClickedAnalytics();
+        handleMobileDataAnalytics(dismissDialogCallback.getAnalytics());
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
@@ -128,6 +131,10 @@ public final class ConnectSdk {
     private static void handleButtonClickedAnalytics() {
         updateLogSessionIdIfTooOld();
         tsLoginButtonClicked = System.currentTimeMillis();
+    }
+
+    private static void handleMobileDataAnalytics(JSONObject jsonData) {
+        mobileDialogAnalytics = jsonData;
     }
 
     private static void updateLogSessionIdIfTooOld() {
@@ -207,6 +214,7 @@ public final class ConnectSdk {
                                                  final DismissDialogCallback dismissDialogCallback) {
         Validator.sdkInitialized();
         handleButtonClickedAnalytics();
+        handleMobileDataAnalytics(dismissDialogCallback.getAnalytics());
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
@@ -338,6 +346,20 @@ public final class ConnectSdk {
             Log.e(ConnectUtils.LOG_TAG, "Exception making exception json", e1);
         }
 
+        JSONObject mobileDialogData = new JSONObject();
+        try {
+            mobileDialogData
+                    .put("enabled", showMobileDataDialog)
+                    .put("shown", false)
+                    .put("automaticButtonPressed", false)
+                    .put("manualButtonPressed", false);
+        } catch (JSONException e1) {
+            Log.e(ConnectUtils.LOG_TAG, "Exception making mobile data json", e1);
+        }
+        if (mobileDialogAnalytics != null) {
+            mobileDialogData = mobileDialogAnalytics;
+        }
+
         String accessToken = getAccessToken();
         final String auth = accessToken != null ? "Bearer " + accessToken : null;
         final String subject = getIdToken() != null ? getIdToken().getSubject() : null;
@@ -353,7 +375,8 @@ public final class ConnectSdk {
                         tsLoginButtonClicked,
                         tsRedirectUrlInvoked,
                         tsTokenResponseReceived,
-                        debugInformation
+                        debugInformation,
+                        mobileDialogData
                 ))
                 .enqueue(new Callback<Void>() {
                     @Override
