@@ -22,7 +22,6 @@ import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
 import com.telenor.connect.utils.EnableMobileDataDialogAnalytics;
 
-
 import java.util.ArrayList;
 import java.util.Map;
 
