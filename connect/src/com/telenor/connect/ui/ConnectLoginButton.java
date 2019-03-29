@@ -10,7 +10,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -21,10 +20,8 @@ import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
-import com.telenor.connect.utils.ConnectUtils;
+import com.telenor.connect.utils.MobileDialogAnalytics;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -35,9 +32,6 @@ public class ConnectLoginButton extends RelativeLayout
     private ConnectCustomTabLoginButton loginButton;
     private ProgressBar progressBar;
     private View.OnClickListener loginClickListener;
-
-    private boolean automaticButtonPressed = false;
-    private boolean manualButtonPressed = false;
 
     public ConnectLoginButton(Context context) {
         super(context);
@@ -71,19 +65,13 @@ public class ConnectLoginButton extends RelativeLayout
                         }
 
                         @Override
-                        public JSONObject getAnalytics() {
-                            JSONObject mobileDialogAnalytics = new JSONObject();
-                            try {
-                                mobileDialogAnalytics
-                                        .put("enabled", ConnectSdk.showMobileDataDialog())
-                                        .put("shown", true)
-                                        .put("automaticButtonPressed", enableMobileDataDialogFragment.isAtomaticButtonPressed())
-                                        .put("manualButtonPressed", enableMobileDataDialogFragment.isManualButtonPressed());
-                            } catch (JSONException e1) {
-                                Log.e(ConnectUtils.LOG_TAG, "Exception making mobile data json", e1);
-                                return null;
-                            }
-                            return mobileDialogAnalytics;
+                        public MobileDialogAnalytics getAnalytics() {
+                            return new MobileDialogAnalytics(
+                                    ConnectSdk.showMobileDataDialog(),
+                                    true,
+                                    enableMobileDataDialogFragment.isAtomaticButtonPressed(),
+                                    enableMobileDataDialogFragment.isManualButtonPressed()
+                            );
                         }
                     });
                     FragmentManager fragmentManager = ((FragmentActivity) loginButton.getActivity()).getSupportFragmentManager();

@@ -1,8 +1,8 @@
 package com.telenor.connect.headerenrichment;
 
-import org.json.JSONObject;
+import com.telenor.connect.utils.MobileDialogAnalytics;
 
 public interface DismissDialogCallback {
     void dismiss();
-    JSONObject getAnalytics();
+    MobileDialogAnalytics getAnalytics();
 }
