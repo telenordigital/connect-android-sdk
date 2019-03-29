@@ -59,8 +59,8 @@ public interface AnalyticsAPI {
         @SerializedName("debug_data")
         private final JSONObject extraDebugData;
 
-        @SerializedName("mobileDataDialog")
-        private final JSONObject mobileDataDialog;
+        @SerializedName("enableMobileDataDialogAnalytics")
+        private final JSONObject enableMobileDataDialogAnalytics;
 
         public SDKAnalyticsData(
                 final String appName,
@@ -73,7 +73,7 @@ public interface AnalyticsAPI {
                 final long tsRedirectUrlInvoked,
                 final long tsTokenResponseReceived,
                 final JSONObject extraDebugData,
-                final JSONObject mobileDataDialog) {
+                final JSONObject enableMobileDataDialogAnalytics) {
             this.appName = appName;
             this.appVersion = appVersion;
             this.subject = subject;
@@ -89,7 +89,7 @@ public interface AnalyticsAPI {
             this.osVersion = System.getProperty("os.version");
             this.osSdkVersion = Build.VERSION.SDK_INT;
             this.extraDebugData = extraDebugData;
-            this.mobileDataDialog = mobileDataDialog;
+            this.enableMobileDataDialogAnalytics = enableMobileDataDialogAnalytics;
         }
     }
 

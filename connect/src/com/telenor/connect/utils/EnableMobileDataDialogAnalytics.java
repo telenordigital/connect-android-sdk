@@ -7,14 +7,14 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 
-public class MobileDialogAnalytics implements Serializable {
+public class EnableMobileDataDialogAnalytics implements Serializable {
 
     private boolean isEnabled;
     private boolean wasShown;
     private boolean automaticButtonPressed;
     private boolean manualButtonPressed;
 
-    public MobileDialogAnalytics(boolean isEnabled, boolean wasShown, boolean automaticButtonPressed, boolean manualButtonPressed) {
+    public EnableMobileDataDialogAnalytics(boolean isEnabled, boolean wasShown, boolean automaticButtonPressed, boolean manualButtonPressed) {
         this.isEnabled = isEnabled;
         this.wasShown = wasShown;
         this.automaticButtonPressed = automaticButtonPressed;
@@ -22,9 +22,9 @@ public class MobileDialogAnalytics implements Serializable {
     }
 
     public JSONObject toJson() {
-        JSONObject mobileDialogAnalytics = new JSONObject();
+        JSONObject enableMobileDataDialogAnalytics = new JSONObject();
         try {
-            mobileDialogAnalytics
+            enableMobileDataDialogAnalytics
                     .put("enabled", isEnabled)
                     .put("shown", wasShown)
                     .put("automaticButtonPressed", automaticButtonPressed)
@@ -33,6 +33,6 @@ public class MobileDialogAnalytics implements Serializable {
             Log.e(ConnectUtils.LOG_TAG, "Exception making mobile dialog analytics json", e1);
             return null;
         }
-        return mobileDialogAnalytics;
+        return enableMobileDataDialogAnalytics;
     }
 }

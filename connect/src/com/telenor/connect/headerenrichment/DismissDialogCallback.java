@@ -1,8 +1,8 @@
 package com.telenor.connect.headerenrichment;
 
-import com.telenor.connect.utils.MobileDialogAnalytics;
+import com.telenor.connect.utils.EnableMobileDataDialogAnalytics;
 
 public interface DismissDialogCallback {
     void dismiss();
-    MobileDialogAnalytics getAnalytics();
+    EnableMobileDataDialogAnalytics getAnalytics();
 }

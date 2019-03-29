@@ -40,7 +40,7 @@ import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.ui.ConnectWebViewLoginButton;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
-import com.telenor.connect.utils.MobileDialogAnalytics;
+import com.telenor.connect.utils.EnableMobileDataDialogAnalytics;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
@@ -85,7 +85,7 @@ public final class ConnectSdk {
     private static volatile String logSessionId;
     private static volatile Date logSessionIdSetTime;
 
-    private static MobileDialogAnalytics mobileDialogAnalytics;
+    private static EnableMobileDataDialogAnalytics enableMobileDataDialogAnalytics;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -136,8 +136,8 @@ public final class ConnectSdk {
         tsLoginButtonClicked = System.currentTimeMillis();
     }
 
-    private static void handleMobileDataAnalytics(MobileDialogAnalytics analytics) {
-        mobileDialogAnalytics = analytics;
+    private static void handleMobileDataAnalytics(EnableMobileDataDialogAnalytics analytics) {
+        enableMobileDataDialogAnalytics = analytics;
     }
 
     private static void updateLogSessionIdIfTooOld() {
@@ -351,8 +351,8 @@ public final class ConnectSdk {
             Log.e(ConnectUtils.LOG_TAG, "Exception making exception json", e1);
         }
 
-        if (mobileDialogAnalytics == null) {
-            mobileDialogAnalytics = new MobileDialogAnalytics(
+        if (enableMobileDataDialogAnalytics == null) {
+            enableMobileDataDialogAnalytics = new EnableMobileDataDialogAnalytics(
                     showMobileDataDialog,
                     false,
                     false,
@@ -375,7 +375,7 @@ public final class ConnectSdk {
                         tsRedirectUrlInvoked,
                         tsTokenResponseReceived,
                         debugInformation,
-                        mobileDialogAnalytics.toJson()
+                        enableMobileDataDialogAnalytics.toJson()
                 ))
                 .enqueue(new Callback<Void>() {
                     @Override

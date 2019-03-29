@@ -20,7 +20,7 @@ import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
-import com.telenor.connect.utils.MobileDialogAnalytics;
+import com.telenor.connect.utils.EnableMobileDataDialogAnalytics;
 
 
 import java.util.ArrayList;
@@ -65,8 +65,8 @@ public class ConnectLoginButton extends RelativeLayout
                         }
 
                         @Override
-                        public MobileDialogAnalytics getAnalytics() {
-                            return new MobileDialogAnalytics(
+                        public EnableMobileDataDialogAnalytics getAnalytics() {
+                            return new EnableMobileDataDialogAnalytics(
                                     ConnectSdk.showMobileDataDialog(),
                                     true,
                                     enableMobileDataDialogFragment.isAtomaticButtonPressed(),
