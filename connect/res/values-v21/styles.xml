@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ConnectTheme.Button.Blue" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:colorAccent">@color/com_telenor_connect_medium_blue</item>
+    </style>
+</resources>

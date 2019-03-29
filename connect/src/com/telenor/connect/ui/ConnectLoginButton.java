@@ -52,22 +52,26 @@ public class ConnectLoginButton extends RelativeLayout
             @Override
             public void onClick(View v) {
                 setLoading(true);
-                boolean cellularDataIsDisabledAndCanDirectNetworkTraffic
-                        = !HeLogic.canNotDirectNetworkTraffic && !HeLogic.isCellularDataNetworkConnected();
-                if (cellularDataIsDisabledAndCanDirectNetworkTraffic && ConnectSdk.showMobileDataDialog()) {
-                    final EnableMobileDataDialogFragment enableMobileDataDialogFragment = new EnableMobileDataDialogFragment();
-                    loginButton.setDismissDialogCallback(new DismissDialogCallback() {
-                        @Override
-                        public void dismiss() {
-                            enableMobileDataDialogFragment.dismiss();
-                        }
-                    });
-                    FragmentManager fragmentManager = ((FragmentActivity) loginButton.getActivity()).getSupportFragmentManager();
-                    enableMobileDataDialogFragment.show(fragmentManager, "EnableMobileDataFragment");
-                    enableMobileDataDialogFragment.setContinueListener(ConnectLoginButton.this);
+
+                boolean showEnableMobileDataDialog
+                        = !HeLogic.isCellularDataNetworkConnected()
+                        && ConnectSdk.showMobileDataDialog();
+
+                if (!showEnableMobileDataDialog || HeLogic.canNotDirectNetworkTraffic) {
+                    loginClickListener.onClick(v);
                     return;
                 }
-                loginClickListener.onClick(v);
+
+                final EnableMobileDataDialogFragment enableMobileDataDialogFragment = new EnableMobileDataDialogFragment();
+                loginButton.setDismissDialogCallback(new DismissDialogCallback() {
+                    @Override
+                    public void dismiss() {
+                        enableMobileDataDialogFragment.dismiss();
+                    }
+                });
+                FragmentManager fragmentManager = ((FragmentActivity) loginButton.getActivity()).getSupportFragmentManager();
+                enableMobileDataDialogFragment.show(fragmentManager, "EnableMobileDataFragment");
+                enableMobileDataDialogFragment.setContinueListener(ConnectLoginButton.this);
             }
         });
     }
