@@ -40,6 +40,7 @@ import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.ui.ConnectWebViewLoginButton;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
+import com.telenor.connect.utils.EnableMobileDataDialogAnalytics;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
@@ -84,6 +85,8 @@ public final class ConnectSdk {
     private static volatile String logSessionId;
     private static volatile Date logSessionIdSetTime;
 
+    private static EnableMobileDataDialogAnalytics enableMobileDataDialogAnalytics;
+
     /**
      * The key for the client ID in the Android manifest.
      */
@@ -115,6 +118,9 @@ public final class ConnectSdk {
             final ShowLoadingCallback showLoadingCallback,
             final DismissDialogCallback dismissDialogCallback) {
         handleButtonClickedAnalytics();
+        if (dismissDialogCallback != null) {
+            handleMobileDataAnalytics(dismissDialogCallback.getAnalytics());
+        }
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
@@ -128,6 +134,10 @@ public final class ConnectSdk {
     private static void handleButtonClickedAnalytics() {
         updateLogSessionIdIfTooOld();
         tsLoginButtonClicked = System.currentTimeMillis();
+    }
+
+    private static void handleMobileDataAnalytics(EnableMobileDataDialogAnalytics analytics) {
+        enableMobileDataDialogAnalytics = analytics;
     }
 
     private static void updateLogSessionIdIfTooOld() {
@@ -207,6 +217,9 @@ public final class ConnectSdk {
                                                  final DismissDialogCallback dismissDialogCallback) {
         Validator.sdkInitialized();
         handleButtonClickedAnalytics();
+        if (dismissDialogCallback != null) {
+            handleMobileDataAnalytics(dismissDialogCallback.getAnalytics());
+        }
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
@@ -338,6 +351,14 @@ public final class ConnectSdk {
             Log.e(ConnectUtils.LOG_TAG, "Exception making exception json", e1);
         }
 
+        if (enableMobileDataDialogAnalytics == null) {
+            enableMobileDataDialogAnalytics = new EnableMobileDataDialogAnalytics(
+                    showMobileDataDialog,
+                    false,
+                    false,
+                    false
+            );
+        }
         String accessToken = getAccessToken();
         final String auth = accessToken != null ? "Bearer " + accessToken : null;
         final String subject = getIdToken() != null ? getIdToken().getSubject() : null;
@@ -353,7 +374,8 @@ public final class ConnectSdk {
                         tsLoginButtonClicked,
                         tsRedirectUrlInvoked,
                         tsTokenResponseReceived,
-                        debugInformation
+                        debugInformation,
+                        enableMobileDataDialogAnalytics.toJson()
                 ))
                 .enqueue(new Callback<Void>() {
                     @Override
