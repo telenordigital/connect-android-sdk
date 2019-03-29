@@ -20,6 +20,7 @@ import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
+import com.telenor.connect.utils.EnableMobileDataDialogAnalytics;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -67,6 +68,17 @@ public class ConnectLoginButton extends RelativeLayout
                     @Override
                     public void dismiss() {
                         enableMobileDataDialogFragment.dismiss();
+                    }
+
+                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                    @Override
+                    public EnableMobileDataDialogAnalytics getAnalytics() {
+                        return new EnableMobileDataDialogAnalytics(
+                                ConnectSdk.showMobileDataDialog(),
+                                true,
+                                enableMobileDataDialogFragment.isAtomaticButtonPressed(),
+                                enableMobileDataDialogFragment.isManualButtonPressed()
+                        );
                     }
                 });
                 FragmentManager fragmentManager = ((FragmentActivity) loginButton.getActivity()).getSupportFragmentManager();
