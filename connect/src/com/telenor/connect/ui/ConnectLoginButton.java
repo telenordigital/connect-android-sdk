@@ -56,7 +56,7 @@ public class ConnectLoginButton extends RelativeLayout
 
                 boolean showTurnOnMobileDataDialog
                         = !HeLogic.isCellularDataNetworkConnected()
-                        && ConnectSdk.showMobileDataDialog();
+                        && ConnectSdk.isTurnOnMobileDataDialogEnabled();
 
                 if (!showTurnOnMobileDataDialog || HeLogic.canNotDirectNetworkTraffic) {
                     loginClickListener.onClick(v);
@@ -74,7 +74,7 @@ public class ConnectLoginButton extends RelativeLayout
                     @Override
                     public TurnOnMobileDataAnalytics getAnalytics() {
                         return new TurnOnMobileDataAnalytics(
-                                ConnectSdk.showMobileDataDialog(),
+                                ConnectSdk.isTurnOnMobileDataDialogEnabled(),
                                 true,
                                 turnOnMobileDataDialogFragment.isAtomaticButtonPressed(),
                                 turnOnMobileDataDialogFragment.isManualButtonPressed()

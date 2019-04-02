@@ -410,7 +410,7 @@ public final class ConnectSdk {
         return clientId;
     }
 
-    public static boolean showMobileDataDialog() {
+    public static boolean isTurnOnMobileDataDialogEnabled() {
         Validator.sdkInitialized();
         return enableTurnOnMobileDataDialog;
     }
