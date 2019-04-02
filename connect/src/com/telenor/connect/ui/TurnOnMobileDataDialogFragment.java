@@ -18,7 +18,7 @@ import com.telenor.connect.R;
 import com.telenor.connect.headerenrichment.HeLogic;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class EnableMobileDataDialogFragment extends DialogFragment {
+public class TurnOnMobileDataDialogFragment extends DialogFragment {
 
     private ConnectivityManager.NetworkCallback cellularNetworkCallback;
     private View automaticSignInButton;
@@ -27,14 +27,14 @@ public class EnableMobileDataDialogFragment extends DialogFragment {
         @Override
         public void onClick(View v) {
             automaticButtonPressed = true;
-            listener.onContinueClicked(EnableMobileDataDialogFragment.this);
+            listener.onContinueClicked(TurnOnMobileDataDialogFragment.this);
         }
     };
     private View.OnClickListener regularSignInButtonContinueCallback = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             manualButtonPressed = true;
-            listener.onContinueClicked(EnableMobileDataDialogFragment.this);
+            listener.onContinueClicked(TurnOnMobileDataDialogFragment.this);
         }
     };
 
