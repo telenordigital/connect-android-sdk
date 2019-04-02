@@ -20,13 +20,13 @@ import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
-import com.telenor.connect.utils.EnableMobileDataDialogAnalytics;
+import com.telenor.connect.utils.TurnOnMobileDataDialogAnalytics;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 public class ConnectLoginButton extends RelativeLayout
-        implements AuthenticationButton, EnableMobileDataDialogFragment.ContinueListener {
+        implements AuthenticationButton, TurnOnMobileDataDialogFragment.ContinueListener {
 
     private ConnectCustomTabLoginButton loginButton;
     private ProgressBar progressBar;
@@ -54,36 +54,36 @@ public class ConnectLoginButton extends RelativeLayout
             public void onClick(View v) {
                 setLoading(true);
 
-                boolean showEnableMobileDataDialog
+                boolean showTurnOnMobileDataDialog
                         = !HeLogic.isCellularDataNetworkConnected()
-                        && ConnectSdk.showMobileDataDialog();
+                        && ConnectSdk.isTurnOnMobileDataDialogEnabled();
 
-                if (!showEnableMobileDataDialog || HeLogic.canNotDirectNetworkTraffic) {
+                if (!showTurnOnMobileDataDialog || HeLogic.canNotDirectNetworkTraffic) {
                     loginClickListener.onClick(v);
                     return;
                 }
 
-                final EnableMobileDataDialogFragment enableMobileDataDialogFragment = new EnableMobileDataDialogFragment();
+                final TurnOnMobileDataDialogFragment turnOnMobileDataDialogFragment = new TurnOnMobileDataDialogFragment();
                 loginButton.setDismissDialogCallback(new DismissDialogCallback() {
                     @Override
                     public void dismiss() {
-                        enableMobileDataDialogFragment.dismiss();
+                        turnOnMobileDataDialogFragment.dismiss();
                     }
 
                     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                     @Override
-                    public EnableMobileDataDialogAnalytics getAnalytics() {
-                        return new EnableMobileDataDialogAnalytics(
-                                ConnectSdk.showMobileDataDialog(),
+                    public TurnOnMobileDataDialogAnalytics getAnalytics() {
+                        return new TurnOnMobileDataDialogAnalytics(
+                                ConnectSdk.isTurnOnMobileDataDialogEnabled(),
                                 true,
-                                enableMobileDataDialogFragment.isAtomaticButtonPressed(),
-                                enableMobileDataDialogFragment.isManualButtonPressed()
+                                turnOnMobileDataDialogFragment.isAtomaticButtonPressed(),
+                                turnOnMobileDataDialogFragment.isManualButtonPressed()
                         );
                     }
                 });
                 FragmentManager fragmentManager = ((FragmentActivity) loginButton.getActivity()).getSupportFragmentManager();
-                enableMobileDataDialogFragment.show(fragmentManager, "EnableMobileDataFragment");
-                enableMobileDataDialogFragment.setContinueListener(ConnectLoginButton.this);
+                turnOnMobileDataDialogFragment.show(fragmentManager, "TurnOnMobileDataFragment");
+                turnOnMobileDataDialogFragment.setContinueListener(ConnectLoginButton.this);
             }
         });
     }

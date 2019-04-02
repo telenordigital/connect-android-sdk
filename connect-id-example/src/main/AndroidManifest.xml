@@ -37,7 +37,7 @@
             android:name="com.telenor.connect.REDIRECT_URI"
             android:value="@string/connect_redirect_uri" />
         <meta-data
-            android:name="com.telenor.connect.SHOW_MOBILE_DATA_DIALOG"
+            android:name="com.telenor.connect.ENABLE_TURN_ON_MOBILE_DATA_DIALOG"
             android:value="true" />
     </application>
 

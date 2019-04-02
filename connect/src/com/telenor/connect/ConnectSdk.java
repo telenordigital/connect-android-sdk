@@ -40,7 +40,7 @@ import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.ui.ConnectWebViewLoginButton;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
-import com.telenor.connect.utils.EnableMobileDataDialogAnalytics;
+import com.telenor.connect.utils.TurnOnMobileDataDialogAnalytics;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
@@ -74,7 +74,7 @@ public final class ConnectSdk {
     private static volatile boolean isInitialized = false;
     private static String clientId;
     private static String redirectUri;
-    private static boolean showMobileDataDialog;
+    private static boolean enableTurnOnMobileDataDialog;
     private static boolean useStaging;
     private static SmsBroadcastReceiver smsBroadcastReceiver;
     private static volatile String advertisingId;
@@ -85,7 +85,7 @@ public final class ConnectSdk {
     private static volatile String logSessionId;
     private static volatile Date logSessionIdSetTime;
 
-    private static EnableMobileDataDialogAnalytics enableMobileDataDialogAnalytics;
+    private static TurnOnMobileDataDialogAnalytics turnOnMobileDataDialogAnalytics;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -102,7 +102,8 @@ public final class ConnectSdk {
      */
     public static final String REDIRECT_URI_PROPERTY = "com.telenor.connect.REDIRECT_URI";
 
-    public static final String SHOW_MOBILE_DATA_DIALOG_PROPERTY = "com.telenor.connect.SHOW_MOBILE_DATA_DIALOG";
+    public static final String ENABLE_TURN_ON_MOBILE_DATA_DIALOG_PROPERTY
+            = "com.telenor.connect.ENABLE_TURN_ON_MOBILE_DATA_DIALOG";
 
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
@@ -136,8 +137,8 @@ public final class ConnectSdk {
         tsLoginButtonClicked = System.currentTimeMillis();
     }
 
-    private static void handleMobileDataAnalytics(EnableMobileDataDialogAnalytics analytics) {
-        enableMobileDataDialogAnalytics = analytics;
+    private static void handleMobileDataAnalytics(TurnOnMobileDataDialogAnalytics analytics) {
+        turnOnMobileDataDialogAnalytics = analytics;
     }
 
     private static void updateLogSessionIdIfTooOld() {
@@ -351,9 +352,9 @@ public final class ConnectSdk {
             Log.e(ConnectUtils.LOG_TAG, "Exception making exception json", e1);
         }
 
-        if (enableMobileDataDialogAnalytics == null) {
-            enableMobileDataDialogAnalytics = new EnableMobileDataDialogAnalytics(
-                    showMobileDataDialog,
+        if (turnOnMobileDataDialogAnalytics == null) {
+            turnOnMobileDataDialogAnalytics = new TurnOnMobileDataDialogAnalytics(
+                    enableTurnOnMobileDataDialog,
                     false,
                     false,
                     false
@@ -375,7 +376,7 @@ public final class ConnectSdk {
                         tsRedirectUrlInvoked,
                         tsTokenResponseReceived,
                         debugInformation,
-                        enableMobileDataDialogAnalytics.toJson()
+                        turnOnMobileDataDialogAnalytics.toJson()
                 ))
                 .enqueue(new Callback<Void>() {
                     @Override
@@ -409,9 +410,9 @@ public final class ConnectSdk {
         return clientId;
     }
 
-    public static boolean showMobileDataDialog() {
+    public static boolean isTurnOnMobileDataDialogEnabled() {
         Validator.sdkInitialized();
-        return showMobileDataDialog;
+        return enableTurnOnMobileDataDialog;
     }
 
     public static ArrayList<Locale> getLocales() {
@@ -564,9 +565,9 @@ public final class ConnectSdk {
             redirectUri = (String) redirectUriObject;
         }
 
-        Object showMobileDataDialogObject = ai.metaData.get(SHOW_MOBILE_DATA_DIALOG_PROPERTY);
-        if (showMobileDataDialogObject instanceof Boolean) {
-            showMobileDataDialog = (boolean) showMobileDataDialogObject;
+        Object enableTurnOnMobileDataDialogObject = ai.metaData.get(ENABLE_TURN_ON_MOBILE_DATA_DIALOG_PROPERTY);
+        if (enableTurnOnMobileDataDialogObject instanceof Boolean) {
+            enableTurnOnMobileDataDialog = (boolean) enableTurnOnMobileDataDialogObject;
         }
     }
 
