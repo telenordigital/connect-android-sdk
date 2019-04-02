@@ -7,14 +7,14 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 
-public class TurnOnMobileDataAnalytics implements Serializable {
+public class TurnOnMobileDataDialogAnalytics implements Serializable {
 
     private boolean isEnabled;
     private boolean wasShown;
     private boolean automaticButtonPressed;
     private boolean manualButtonPressed;
 
-    public TurnOnMobileDataAnalytics(boolean isEnabled, boolean wasShown, boolean automaticButtonPressed, boolean manualButtonPressed) {
+    public TurnOnMobileDataDialogAnalytics(boolean isEnabled, boolean wasShown, boolean automaticButtonPressed, boolean manualButtonPressed) {
         this.isEnabled = isEnabled;
         this.wasShown = wasShown;
         this.automaticButtonPressed = automaticButtonPressed;

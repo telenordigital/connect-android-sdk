@@ -20,7 +20,7 @@ import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
-import com.telenor.connect.utils.TurnOnMobileDataAnalytics;
+import com.telenor.connect.utils.TurnOnMobileDataDialogAnalytics;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -72,8 +72,8 @@ public class ConnectLoginButton extends RelativeLayout
 
                     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                     @Override
-                    public TurnOnMobileDataAnalytics getAnalytics() {
-                        return new TurnOnMobileDataAnalytics(
+                    public TurnOnMobileDataDialogAnalytics getAnalytics() {
+                        return new TurnOnMobileDataDialogAnalytics(
                                 ConnectSdk.isTurnOnMobileDataDialogEnabled(),
                                 true,
                                 turnOnMobileDataDialogFragment.isAtomaticButtonPressed(),
