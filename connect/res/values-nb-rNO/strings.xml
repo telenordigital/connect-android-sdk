@@ -8,9 +8,9 @@
     <string name="com_telenor_connect_network_settings"><u>Nettverksinnstillinger</u></string>
     <string name="com_telenor_connect_show_details">Vis detaljer</string>
     <string name="com_telenor_connect_hide_details">Skjul detaljer</string>
-    <string name="com_telenor_enable_mobile_data_header">Logg inn automatisk</string>
-    <string name="com_telenor_enable_mobile_data_text1">Slå på mobildata (3G/4G) slik at vi kan gjenkjenne deg og aktivere automatisk pålogging.</string>
-    <string name="com_telenor_enable_mobile_data_text2">Mobildata er gratis når du logger på. Du kan også la Wi-Fi være på nå og for resten av økten.</string>
+    <string name="com_telenor_turn_on_mobile_data_header">Logg inn automatisk</string>
+    <string name="com_telenor_turn_on_mobile_data_text1">Slå på mobildata (3G/4G) slik at vi kan gjenkjenne deg og aktivere automatisk pålogging.</string>
+    <string name="com_telenor_turn_on_mobile_data_text2">Mobildata er gratis når du logger på. Du kan også la Wi-Fi være på nå og for resten av økten.</string>
     <string name="com_telenor_signin_automatically">Logg inn automatisk</string>
     <string name="com_telenor_divider_or">eller</string>
     <string name="com_telenor_regular_signin">Fortsett med vanlig innlogging</string>

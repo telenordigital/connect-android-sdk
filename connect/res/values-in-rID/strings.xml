@@ -8,9 +8,9 @@
     <string name="com_telenor_connect_network_settings"><u>Pengaturan jaringan</u></string>
     <string name="com_telenor_connect_show_details">Tampilkan detail</string>
     <string name="com_telenor_connect_hide_details">Sembunyikan detail</string>
-    <string name="com_telenor_enable_mobile_data_header">Masuk otomatis</string>
-    <string name="com_telenor_enable_mobile_data_text1">Aktifkan data seluler (3G/4G) agar kami dapat mengenali Anda dan mengaktifkan masuk otomatis.</string>
-    <string name="com_telenor_enable_mobile_data_text2">Data seluler gratis saat Anda masuk. Anda juga dapat membiarkan Wi-Fi tetap aktif sekarang dan di sepanjang sisa sesi ini.</string>
+    <string name="com_telenor_turn_on_mobile_data_header">Masuk otomatis</string>
+    <string name="com_telenor_turn_on_mobile_data_text1">Aktifkan data seluler (3G/4G) agar kami dapat mengenali Anda dan mengaktifkan masuk otomatis.</string>
+    <string name="com_telenor_turn_on_mobile_data_text2">Data seluler gratis saat Anda masuk. Anda juga dapat membiarkan Wi-Fi tetap aktif sekarang dan di sepanjang sisa sesi ini.</string>
     <string name="com_telenor_signin_automatically">Masuk otomatis</string>
     <string name="com_telenor_divider_or">atau</string>
     <string name="com_telenor_regular_signin">Lanjutkan dengan masuk seperti biasa</string>

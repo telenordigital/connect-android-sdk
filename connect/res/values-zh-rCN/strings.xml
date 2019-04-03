@@ -8,9 +8,9 @@
     <string name="com_telenor_connect_network_settings"><u>网络设置</u></string>
     <string name="com_telenor_connect_show_details">显示详情</string>
     <string name="com_telenor_connect_hide_details">隐藏详情</string>
-    <string name="com_telenor_enable_mobile_data_header">自动登录</string>
-    <string name="com_telenor_enable_mobile_data_text1">打开移动数据 (3g/4g), 以便我们能够识别您并启用自动登录。</string>
-    <string name="com_telenor_enable_mobile_data_text2">当您登录时, 移动数据是免费的。您还可以在当前和其余时间保持 wi-fi 打开状态。</string>
+    <string name="com_telenor_turn_on_mobile_data_header">自动登录</string>
+    <string name="com_telenor_turn_on_mobile_data_text1">打开移动数据 (3g/4g), 以便我们能够识别您并启用自动登录。</string>
+    <string name="com_telenor_turn_on_mobile_data_text2">当您登录时, 移动数据是免费的。您还可以在当前和其余时间保持 wi-fi 打开状态。</string>
     <string name="com_telenor_signin_automatically">自动登录</string>
     <string name="com_telenor_divider_or">或</string>
     <string name="com_telenor_regular_signin">以常规登录继续</string>

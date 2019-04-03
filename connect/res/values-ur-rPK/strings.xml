@@ -8,9 +8,9 @@
     <string name="com_telenor_connect_network_settings"><u>نیٹ ورک کی ترتیبات</u></string>
     <string name="com_telenor_connect_show_details">تفصیلات دکھائیں</string>
     <string name="com_telenor_connect_hide_details">تفصیلات چھپائیں</string>
-    <string name="com_telenor_enable_mobile_data_header">خود کار طریقے سے سائن اِن کریں</string>
-    <string name="com_telenor_enable_mobile_data_text1">موبائل ڈیٹا (3 جی / 4 جی) چلائیں تاکہ ہم آپ کی شناخت کر کے خود کار سائن اِن فعال کر سکیں۔</string>
-    <string name="com_telenor_enable_mobile_data_text2">سائن اِن ہونے پر موبائل ڈیٹا مفت ہے۔ آپ اب اور بقیہ سیشن کے دوران وائی فائی چالو رکھ سکتے ہیں۔</string>
+    <string name="com_telenor_turn_on_mobile_data_header">خود کار طریقے سے سائن اِن کریں</string>
+    <string name="com_telenor_turn_on_mobile_data_text1">موبائل ڈیٹا (3 جی / 4 جی) چلائیں تاکہ ہم آپ کی شناخت کر کے خود کار سائن اِن فعال کر سکیں۔</string>
+    <string name="com_telenor_turn_on_mobile_data_text2">سائن اِن ہونے پر موبائل ڈیٹا مفت ہے۔ آپ اب اور بقیہ سیشن کے دوران وائی فائی چالو رکھ سکتے ہیں۔</string>
     <string name="com_telenor_signin_automatically">خود کار طریقے سے سائن اِن کریں</string>
     <string name="com_telenor_divider_or">یا</string>
     <string name="com_telenor_regular_signin">با قاعدہ سائن اِن سے جاری رکھیں</string>
