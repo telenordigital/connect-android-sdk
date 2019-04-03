@@ -97,6 +97,7 @@ public class TurnOnMobileDataDialogFragment extends DialogFragment {
     public void onPause() {
         super.onPause();
         HeLogic.unRegisterCellularNetworkCallback(cellularNetworkCallback);
+        dismiss();
     }
 
     public void setContinueListener(ContinueListener listener) {
