@@ -50,7 +50,7 @@ public class TurnOnMobileDataDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.com_telenor_connect_fragment_enable_mobile_data, null);
+        View view = inflater.inflate(R.layout.com_telenor_connect_fragment_turn_on_mobile_data, null);
         automaticSignInButton = view
                 .findViewById(R.id.com_telenor_connect_fragment_turn_on_mobile_data_sign_in_automatically_button);
         automaticSignInButton.setOnClickListener(automaticSignInButtonContinueCallback);
