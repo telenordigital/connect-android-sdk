@@ -335,21 +335,16 @@ public final class ConnectSdk {
 
         TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         String carrierName = manager != null ? manager.getNetworkOperatorName() : null;
-        JSONObject debugInformation = new JSONObject();
-        try {
-            debugInformation
-                    .put("activeNetworkInfo", HeLogic.getActiveNetworkInfo())
-                    .put("cellularNetworkInfo", HeLogic.getCellularNetworkInfo())
-                    .put("deviceTimestamp", new Date())
-                    .put("carrierName", carrierName)
-                    .put("sdkVersion", BuildConfig.VERSION_NAME);
-            if (e != null) {
-                debugInformation
-                        .put("exception", e.getMessage())
-                        .put("exceptionStackTrace", e.getStackTrace());
-            }
-        } catch (JSONException e1) {
-            Log.e(ConnectUtils.LOG_TAG, "Exception making exception json", e1);
+        HashMap<String, Object> debugInformation = new HashMap<>();
+        debugInformation.put("activeNetworkInfo", HeLogic.getActiveNetworkInfo());
+        debugInformation.put("cellularNetworkInfo", HeLogic.getCellularNetworkInfo());
+        debugInformation.put("deviceTimestamp", new Date());
+        debugInformation.put("carrierName", carrierName);
+        debugInformation.put("sdkVersion", BuildConfig.VERSION_NAME);
+
+        if (e != null) {
+            debugInformation.put("exception", e.getMessage());
+            debugInformation.put("exceptionStackTrace", e.getStackTrace());
         }
 
         if (turnOnMobileDataDialogAnalytics == null) {
@@ -376,7 +371,7 @@ public final class ConnectSdk {
                         tsRedirectUrlInvoked,
                         tsTokenResponseReceived,
                         debugInformation,
-                        turnOnMobileDataDialogAnalytics.toJson()
+                        turnOnMobileDataDialogAnalytics
                 ))
                 .enqueue(new Callback<Void>() {
                     @Override
