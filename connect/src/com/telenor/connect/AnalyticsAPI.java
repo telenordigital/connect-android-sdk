@@ -3,8 +3,11 @@ package com.telenor.connect;
 import android.os.Build;
 
 import com.google.gson.annotations.SerializedName;
+import com.telenor.connect.utils.TurnOnMobileDataDialogAnalytics;
 
 import org.json.JSONObject;
+
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -57,10 +60,9 @@ public interface AnalyticsAPI {
         private final int osSdkVersion;
 
         @SerializedName("debug_data")
-        private final JSONObject extraDebugData;
+        private final Map extraDebugData;
 
-        @SerializedName("turnOnMobileDataDialogAnalytics")
-        private final JSONObject turnOnMobileDataDialogAnalytics;
+        private final TurnOnMobileDataDialogAnalytics turnOnMobileDataDialogAnalytics;
 
         public SDKAnalyticsData(
                 final String appName,
@@ -72,8 +74,8 @@ public interface AnalyticsAPI {
                 final long tsLoginButtonClicked,
                 final long tsRedirectUrlInvoked,
                 final long tsTokenResponseReceived,
-                final JSONObject extraDebugData,
-                final JSONObject turnOnMobileDataDialogAnalytics) {
+                final Map extraDebugData,
+                final TurnOnMobileDataDialogAnalytics turnOnMobileDataDialogAnalytics) {
             this.appName = appName;
             this.appVersion = appVersion;
             this.subject = subject;
