@@ -31,6 +31,7 @@ import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.UserInfo;
+import com.telenor.connect.id.IdProvider;
 import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsHandler;
 import com.telenor.connect.sms.SmsPinParseUtil;
@@ -73,6 +74,7 @@ public final class ConnectSdk {
     private static String clientId;
     private static String redirectUri;
     private static boolean enableTurnOnMobileDataDialog;
+    private static IdProvider idProvider;
     private static boolean useStaging;
     private static SmsBroadcastReceiver smsBroadcastReceiver;
     private static volatile String advertisingId;
@@ -127,7 +129,7 @@ public final class ConnectSdk {
                 launchChromeCustomTabAuthentication(session, authorizeUri, activity);
             }
         };
-        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging, dismissDialogCallback);
+        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging, dismissDialogCallback);
     }
 
     private static void handleButtonClickedAnalytics() {
@@ -233,7 +235,7 @@ public final class ConnectSdk {
                 activity.startActivityForResult(intent, requestCode);
             }
         };
-        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging, dismissDialogCallback);
+        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging, dismissDialogCallback);
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
@@ -466,11 +468,21 @@ public final class ConnectSdk {
         connectIdService.logOut(getContext());
     }
 
+    /**
+     * @deprecated This method is deprecated and would be removed soon.
+     * Please, use {@link #sdkInitialize(Context, IdProvider, boolean) sdkInitialize} instead
+     */
+    @Deprecated
+    public static synchronized void sdkInitialize(Context applicationContext, boolean useStagingEnvironment) {
+        sdkInitialize(applicationContext, IdProvider.CONNECT_ID, useStagingEnvironment);
+    }
+
     public static synchronized void sdkInitialize(Context applicationContext) {
-        sdkInitialize(applicationContext, true);
+        sdkInitialize(applicationContext, IdProvider.CONNECT_ID, true);
     }
 
     public static synchronized void sdkInitialize(Context applicationContext,
+                                                  IdProvider provider,
                                                   boolean useStagingEnvironment) {
         if (isInitialized()) {
             return;
@@ -479,11 +491,12 @@ public final class ConnectSdk {
         Validator.notNull(context, "context");
 
         useStaging = useStagingEnvironment;
+        idProvider = provider;
         loadConnectConfig(context);
         connectStore = new ConnectStore(context);
         lastSeenWellKnownConfigStore = new WellKnownConfigStore(context);
         wellKnownConfig = lastSeenWellKnownConfigStore.get();
-        String apiUrl = ConnectUrlHelper.getConnectApiUrl(useStaging).toString();
+        String apiUrl = ConnectUrlHelper.getConnectApiUrl(provider, useStaging).toString();
         connectIdService = new ConnectIdService(
                 connectStore,
                 RestHelper.getConnectApi(apiUrl),
@@ -496,7 +509,7 @@ public final class ConnectSdk {
             updateWellKnownConfig(apiUrl);
         }
 
-        HeLogic.initializeNetworks(context, useStaging);
+        HeLogic.initializeNetworks(context, idProvider, useStaging);
         initializeAdvertisingId(context);
         isInitialized = true;
         tsSdkInitialization = System.currentTimeMillis();
@@ -789,6 +802,11 @@ public final class ConnectSdk {
             Log.e(ConnectUtils.LOG_TAG, "Failed to read application version", e);
             return "";
         }
+    }
+
+    public static IdProvider getIdProvider() {
+        Validator.sdkInitialized();
+        return idProvider;
     }
 
     public static boolean useStaging() {
