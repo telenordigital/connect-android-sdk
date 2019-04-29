@@ -70,12 +70,10 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
     @Override
     public void onSuccess(Object successData) {
         if (ConnectSdk.isConfidentialClient()) {
+            Map<String, String> authCodeData = (Map<String, String>) successData;
             Intent intent = new Intent();
-            if (successData instanceof Map) {
-                Map<String, String> authCodeData = (Map<String, String>) successData;
-                for (Map.Entry<String, String> entry : authCodeData.entrySet()) {
-                    intent.putExtra(entry.getKey(), entry.getValue());
-                }
+            for (Map.Entry<String, String> entry : authCodeData.entrySet()) {
+                intent.putExtra(entry.getKey(), entry.getValue());
             }
             setResult(Activity.RESULT_OK, intent);
             finish();
