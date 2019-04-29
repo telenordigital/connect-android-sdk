@@ -91,9 +91,11 @@ public class ConnectActivity extends FragmentActivity implements ConnectCallback
     public void onError(Object errorData) {
         ConnectSdk.setRandomLogSessionId();
         Intent intent = new Intent();
-        Map<String, String> authCodeData = (Map<String, String>) errorData;
-        for (Map.Entry<String, String> entry : authCodeData.entrySet()) {
-            intent.putExtra(entry.getKey(), entry.getValue());
+        if (errorData instanceof Map) {
+            Map<String, String> authCodeData = (Map<String, String>) errorData;
+            for (Map.Entry<String, String> entry : authCodeData.entrySet()) {
+                intent.putExtra(entry.getKey(), entry.getValue());
+            }
         }
         setResult(Activity.RESULT_CANCELED, intent);
         finish();
