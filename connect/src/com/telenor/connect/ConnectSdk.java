@@ -44,9 +44,6 @@ import com.telenor.connect.utils.TurnOnMobileDataDialogAnalytics;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
