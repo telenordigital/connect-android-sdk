@@ -326,7 +326,12 @@ public final class ConnectSdk {
     }
 
     public static void sendAnalyticsData(Throwable e) {
-        if (getWellKnownConfig() == null || getWellKnownConfig().getAnalyticsEndpoint() == null) {
+        WellKnownAPI.WellKnownConfig wellKnownConfig = getWellKnownConfig();
+        if (wellKnownConfig == null) {
+            return;
+        }
+        String analyticsEndpoint = wellKnownConfig.getAnalyticsEndpoint();
+        if (analyticsEndpoint == null) {
             return;
         }
 
@@ -355,7 +360,7 @@ public final class ConnectSdk {
         String accessToken = getAccessToken();
         final String auth = accessToken != null ? "Bearer " + accessToken : null;
         final String subject = getIdToken() != null ? getIdToken().getSubject() : null;
-        RestHelper.getAnalyticsApi(getWellKnownConfig().getAnalyticsEndpoint()).sendAnalyticsData(
+        RestHelper.getAnalyticsApi(analyticsEndpoint).sendAnalyticsData(
                 auth,
                 new AnalyticsAPI.SDKAnalyticsData(
                         getApplicationName(),
