@@ -180,6 +180,10 @@ public final class ConnectSdk {
     }
 
     private static void launchUrlInCustomTab(Activity activity, CustomTabsSession session, Uri uri) {
+        if (activity == null) {
+            Log.e(ConnectUtils.LOG_TAG, "Failed to launch url in custom tab: activity is null.");
+            return;
+        }
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(session);
         CustomTabsIntent cctIntent = builder.build();
         Intent intent = cctIntent.intent;
