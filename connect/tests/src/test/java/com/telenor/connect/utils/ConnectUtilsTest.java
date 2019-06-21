@@ -3,7 +3,7 @@ package com.telenor.connect.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.ConnectSdk;

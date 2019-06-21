@@ -1,7 +1,5 @@
 package com.telenor.connect.sms;
 
-import android.support.annotation.NonNull;
-
 import com.telenor.connect.ui.Instruction;
 import com.telenor.connect.ui.InstructionHandler;
 
@@ -12,6 +10,8 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.mock;

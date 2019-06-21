@@ -3,7 +3,6 @@ package com.telenor.connect.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.webkit.WebView;
 
@@ -27,6 +26,8 @@ import org.robolectric.annotation.Config;
 
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
