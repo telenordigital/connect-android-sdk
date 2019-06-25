@@ -122,6 +122,9 @@ public class ConnectLoginButton extends RelativeLayout
     @Override
     protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
+        if (loginButton == null || loginButton.getActivity() == null) {
+            return;
+        }
         Intent intent = loginButton.getActivity().getIntent();
         boolean ongoingAuth = intent != null && ConnectSdk.hasValidRedirectUrlCall(intent);
         setLoading(ongoingAuth);

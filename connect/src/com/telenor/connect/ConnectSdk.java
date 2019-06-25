@@ -67,7 +67,7 @@ public final class ConnectSdk {
     private static ConnectIdService connectIdService;
     private static Context context;
     private static boolean confidentialClient;
-    private static WellKnownAPI.WellKnownConfig wellKnownConfig;
+    private static volatile WellKnownAPI.WellKnownConfig wellKnownConfig;
     private static volatile boolean isInitialized = false;
     private static String clientId;
     private static String redirectUri;
@@ -329,16 +329,15 @@ public final class ConnectSdk {
         sendAnalyticsData(null);
     }
 
-    public static void sendAnalyticsData(Throwable e) {
-        WellKnownAPI.WellKnownConfig wellKnownConfig = getWellKnownConfig();
-        if (wellKnownConfig == null) {
+    public static void sendAnalyticsData(Throwable throwable) {
+        String analyticsEndpoint;
+        // This is bad practice. The source of the issue must be found.
+        try {
+            analyticsEndpoint = getWellKnownConfig().getAnalyticsEndpoint();
+        } catch (NullPointerException e) {
+            Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data, wellKnownConfig is null.");
             return;
         }
-        String analyticsEndpoint = wellKnownConfig.getAnalyticsEndpoint();
-        if (analyticsEndpoint == null) {
-            return;
-        }
-
         TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         String carrierName = manager != null ? manager.getNetworkOperatorName() : null;
         HashMap<String, Object> debugInformation = new HashMap<>();
@@ -348,9 +347,9 @@ public final class ConnectSdk {
         debugInformation.put("carrierName", carrierName);
         debugInformation.put("sdkVersion", BuildConfig.VERSION_NAME);
 
-        if (e != null) {
-            debugInformation.put("exception", e.getMessage());
-            debugInformation.put("exceptionStackTrace", e.getStackTrace());
+        if (throwable != null) {
+            debugInformation.put("exception", throwable.getMessage());
+            debugInformation.put("exceptionStackTrace", throwable.getStackTrace());
         }
 
         if (turnOnMobileDataDialogAnalytics == null) {
