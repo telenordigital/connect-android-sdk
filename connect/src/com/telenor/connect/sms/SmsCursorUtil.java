@@ -6,7 +6,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Telephony;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 public class SmsCursorUtil {

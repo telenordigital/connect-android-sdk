@@ -2,7 +2,6 @@ package com.telenor.connect.sms;
 
 import android.content.Context;
 import android.content.IntentFilter;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
@@ -11,6 +10,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.telenor.connect.utils.ConnectUtils;
+
+import androidx.annotation.NonNull;
 
 public class SmsRetrieverUtil {
     public static final IntentFilter SMS_FILTER = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);

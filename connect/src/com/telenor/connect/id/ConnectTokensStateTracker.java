@@ -2,7 +2,7 @@ package com.telenor.connect.id;
 
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.utils.Validator;
