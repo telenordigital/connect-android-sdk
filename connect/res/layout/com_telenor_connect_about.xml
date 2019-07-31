@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/com_telenor_connect_light_color">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/connect_guideline_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="40sp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/connect_guideline_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="24sp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/connect_guideline_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="24sp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/connect_guideline_icon_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="11sp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/connect_guideline_icon_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="12sp" />
+
+    <ImageView
+        android:id="@+id/connect_about_close"
+        android:layout_width="34sp"
+        android:layout_height="34sp"
+        android:padding="5sp"
+        android:src="@drawable/close_small"
+        app:layout_constraintTop_toBottomOf="@id/connect_guideline_icon_top"
+        app:layout_constraintEnd_toStartOf="@id/connect_guideline_icon_right"
+        />
+
+    <TextView
+        android:id="@+id/connect_about_title"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textColor="@color/com_telenor_connect_text_dark"
+        android:textSize="24sp"
+        android:text="What is Telenor ID"
+        app:layout_constraintTop_toBottomOf="@id/connect_guideline_top"
+        app:layout_constraintBottom_toTopOf="@id/connect_about_subtitle"
+        app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+        app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+        />
+
+    <TextView
+        android:id="@+id/connect_about_subtitle"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24sp"
+        android:textColor="@color/com_telenor_connect_text_dark"
+        android:textSize="17sp"
+        android:lineSpacingExtra="3sp"
+        android:text="With a single Telenor ID you easily access your apps and services."
+        app:layout_constraintTop_toBottomOf="@id/connect_about_title"
+        app:layout_constraintBottom_toTopOf="@id/connect_about_description"
+        app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+        app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+        />
+
+    <TextView
+        android:id="@+id/connect_about_description"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16sp"
+        android:textColor="@color/com_telenor_connect_text_dark"
+        android:textSize="17sp"
+        android:lineSpacingExtra="3sp"
+        android:text="The sign-in process has additional layers of protection, such as verifying your mobile number and email. Telenor ID gives you full control of your personal data, while keeping it safe."
+        app:layout_constraintTop_toBottomOf="@id/connect_about_subtitle"
+        app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+        app:layout_constraintEnd_toStartOf="@id/connect_guideline_right" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
