@@ -21,6 +21,11 @@
         <item name="android:textSize">16.0sp</item>
     </style>
 
+    <style name="com_telenor_popup_animation">
+        <item name="android:windowEnterAnimation">@anim/bottom_up_animation</item>
+        <item name="android:windowExitAnimation">@anim/bottom_down_animation</item>
+    </style>
+
     <style name="ConnectTheme.Dark" parent="ConnectTheme">
         <item name="colorAccent">@color/com_telenor_connect_light_color</item>
         <item name="android:buttonStyle">@style/com_telenor_ConnectButton.Dark</item>
