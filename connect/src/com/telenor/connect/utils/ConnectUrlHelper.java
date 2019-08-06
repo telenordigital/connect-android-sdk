@@ -11,8 +11,10 @@ import com.telenor.connect.BuildConfig;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.headerenrichment.HeLogic;
+import com.telenor.connect.id.IdProvider;
 
 import java.io.UnsupportedEncodingException;
+import java.security.Provider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,12 +67,10 @@ public class ConnectUrlHelper {
                 .build();
     }
 
-    public static HttpUrl getConnectApiUrl(boolean useStaging) {
+    public static HttpUrl getConnectApiUrl(IdProvider provider, boolean useStaging) {
         return new HttpUrl.Builder()
                 .scheme("https")
-                .host(useStaging
-                        ? "connect.staging.telenordigital.com"
-                        : "connect.telenordigital.com")
+                .host(provider.getUrl(useStaging))
                 .build();
     }
 
@@ -84,7 +84,7 @@ public class ConnectUrlHelper {
     }
 
     public static HttpUrl getConnectApiUrl() {
-        return getConnectApiUrl(ConnectSdk.useStaging());
+        return getConnectApiUrl(ConnectSdk.getIdProvider(), ConnectSdk.useStaging());
     }
 
     public static Uri getAuthorizeUriStem(
@@ -120,8 +120,8 @@ public class ConnectUrlHelper {
                 browserType != null ? browserType.getVersionString() : "not-defined");
     }
 
-    public static String getHeApiUrl(boolean useStaging, String logSessionId) {
-        HttpUrl connectApiSchemeAndHost = ConnectUrlHelper.getConnectApiUrl(useStaging);
+    public static String getHeApiUrl(IdProvider provider, boolean useStaging, String logSessionId) {
+        HttpUrl connectApiSchemeAndHost = ConnectUrlHelper.getConnectApiUrl(provider, useStaging);
         return connectApiSchemeAndHost
                 + HE_TOKEN_API_BASE_PATH
                 + logSessionId;

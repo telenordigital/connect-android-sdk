@@ -10,6 +10,7 @@ import android.net.NetworkRequest;
 import android.os.Build;
 
 import com.telenor.connect.ConnectSdk;
+import com.telenor.connect.id.IdProvider;
 import com.telenor.connect.utils.ConnectUrlHelper;
 
 import java.util.Date;
@@ -31,25 +32,25 @@ public class HeLogic {
     private static volatile Network cellularNetwork;
     private static volatile Network defaultNetwork;
 
-    public static void initializeNetworks(Context context, boolean useStaging) {
+    public static void initializeNetworks(Context context, IdProvider provider, boolean useStaging) {
         connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         boolean connectivityManagerAvailableAndNotTooOldAndroid = connectivityManager != null
                         && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
         if (connectivityManagerAvailableAndNotTooOldAndroid) {
-            initializeCellularNetwork(useStaging);
+            initializeCellularNetwork(provider, useStaging);
             initializeDefaultNetwork();
         }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static void initializeCellularNetwork(final boolean useStaging) {
+    private static void initializeCellularNetwork(final IdProvider provider, final boolean useStaging) {
         ConnectivityManager.NetworkCallback cellularNetworkCallback = new ConnectivityManager.NetworkCallback() {
             @Override
             public void onAvailable(Network network) {
                 cellularNetwork = network;
                 boolean noSignedInUser = ConnectSdk.getAccessToken() == null;
                 if (noSignedInUser) {
-                    initializeHeaderEnrichment(useStaging, ConnectSdk.getLogSessionId());
+                    initializeHeaderEnrichment(provider, useStaging, ConnectSdk.getLogSessionId());
                 }
             }
         };
@@ -83,10 +84,10 @@ public class HeLogic {
                     .build();
     }
 
-    private static void initializeHeaderEnrichment(boolean useStaging, String logSessionId) {
+    private static void initializeHeaderEnrichment(IdProvider provider, boolean useStaging, String logSessionId) {
         if (canNotDirectNetworkTraffic) { return; }
 
-        String url = ConnectUrlHelper.getHeApiUrl(useStaging, logSessionId);
+        String url = ConnectUrlHelper.getHeApiUrl(provider, useStaging, logSessionId);
         GetHeaderEnrichmentGifTask getGifTask = new GetHeaderEnrichmentGifTask(url, HE_TOKEN_TIMEOUT_MILLISECONDS) {
             @Override
             protected void onPreExecute() {
@@ -132,6 +133,7 @@ public class HeLogic {
             final ShowLoadingCallback showLoadingCallback,
             final HeTokenCallback heTokenCallback,
             final String logSessionId,
+            final IdProvider provider,
             final boolean useStaging,
             final DismissDialogCallback dismissDialogCallback) {
         boolean finishedUnSuccessfully = !heTokenSuccess && !isHeTokenRequestOngoing;
@@ -145,15 +147,15 @@ public class HeLogic {
         }
 
         if (isHeTokenRequestOngoing) {
-            setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging, dismissDialogCallback);
+            setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging, dismissDialogCallback);
             return;
         }
 
         boolean heWasNeverInitialized = heTokenSuccess && heTokenResponse == null;
         boolean tokenIsExpired = heTokenResponse != null && new Date().after(heTokenResponse.getExpiration());
         if (heWasNeverInitialized || tokenIsExpired) {
-            setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging, dismissDialogCallback);
-            initializeHeaderEnrichment(useStaging, logSessionId);
+            setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging, dismissDialogCallback);
+            initializeHeaderEnrichment(provider, useStaging, logSessionId);
             return;
         }
 
@@ -175,13 +177,14 @@ public class HeLogic {
             final ShowLoadingCallback showLoadingCallback,
             final HeTokenCallback heTokenCallback,
             final String logSessionId,
+            final IdProvider provider,
             final boolean useStaging,
             final DismissDialogCallback dismissDialogCallback) {
         HeLogic.heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
                 HeLogic.heTokenCallback = null;
-                handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, useStaging, dismissDialogCallback);
+                handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging, dismissDialogCallback);
             }
         };
     }
