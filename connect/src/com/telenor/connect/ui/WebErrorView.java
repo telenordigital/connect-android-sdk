@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
 
 public class WebErrorView extends RelativeLayout {
@@ -44,6 +45,8 @@ public class WebErrorView extends RelativeLayout {
 
     private void init() {
         inflate(getContext(), R.layout.com_telenor_connect_error_view, this);
+        TextView brandedView = findViewById(R.id.com_telenor_connect_error_view_communication_error);
+        brandedView.setText(getResources().getString(R.string.com_telenor_connect_error_text1, ConnectSdk.getIdProvider().getName()));
     }
 
     @Override

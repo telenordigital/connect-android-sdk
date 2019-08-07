@@ -35,7 +35,8 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
 
     public ConnectWebViewLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        setText(R.string.com_telenor_connect_login_button_text);
+        String brandName = ConnectSdk.getIdProvider().getName();
+        setText(getResources().getString(R.string.com_telenor_connect_login_button_text, brandName));
         onClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
