@@ -809,6 +809,11 @@ public final class ConnectSdk {
         return idProvider;
     }
 
+    public static void setIdProvider(IdProvider newIdProvider) {
+        Validator.sdkInitialized();
+        idProvider = newIdProvider;
+    }
+
     public static boolean useStaging() {
         Validator.sdkInitialized();
         return useStaging;

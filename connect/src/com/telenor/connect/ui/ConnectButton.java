@@ -3,6 +3,7 @@ package com.telenor.connect.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.widget.Button;
@@ -13,7 +14,8 @@ public class ConnectButton extends Button {
 
     public ConnectButton(final Context context, final AttributeSet attributeSet) {
         super(context, attributeSet);
-        setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
+        AssetManager am = context.getApplicationContext().getAssets();
+        setTypeface(Typeface.createFromAsset(am, "fonts/telenorregularwebfont.ttf"));
     }
 
     protected Activity getActivity() {

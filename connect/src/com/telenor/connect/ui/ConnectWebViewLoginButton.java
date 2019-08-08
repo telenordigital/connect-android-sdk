@@ -1,6 +1,9 @@
 package com.telenor.connect.ui;
 
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -10,6 +13,7 @@ import com.telenor.connect.R;
 import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
+import com.telenor.connect.id.IdProvider;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
 
 import java.util.ArrayList;
@@ -35,8 +39,8 @@ public class ConnectWebViewLoginButton extends ConnectButton implements Authenti
 
     public ConnectWebViewLoginButton(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        String brandName = ConnectSdk.getIdProvider().getName();
-        setText(getResources().getString(R.string.com_telenor_connect_login_button_text, brandName));
+        IdProvider brand = ConnectSdk.getIdProvider();
+        setText(getResources().getString(R.string.com_telenor_connect_login_button_text, brand.getName()));
         onClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
