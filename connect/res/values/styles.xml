@@ -48,6 +48,7 @@
     <style name="ConnectTheme.TelenorId" parent="ConnectTheme">
         <item name="colorAccent">@color/com_telenor_connect_light_color</item>
         <item name="android:buttonStyle">@style/com_telenor_ConnectButtonTelenorId</item>
+        <item name="buttonStyle">@style/com_telenor_ConnectButtonTelenorId</item>
     </style>
 
     <style name="ConnectTheme.Dark" parent="ConnectTheme">

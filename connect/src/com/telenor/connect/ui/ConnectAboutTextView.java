@@ -29,7 +29,14 @@ public class ConnectAboutTextView extends ConnectTextView {
 
     public ConnectAboutTextView(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
+        initControls();
         initVisuals(context);
+    }
+
+    private void initControls() {
+        setAllCaps(false);
+        setFocusable(true);
+        setClickable(true);
     }
 
     private void initVisuals(final Context context) {
