@@ -38,14 +38,11 @@
         app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
         />
 
-    <com.telenor.connect.ui.ConnectAboutButton
+    <com.telenor.connect.ui.ConnectAboutTextView
         android:id="@+id/about_button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10sp"
-        android:textAllCaps="false"
-        style="?android:attr/borderlessButtonStyle"
-        android:text="Learn more"
         app:layout_constraintTop_toBottomOf="@id/login_button"
         app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
         app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"

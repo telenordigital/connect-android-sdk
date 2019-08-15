@@ -7,13 +7,13 @@ import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 
-import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.telenor.connect.ConnectException;
 
-public class ConnectButton extends AppCompatButton implements UiComponentUtils {
+public class ConnectTextView extends AppCompatTextView implements UiComponentUtils {
 
-    public ConnectButton(final Context context, final AttributeSet attributeSet) {
+    public ConnectTextView(final Context context, final AttributeSet attributeSet) {
         super(context, attributeSet);
         AssetManager am = context.getApplicationContext().getAssets();
         setTypeface(Typeface.createFromAsset(am, "fonts/telenorregularwebfont.ttf"));
@@ -28,6 +28,6 @@ public class ConnectButton extends AppCompatButton implements UiComponentUtils {
         if (context instanceof Activity) {
             return (Activity) context;
         }
-        throw new ConnectException("Unable to get Activity while initializing the ConnectButton component.");
+        throw new ConnectException("Unable to get Activity while initializing the ConnectTextView component.");
     }
 }

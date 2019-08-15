@@ -2,8 +2,15 @@ package com.telenor.connect.ui;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -12,25 +19,55 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.telenor.connect.R;
 
-public class ConnectAboutButton extends ConnectButton {
+public class ConnectAboutTextView extends ConnectTextView {
 
-    PopupWindow popupWindow;
+    private PopupWindow popupWindow;
 
-    public ConnectAboutButton(final Context context, AttributeSet attributeSet) {
+    public ConnectAboutTextView(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        AssetManager am = context.getApplicationContext().getAssets();
-        setTypeface(Typeface.createFromAsset(am, "fonts/telenorregularwebfont.ttf"));
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openPopup(context);
-            }
-        });
+        initControls();
+        initVisuals(context);
     }
 
-    public void openPopup(Context context) {
+    private void initControls() {
+        setAllCaps(false);
+        setFocusable(true);
+        setClickable(true);
+    }
+
+    private void initVisuals(final Context context) {
+        final AssetManager am = context.getApplicationContext().getAssets();
+        setTypeface(Typeface.createFromAsset(am, "fonts/telenorlightwebfont.ttf"));
+        CharSequence linkText = getResources().getText(R.string.com_telenor_about_link);
+        SpannableString spannableLinkText = new SpannableString(linkText);
+        ClickableSpan clickableSpannableLinkText = new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View textView) {
+                openPopup(context);
+            }
+
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setTypeface(Typeface.createFromAsset(am, "fonts/telenorboldwebfont.ttf"));
+                ds.setColor(getCurrentTextColor());
+                ds.setUnderlineText(false);
+            }
+        };
+        SpannableStringBuilder longDescription = new SpannableStringBuilder();
+        longDescription.append(getResources().getString(R.string.com_telenor_about_description));
+        spannableLinkText.setSpan(clickableSpannableLinkText, 0, linkText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        longDescription.append(spannableLinkText);
+        setText(longDescription, TextView.BufferType.SPANNABLE);
+        setMovementMethod(LinkMovementMethod.getInstance());
+        setHighlightColor(Color.TRANSPARENT);
+    }
+
+    private void openPopup(Context context) {
         View view = getActivity().getLayoutInflater().inflate(R.layout.com_telenor_connect_about, null, false);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
