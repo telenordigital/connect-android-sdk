@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
 
 public class ConnectAboutTextView extends ConnectTextView {
@@ -59,7 +60,7 @@ public class ConnectAboutTextView extends ConnectTextView {
             }
         };
         SpannableStringBuilder longDescription = new SpannableStringBuilder();
-        longDescription.append(getResources().getString(R.string.com_telenor_about_description));
+        longDescription.append(getResources().getString(R.string.com_telenor_about_description, ConnectSdk.getIdProvider().getName()));
         spannableLinkText.setSpan(clickableSpannableLinkText, 0, linkText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         longDescription.append(spannableLinkText);
         setText(longDescription, TextView.BufferType.SPANNABLE);
@@ -82,8 +83,11 @@ public class ConnectAboutTextView extends ConnectTextView {
         ImageView closeIcon = view.findViewById(R.id.connect_about_close);
 
         title.setTypeface(Typeface.createFromAsset(am, "fonts/telenorboldwebfont.ttf"));
+        title.setText(getResources().getString(R.string.com_telenor_about_screen_title, ConnectSdk.getIdProvider().getName()));
         subTitle.setTypeface(Typeface.createFromAsset(am, "fonts/telenorregularwebfont.ttf"));
+        subTitle.setText(getResources().getString(R.string.com_telenor_about_screen_subtitle, ConnectSdk.getIdProvider().getName()));
         description.setTypeface(Typeface.createFromAsset(am, "fonts/telenorlightwebfont.ttf"));
+        description.setText(getResources().getString(R.string.com_telenor_about_screen_description, ConnectSdk.getIdProvider().getName()));
 
         if (popupWindow != null) {
             popupWindow.dismiss();

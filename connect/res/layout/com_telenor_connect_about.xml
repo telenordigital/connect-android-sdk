@@ -59,7 +59,6 @@
         android:gravity="center"
         android:textColor="@color/com_telenor_connect_text_dark"
         android:textSize="24sp"
-        android:text="What is Telenor ID"
         app:layout_constraintTop_toBottomOf="@id/connect_guideline_top"
         app:layout_constraintBottom_toTopOf="@id/connect_about_subtitle"
         app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
@@ -74,7 +73,6 @@
         android:textColor="@color/com_telenor_connect_text_dark"
         android:textSize="17sp"
         android:lineSpacingExtra="3sp"
-        android:text="With a single Telenor ID you easily access your apps and services."
         app:layout_constraintTop_toBottomOf="@id/connect_about_title"
         app:layout_constraintBottom_toTopOf="@id/connect_about_description"
         app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
@@ -89,7 +87,6 @@
         android:textColor="@color/com_telenor_connect_text_dark"
         android:textSize="17sp"
         android:lineSpacingExtra="3sp"
-        android:text="The sign-in process has additional layers of protection, such as verifying your mobile number and email. Telenor ID gives you full control of your personal data, while keeping it safe."
         app:layout_constraintTop_toBottomOf="@id/connect_about_subtitle"
         app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
         app:layout_constraintEnd_toStartOf="@id/connect_guideline_right" />
