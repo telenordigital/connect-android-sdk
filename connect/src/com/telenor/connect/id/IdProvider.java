@@ -2,7 +2,8 @@ package com.telenor.connect.id;
 
 public enum IdProvider {
     CONNECT_ID("CONNECT","connect.telenordigital.com", "connect.staging.telenordigital.com"),
-    TELENOR_ID("Telenor ID", "signin.telenorid.com", "signin.staging-telenorid.com");
+    TELENOR_ID("Telenor ID", "signin.telenorid.com", "signin.telenorid-staging.com"),
+    GP_ID("GP ID", "signin.gp-id.com", "signin.gp-id-staging.com");
 
     private String name;
     private String productionUrl;

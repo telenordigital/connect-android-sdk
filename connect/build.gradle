@@ -34,12 +34,12 @@ android {
 }
 
 dependencies {
-    api 'androidx.appcompat:appcompat:1.0.2'
+    api 'androidx.appcompat:appcompat:1.1.0'
     api 'androidx.browser:browser:1.0.0'
     api 'androidx.legacy:legacy-support-v4:1.0.0'
     api 'com.google.android.gms:play-services-auth:17.0.0'
     api 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-    api 'com.google.android.gms:play-services-base:17.0.0'
+    api 'com.google.android.gms:play-services-base:17.1.0'
     api 'com.nimbusds:nimbus-jose-jwt:3.10'
     api 'com.squareup.okhttp3:okhttp:3.11.0'
     api 'com.squareup.okhttp3:logging-interceptor:3.11.0'

@@ -13,6 +13,9 @@
     <string name="com_telenor_signin_automatically">Sign in automatically</string>
     <string name="com_telenor_divider_or">or</string>
     <string name="com_telenor_regular_signin">Continue with regular sign-in</string>
-    <string name="com_telenor_about_description" translatable="false">Your Telenor ID is used to sign in to all apps and services.\u0020</string>
+    <string name="com_telenor_about_description" formatted="true" translatable="false">Your %1$s is used to sign in to all apps and services.\u0020</string>
     <string name="com_telenor_about_link" translatable="false">Learn more \u203A</string>
+    <string name="com_telenor_about_screen_title" formatted="true" translatable="false">What is %1$s</string>
+    <string name="com_telenor_about_screen_subtitle" formatted="true" translatable="false">With a single %1$s you easily access your apps and services.</string>
+    <string name="com_telenor_about_screen_description" formatted="true" translatable="false">The sign-in process has additional layers of protection, such as verifying your mobile number and email. %1$s gives you full control of your personal data, while keeping it safe.</string>
 </resources>
