@@ -14,4 +14,9 @@
     <string name="com_telenor_signin_automatically">အလိုအလျောက် အကောင့်ဝင်ခြင်း</string>
     <string name="com_telenor_divider_or">သို့မဟုတ်</string>
     <string name="com_telenor_regular_signin">ပုံမှန်နည်းဖြင့်သာ ဆက်လက်အကောင့်ဝင်ရန်</string>
+    <string name="com_telenor_about_description" formatted="true">အက်ပလီကေးရှင်းများနှင့် ၀န်ဆောင်မှုများအား သင်၏ %1$s အားအသုံးပြုပြီးဝင်ရောက်ပါသည်။ \u0020</string>
+    <string name="com_telenor_about_link">ပိုမိုသိရှိရန် \u203A</string>
+    <string name="com_telenor_about_screen_title" formatted="true">%1$s ဆိုတာဘာလဲ။</string>
+    <string name="com_telenor_about_screen_subtitle" formatted="true">%1$s တစ်ခုတည်းဖြင့်သင်၏အပ်ပလီကေးရှင်းများနှင့် ၀န်ဆောင်မှုများအားလွယ်ကူစွာအသုံးပြုနိုင်ပါမည်။</string>
+    <string name="com_telenor_about_screen_description" formatted="true">Sing-In ပြုလုပ်ခြင်းအတွက် မိမိ၏ဖုန်းနံပါတ်နှင့် အီးမေးလ်အား မိမိကိုယ်တိုင်အတည်ပြုရခြင်းများကဲ့သို့ သောထပ်ဆောင်းကာကွယ်မှုများရှိပါသည်။ %1$s သည်မိမိ၏ကိုယ်ရေးအချက်လက်များအား မိမိကိုယ်တိုင်ထိန်းချုပ်ခွင့်ပေးပါသည်။</string>
 </resources>
