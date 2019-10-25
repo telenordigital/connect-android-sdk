@@ -13,7 +13,7 @@
     <string name="com_telenor_signin_automatically">Sign in automatically</string>
     <string name="com_telenor_divider_or">or</string>
     <string name="com_telenor_regular_signin">Continue with regular sign-in</string>
-    <string name="com_telenor_about_description" formatted="true" translatable="false">Your %1$s is used to sign in to all apps and services.\u0020</string>
+    <string name="com_telenor_about_description" formatted="true">Your %1$s is used to sign in to all apps and services.\u0020</string>
     <string name="com_telenor_about_link">Learn more \u203A</string>
     <string name="com_telenor_about_screen_title" formatted="true">What is %1$s</string>
     <string name="com_telenor_about_screen_subtitle" formatted="true">With a single %1$s you can easily access your apps and services.</string>
