@@ -343,13 +343,14 @@ public final class ConnectSdk {
         }
         TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         String carrierName = manager != null ? manager.getNetworkOperatorName() : null;
+        boolean accessTokenIsEmpty = getAccessToken() == null || getAccessToken().isEmpty();
         HashMap<String, Object> debugInformation = new HashMap<>();
         debugInformation.put("activeNetworkInfo", HeLogic.getActiveNetworkInfo());
         debugInformation.put("cellularNetworkInfo", HeLogic.getCellularNetworkInfo());
         debugInformation.put("deviceTimestamp", new Date());
         debugInformation.put("carrierName", carrierName);
         debugInformation.put("sdkVersion", BuildConfig.VERSION_NAME);
-
+        debugInformation.put("isAccessTokenEmpty", accessTokenIsEmpty);
         if (throwable != null) {
             debugInformation.put("exception", throwable.getMessage());
             debugInformation.put("exceptionStackTrace", throwable.getStackTrace());
