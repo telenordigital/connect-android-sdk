@@ -14,4 +14,9 @@
     <string name="com_telenor_signin_automatically">Daftar masuk secara automatik</string>
     <string name="com_telenor_divider_or">atau</string>
     <string name="com_telenor_regular_signin">Teruskan dengan daftar masuk biasa</string>
+    <string name="com_telenor_about_description" formatted="true">Your %1$s is used to sign in to all apps and services.\u0020</string>
+    <string name="com_telenor_about_link">Learn more \u203A</string>
+    <string name="com_telenor_about_screen_title" formatted="true">What is %1$s</string>
+    <string name="com_telenor_about_screen_subtitle" formatted="true">With a single %1$s you can easily access your apps and services.</string>
+    <string name="com_telenor_about_screen_description" formatted="true">%1$s gives you full control of your personal data, while keeping it safe. The sign-in process has additional layers of protection, such as verifying your mobile number and email.</string>
 </resources>
