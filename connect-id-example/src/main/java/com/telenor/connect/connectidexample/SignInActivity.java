@@ -26,6 +26,7 @@ public class SignInActivity extends AppCompatActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         setIntent(intent);
         ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
             @Override
