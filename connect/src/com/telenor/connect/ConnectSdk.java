@@ -2,6 +2,7 @@ package com.telenor.connect;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -723,13 +724,27 @@ public final class ConnectSdk {
                         .uri()
                         .toString()
         );
-        CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
-        Intent intent = customTabsIntent.intent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            intent.putExtra(Intent.EXTRA_REFERRER,
-                    Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
+        try {
+            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
+            Intent intent = customTabsIntent.intent;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                intent.putExtra(Intent.EXTRA_REFERRER,
+                        Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
+            }
+            customTabsIntent.launchUrl(context, selfServiceUri);
         }
-        customTabsIntent.launchUrl(context, selfServiceUri);
+        catch (ActivityNotFoundException e)
+        {
+            // This might typically happen when custom tabs are not available and
+            // extra fallback didn't work as expected. This can happen when, for example,
+            // user had disabled ALL browsers.
+            sendAnalyticsData(e);
+        }
+        catch (Exception e)
+        {
+            // Just in case.
+            sendAnalyticsData(e);
+        }
     }
 
     /**
