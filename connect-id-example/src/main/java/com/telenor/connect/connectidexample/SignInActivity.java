@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class SignInActivity extends AppCompatActivity {
 
     ConnectLoginButton loginButton;
-    Button randomButton;
+    Button selfServiceButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,8 +25,8 @@ public class SignInActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_in);
         loginButton = findViewById(R.id.login_button);
         loginButton.setLoginScopeTokens("profile openid");
-        randomButton = findViewById(R.id.selfServiceButton);
-        randomButton.setOnClickListener(new View.OnClickListener() {
+        selfServiceButton = findViewById(R.id.selfServiceButton);
+        selfServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ConnectSdk.openSelfServicePage(SignInActivity.this);
