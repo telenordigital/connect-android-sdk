@@ -74,6 +74,13 @@ public class ConnectUrlHelper {
                 .build();
     }
 
+    public static HttpUrl getSelfServiceUrl(IdProvider provider, boolean useStaging) {
+        return new HttpUrl.Builder()
+                .scheme("https")
+                .host(provider.getSelfServiceUrl(useStaging))
+                .build();
+    }
+
     private static void handlePromptAndLogSessionId(Map<String, String> parameters) {
         if (TextUtils.isEmpty(parameters.get("prompt")) && !HeLogic.isCellularDataNetworkConnected()) {
             parameters.put("prompt", "no_seam");
