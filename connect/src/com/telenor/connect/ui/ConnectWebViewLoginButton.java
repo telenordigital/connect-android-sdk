@@ -23,16 +23,14 @@ import java.util.Map;
 
 import androidx.annotation.NonNull;
 
-public class ConnectWebViewLoginButton extends ConnectButton implements AuthenticationButton {
-
-    public static final int NO_CUSTOM_LAYOUT = -1;
+class ConnectWebViewLoginButton extends ConnectButton implements AuthenticationButton {
 
     private ArrayList<String> acrValues;
     private Map<String, String> loginParameters;
     private ArrayList<String> loginScopeTokens;
     private int requestCode = 0xa987;
     private Claims claims;
-    private int customLoadingLayout = NO_CUSTOM_LAYOUT;
+    private int customLoadingLayout = -1;
     private ShowLoadingCallback showLoadingCallback;
     private DismissDialogCallback dismissDialogCallback;
     private OnClickListener onClickListener;
