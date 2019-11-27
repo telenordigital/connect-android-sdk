@@ -6,8 +6,10 @@ buildscript {
         jcenter()
     }
     dependencies {
+        // Tests are broken with gradle update higher then 3.3.2
+        // Ref https://github.com/robolectric/robolectric/issues/4690
         classpath 'com.android.tools.build:gradle:3.4.2'
-        classpath 'com.novoda:bintray-release:0.9'
+        classpath 'com.novoda:bintray-release:0.9.1'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.2'
 
         // NOTE: Do not place your application dependencies here; they belong
