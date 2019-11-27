@@ -11,7 +11,7 @@ import androidx.appcompat.widget.AppCompatButton;
 
 import com.telenor.connect.ConnectException;
 
-public class ConnectButton extends AppCompatButton implements UiComponentUtils {
+class ConnectButton extends AppCompatButton implements UiComponentUtils {
 
     public ConnectButton(final Context context, final AttributeSet attributeSet) {
         super(context, attributeSet);

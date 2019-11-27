@@ -39,7 +39,6 @@ import com.telenor.connect.sms.SmsPinParseUtil;
 import com.telenor.connect.sms.SmsRetrieverUtil;
 import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.ui.ConnectWebFragment;
-import com.telenor.connect.ui.ConnectWebViewLoginButton;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.TurnOnMobileDataDialogAnalytics;
@@ -63,6 +62,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public final class ConnectSdk {
+    private static final int NO_CUSTOM_LAYOUT = -1;
     private static final int SESSION_TIMEOUT_MINUTES = 10;
     private static ArrayList<Locale> sLocales;
     private static ConnectStore connectStore;
@@ -212,7 +212,7 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        authenticate(activity, parameters, ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT, requestCode, null, null);
+        authenticate(activity, parameters, NO_CUSTOM_LAYOUT, requestCode, null, null);
     }
 
     public static synchronized void authenticate(final Activity activity,
@@ -230,7 +230,7 @@ public final class ConnectSdk {
             @Override
             public void done() {
                 Intent intent = getAuthIntent(parameters);
-                if (customLoadingLayout != ConnectWebViewLoginButton.NO_CUSTOM_LAYOUT) {
+                if (customLoadingLayout != NO_CUSTOM_LAYOUT) {
                     intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
                 }
                 activity.startActivityForResult(intent, requestCode);

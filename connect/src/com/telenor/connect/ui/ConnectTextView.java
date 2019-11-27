@@ -11,7 +11,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 
 import com.telenor.connect.ConnectException;
 
-public class ConnectTextView extends AppCompatTextView implements UiComponentUtils {
+class ConnectTextView extends AppCompatTextView implements UiComponentUtils {
 
     public ConnectTextView(final Context context, final AttributeSet attributeSet) {
         super(context, attributeSet);
