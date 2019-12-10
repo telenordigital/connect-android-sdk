@@ -33,6 +33,8 @@ public class HeLogic {
     private static volatile Network cellularNetwork;
     private static volatile Network defaultNetwork;
 
+    private static int numberOfNetworkTogglesCouldHappened = 0;
+
     public static void initializeNetworks(Context context, IdProvider provider, boolean useStaging) {
         connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         boolean connectivityManagerAvailableAndNotTooOldAndroid = connectivityManager != null
@@ -86,7 +88,12 @@ public class HeLogic {
     }
 
     private static boolean initializeHeaderEnrichment(IdProvider provider, boolean useStaging, String logSessionId) {
-        if (canNotDirectNetworkTraffic || heWasInitialized) { return false; }
+        if (heWasInitialized) {
+            numberOfNetworkTogglesCouldHappened++;
+        }
+        if (canNotDirectNetworkTraffic || heWasInitialized) {
+            return false;
+        }
 
         // We have tried, at least.
         heWasInitialized = true;
@@ -257,5 +264,9 @@ public class HeLogic {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getDefaultNetwork() {
         return defaultNetwork;
+    }
+
+    public static int getNumberOfNetworkTogglesCouldHappened() {
+        return numberOfNetworkTogglesCouldHappened;
     }
 }

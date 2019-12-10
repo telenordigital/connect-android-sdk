@@ -352,6 +352,7 @@ public final class ConnectSdk {
         debugInformation.put("carrierName", carrierName);
         debugInformation.put("sdkVersion", BuildConfig.VERSION_NAME);
         debugInformation.put("isAccessTokenEmpty", accessTokenIsEmpty);
+        debugInformation.put("getNumberOfNetworkTogglesCouldHappened", HeLogic.getNumberOfNetworkTogglesCouldHappened());
         if (throwable != null) {
             debugInformation.put("exception", throwable.getMessage());
             debugInformation.put("exceptionStackTrace", throwable.getStackTrace());
