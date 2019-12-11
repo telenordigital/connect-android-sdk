@@ -24,6 +24,7 @@ public class HeLogic {
     private static final long HE_TOKEN_TIMEOUT_MILLISECONDS = 10_000; // Timeout is a best guess
     // at what would be long enough to succeed and short enough for users to wait it out if
     // it should fail/time out, and do a normal flow
+    private static boolean heWasInitialized = false;
     private static boolean heTokenSuccess = true;
     private static HeTokenCallback heTokenCallback;
     private static boolean isHeTokenRequestOngoing;
@@ -31,6 +32,8 @@ public class HeLogic {
     private static ConnectivityManager connectivityManager;
     private static volatile Network cellularNetwork;
     private static volatile Network defaultNetwork;
+
+    private static int numberOfNetworkTogglesCouldHappened = 0;
 
     public static void initializeNetworks(Context context, IdProvider provider, boolean useStaging) {
         connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -84,8 +87,16 @@ public class HeLogic {
                     .build();
     }
 
-    private static void initializeHeaderEnrichment(IdProvider provider, boolean useStaging, String logSessionId) {
-        if (canNotDirectNetworkTraffic) { return; }
+    private static boolean initializeHeaderEnrichment(IdProvider provider, boolean useStaging, String logSessionId) {
+        if (heWasInitialized) {
+            numberOfNetworkTogglesCouldHappened++;
+        }
+        if (canNotDirectNetworkTraffic || heWasInitialized) {
+            return false;
+        }
+
+        // We have tried, at least.
+        heWasInitialized = true;
 
         String url = ConnectUrlHelper.getHeApiUrl(provider, useStaging, logSessionId);
         GetHeaderEnrichmentGifTask getGifTask = new GetHeaderEnrichmentGifTask(url, HE_TOKEN_TIMEOUT_MILLISECONDS) {
@@ -106,6 +117,9 @@ public class HeLogic {
             }
         };
         getGifTask.execute();
+        // At this moment we rely on handleHeTokenResult to be executed at onPostExecute
+        // or at onCancelled
+        return true;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -155,7 +169,9 @@ public class HeLogic {
         boolean tokenIsExpired = heTokenResponse != null && new Date().after(heTokenResponse.getExpiration());
         if (heWasNeverInitialized || tokenIsExpired) {
             setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging, dismissDialogCallback);
-            initializeHeaderEnrichment(provider, useStaging, logSessionId);
+            if (!initializeHeaderEnrichment(provider, useStaging, logSessionId)) {
+                handleHeTokenResult(null);
+            }
             return;
         }
 
@@ -248,5 +264,9 @@ public class HeLogic {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getDefaultNetwork() {
         return defaultNetwork;
+    }
+
+    public static int getNumberOfNetworkTogglesCouldHappened() {
+        return numberOfNetworkTogglesCouldHappened;
     }
 }
