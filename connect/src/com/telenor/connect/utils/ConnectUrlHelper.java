@@ -82,7 +82,8 @@ public class ConnectUrlHelper {
     }
 
     private static void handlePromptAndLogSessionId(Map<String, String> parameters) {
-        if (TextUtils.isEmpty(parameters.get("prompt")) && !HeLogic.isCellularDataNetworkConnected()) {
+        if (TextUtils.isEmpty(parameters.get("prompt")) && !HeLogic.isCellularDataNetworkConnected()
+            || HeLogic.shouldIgnoreHe()) {
             parameters.put("prompt", "no_seam");
         }
         if (TextUtils.isEmpty(parameters.get("log_session_id"))) {
