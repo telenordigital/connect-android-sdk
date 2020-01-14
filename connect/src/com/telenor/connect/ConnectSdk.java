@@ -711,14 +711,18 @@ public final class ConnectSdk {
      * We don't do any warmup or optimizations on this component.
      *
      * @param context of activity from where method is called
+     * @param loginHints to provide login hints
      */
-    public static void openSelfServicePage(Context context) {
+    public static void openSelfServicePage(Context context, List<String> loginHints) {
         if (!isInitialized() || idProvider == IdProvider.CONNECT_ID) {
             return;
         }
+
+        String localesParameter = TextUtils.join(" ", ConnectSdk.getUiLocales());
+
         Uri selfServiceUri = Uri.parse(
                 ConnectUrlHelper
-                        .getSelfServiceUrl(idProvider, useStaging)
+                        .getSelfServiceUrl(idProvider, loginHints, localesParameter, useStaging)
                         .newBuilder()
                         .addPathSegment("overview")
                         .build()

@@ -29,7 +29,7 @@ public class SignInActivity extends AppCompatActivity {
         selfServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ConnectSdk.openSelfServicePage(SignInActivity.this);
+                ConnectSdk.openSelfServicePage(SignInActivity.this, null);
             }
         });
     }
