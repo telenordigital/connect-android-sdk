@@ -716,9 +716,13 @@ public final class ConnectSdk {
         if (!isInitialized() || idProvider == IdProvider.CONNECT_ID) {
             return;
         }
+
+        List<String> loginHints = getLoginHints();
+        String localesParameter = TextUtils.join(" ", ConnectSdk.getUiLocales());
+
         Uri selfServiceUri = Uri.parse(
                 ConnectUrlHelper
-                        .getSelfServiceUrl(idProvider, useStaging)
+                        .getSelfServiceUrl(idProvider, loginHints, localesParameter, useStaging)
                         .newBuilder()
                         .addPathSegment("overview")
                         .build()
@@ -746,6 +750,39 @@ public final class ConnectSdk {
             // Just in case.
             sendAnalyticsData(e);
         }
+    }
+
+    private static List<String> getLoginHints() {
+        List<String> loginHints = new ArrayList<>();
+
+        if (getIdToken() == null) return loginHints;
+
+        String authenticationUsername = getIdToken().getAuthenticationUsername();
+        boolean phoneIsPresent = getIdToken().getPhoneNumber() != null;
+        boolean emailIsPresent = getIdToken().getEmail() != null;
+
+        if (authenticationUsername == null) {
+            if (phoneIsPresent) {
+                loginHints.add(getIdToken().getPhoneNumber());
+            }
+            if (emailIsPresent) {
+                loginHints.add(getIdToken().getEmail());
+            }
+            return loginHints;
+        }
+
+        boolean authenticationUsernameIsEmail = authenticationUsername.contains("@");
+
+        loginHints.add(authenticationUsername);
+
+        if (authenticationUsernameIsEmail && phoneIsPresent) {
+            loginHints.add(getIdToken().getPhoneNumber());
+        }
+        if (!authenticationUsernameIsEmail && emailIsPresent) {
+            loginHints.add(getIdToken().getEmail());
+        }
+
+        return loginHints;
     }
 
     /**

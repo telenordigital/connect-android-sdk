@@ -74,11 +74,19 @@ public class ConnectUrlHelper {
                 .build();
     }
 
-    public static HttpUrl getSelfServiceUrl(IdProvider provider, boolean useStaging) {
-        return new HttpUrl.Builder()
-                .scheme("https")
-                .host(provider.getSelfServiceUrl(useStaging))
-                .build();
+    public static HttpUrl getSelfServiceUrl(IdProvider provider, List<String> loginHints, String locales, boolean useStaging) {
+        HttpUrl.Builder builder = new HttpUrl.Builder();
+        builder.scheme("https")
+               .host(provider.getSelfServiceUrl(useStaging))
+               .addQueryParameter("ui_locales", locales);
+
+        if (loginHints != null) {
+            for (String loginHint : loginHints) {
+                builder.addQueryParameter("login_hint", loginHint);
+            }
+        }
+
+        return builder.build();
     }
 
     private static void handlePromptAndLogSessionId(Map<String, String> parameters) {

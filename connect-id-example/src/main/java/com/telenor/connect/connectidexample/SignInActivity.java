@@ -24,7 +24,7 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
         loginButton = findViewById(R.id.login_button);
-        loginButton.setLoginScopeTokens("profile openid");
+        loginButton.setLoginScopeTokens("profile openid email phone");
         selfServiceButton = findViewById(R.id.selfServiceButton);
         selfServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
