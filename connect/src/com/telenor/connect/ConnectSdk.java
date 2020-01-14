@@ -435,12 +435,20 @@ public final class ConnectSdk {
         ArrayList<String> locales = new ArrayList<>();
         if (ConnectSdk.getLocales() != null && !ConnectSdk.getLocales().isEmpty()) {
             for (Locale locale : ConnectSdk.getLocales()) {
-                locales.add(locale.toString());
-                locales.add(locale.getLanguage());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    locales.add(locale.toLanguageTag());
+                } else {
+                    locales.add(locale.toString());
+                }
             }
         }
-        locales.add(Locale.getDefault().toString());
-        locales.add(Locale.getDefault().getLanguage());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            locales.add(Locale.getDefault().toLanguageTag());
+        } else {
+            locales.add(Locale.getDefault().toString());
+        }
+
         return locales;
     }
 
