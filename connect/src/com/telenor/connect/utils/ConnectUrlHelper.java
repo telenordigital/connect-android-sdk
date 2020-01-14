@@ -80,7 +80,7 @@ public class ConnectUrlHelper {
                .host(provider.getSelfServiceUrl(useStaging))
                .addQueryParameter("ui_locales", locales);
 
-        if (loginHints != null && !loginHints.isEmpty()) {
+        if (loginHints != null) {
             for (String loginHint : loginHints) {
                 builder.addQueryParameter("login_hint", loginHint);
             }
