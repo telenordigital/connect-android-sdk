@@ -711,13 +711,13 @@ public final class ConnectSdk {
      * We don't do any warmup or optimizations on this component.
      *
      * @param context of activity from where method is called
-     * @param loginHints to provide login hints
      */
-    public static void openSelfServicePage(Context context, List<String> loginHints) {
+    public static void openSelfServicePage(Context context) {
         if (!isInitialized() || idProvider == IdProvider.CONNECT_ID) {
             return;
         }
 
+        List<String> loginHints = getLoginHints();
         String localesParameter = TextUtils.join(" ", ConnectSdk.getUiLocales());
 
         Uri selfServiceUri = Uri.parse(
@@ -750,6 +750,39 @@ public final class ConnectSdk {
             // Just in case.
             sendAnalyticsData(e);
         }
+    }
+
+    private static List<String> getLoginHints() {
+        List<String> loginHints = new ArrayList<>();
+
+        if (getIdToken() == null) return loginHints;
+
+        String authenticationUsername = getIdToken().getAuthenticationUsername();
+        boolean phoneIsPresent = getIdToken().getPhoneNumber() != null;
+        boolean emailIsPresent = getIdToken().getEmail() != null;
+
+        if (authenticationUsername == null) {
+            if (phoneIsPresent) {
+                loginHints.add(getIdToken().getPhoneNumber());
+            }
+            if (emailIsPresent) {
+                loginHints.add(getIdToken().getEmail());
+            }
+            return loginHints;
+        }
+
+        boolean authenticationUsernameIsEmail = authenticationUsername.contains("@");
+
+        loginHints.add(authenticationUsername);
+
+        if (authenticationUsernameIsEmail && phoneIsPresent) {
+            loginHints.add(getIdToken().getPhoneNumber());
+        }
+        if (!authenticationUsernameIsEmail && emailIsPresent) {
+            loginHints.add(getIdToken().getEmail());
+        }
+
+        return loginHints;
     }
 
     /**
