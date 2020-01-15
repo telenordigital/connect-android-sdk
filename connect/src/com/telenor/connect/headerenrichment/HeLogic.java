@@ -256,10 +256,6 @@ public class HeLogic {
         return connectivityManager.getActiveNetworkInfo();
     }
 
-    public static Boolean shouldIgnoreHe() {
-        return isHeTokenRequestOngoing || !heTokenSuccess;
-    }
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Network getCellularNetwork() {
         return cellularNetwork;

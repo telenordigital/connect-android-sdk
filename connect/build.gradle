@@ -9,7 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 28
-        versionName "2.3.1"
+        versionName "2.3.2-alpha"
     }
     sourceSets {
         main {

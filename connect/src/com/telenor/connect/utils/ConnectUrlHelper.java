@@ -14,7 +14,6 @@ import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.id.IdProvider;
 
 import java.io.UnsupportedEncodingException;
-import java.security.Provider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +51,8 @@ public class ConnectUrlHelper {
         }
         if (heToken != null) {
             parameters.put("telenordigital_he_token", heToken);
+        } else {
+            parameters.put("prompt", "no_seam");
         }
         handlePromptAndLogSessionId(parameters);
         parameters.put("state", ConnectSdk.getConnectStore().generateSessionStateParam());
@@ -90,8 +91,7 @@ public class ConnectUrlHelper {
     }
 
     private static void handlePromptAndLogSessionId(Map<String, String> parameters) {
-        if (TextUtils.isEmpty(parameters.get("prompt")) && !HeLogic.isCellularDataNetworkConnected()
-            || HeLogic.shouldIgnoreHe()) {
+        if (TextUtils.isEmpty(parameters.get("prompt")) && !HeLogic.isCellularDataNetworkConnected()) {
             parameters.put("prompt", "no_seam");
         }
         if (TextUtils.isEmpty(parameters.get("log_session_id"))) {
