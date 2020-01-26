@@ -23,6 +23,7 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.telenor.connect.headerenrichment.DismissDialogCallback;
+import com.telenor.connect.headerenrichment.HeFlowDecider;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.headerenrichment.HeTokenResponse;
@@ -51,9 +52,12 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import androidx.fragment.app.Fragment;
@@ -195,7 +199,7 @@ public final class ConnectSdk {
             intent.putExtra(Intent.EXTRA_REFERRER,
                     Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + activity.getPackageName()));
         }
-        cctIntent.launchUrl(activity, uri);
+        cctIntent.launchUrl(activity, HeFlowDecider.chooseFlow(uri, context));
     }
 
     public static synchronized void authenticate(
