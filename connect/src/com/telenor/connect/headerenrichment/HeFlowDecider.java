@@ -28,7 +28,8 @@ public class HeFlowDecider {
      * block header enrichment on the backend side.
      *
      * The way to ask backend services to skip header enrichment is to add "no_seam"
-     * parameter to the request.
+     * parameter to the request. It will also override any prompts set previously
+     * by code or by user.
      *
      * @param uri final version of URI to OAuth
      * @param context current context
@@ -76,15 +77,12 @@ public class HeFlowDecider {
             }
             return uri;
         } else {
-            // For devices with API < 23
-            // Mobile network
             boolean isMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE)
+                    .isConnectedOrConnecting();
+            boolean isWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
                     .isConnectedOrConnecting();
             // 3g, 4g etc
             boolean isLte = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE_HIPRI)
-                    .isConnectedOrConnecting();
-            // Wifi network
-            boolean isWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
                     .isConnectedOrConnecting();
 
             // Transport - wifi and mobile network

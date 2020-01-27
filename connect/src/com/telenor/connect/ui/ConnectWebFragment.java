@@ -56,8 +56,7 @@ public class ConnectWebFragment extends Fragment {
         loadingView.setLayoutResource(loadingScreenResource);
         loadingView.inflate();
         loadingView.setVisibility(View.VISIBLE);
-        // My psychiatrist told me I was crazy and I said I want a second opinion.
-        // He said okay, your string URLs're ugly too.
+
         final String pageUrl = HeFlowDecider.chooseFlow(Uri.parse(ConnectUrlHelper.getPageUrl(arguments)), getContext()).toString();
 
         final WebErrorView webErrorView = view.findViewById(R.id.com_telenor_connect_error_view);
