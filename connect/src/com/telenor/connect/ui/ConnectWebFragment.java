@@ -1,6 +1,7 @@
 package com.telenor.connect.ui;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -14,6 +15,7 @@ import android.widget.Button;
 
 import com.telenor.connect.ConnectCallback;
 import com.telenor.connect.R;
+import com.telenor.connect.headerenrichment.HeFlowDecider;
 import com.telenor.connect.id.ParseTokenCallback;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
@@ -54,7 +56,9 @@ public class ConnectWebFragment extends Fragment {
         loadingView.setLayoutResource(loadingScreenResource);
         loadingView.inflate();
         loadingView.setVisibility(View.VISIBLE);
-        final String pageUrl = ConnectUrlHelper.getPageUrl(arguments);
+
+        final String pageUrl = HeFlowDecider.chooseFlow(Uri.parse(ConnectUrlHelper.getPageUrl(arguments)), getContext()).toString();
+
         final WebErrorView webErrorView = view.findViewById(R.id.com_telenor_connect_error_view);
         setupErrorView(webView, loadingView, pageUrl, webErrorView, view);
 

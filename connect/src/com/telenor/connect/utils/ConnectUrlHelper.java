@@ -51,8 +51,6 @@ public class ConnectUrlHelper {
         }
         if (heToken != null) {
             parameters.put("telenordigital_he_token", heToken);
-        } else {
-            parameters.put("prompt", "no_seam");
         }
         handlePromptAndLogSessionId(parameters);
         parameters.put("state", ConnectSdk.getConnectStore().generateSessionStateParam());
