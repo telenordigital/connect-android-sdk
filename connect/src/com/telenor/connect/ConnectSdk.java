@@ -519,11 +519,15 @@ public final class ConnectSdk {
         if (noSignedInUser || noStoredWellKnownConfig) {
             updateWellKnownConfig(apiUrl);
         }
-
-        HeLogic.initializeNetworks(context, idProvider, useStaging);
+        HeLogic.initializeNetworks(context);
         initializeAdvertisingId(context);
         isInitialized = true;
         tsSdkInitialization = System.currentTimeMillis();
+    }
+
+    public static void runInstantVerification() {
+        Validator.sdkInitialized();
+        HeLogic.runInstantVerification(idProvider, useStaging);
     }
 
     private static void updateWellKnownConfig(String apiUrl) {
