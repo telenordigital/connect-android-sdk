@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.telenor.connect.AnalyticsAPI;
 import com.telenor.connect.BuildConfig;
+import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.WellKnownAPI;
 import com.telenor.connect.id.ConnectAPI;
 import com.telenor.connect.id.IdToken;
@@ -20,6 +21,8 @@ import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static com.telenor.connect.utils.ConnectUrlHelper.getVersionParam;
 
 public class RestHelper {
 
@@ -58,6 +61,10 @@ public class RestHelper {
             public Response intercept(Chain chain) throws IOException {
                 return chain.proceed(chain.request().newBuilder()
                         .header("Accept", "application/json")
+                        .header("X-sdk-info", String.format("Android SDK: %s; Client: %s;",
+                                getVersionParam(null),
+                                ConnectSdk.getClientId()
+                        ))
                         .build());
             }
         };

@@ -127,7 +127,7 @@ public class ConnectUrlHelper {
         return builder.build();
     }
 
-    private static String getVersionParam(BrowserType browserType) {
+    public static String getVersionParam(BrowserType browserType) {
         return String.format("android_v%s_%s_%s",
                 BuildConfig.VERSION_NAME,
                 Build.VERSION.RELEASE,
