@@ -40,6 +40,7 @@ public class HeLogic {
     }
 
     public static void runInstantVerification(IdProvider provider, boolean useStaging) {
+        ConnectSdk.instantVerificationCallHappened();
         boolean connectivityManagerAvailableAndNotTooOldAndroid = connectivityManager != null
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
         if (connectivityManagerAvailableAndNotTooOldAndroid) {
