@@ -35,10 +35,14 @@ public class HeLogic {
 
     private static int numberOfNetworkTogglesCouldHappened = 0;
 
-    public static void initializeNetworks(Context context, IdProvider provider, boolean useStaging) {
+    public static void initializeNetworks(Context context) {
         connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    }
+
+    public static void runInstantVerification(IdProvider provider, boolean useStaging) {
+        ConnectSdk.instantVerificationCallHappened();
         boolean connectivityManagerAvailableAndNotTooOldAndroid = connectivityManager != null
-                        && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
         if (connectivityManagerAvailableAndNotTooOldAndroid) {
             initializeCellularNetwork(provider, useStaging);
             initializeDefaultNetwork();
@@ -169,6 +173,7 @@ public class HeLogic {
         boolean tokenIsExpired = heTokenResponse != null && new Date().after(heTokenResponse.getExpiration());
         if (heWasNeverInitialized || tokenIsExpired) {
             setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging, dismissDialogCallback);
+            runInstantVerification(provider, useStaging);
             if (!initializeHeaderEnrichment(provider, useStaging, logSessionId)) {
                 handleHeTokenResult(null);
             }

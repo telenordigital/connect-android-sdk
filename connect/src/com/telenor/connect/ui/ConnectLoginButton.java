@@ -88,6 +88,9 @@ public class ConnectLoginButton extends RelativeLayout
                 turnOnMobileDataDialogFragment.setContinueListener(ConnectLoginButton.this);
             }
         });
+        if (ConnectSdk.isDoInstantVerificationOnButtonInitialize()) {
+            ConnectSdk.runInstantVerification();
+        }
     }
 
     private void setLoading(boolean loading) {

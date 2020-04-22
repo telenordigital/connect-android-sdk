@@ -9,6 +9,6 @@ public class ExampleApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        ConnectSdk.sdkInitialize(getApplicationContext(), IdProvider.GP_ID, true);
+        ConnectSdk.sdkInitialize(getApplicationContext(), IdProvider.GP_ID, true, false);
     }
 }

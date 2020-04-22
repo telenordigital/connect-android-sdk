@@ -82,6 +82,8 @@ public final class ConnectSdk {
     private static IdProvider idProvider;
     private static boolean useStaging;
     private static SmsBroadcastReceiver smsBroadcastReceiver;
+    private static boolean doInstantVerificationOnButtonInitialize;
+    private static int instantVerificationHappenedDuringSingleSession = 0;
     private static volatile String advertisingId;
     private static volatile long tsSdkInitialization;
     private static volatile long tsLoginButtonClicked;
@@ -357,6 +359,8 @@ public final class ConnectSdk {
         debugInformation.put("sdkVersion", BuildConfig.VERSION_NAME);
         debugInformation.put("isAccessTokenEmpty", accessTokenIsEmpty);
         debugInformation.put("getNumberOfNetworkTogglesCouldHappened", HeLogic.getNumberOfNetworkTogglesCouldHappened());
+        debugInformation.put("doInstantHeOnButtonInitialize", doInstantVerificationOnButtonInitialize);
+        debugInformation.put("instantVerificationHappened", instantVerificationHappenedDuringSingleSession);
         if (throwable != null) {
             debugInformation.put("exception", throwable.getMessage());
             debugInformation.put("exceptionStackTrace", throwable.getStackTrace());
@@ -408,6 +412,10 @@ public final class ConnectSdk {
     public static void setRandomLogSessionId() {
         logSessionId = UUID.randomUUID().toString();
         logSessionIdSetTime = new Date();
+    }
+
+    public static void instantVerificationCallHappened() {
+        instantVerificationHappenedDuringSingleSession++;
     }
 
     public static Context getContext() {
@@ -479,22 +487,11 @@ public final class ConnectSdk {
         connectIdService.logOut(getContext());
     }
 
-    /**
-     * @deprecated This method is deprecated and would be removed soon.
-     * Please, use {@link #sdkInitialize(Context, IdProvider, boolean) sdkInitialize} instead
-     */
-    @Deprecated
-    public static synchronized void sdkInitialize(Context applicationContext, boolean useStagingEnvironment) {
-        sdkInitialize(applicationContext, IdProvider.CONNECT_ID, useStagingEnvironment);
-    }
-
-    public static synchronized void sdkInitialize(Context applicationContext) {
-        sdkInitialize(applicationContext, IdProvider.CONNECT_ID, true);
-    }
-
     public static synchronized void sdkInitialize(Context applicationContext,
                                                   IdProvider provider,
-                                                  boolean useStagingEnvironment) {
+                                                  boolean useStagingEnvironment,
+                                                  boolean automaticallyInitializeInstantVerification)
+    {
         if (isInitialized()) {
             return;
         }
@@ -519,11 +516,16 @@ public final class ConnectSdk {
         if (noSignedInUser || noStoredWellKnownConfig) {
             updateWellKnownConfig(apiUrl);
         }
-
-        HeLogic.initializeNetworks(context, idProvider, useStaging);
+        HeLogic.initializeNetworks(context);
         initializeAdvertisingId(context);
         isInitialized = true;
+        doInstantVerificationOnButtonInitialize = automaticallyInitializeInstantVerification;
         tsSdkInitialization = System.currentTimeMillis();
+    }
+
+    public static void runInstantVerification() {
+        Validator.sdkInitialized();
+        HeLogic.runInstantVerification(idProvider, useStaging);
     }
 
     private static void updateWellKnownConfig(String apiUrl) {
@@ -622,6 +624,11 @@ public final class ConnectSdk {
     public static WellKnownAPI.WellKnownConfig getWellKnownConfig() {
         Validator.sdkInitialized();
         return wellKnownConfig;
+    }
+
+    public static boolean isDoInstantVerificationOnButtonInitialize() {
+        Validator.sdkInitialized();
+        return doInstantVerificationOnButtonInitialize;
     }
 
     /**
