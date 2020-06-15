@@ -77,12 +77,15 @@ public class HeFlowDecider {
             }
             return uri;
         } else {
-            boolean isMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE)
+            boolean isMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE) != null
+                    && connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE)
                     .isConnectedOrConnecting();
-            boolean isWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+            boolean isWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
+                    && connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
                     .isConnectedOrConnecting();
             // 3g, 4g etc
-            boolean isLte = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE_HIPRI)
+            boolean isLte = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE_HIPRI) != null
+                    && connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE_HIPRI)
                     .isConnectedOrConnecting();
 
             // Transport - wifi and mobile network
