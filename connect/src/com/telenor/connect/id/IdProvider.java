@@ -15,7 +15,12 @@ public enum IdProvider {
             "signin.gp-id.com",
             "signin.gp-id-staging.com",
     "manage.gp-id.com",
-    "manage.gp-id-staging.com");
+    "manage.gp-id-staging.com"),
+    DTAC_ID("DTAC ID",
+            "signin.dtac-id.com",
+            "signin.dtac-id-staging.com",
+            "manage.dtac-id.com",
+            "manage.dtac-id-staging.com");
 
     private final String name;
     private final String productionUrl;
