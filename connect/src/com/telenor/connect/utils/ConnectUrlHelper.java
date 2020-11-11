@@ -24,7 +24,7 @@ public class ConnectUrlHelper {
 
     public static final String ACTION_ARGUMENT = "com.telenor.connect.ACTION_ARGUMENT";
     public static final String OAUTH_PATH = "oauth";
-    private static final String HE_TOKEN_API_BASE_PATH = "id/extapi/v1/header-enrichment-token/";
+    private static final String HE_TOKEN_API_BASE_PATH = "v2/extapi/v1/header-enrichment-token/";
 
     public static String getPageUrl(Bundle arguments) {
         if (ConnectUtils.LOGIN_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
