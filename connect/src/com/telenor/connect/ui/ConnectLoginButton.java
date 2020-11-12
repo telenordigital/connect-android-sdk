@@ -3,6 +3,8 @@ package com.telenor.connect.ui;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -24,6 +26,7 @@ import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
 import com.telenor.connect.utils.TurnOnMobileDataDialogAnalytics;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -36,10 +39,10 @@ public class ConnectLoginButton extends RelativeLayout
 
     public ConnectLoginButton(Context context) {
         super(context);
-        init();
+        init(context);
     }
 
-    private void init() {
+    private void init(final Context context) {
         inflate(getContext(), R.layout.com_telenor_connect_login_button_with_progress_bar, this);
         progressBar = findViewById(R.id.com_telenor_connect_login_button_progress_bar);
         loginButton = findViewById(R.id.com_telenor_connect_login_button);
@@ -49,7 +52,6 @@ public class ConnectLoginButton extends RelativeLayout
                 setLoading(false);
             }
         });
-
         loginClickListener = loginButton.getOnClickListener();
         loginButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -57,7 +59,7 @@ public class ConnectLoginButton extends RelativeLayout
                 setLoading(true);
 
                 boolean showTurnOnMobileDataDialog
-                        = !HeLogic.isCellularDataNetworkConnected()
+                        = !mobileNetworkIsAvailable(context)
                         && ConnectSdk.isTurnOnMobileDataDialogEnabled();
 
                 if (!showTurnOnMobileDataDialog || HeLogic.canNotDirectNetworkTraffic) {
@@ -93,6 +95,31 @@ public class ConnectLoginButton extends RelativeLayout
         }
     }
 
+    /**
+     * @deprecated Method is deprecated in Android and might be not safe to use. Fallbacks
+     * to {@link HeLogic#isCellularDataNetworkConnected()} are present for failure cases.
+     */
+    @Deprecated
+    private boolean mobileNetworkIsAvailable(Context context) {
+        boolean mobileDataEnabled;
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        try {
+            Class<?> connectivityManagerClass = Class.forName(connectivityManager.getClass().getName());
+            Method method = connectivityManagerClass.getDeclaredMethod("getMobileDataEnabled");
+            method.setAccessible(true);
+            mobileDataEnabled = (Boolean)method.invoke(connectivityManager);
+        } catch (NoSuchMethodException e) {
+            // Use old way
+            return HeLogic.isCellularDataNetworkConnected();
+        } catch (SecurityException e) {
+            // Use old way
+            return HeLogic.isCellularDataNetworkConnected();
+        } catch (Exception e) {
+            return false;
+        }
+        return mobileDataEnabled;
+    }
+
     private void setLoading(boolean loading) {
         progressBar.setVisibility(loading ? VISIBLE : INVISIBLE);
         loginButton.setEnabled(!loading);
@@ -110,18 +137,18 @@ public class ConnectLoginButton extends RelativeLayout
 
     public ConnectLoginButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context);
     }
 
     public ConnectLoginButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(context);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public ConnectLoginButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init();
+        init(context);
     }
 
     @Override
