@@ -37,8 +37,6 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
             = Pattern.compile("^https://.*telenorid.com(?:$|/)");
     private static final Pattern GPID_HTTPS_PATTERN
             = Pattern.compile("^https://.*gp-id.com(?:$|/)");
-    private static final Pattern DTACID_HTTPS_PATTERN
-            = Pattern.compile("^https://.*dtac-id.com(?:$|/)");
     private static final String JAVASCRIPT_PROCESSES_INSTRUCTIONS
             = "javascript:if (document.getElementById('android-instructions') !== null) {" +
             "window.AndroidInterface.processInstructions(document.getElementById('android-instructions').innerHTML)" +
@@ -152,8 +150,7 @@ public class ConnectWebViewClient extends WebViewClient implements SmsHandler, I
     private boolean shouldCheckPageForInstructions(String url) {
         return TD_HTTPS_PATTERN.matcher(url).find()
                 || TELENORID_HTTPS_PATTERN.matcher(url).find()
-                || GPID_HTTPS_PATTERN.matcher(url).find()
-                || DTACID_HTTPS_PATTERN.matcher(url).find();
+                || GPID_HTTPS_PATTERN.matcher(url).find();
     }
 
     @Override
