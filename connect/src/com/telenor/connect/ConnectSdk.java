@@ -167,7 +167,7 @@ public final class ConnectSdk {
 
         String deviceId = null;
         if (connectStore != null) {
-            deviceId = connectStore.getDeviceId();
+            deviceId = connectStore.handleDeviceId();
         }
         return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, deviceId, failedToGetToken ? null : heTokenResponse.getToken());
     }
@@ -526,7 +526,7 @@ public final class ConnectSdk {
         }
         HeLogic.initializeNetworks(context);
         initializeAdvertisingId(context);
-        connectStore.setDeviceId(UUID.randomUUID().toString());
+        connectStore.handleDeviceId();
         isInitialized = true;
         doInstantVerificationOnButtonInitialize = automaticallyInitializeInstantVerification;
         tsSdkInitialization = System.currentTimeMillis();
