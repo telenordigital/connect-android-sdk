@@ -24,6 +24,7 @@ import java.util.UUID;
 public class ConnectStore {
 
     private static final String PREFERENCE_KEY_CONNECT_TOKENS = "CONNECT_TOKENS";
+    private static final String PREFERENCE_KEY_DEVICE_ID = "DEVICE_ID";
     private static final String PREFERENCE_KEY_ID_TOKEN = "ID_TOKEN";
     private static final String PREFERENCES_KEY_STATE = "STATE";
     private static final String PREFERENCES_KEY_STATE_EXPIRE = "STATE_EXPIRE";
@@ -71,6 +72,32 @@ public class ConnectStore {
 
     public ConnectStore(Context context) {
         this.context = context;
+    }
+
+    public void setDeviceId(String deviceId) {
+        if (getDeviceId() == null) {
+            context
+                    .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
+                    .edit()
+                    .putString(PREFERENCE_KEY_DEVICE_ID, deviceId)
+                    .apply();
+        }
+    }
+
+    public String getDeviceId() {
+        String deviceId = getPureDeviceId();
+        if (deviceId == null) {
+            String newDeviceId = UUID.randomUUID().toString();
+            setDeviceId(newDeviceId);
+            return newDeviceId;
+        }
+        return deviceId;
+    }
+
+    public String getPureDeviceId() {
+        return context
+                .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
+                .getString(PREFERENCE_KEY_DEVICE_ID, null);
     }
 
     public void set(ConnectTokens connectTokens) {
