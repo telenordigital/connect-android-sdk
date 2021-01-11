@@ -164,7 +164,12 @@ public final class ConnectSdk {
     private static Uri getAuthorizeUri(Map<String, String> parameters, BrowserType browserType) {
         boolean failedToGetToken = HeLogic.failedToGetToken();
         HeTokenResponse heTokenResponse = HeLogic.getHeTokenResponse();
-        return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, failedToGetToken ? null : heTokenResponse.getToken());
+
+        String deviceId = null;
+        if (connectStore != null) {
+            deviceId = connectStore.getDeviceId();
+        }
+        return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, deviceId, failedToGetToken ? null : heTokenResponse.getToken());
     }
 
     private static void launchChromeCustomTabAuthentication(
@@ -361,6 +366,9 @@ public final class ConnectSdk {
         debugInformation.put("getNumberOfNetworkTogglesCouldHappened", HeLogic.getNumberOfNetworkTogglesCouldHappened());
         debugInformation.put("doInstantHeOnButtonInitialize", doInstantVerificationOnButtonInitialize);
         debugInformation.put("instantVerificationHappened", instantVerificationHappenedDuringSingleSession);
+        if (connectStore != null) {
+            debugInformation.put("deviceId", connectStore.getPureDeviceId());
+        }
         if (throwable != null) {
             debugInformation.put("exception", throwable.getMessage());
             debugInformation.put("exceptionStackTrace", throwable.getStackTrace());
@@ -518,6 +526,7 @@ public final class ConnectSdk {
         }
         HeLogic.initializeNetworks(context);
         initializeAdvertisingId(context);
+        connectStore.setDeviceId(UUID.randomUUID().toString());
         isInitialized = true;
         doInstantVerificationOnButtonInitialize = automaticallyInitializeInstantVerification;
         tsSdkInitialization = System.currentTimeMillis();

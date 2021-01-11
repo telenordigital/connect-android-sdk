@@ -38,7 +38,7 @@ public class ConnectUrlHelper {
     }
 
     public static synchronized Uri getAuthorizeUri(
-            Map<String, String> parameters, BrowserType browserType, String heToken) {
+            Map<String, String> parameters, BrowserType browserType, String deviceId, String heToken) {
         if (ConnectSdk.getClientId() == null) {
             throw new ConnectException("Client ID not specified in application manifest.");
         }
@@ -51,6 +51,9 @@ public class ConnectUrlHelper {
         }
         if (heToken != null) {
             parameters.put("telenordigital_he_token", heToken);
+        }
+        if (deviceId != null) {
+            parameters.put("telenordigital_did", deviceId);
         }
         handlePromptAndLogSessionId(parameters);
         parameters.put("state", ConnectSdk.getConnectStore().generateSessionStateParam());
