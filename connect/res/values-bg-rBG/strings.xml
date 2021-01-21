@@ -8,12 +8,6 @@
     <string name="com_telenor_connect_network_settings"><u>Мрежови настройки</u></string>
     <string name="com_telenor_connect_show_details">Покажете детайлите</string>
     <string name="com_telenor_connect_hide_details">Скрийте детайлите</string>
-    <string name="com_telenor_turn_on_mobile_data_header">Автоматично влизане</string>
-    <string name="com_telenor_turn_on_mobile_data_text1">Включете мобилните данни (3G / 4G), за да ви разпознаем и да активирате автоматичното влизане в профила.</string>
-    <string name="com_telenor_turn_on_mobile_data_text2">Мобилните данни са безплатни, когато влезете. Можете също да оставите Wi-Fi включен сега и през остатъка от сесията.</string>
-    <string name="com_telenor_signin_automatically">Автоматично влизане</string>
-    <string name="com_telenor_divider_or">или</string>
-    <string name="com_telenor_regular_signin">Продължете с обикновен вход</string>
     <string name="com_telenor_about_description" formatted="true">Your %1$s is used to sign in to all apps and services.\u0020</string>
     <string name="com_telenor_about_link">Learn more \u203A</string>
     <string name="com_telenor_about_screen_title" formatted="true">What is %1$s</string>

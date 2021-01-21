@@ -8,12 +8,6 @@
     <string name="com_telenor_connect_network_settings"><u>ကွန်ယက် အပြင်အဆင်များ</u></string>
     <string name="com_telenor_connect_show_details">အသေးစိတ်ပြ</string>
     <string name="com_telenor_connect_hide_details">အသေးစိတ်အချက်အလက်များကိုဖုံးကွယ်</string>
-    <string name="com_telenor_turn_on_mobile_data_header">အလိုအလျောက်အကောင့်ဝင်ရန်</string>
-    <string name="com_telenor_turn_on_mobile_data_text1">သင့်အားမှတ်မိပြီး အလိုအလျောက် အကောင့်ဝင်ပေးနိုင်ရန် မိုဘိုင်းဒေတာ (3G/4G) ဖွင့်ပါ။</string>
-    <string name="com_telenor_turn_on_mobile_data_text2">သင်အကောင့်ဝင်ချိန်တွင် မိုဘိုင်းဒေတာက အခမဲ့ဖြစ်သည်။ ယခုအချိန်မှစပြီး ဤကဏ္ဍတောက်လျှောက် Wi-Fi ကိုလည်း ဖွင့်ထားနိုင်ပါပြီ။</string>
-    <string name="com_telenor_signin_automatically">အလိုအလျောက် အကောင့်ဝင်ခြင်း</string>
-    <string name="com_telenor_divider_or">သို့မဟုတ်</string>
-    <string name="com_telenor_regular_signin">ပုံမှန်နည်းဖြင့်သာ ဆက်လက်အကောင့်ဝင်ရန်</string>
     <string name="com_telenor_about_description" formatted="true">အက်ပလီကေးရှင်းများနှင့် ၀န်ဆောင်မှုများအား သင်၏ %1$s အားအသုံးပြုပြီးဝင်ရောက်ပါသည်။ \u0020</string>
     <string name="com_telenor_about_link">ပိုမိုသိရှိရန် \u203A</string>
     <string name="com_telenor_about_screen_title" formatted="true">%1$s ဆိုတာဘာလဲ။</string>

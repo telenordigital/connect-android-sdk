@@ -8,12 +8,6 @@
     <string name="com_telenor_connect_network_settings"><u>Postavke mreže</u></string>
     <string name="com_telenor_connect_show_details">Prikaži detalje</string>
     <string name="com_telenor_connect_hide_details">Sakrij detalje</string>
-    <string name="com_telenor_turn_on_mobile_data_header">Prijavite se automatski</string>
-    <string name="com_telenor_turn_on_mobile_data_text1">Uključite mobilne podatke (3G/4G) kako bismo mogli da vas prepoznamo i da omogućimo automatsko prijavljivanje.</string>
-    <string name="com_telenor_turn_on_mobile_data_text2">Mobilni podaci su besplatni kada se prijavite. Takođe možete da zadržite Wi-Fi uključenim trenutno i tokom ostatka sesije.</string>
-    <string name="com_telenor_signin_automatically">Prijavite se automatski</string>
-    <string name="com_telenor_divider_or">ili</string>
-    <string name="com_telenor_regular_signin">Nastavite sa redovnim prijavljivanjem</string>
     <string name="com_telenor_about_description" formatted="true">Your %1$s is used to sign in to all apps and services.\u0020</string>
     <string name="com_telenor_about_link">Learn more \u203A</string>
     <string name="com_telenor_about_screen_title" formatted="true">What is %1$s</string>

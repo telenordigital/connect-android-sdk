@@ -1,16 +1,12 @@
 package com.telenor.connect.ui;
 
 import android.content.Context;
-import android.content.res.AssetManager;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
-import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
 import com.telenor.connect.id.IdProvider;
@@ -32,7 +28,6 @@ class ConnectWebViewLoginButton extends ConnectButton implements AuthenticationB
     private Claims claims;
     private int customLoadingLayout = -1;
     private ShowLoadingCallback showLoadingCallback;
-    private DismissDialogCallback dismissDialogCallback;
     private OnClickListener onClickListener;
 
     public ConnectWebViewLoginButton(Context context, AttributeSet attributeSet) {
@@ -141,8 +136,7 @@ class ConnectWebViewLoginButton extends ConnectButton implements AuthenticationB
                 getParameters(),
                 getCustomLoadingLayout(),
                 getRequestCode(),
-                getShowLoadingCallback(),
-                getDismissDialogCallback()
+                getShowLoadingCallback()
         );
     }
 
@@ -152,13 +146,5 @@ class ConnectWebViewLoginButton extends ConnectButton implements AuthenticationB
 
     public void setShowLoadingCallback(ShowLoadingCallback showLoadingCallback) {
         this.showLoadingCallback = showLoadingCallback;
-    }
-
-    public void setDismissDialogCallback(DismissDialogCallback dismissDialogCallback) {
-        this.dismissDialogCallback = dismissDialogCallback;
-    }
-
-    public DismissDialogCallback getDismissDialogCallback() {
-        return dismissDialogCallback;
     }
 }
