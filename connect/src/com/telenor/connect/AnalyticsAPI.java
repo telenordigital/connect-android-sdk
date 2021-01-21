@@ -3,9 +3,6 @@ package com.telenor.connect;
 import android.os.Build;
 
 import com.google.gson.annotations.SerializedName;
-import com.telenor.connect.utils.TurnOnMobileDataDialogAnalytics;
-
-import org.json.JSONObject;
 
 import java.util.Map;
 
@@ -62,8 +59,6 @@ public interface AnalyticsAPI {
         @SerializedName("debug_data")
         private final Map extraDebugData;
 
-        private final TurnOnMobileDataDialogAnalytics turnOnMobileDataDialogAnalytics;
-
         public SDKAnalyticsData(
                 final String appName,
                 final String appVersion,
@@ -74,8 +69,7 @@ public interface AnalyticsAPI {
                 final long tsLoginButtonClicked,
                 final long tsRedirectUrlInvoked,
                 final long tsTokenResponseReceived,
-                final Map extraDebugData,
-                final TurnOnMobileDataDialogAnalytics turnOnMobileDataDialogAnalytics) {
+                final Map extraDebugData) {
             this.appName = appName;
             this.appVersion = appVersion;
             this.subject = subject;
@@ -91,7 +85,6 @@ public interface AnalyticsAPI {
             this.osVersion = System.getProperty("os.version");
             this.osSdkVersion = Build.VERSION.SDK_INT;
             this.extraDebugData = extraDebugData;
-            this.turnOnMobileDataDialogAnalytics = turnOnMobileDataDialogAnalytics;
         }
     }
 

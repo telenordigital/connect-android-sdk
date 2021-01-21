@@ -64,8 +64,7 @@ class ConnectCustomTabLoginButton extends ConnectWebViewLoginButton {
                 getParameters(),
                 browserType,
                 getActivity(),
-                getShowLoadingCallback(),
-                getDismissDialogCallback());
+                getShowLoadingCallback());
     }
 
     private static boolean contextIntentFilterMatchesRedirectUri(Context context) {

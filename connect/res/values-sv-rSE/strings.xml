@@ -8,12 +8,6 @@
     <string name="com_telenor_connect_network_settings"><u>Nätverksinställningar</u></string>
     <string name="com_telenor_connect_show_details">Visa detaljer</string>
     <string name="com_telenor_connect_hide_details">Göm detaljer</string>
-    <string name="com_telenor_turn_on_mobile_data_header">Logga in automatiskt</string>
-    <string name="com_telenor_turn_on_mobile_data_text1">Slå på mobildata (3G/4G) så vi kan känna igen dig och aktivera automatisk inloggning.</string>
-    <string name="com_telenor_turn_on_mobile_data_text2">Mobildata är gratis när du loggar in. Du kan även hålla Wi-Fi igång nu och för resten av sessionen.</string>
-    <string name="com_telenor_signin_automatically">Logga in automatiskt</string>
-    <string name="com_telenor_divider_or">eller</string>
-    <string name="com_telenor_regular_signin">Fortsätt med vanlig inloggning</string>
     <string name="com_telenor_about_description" formatted="true">Your %1$s is used to sign in to all apps and services.\u0020</string>
     <string name="com_telenor_about_link">Learn more \u203A</string>
     <string name="com_telenor_about_screen_title" formatted="true">What is %1$s</string>

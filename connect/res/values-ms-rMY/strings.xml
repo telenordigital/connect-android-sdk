@@ -8,12 +8,6 @@
     <string name="com_telenor_connect_network_settings"><u>Tetapan rangkaian</u></string>
     <string name="com_telenor_connect_show_details">Tunjukkan butiran</string>
     <string name="com_telenor_connect_hide_details">Sembunyikan butiran</string>
-    <string name="com_telenor_turn_on_mobile_data_header">Daftar masuk secara automatik</string>
-    <string name="com_telenor_turn_on_mobile_data_text1">Hidupkan data mudah alih (3G/4G) agar kami dapat mengecam anda dan mendayakan daftar masuk automatik.</string>
-    <string name="com_telenor_turn_on_mobile_data_text2">Data mudah alih adalah percuma apabila anda mendaftar masuk. Anda juga boleh mengekalkan Wi-Fi sebagai hidup sekarang dan sesi selebihnya.</string>
-    <string name="com_telenor_signin_automatically">Daftar masuk secara automatik</string>
-    <string name="com_telenor_divider_or">atau</string>
-    <string name="com_telenor_regular_signin">Teruskan dengan daftar masuk biasa</string>
     <string name="com_telenor_about_description" formatted="true">Your %1$s is used to sign in to all apps and services.\u0020</string>
     <string name="com_telenor_about_link">Learn more \u203A</string>
     <string name="com_telenor_about_screen_title" formatted="true">What is %1$s</string>

@@ -8,12 +8,6 @@
     <string name="com_telenor_connect_network_settings"><u>การตั้งค่าเครือข่าย</u></string>
     <string name="com_telenor_connect_show_details">แสดงรายละเอียด</string>
     <string name="com_telenor_connect_hide_details">ซ่อนรายละเอียด</string>
-    <string name="com_telenor_turn_on_mobile_data_header">ลงชื่อเข้าใช้โดยอัตโนมัติ</string>
-    <string name="com_telenor_turn_on_mobile_data_text1">เปิดใช้ข้อมูลมือถือ (3G/4G) เพื่อให้เราสามารถจดจำคุณได้และเปิดใช้งานการลงชื่อเข้าใช้อัตโนมัติ</string>
-    <string name="com_telenor_turn_on_mobile_data_text2">ข้อมูลมือถือจะใช้ได้ฟรีเมื่อคุณลงชื่อเข้าใช้ คุณยังสามารถเปิด Wi-Fi ในตอนนี้และในส่วนที่เหลือของเซสชัน</string>
-    <string name="com_telenor_signin_automatically">ลงชื่อเข้าใช้โดยอัตโนมัติ</string>
-    <string name="com_telenor_divider_or">หรือ</string>
-    <string name="com_telenor_regular_signin">ดำเนินการต่อด้วยการเข้าสู่ระบบแบบปกติ</string>
     <string name="com_telenor_about_description" formatted="true">Your %1$s is used to sign in to all apps and services.\u0020</string>
     <string name="com_telenor_about_link">Learn more \u203A</string>
     <string name="com_telenor_about_screen_title" formatted="true">What is %1$s</string>

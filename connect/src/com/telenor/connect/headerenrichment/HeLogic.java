@@ -152,27 +152,26 @@ public class HeLogic {
             final HeTokenCallback heTokenCallback,
             final String logSessionId,
             final IdProvider provider,
-            final boolean useStaging,
-            final DismissDialogCallback dismissDialogCallback) {
+            final boolean useStaging) {
         boolean finishedUnSuccessfully = !heTokenSuccess && !isHeTokenRequestOngoing;
         boolean promptBlocksUseOfHe = parameters.containsKey("prompt") && "no_seam".equals(parameters.get("prompt"));
         boolean authenticateNow = finishedUnSuccessfully
                 || promptBlocksUseOfHe
                 || canNotDirectNetworkTraffic;
         if (authenticateNow) {
-            callCallbacks(showLoadingCallback, heTokenCallback, dismissDialogCallback);
+            callCallbacks(showLoadingCallback, heTokenCallback);
             return;
         }
 
         if (isHeTokenRequestOngoing) {
-            setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging, dismissDialogCallback);
+            setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging);
             return;
         }
 
         boolean heWasNeverInitialized = heTokenSuccess && heTokenResponse == null;
         boolean tokenIsExpired = heTokenResponse != null && new Date().after(heTokenResponse.getExpiration());
         if (heWasNeverInitialized || tokenIsExpired) {
-            setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging, dismissDialogCallback);
+            setFutureHeTokenCallback(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging);
             runInstantVerification(provider, useStaging);
             if (!initializeHeaderEnrichment(provider, useStaging, logSessionId)) {
                 handleHeTokenResult(null);
@@ -180,15 +179,12 @@ public class HeLogic {
             return;
         }
 
-        callCallbacks(showLoadingCallback, heTokenCallback, dismissDialogCallback);
+        callCallbacks(showLoadingCallback, heTokenCallback);
     }
 
-    private static void callCallbacks(ShowLoadingCallback showLoadingCallback, HeTokenCallback heTokenCallback, DismissDialogCallback dismissDialogCallback) {
+    private static void callCallbacks(ShowLoadingCallback showLoadingCallback, HeTokenCallback heTokenCallback) {
         if (showLoadingCallback != null) {
             showLoadingCallback.stop();
-        }
-        if (dismissDialogCallback != null) {
-            dismissDialogCallback.dismiss();
         }
         heTokenCallback.done();
     }
@@ -199,13 +195,12 @@ public class HeLogic {
             final HeTokenCallback heTokenCallback,
             final String logSessionId,
             final IdProvider provider,
-            final boolean useStaging,
-            final DismissDialogCallback dismissDialogCallback) {
+            final boolean useStaging) {
         HeLogic.heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
                 HeLogic.heTokenCallback = null;
-                handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging, dismissDialogCallback);
+                handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, provider, useStaging);
             }
         };
     }

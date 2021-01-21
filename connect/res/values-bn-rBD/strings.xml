@@ -8,12 +8,6 @@
     <string name="com_telenor_connect_network_settings"><u>নেটওয়ার্ক সেটিংস্‌</u></string>
     <string name="com_telenor_connect_show_details">বিস্তারিত তথ্য দেখান</string>
     <string name="com_telenor_connect_hide_details">বিস্তারিত তথ্য লুকান</string>
-    <string name="com_telenor_turn_on_mobile_data_header">স্বয়ংক্রিয়ভাবে সাইন-ইন করুন</string>
-    <string name="com_telenor_turn_on_mobile_data_text1">মোবাইল ডেটা (3G/4G) চালু করুন যাতে আপনাকে চেনা যায় এবং স্বয়ংক্রিয়ভাবে সাইন-ইন করতে সক্ষম করা হয়.</string>
-    <string name="com_telenor_turn_on_mobile_data_text2">আপনি যখন সাইন-ইন করেন মোবাইল ডেটা ফ্রী। আপনি এখন এবং বাকি সেশনের জন্য ওয়াই-ফাই চালু রাখতে পারেন.</string>
-    <string name="com_telenor_signin_automatically">স্বয়ংক্রিয়ভাবে সাইন-ইন করুন</string>
-    <string name="com_telenor_divider_or">অথবা</string>
-    <string name="com_telenor_regular_signin">নিয়মিত সাইন-ইন অব্যাহত রাখুন</string>
     <string name="com_telenor_about_description" formatted="true">Your %1$s is used to sign in to all apps and services.\u0020</string>
     <string name="com_telenor_about_link">Learn more \u203A</string>
     <string name="com_telenor_about_screen_title" formatted="true">What is %1$s</string>

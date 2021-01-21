@@ -22,7 +22,6 @@ import android.util.Log;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.telenor.connect.headerenrichment.DismissDialogCallback;
 import com.telenor.connect.headerenrichment.HeFlowDecider;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
@@ -42,7 +41,6 @@ import com.telenor.connect.ui.ConnectActivity;
 import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
-import com.telenor.connect.utils.TurnOnMobileDataDialogAnalytics;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
@@ -52,12 +50,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 import androidx.fragment.app.Fragment;
@@ -78,7 +73,6 @@ public final class ConnectSdk {
     private static volatile boolean isInitialized = false;
     private static String clientId;
     private static String redirectUri;
-    private static boolean enableTurnOnMobileDataDialog;
     private static IdProvider idProvider;
     private static boolean useStaging;
     private static SmsBroadcastReceiver smsBroadcastReceiver;
@@ -91,8 +85,6 @@ public final class ConnectSdk {
     private static volatile long tsTokenResponseReceived;
     private static volatile String logSessionId;
     private static volatile Date logSessionIdSetTime;
-
-    private static TurnOnMobileDataDialogAnalytics turnOnMobileDataDialogAnalytics;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -109,9 +101,6 @@ public final class ConnectSdk {
      */
     public static final String REDIRECT_URI_PROPERTY = "com.telenor.connect.REDIRECT_URI";
 
-    public static final String ENABLE_TURN_ON_MOBILE_DATA_DIALOG_PROPERTY
-            = "com.telenor.connect.ENABLE_TURN_ON_MOBILE_DATA_DIALOG";
-
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
 
@@ -123,12 +112,8 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final BrowserType browserType,
             final Activity activity,
-            final ShowLoadingCallback showLoadingCallback,
-            final DismissDialogCallback dismissDialogCallback) {
+            final ShowLoadingCallback showLoadingCallback) {
         handleButtonClickedAnalytics();
-        if (dismissDialogCallback != null) {
-            handleMobileDataAnalytics(dismissDialogCallback.getAnalytics());
-        }
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
@@ -136,16 +121,12 @@ public final class ConnectSdk {
                 launchChromeCustomTabAuthentication(session, authorizeUri, activity);
             }
         };
-        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging, dismissDialogCallback);
+        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging);
     }
 
     private static void handleButtonClickedAnalytics() {
         updateLogSessionIdIfTooOld();
         tsLoginButtonClicked = System.currentTimeMillis();
-    }
-
-    private static void handleMobileDataAnalytics(TurnOnMobileDataDialogAnalytics analytics) {
-        turnOnMobileDataDialogAnalytics = analytics;
     }
 
     private static void updateLogSessionIdIfTooOld() {
@@ -223,20 +204,16 @@ public final class ConnectSdk {
             final Map<String, String> parameters,
             final int requestCode) {
         Validator.sdkInitialized();
-        authenticate(activity, parameters, NO_CUSTOM_LAYOUT, requestCode, null, null);
+        authenticate(activity, parameters, NO_CUSTOM_LAYOUT, requestCode, null);
     }
 
     public static synchronized void authenticate(final Activity activity,
                                                  final Map<String, String> parameters,
                                                  final int customLoadingLayout,
                                                  final int requestCode,
-                                                 final ShowLoadingCallback showLoadingCallback,
-                                                 final DismissDialogCallback dismissDialogCallback) {
+                                                 final ShowLoadingCallback showLoadingCallback) {
         Validator.sdkInitialized();
         handleButtonClickedAnalytics();
-        if (dismissDialogCallback != null) {
-            handleMobileDataAnalytics(dismissDialogCallback.getAnalytics());
-        }
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
@@ -247,7 +224,7 @@ public final class ConnectSdk {
                 activity.startActivityForResult(intent, requestCode);
             }
         };
-        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging, dismissDialogCallback);
+        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging);
     }
 
     private static Intent getAuthIntent(Map<String, String> parameters) {
@@ -374,14 +351,6 @@ public final class ConnectSdk {
             debugInformation.put("exceptionStackTrace", throwable.getStackTrace());
         }
 
-        if (turnOnMobileDataDialogAnalytics == null) {
-            turnOnMobileDataDialogAnalytics = new TurnOnMobileDataDialogAnalytics(
-                    enableTurnOnMobileDataDialog,
-                    false,
-                    false,
-                    false
-            );
-        }
         String accessToken = getAccessToken();
         final String auth = accessToken != null ? "Bearer " + accessToken : null;
         final String subject = getIdToken() != null ? getIdToken().getSubject() : null;
@@ -397,8 +366,7 @@ public final class ConnectSdk {
                         tsLoginButtonClicked,
                         tsRedirectUrlInvoked,
                         tsTokenResponseReceived,
-                        debugInformation,
-                        turnOnMobileDataDialogAnalytics
+                        debugInformation
                 ))
                 .enqueue(new Callback<Void>() {
                     @Override
@@ -434,11 +402,6 @@ public final class ConnectSdk {
     public static String getClientId() {
         Validator.sdkInitialized();
         return clientId;
-    }
-
-    public static boolean isTurnOnMobileDataDialogEnabled() {
-        Validator.sdkInitialized();
-        return enableTurnOnMobileDataDialog;
     }
 
     public static ArrayList<Locale> getLocales() {
@@ -599,11 +562,6 @@ public final class ConnectSdk {
         Object redirectUriObject = ai.metaData.get(REDIRECT_URI_PROPERTY);
         if (redirectUriObject instanceof String) {
             redirectUri = (String) redirectUriObject;
-        }
-
-        Object enableTurnOnMobileDataDialogObject = ai.metaData.get(ENABLE_TURN_ON_MOBILE_DATA_DIALOG_PROPERTY);
-        if (enableTurnOnMobileDataDialogObject instanceof Boolean) {
-            enableTurnOnMobileDataDialog = (boolean) enableTurnOnMobileDataDialogObject;
         }
     }
 
