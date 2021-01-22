@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="brand_name_telenorid" translatable="false">Telenor ID</string>
+    <string name="brand_name_gpid" translatable="false">GP ID</string>
+    <string name="brand_name_connect" translatable="false">CONNECT</string>
+    <string name="brand_name_dtacid" translatable="false">DTAC ID</string>
+
+    <string name="network_name_telenorid" translatable="false">Telenor</string>
+    <string name="network_name_gpid" translatable="false">Grameenphone</string>
+    <string name="network_name_connect" translatable="false">Telenor</string>
+    <string name="network_name_dtacid" translatable="false">dtac</string>
+
+    <string name="subscribers_name_telenorid" translatable="false">Telenor</string>
+    <string name="subscribers_name_gpid" translatable="false">Grameenphone</string>
+    <string name="subscribers_name_connect" translatable="false">Telenor</string>
+    <string name="subscribers_name_dtacid" translatable="false">dtac</string>
+
     <string name="com_telenor_connect_login_button_text" formatted="true">Sign in with %1$s</string>
     <string name="com_telenor_connect_error_text1" formatted="true">There was an error communicating with %1$s.</string>
     <string name="com_telenor_connect_error_text2">Please check your network settings or try again later.</string>
@@ -9,7 +24,13 @@
     <string name="com_telenor_connect_hide_details">Hide details</string>
     <string name="com_telenor_about_description" formatted="true">Your %1$s is used to sign in to all apps and services.\u0020</string>
     <string name="com_telenor_about_link">Learn more \u203A</string>
-    <string name="com_telenor_about_screen_title" formatted="true">What is %1$s</string>
-    <string name="com_telenor_about_screen_subtitle" formatted="true">With a single %1$s you can easily access your apps and services.</string>
-    <string name="com_telenor_about_screen_description" formatted="true">%1$s gives you full control of your personal data, while keeping it safe. The sign-in process has additional layers of protection, such as verifying your mobile number and email.</string>
+    <string name="com_telenor_about_back">\u2039 Back</string>
+    <string name="com_telenor_about_screen_title" formatted="true">What is %1$s?</string>
+    <string name="com_telenor_about_slogan">One secure login for all services</string>
+    <string name="com_telenor_about_p1" formatted="true">%1$s provides users with a passwordless login to all apps and services.</string>
+    <string name="com_telenor_about_p2" formatted="true">%1$s mobile subscribers enjoy additional security and convenience by having their phone numbers automatically recognised and verified by the %2$s mobile network.</string>
+    <string name="com_telenor_about_p3" formatted="true">With risk-based authentication, %1$s enhances user security by detecting unusual logins.</string>
+    <string name="com_telenor_about_p4" formatted="true">An unusual login might be caused by logging in from a new location, or someone trying to fraudulently use your %1$s. In any case, the user will experience additional steps when logging in, in order to prevent abuse.</string>
+    <string name="com_telenor_about_p5" formatted="true">Anyone can use %1$s, at no cost. You do not need to become a %2$s subscriber.</string>
+    <string name="com_telenor_about_p6" formatted="true">For higher risk logins, %1$s can request a password as an additional step.</string>
 </resources>
