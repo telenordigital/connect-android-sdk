@@ -1,94 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/com_telenor_connect_light_color">
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/connect_guideline_top"
-        android:layout_width="wrap_content"
+    >
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="40sp" />
+        android:background="@color/com_telenor_connect_light_color">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/connect_guideline_left"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="24sp" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/connect_guideline_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="24sp" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/connect_guideline_right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="24sp" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/connect_guideline_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="24sp" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/connect_guideline_icon_top"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="11sp" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/connect_guideline_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="24sp" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/connect_guideline_icon_right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="12sp" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/connect_guideline_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="32sp" />
 
-    <ImageView
-        android:id="@+id/connect_about_close"
-        android:layout_width="34sp"
-        android:layout_height="34sp"
-        android:padding="5sp"
-        android:src="@drawable/close_small"
-        app:layout_constraintTop_toBottomOf="@id/connect_guideline_icon_top"
-        app:layout_constraintEnd_toStartOf="@id/connect_guideline_icon_right"
-        />
+        <TextView
+            android:id="@+id/connect_about_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textSize="18sp"
+            android:lineSpacingExtra="8sp"
+            android:textColor="@color/com_telenor_connect_telenor_link"
+            android:text="@string/com_telenor_about_back"
+            app:layout_constraintTop_toBottomOf="@id/connect_guideline_top"
+            app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+            />
 
-    <TextView
-        android:id="@+id/connect_about_title"
-        android:layout_width="0sp"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:gravity="center"
-        android:textColor="@color/com_telenor_connect_text_dark"
-        android:textSize="24sp"
-        app:layout_constraintTop_toBottomOf="@id/connect_guideline_top"
-        app:layout_constraintBottom_toTopOf="@id/connect_about_subtitle"
-        app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
-        app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
-        />
+        <TextView
+            android:id="@+id/connect_about_slogan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textSize="20sp"
+            android:lineSpacingExtra="8sp"
+            android:layout_marginTop="24sp"
+            android:textColor="@color/com_telenor_connect_text_dark"
+            android:text="@string/com_telenor_about_slogan"
+            app:layout_constraintTop_toBottomOf="@id/connect_about_back"
+            app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+            app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+            />
 
-    <TextView
-        android:id="@+id/connect_about_subtitle"
-        android:layout_width="0sp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24sp"
-        android:textColor="@color/com_telenor_connect_text_dark"
-        android:textSize="17sp"
-        android:lineSpacingExtra="3sp"
-        app:layout_constraintTop_toBottomOf="@id/connect_about_title"
-        app:layout_constraintBottom_toTopOf="@id/connect_about_description"
-        app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
-        app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
-        />
+        <TextView
+            android:id="@+id/connect_about_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textSize="18sp"
+            android:lineSpacingExtra="6sp"
+            android:layout_marginTop="24sp"
+            android:textColor="@color/com_telenor_connect_text_dark"
+            android:text="@string/com_telenor_about_screen_title"
+            app:layout_constraintTop_toBottomOf="@id/connect_about_slogan"
+            app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+            app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+            />
 
-    <TextView
-        android:id="@+id/connect_about_description"
-        android:layout_width="0sp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16sp"
-        android:textColor="@color/com_telenor_connect_text_dark"
-        android:textSize="17sp"
-        android:lineSpacingExtra="3sp"
-        app:layout_constraintTop_toBottomOf="@id/connect_about_subtitle"
-        app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
-        app:layout_constraintEnd_toStartOf="@id/connect_guideline_right" />
+        <TextView
+            android:id="@+id/connect_about_p1"
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textSize="16sp"
+            android:lineSpacingExtra="4sp"
+            android:layout_marginTop="24sp"
+            android:textColor="@color/com_telenor_connect_text_dark"
+            android:text="@string/com_telenor_about_p1"
+            app:layout_constraintTop_toBottomOf="@id/connect_about_title"
+            app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+            app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+            />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/connect_about_p2"
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textSize="16sp"
+            android:lineSpacingExtra="4sp"
+            android:layout_marginTop="24sp"
+            android:textColor="@color/com_telenor_connect_text_dark"
+            android:text="@string/com_telenor_about_p2"
+            app:layout_constraintTop_toBottomOf="@id/connect_about_p1"
+            app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+            app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+            />
+
+        <TextView
+            android:id="@+id/connect_about_p3"
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textSize="16sp"
+            android:lineSpacingExtra="4sp"
+            android:layout_marginTop="24sp"
+            android:textColor="@color/com_telenor_connect_text_dark"
+            android:text="@string/com_telenor_about_p3"
+            app:layout_constraintTop_toBottomOf="@id/connect_about_p2"
+            app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+            app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+            />
+
+        <TextView
+            android:id="@+id/connect_about_p4"
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textSize="16sp"
+            android:lineSpacingExtra="4sp"
+            android:layout_marginTop="24sp"
+            android:textColor="@color/com_telenor_connect_text_dark"
+            android:text="@string/com_telenor_about_p4"
+            app:layout_constraintTop_toBottomOf="@id/connect_about_p3"
+            app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+            app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+            />
+
+        <TextView
+            android:id="@+id/connect_about_p5"
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textSize="13sp"
+            android:lineSpacingExtra="7sp"
+            android:layout_marginTop="24sp"
+            android:textColor="@color/com_telenor_connect_text_dark"
+            android:text="@string/com_telenor_about_p5"
+            app:layout_constraintTop_toBottomOf="@id/connect_about_p4"
+            app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+            app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+            />
+
+        <TextView
+            android:id="@+id/connect_about_p6"
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textSize="13sp"
+            android:lineSpacingExtra="7sp"
+            android:layout_marginTop="24sp"
+            android:textColor="@color/com_telenor_connect_text_dark"
+            android:text="@string/com_telenor_about_p6"
+            app:layout_constraintTop_toBottomOf="@id/connect_about_p5"
+            app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+            app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+            />
+
+        <ImageView
+            android:id="@+id/connect_about_logo"
+            android:src="@drawable/ic_telenorid_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="36sp"
+            android:layout_marginTop="24sp"
+            android:contentDescription="@string/brand_name_telenorid"
+            app:layout_constraintTop_toBottomOf="@id/connect_about_p6"
+            app:layout_constraintStart_toEndOf="@id/connect_guideline_left"
+            app:layout_constraintEnd_toStartOf="@id/connect_guideline_right"
+            app:layout_constraintBottom_toTopOf="@id/connect_guideline_bottom"
+            />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

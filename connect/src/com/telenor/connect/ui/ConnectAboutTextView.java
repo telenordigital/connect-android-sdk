@@ -28,6 +28,23 @@ public class ConnectAboutTextView extends ConnectTextView {
 
     private PopupWindow popupWindow;
 
+    private enum TelenorTypeface {
+        BOLD("fonts/telenorboldwebfont.ttf"),
+        MEDIUM("fonts/telenormediumwebfont.ttf"),
+        REGULAR("fonts/telenorregularwebfont.ttf"),
+        LIGHT("fonts/telenorlightwebfont.ttf");
+
+        String fontPath;
+
+        TelenorTypeface(String fontPath) {
+            this.fontPath = fontPath;
+        }
+
+        public String getFontPath() {
+            return fontPath;
+        }
+    }
+
     public ConnectAboutTextView(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         initControls();
@@ -77,17 +94,39 @@ public class ConnectAboutTextView extends ConnectTextView {
 
         AssetManager am = context.getApplicationContext().getAssets();
 
+        TextView backButton = view.findViewById(R.id.connect_about_back);
+        TextView slogan = view.findViewById(R.id.connect_about_slogan);
         TextView title = view.findViewById(R.id.connect_about_title);
-        TextView subTitle = view.findViewById(R.id.connect_about_subtitle);
-        TextView description = view.findViewById(R.id.connect_about_description);
-        ImageView closeIcon = view.findViewById(R.id.connect_about_close);
+        TextView paragraph1 = view.findViewById(R.id.connect_about_p1);
+        TextView paragraph2 = view.findViewById(R.id.connect_about_p2);
+        TextView paragraph3 = view.findViewById(R.id.connect_about_p3);
+        TextView paragraph4 = view.findViewById(R.id.connect_about_p4);
+        TextView paragraph5 = view.findViewById(R.id.connect_about_p5);
+        TextView paragraph6 = view.findViewById(R.id.connect_about_p6);
+        ImageView logo = view.findViewById(R.id.connect_about_logo);
 
-        title.setTypeface(Typeface.createFromAsset(am, "fonts/telenorboldwebfont.ttf"));
+        backButton.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.REGULAR.getFontPath()));
+        slogan.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.LIGHT.getFontPath()));
+        title.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.MEDIUM.getFontPath()));
+        paragraph1.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.LIGHT.getFontPath()));
+        paragraph2.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.LIGHT.getFontPath()));
+        paragraph3.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.LIGHT.getFontPath()));
+        paragraph4.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.LIGHT.getFontPath()));
+        paragraph5.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.LIGHT.getFontPath()));
+        paragraph6.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.LIGHT.getFontPath()));
+
         title.setText(getResources().getString(R.string.com_telenor_about_screen_title, ConnectSdk.getIdProvider().getName()));
-        subTitle.setTypeface(Typeface.createFromAsset(am, "fonts/telenorregularwebfont.ttf"));
-        subTitle.setText(getResources().getString(R.string.com_telenor_about_screen_subtitle, ConnectSdk.getIdProvider().getName()));
-        description.setTypeface(Typeface.createFromAsset(am, "fonts/telenorlightwebfont.ttf"));
-        description.setText(getResources().getString(R.string.com_telenor_about_screen_description, ConnectSdk.getIdProvider().getName()));
+        paragraph1.setText(getResources().getString(R.string.com_telenor_about_p1, ConnectSdk.getIdProvider().getName()));
+        paragraph2.setText(getResources().getString(R.string.com_telenor_about_p2,
+                getResources().getString(R.string.subscribers_name_telenorid),
+                getResources().getString(R.string.network_name_telenorid)));
+        paragraph3.setText(getResources().getString(R.string.com_telenor_about_p3, ConnectSdk.getIdProvider().getName()));
+        paragraph4.setText(getResources().getString(R.string.com_telenor_about_p4, ConnectSdk.getIdProvider().getName()));
+        paragraph5.setText(getResources().getString(R.string.com_telenor_about_p5,
+                ConnectSdk.getIdProvider().getName(),
+                getResources().getString(R.string.subscribers_name_telenorid)));
+        paragraph6.setText(getResources().getString(R.string.com_telenor_about_p6, ConnectSdk.getIdProvider().getName()));
+        logo.setImageResource(R.drawable.ic_telenorid_logo);
 
         if (popupWindow != null) {
             popupWindow.dismiss();
@@ -97,7 +136,7 @@ public class ConnectAboutTextView extends ConnectTextView {
         popupWindow.setAnimationStyle(R.style.com_telenor_popup_animation);
         popupWindow.showAtLocation(view, Gravity.BOTTOM,0,0);
 
-        closeIcon.setOnClickListener(new OnClickListener() {
+        backButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 popupWindow.dismiss();
