@@ -77,7 +77,8 @@ public class ConnectAboutTextView extends ConnectTextView {
             }
         };
         SpannableStringBuilder longDescription = new SpannableStringBuilder();
-        longDescription.append(getResources().getString(R.string.com_telenor_about_description, ConnectSdk.getIdProvider().getName()));
+        longDescription.append(getResources().getString(R.string.com_telenor_about_description,
+                getResources().getString(ConnectSdk.getIdProvider().getNameKey())));
         spannableLinkText.setSpan(clickableSpannableLinkText, 0, linkText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         longDescription.append(spannableLinkText);
         setText(longDescription, TextView.BufferType.SPANNABLE);
@@ -115,18 +116,23 @@ public class ConnectAboutTextView extends ConnectTextView {
         paragraph5.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.LIGHT.getFontPath()));
         paragraph6.setTypeface(Typeface.createFromAsset(am, TelenorTypeface.LIGHT.getFontPath()));
 
-        title.setText(getResources().getString(R.string.com_telenor_about_screen_title, ConnectSdk.getIdProvider().getName()));
-        paragraph1.setText(getResources().getString(R.string.com_telenor_about_p1, ConnectSdk.getIdProvider().getName()));
+        title.setText(getResources().getString(R.string.com_telenor_about_screen_title,
+                getResources().getString(ConnectSdk.getIdProvider().getNameKey())));
+        paragraph1.setText(getResources().getString(R.string.com_telenor_about_p1,
+                getResources().getString(ConnectSdk.getIdProvider().getNameKey())));
         paragraph2.setText(getResources().getString(R.string.com_telenor_about_p2,
-                getResources().getString(R.string.subscribers_name_telenorid),
-                getResources().getString(R.string.network_name_telenorid)));
-        paragraph3.setText(getResources().getString(R.string.com_telenor_about_p3, ConnectSdk.getIdProvider().getName()));
-        paragraph4.setText(getResources().getString(R.string.com_telenor_about_p4, ConnectSdk.getIdProvider().getName()));
+                getResources().getString(ConnectSdk.getIdProvider().getSubscribersKey()),
+                getResources().getString(ConnectSdk.getIdProvider().getNetworkKey())));
+        paragraph3.setText(getResources().getString(R.string.com_telenor_about_p3,
+                getResources().getString(ConnectSdk.getIdProvider().getNameKey())));
+        paragraph4.setText(getResources().getString(R.string.com_telenor_about_p4,
+                getResources().getString(ConnectSdk.getIdProvider().getNameKey())));
         paragraph5.setText(getResources().getString(R.string.com_telenor_about_p5,
-                ConnectSdk.getIdProvider().getName(),
-                getResources().getString(R.string.subscribers_name_telenorid)));
-        paragraph6.setText(getResources().getString(R.string.com_telenor_about_p6, ConnectSdk.getIdProvider().getName()));
-        logo.setImageResource(R.drawable.ic_telenorid_logo);
+                getResources().getString(ConnectSdk.getIdProvider().getNameKey()),
+                getResources().getString(ConnectSdk.getIdProvider().getSubscribersKey())));
+        paragraph6.setText(getResources().getString(R.string.com_telenor_about_p6,
+                getResources().getString(ConnectSdk.getIdProvider().getNameKey())));
+        logo.setImageResource(ConnectSdk.getIdProvider().getLogoKey());
 
         if (popupWindow != null) {
             popupWindow.dismiss();
