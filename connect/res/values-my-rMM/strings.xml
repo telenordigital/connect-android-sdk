@@ -10,7 +10,13 @@
     <string name="com_telenor_connect_hide_details">အသေးစိတ်အချက်အလက်များကိုဖုံးကွယ်</string>
     <string name="com_telenor_about_description" formatted="true">အက်ပလီကေးရှင်းများနှင့် ၀န်ဆောင်မှုများအား သင်၏ %1$s အားအသုံးပြုပြီးဝင်ရောက်ပါသည်။ \u0020</string>
     <string name="com_telenor_about_link">ပိုမိုသိရှိရန် \u203A</string>
-    <string name="com_telenor_about_screen_title" formatted="true">%1$s ဆိုတာဘာလဲ။</string>
-    <string name="com_telenor_about_screen_subtitle" formatted="true">%1$s တစ်ခုတည်းဖြင့်သင်၏အပ်ပလီကေးရှင်းများနှင့် ၀န်ဆောင်မှုများအားလွယ်ကူစွာအသုံးပြုနိုင်ပါမည်။</string>
-    <string name="com_telenor_about_screen_description" formatted="true">Sing-In ပြုလုပ်ခြင်းအတွက် မိမိ၏ဖုန်းနံပါတ်နှင့် အီးမေးလ်အား မိမိကိုယ်တိုင်အတည်ပြုရခြင်းများကဲ့သို့ သောထပ်ဆောင်းကာကွယ်မှုများရှိပါသည်။ %1$s သည်မိမိ၏ကိုယ်ရေးအချက်လက်များအား မိမိကိုယ်တိုင်ထိန်းချုပ်ခွင့်ပေးပါသည်။</string>
+    <string name="com_telenor_about_screen_title" formatted="true">%1$s ဆိုတာဘာလဲ။?</string>
+    <string name="com_telenor_about_back">\u2039 Back</string>
+    <string name="com_telenor_about_p1">%1$s provides users with a passwordless login for all apps and services.</string>
+    <string name="com_telenor_about_p2">%1$s mobile subscribers enjoy additional security and convenience by having their phone numbers automatically recognised and verified by the %2$s mobile network.</string>
+    <string name="com_telenor_about_p3">With risk-based authentication, %1$s enhances user security by detecting unusual logins.</string>
+    <string name="com_telenor_about_p4">An unusual login might be caused by logging in from a new location, or someone trying to fraudulently use your %1$s. In any case, the user will experience additional steps when logging in, in order to prevent abuse.</string>
+    <string name="com_telenor_about_p5">Anyone can use %1$s, at no cost. You do not need to become a %2$s subscriber.</string>
+    <string name="com_telenor_about_p6">For higher risk logins, %1$s can request a password as an additional step.</string>
+    <string name="com_telenor_about_slogan">One secure login for all services</string>
 </resources>
