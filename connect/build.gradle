@@ -4,12 +4,12 @@ apply plugin: 'com.novoda.bintray-release'
 project.group = 'com.telenor.connect'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     buildToolsVersion '28.0.3'
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 28
-        versionName "2.4.0"
+        targetSdkVersion 30
+        versionName "2.5.0"
     }
     sourceSets {
         main {
