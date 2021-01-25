@@ -12,7 +12,7 @@
     <string name="com_telenor_about_back">\u2039 Tilbake</string>
     <string name="com_telenor_about_screen_title" formatted="true">Hva er %1$s?</string>
     <string name="com_telenor_about_slogan">En sikker innlogging for alle tjenester</string>
-    <string name="com_telenor_about_p1" formatted="true">%1$s tilbyr brukere en passordløs innlogging til alle apper og tjenester. </string>
+    <string name="com_telenor_about_p1" formatted="true">%1$s tilbyr brukere en passordløs innlogging til alle apper og tjenester.</string>
     <string name="com_telenor_about_p2" formatted="true">%1$ss mobilabonnenter kan glede seg over ekstra sikkerhet og enkelhet når de logger inn, som følge av automatisk gjenkjenning og bekreftelse av mobilnummeret via %2$ss mobilnettverk.</string>
     <string name="com_telenor_about_p3" formatted="true">Med risikobasert autentisering forbedrer %1$s brukerens sikkerhet ved at uvanlige innlogginger avdekkes.</string>
     <string name="com_telenor_about_p4" formatted="true">En uvanlig innlogging kan være forårsaket av deg selv når du logger inn fra en ny lokasjon, eller en annen bruker som forsøker seg på uredelig bruk av din %1$s. I begge tilfellene vil brukeren oppleve ekstra steg i innloggingsflyten for å forhindre misbruk.</string>
