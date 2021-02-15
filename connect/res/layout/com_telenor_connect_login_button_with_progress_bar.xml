@@ -1,26 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/com_telenor_connect_continue_button_layout"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="@drawable/connect_btn_telenorid_selector"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toStartOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent"
     >
+
+    <ImageView
+        android:id="@+id/com_telenor_connect_telenor_logo"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/telenor_symbol_white"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@id/com_telenor_connect_continue_button_layout"
+        app:layout_constraintEnd_toStartOf="@id/com_telenor_connect_login_button"
+        />
+
     <com.telenor.connect.ui.ConnectCustomTabLoginButton
         android:id="@+id/com_telenor_connect_login_button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_gravity="center"
+        android:theme="@style/ConnectTheme.ConstraintTelenorId"
+        android:background="@android:color/transparent"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/com_telenor_connect_telenor_logo"
+        app:layout_constraintEnd_toEndOf="parent"
         />
 
-    <!-- Elevation warning can be ignored, on older versions
-    buttons will not have default elevation and order will be
-    correct anyways -->
+    <View
+        android:id="@+id/com_telenor_connect_login_button_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/connect_btn_telenorid_background_pressed"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
     <ProgressBar
         android:id="@+id/com_telenor_connect_login_button_progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_gravity="center"
-        android:elevation="2dp"
         android:visibility="gone"
+        android:indeterminate="true"
+        android:indeterminateDrawable="@drawable/connect_progress_bar_states"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
