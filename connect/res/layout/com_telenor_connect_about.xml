@@ -193,6 +193,5 @@
             app:layout_constraintBottom_toTopOf="@id/connect_guideline_bottom"
             />
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -12,6 +12,7 @@
     <color name="com_telenor_connect_telenor_active">#0762A2</color>
     <color name="com_telenor_connect_telenor_disabled">#D6D6D6</color>
 
+    <!-- Styles require a cleanup -->
     <style name="com_telenor_ConnectButtonTelenorId" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/connect_btn_telenorid_selector</item>
         <item name="android:color">@color/com_telenor_connect_light_color</item>
@@ -49,6 +50,21 @@
         <item name="colorAccent">@color/com_telenor_connect_light_color</item>
         <item name="android:buttonStyle">@style/com_telenor_ConnectButtonTelenorId</item>
         <item name="buttonStyle">@style/com_telenor_ConnectButtonTelenorId</item>
+    </style>
+
+    <style name="ConnectTheme.ConstraintTelenorId" parent="Widget.AppCompat.Button">
+        <item name="colorAccent">@color/com_telenor_connect_light_color</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:color">@color/com_telenor_connect_light_color</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/com_telenor_connect_light_color</item>
+        <item name="android:paddingTop">0sp</item>
+        <item name="android:paddingRight">6sp</item>
+        <item name="android:paddingBottom">0sp</item>
+        <item name="android:paddingLeft">6sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="ConnectTheme.Dark" parent="ConnectTheme">
