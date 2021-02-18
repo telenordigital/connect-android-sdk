@@ -1,5 +1,6 @@
 package com.telenor.connect;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.google.gson.Gson;
@@ -23,6 +24,15 @@ public class WellKnownConfigStore {
                 .edit()
                 .putString(PREFERENCE_KEY_WELL_KNOWN_CONFIG, jsonWellKnownConfig)
                 .apply();
+    }
+
+    @SuppressLint("ApplySharedPref")
+    public void clearSynchronously() {
+        context
+                .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
+                .edit()
+                .remove(PREFERENCE_KEY_WELL_KNOWN_CONFIG)
+                .commit();
     }
 
     public WellKnownAPI.WellKnownConfig get() {
