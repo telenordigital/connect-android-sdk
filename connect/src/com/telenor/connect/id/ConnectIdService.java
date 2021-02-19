@@ -129,7 +129,7 @@ public class ConnectIdService {
         return connectTokens.getRefreshToken();
     }
 
-    public void revokeTokens(Context context) {
+    private void revokeTokens(Context context) {
         String accessToken = getAccessToken();
         if (!TextUtils.isEmpty(accessToken)) {
             revokeAccessToken(accessToken);

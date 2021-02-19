@@ -473,14 +473,18 @@ public final class ConnectSdk {
         idProvider = provider;
         loadConnectConfig(context);
         connectStore = new ConnectStore(context);
-        lastSeenWellKnownConfigStore = new WellKnownConfigStore(context);
-        wellKnownConfig = lastSeenWellKnownConfigStore.get();
+
         String apiUrl = ConnectUrlHelper.getConnectApiUrl(provider, useStaging).toString();
         connectIdService = new ConnectIdService(
                 connectStore,
                 RestHelper.getConnectApi(apiUrl),
                 clientId,
                 redirectUri);
+
+        lastSeenWellKnownConfigStore = new WellKnownConfigStore(context);
+        wellKnownConfig = lastSeenWellKnownConfigStore.get();
+        validateWellKnownConfigIdp();
+
         setRandomLogSessionId();
         boolean noSignedInUser = connectIdService.getAccessToken() == null;
         boolean noStoredWellKnownConfig = wellKnownConfig == null;
@@ -586,6 +590,21 @@ public final class ConnectSdk {
             return false;
         }
         return (Boolean) booleanPropertyObject;
+    }
+
+    private static void validateWellKnownConfigIdp() {
+        String wellKnownConfigIssuer = null;
+        if (wellKnownConfig != null) {
+            wellKnownConfigIssuer = wellKnownConfig.getIssuer();
+        }
+        String idpIssuer = ConnectUrlHelper.getConnectApiUrl(idProvider, useStaging) + ConnectUrlHelper.OAUTH_PATH;
+        if (!idpIssuer.equals(wellKnownConfigIssuer)) {
+            wellKnownConfig = null;
+            // This operation may (and will) cause UI delay for the user. This is done on purpose.
+            // Cleaning of invalid idp configuration must be ensured.
+            lastSeenWellKnownConfigStore.clearSynchronously();
+            connectStore.clearSynchronously();
+        }
     }
 
     public static WellKnownAPI.WellKnownConfig getWellKnownConfig() {

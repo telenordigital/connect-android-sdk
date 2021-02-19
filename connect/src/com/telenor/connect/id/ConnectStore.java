@@ -131,6 +131,15 @@ public class ConnectStore {
         }
     }
 
+    @SuppressLint("ApplySharedPref")
+    public void clearSynchronously() {
+        context
+                .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .commit();
+    }
+
     public void clear() {
         context
                 .getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
