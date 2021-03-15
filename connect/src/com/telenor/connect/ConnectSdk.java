@@ -22,6 +22,8 @@ import android.util.Log;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.telenor.connect.headerenrichment.HeFlowDecider;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
@@ -44,6 +46,7 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -592,18 +595,43 @@ public final class ConnectSdk {
         return (Boolean) booleanPropertyObject;
     }
 
+    // This operation may (and will) cause UI delay for the user. This is done on purpose.
+    // Cleaning of invalid idp configuration must be ensured.
     private static void validateWellKnownConfigIdp() {
-        String wellKnownConfigIssuer = null;
-        if (wellKnownConfig != null) {
-            wellKnownConfigIssuer = wellKnownConfig.getIssuer();
+        // We expect the current current selected id provider to be the issuer
+        final String expectedIssuer = ConnectUrlHelper.getConnectApiUrl(idProvider, useStaging) + ConnectUrlHelper.OAUTH_PATH;
+
+        IdToken idToken = connectStore.getIdToken();
+        if (idToken != null) {
+            final ReadOnlyJWTClaimsSet idTokenClaimsSet;
+
+            try {
+                final SignedJWT signedJwt = SignedJWT.parse(idToken.getSerializedSignedJwt());
+                idTokenClaimsSet = signedJwt.getJWTClaimsSet();
+            } catch (final ParseException e) {
+                wellKnownConfig = null;
+                lastSeenWellKnownConfigStore.clearSynchronously();
+                connectStore.clearSynchronously();
+                return;
+            }
+
+            final String issuer = idTokenClaimsSet.getIssuer();
+            if (!expectedIssuer.equals(issuer)) {
+                wellKnownConfig = null;
+                lastSeenWellKnownConfigStore.clearSynchronously();
+                connectStore.clearSynchronously();
+                return;
+            }
+            return;
         }
-        String idpIssuer = ConnectUrlHelper.getConnectApiUrl(idProvider, useStaging) + ConnectUrlHelper.OAUTH_PATH;
-        if (!idpIssuer.equals(wellKnownConfigIssuer)) {
-            wellKnownConfig = null;
-            // This operation may (and will) cause UI delay for the user. This is done on purpose.
-            // Cleaning of invalid idp configuration must be ensured.
-            lastSeenWellKnownConfigStore.clearSynchronously();
-            connectStore.clearSynchronously();
+
+        if (wellKnownConfig != null) {
+            String wellKnownConfigIssuer = wellKnownConfig.getIssuer();
+            if (!expectedIssuer.equals(wellKnownConfigIssuer)) {
+                wellKnownConfig = null;
+                lastSeenWellKnownConfigStore.clearSynchronously();
+                connectStore.clearSynchronously();
+            }
         }
     }
 
