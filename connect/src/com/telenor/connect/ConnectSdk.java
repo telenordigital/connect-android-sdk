@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.net.Network;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -39,8 +38,6 @@ import com.telenor.connect.sms.SmsBroadcastReceiver;
 import com.telenor.connect.sms.SmsHandler;
 import com.telenor.connect.sms.SmsPinParseUtil;
 import com.telenor.connect.sms.SmsRetrieverUtil;
-import com.telenor.connect.ui.ConnectActivity;
-import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
@@ -64,7 +61,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public final class ConnectSdk {
-    private static final int NO_CUSTOM_LAYOUT = -1;
     private static final int SESSION_TIMEOUT_MINUTES = 10;
     private static ArrayList<Locale> sLocales;
     private static ConnectStore connectStore;
@@ -106,9 +102,6 @@ public final class ConnectSdk {
 
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
-
-    public static final String EXTRA_CONNECT_TOKENS =
-            "com.telenor.connect.EXTRA_CONNECT_TOKENS";
 
     public static synchronized void authenticate(
             final CustomTabsSession session,
@@ -191,81 +184,6 @@ public final class ConnectSdk {
                     Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + activity.getPackageName()));
         }
         cctIntent.launchUrl(activity, HeFlowDecider.chooseFlow(uri, context));
-    }
-
-    public static synchronized void authenticate(
-            Activity activity,
-            int requestCode,
-            String... scopeTokens) {
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("scope", TextUtils.join(" ", scopeTokens));
-        authenticate(activity, parameters, requestCode);
-    }
-
-    public static synchronized void authenticate(
-            final Activity activity,
-            final Map<String, String> parameters,
-            final int requestCode) {
-        Validator.sdkInitialized();
-        authenticate(activity, parameters, NO_CUSTOM_LAYOUT, requestCode, null);
-    }
-
-    public static synchronized void authenticate(final Activity activity,
-                                                 final Map<String, String> parameters,
-                                                 final int customLoadingLayout,
-                                                 final int requestCode,
-                                                 final ShowLoadingCallback showLoadingCallback) {
-        Validator.sdkInitialized();
-        handleButtonClickedAnalytics();
-        HeTokenCallback heTokenCallback = new HeTokenCallback() {
-            @Override
-            public void done() {
-                Intent intent = getAuthIntent(parameters);
-                if (customLoadingLayout != NO_CUSTOM_LAYOUT) {
-                    intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-                }
-                activity.startActivityForResult(intent, requestCode);
-            }
-        };
-        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging);
-    }
-
-    private static Intent getAuthIntent(Map<String, String> parameters) {
-        Intent intent = new Intent();
-        intent.setClass(getContext(), ConnectActivity.class);
-        intent.setAction(ConnectUtils.LOGIN_ACTION);
-        String mccMnc = getMccMnc();
-        if (!TextUtils.isEmpty(mccMnc) && wellKnownConfig != null &&
-                !(wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()
-                        && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty())) {
-            parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
-        }
-        String url = getAuthorizeUri(parameters, BrowserType.WEB_VIEW).toString();
-        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
-        return intent;
-    }
-
-    /**
-     * @deprecated Undocumented feature that might be removed in the future.
-     *
-     * Get a {@code Fragment} that can be used for authorizing and getting a tokens.
-     * {@code Activity} that uses the {@code Fragment} must implement {@code ConnectCallback}.
-     *
-     * @param parameters authorization parameters
-     * @return authorization fragment
-     */
-    @Deprecated
-    public static Fragment getAuthFragment(Map<String, String> parameters) {
-        Validator.sdkInitialized();
-
-        final Fragment fragment = new ConnectWebFragment();
-        Intent authIntent = getAuthIntent(parameters);
-        String action = authIntent.getAction();
-        Bundle bundle = new Bundle(authIntent.getExtras());
-        bundle.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
-        fragment.setArguments(bundle);
-        fragment.setRetainInstance(true);
-        return fragment;
     }
 
     /**
