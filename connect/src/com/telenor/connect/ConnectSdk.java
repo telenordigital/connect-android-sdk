@@ -13,7 +13,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.browser.customtabs.CustomTabsSession;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,7 +22,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.telenor.connect.headerenrichment.HeFlowDecider;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.headerenrichment.HeTokenResponse;
@@ -51,7 +49,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-import androidx.fragment.app.Fragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -99,7 +96,6 @@ public final class ConnectSdk {
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
 
     public static synchronized void authenticate(
-            final CustomTabsSession session,
             final Map<String, String> parameters,
             final BrowserType browserType,
             final Activity activity,
@@ -109,7 +105,7 @@ public final class ConnectSdk {
             @Override
             public void done() {
                 Uri authorizeUri = getAuthorizeUri(parameters, browserType);
-                launchUrlInCustomTab(activity, session, authorizeUri);
+                launchInCustomTab(activity, authorizeUri);
             }
         };
         HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging);
@@ -144,19 +140,28 @@ public final class ConnectSdk {
         return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, deviceId, failedToGetToken ? null : heTokenResponse.getToken());
     }
 
-    private static void launchUrlInCustomTab(Activity activity, CustomTabsSession session, Uri uri) {
-        if (activity == null) {
-            Log.e(ConnectUtils.LOG_TAG, "Failed to launch url in custom tab: activity is null.");
-            return;
+    private static void launchInCustomTab(Context context, Uri uri) {
+        try {
+            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
+            Intent intent = customTabsIntent.intent;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                intent.putExtra(Intent.EXTRA_REFERRER,
+                        Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
+            }
+            customTabsIntent.launchUrl(context, uri);
         }
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(session);
-        CustomTabsIntent cctIntent = builder.build();
-        Intent intent = cctIntent.intent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            intent.putExtra(Intent.EXTRA_REFERRER,
-                    Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + activity.getPackageName()));
+        catch (ActivityNotFoundException e)
+        {
+            // This might typically happen when custom tabs are not available and
+            // extra fallback didn't work as expected. This can happen when, for example,
+            // user had disabled ALL browsers.
+            sendAnalyticsData(e);
         }
-        cctIntent.launchUrl(activity, HeFlowDecider.chooseFlow(uri, context));
+        catch (Exception e)
+        {
+            // Just in case.
+            sendAnalyticsData(e);
+        }
     }
 
     /**
@@ -649,27 +654,7 @@ public final class ConnectSdk {
                         .uri()
                         .toString()
         );
-        try {
-            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
-            Intent intent = customTabsIntent.intent;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                intent.putExtra(Intent.EXTRA_REFERRER,
-                        Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
-            }
-            customTabsIntent.launchUrl(context, selfServiceUri);
-        }
-        catch (ActivityNotFoundException e)
-        {
-            // This might typically happen when custom tabs are not available and
-            // extra fallback didn't work as expected. This can happen when, for example,
-            // user had disabled ALL browsers.
-            sendAnalyticsData(e);
-        }
-        catch (Exception e)
-        {
-            // Just in case.
-            sendAnalyticsData(e);
-        }
+        launchInCustomTab(context, selfServiceUri);
     }
 
     private static List<String> getLoginHints() {
