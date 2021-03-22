@@ -34,10 +34,6 @@ import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.id.IdProvider;
-import com.telenor.connect.sms.SmsBroadcastReceiver;
-import com.telenor.connect.sms.SmsHandler;
-import com.telenor.connect.sms.SmsPinParseUtil;
-import com.telenor.connect.sms.SmsRetrieverUtil;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
@@ -74,7 +70,6 @@ public final class ConnectSdk {
     private static String redirectUri;
     private static IdProvider idProvider;
     private static boolean useStaging;
-    private static SmsBroadcastReceiver smsBroadcastReceiver;
     private static boolean doInstantVerificationOnButtonInitialize;
     private static int instantVerificationHappenedDuringSingleSession = 0;
     private static volatile String advertisingId;
@@ -114,7 +109,7 @@ public final class ConnectSdk {
             @Override
             public void done() {
                 Uri authorizeUri = getAuthorizeUri(parameters, browserType);
-                launchChromeCustomTabAuthentication(session, authorizeUri, activity);
+                launchUrlInCustomTab(activity, session, authorizeUri);
             }
         };
         HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging);
@@ -147,28 +142,6 @@ public final class ConnectSdk {
             deviceId = connectStore.handleDeviceId();
         }
         return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, deviceId, failedToGetToken ? null : heTokenResponse.getToken());
-    }
-
-    private static void launchChromeCustomTabAuthentication(
-            final CustomTabsSession session,
-            Uri authorizeUri,
-            final Activity activity) {
-        SmsRetrieverUtil.startSmsRetriever(getContext());
-        smsBroadcastReceiver = new SmsBroadcastReceiver(new SmsHandler() {
-            @Override
-            public void receivedSms(String messageBody) {
-                String pin = SmsPinParseUtil.findPin(messageBody);
-                if (pin == null) {
-                    return;
-                }
-                safeUnregisterAndRemoveBroadcastReceiver();
-                String url = ConnectUrlHelper.getSubmitPinUrl(pin);
-                Uri uri = Uri.parse(url);
-                launchUrlInCustomTab(activity, session, uri);
-            }
-        });
-        getContext().registerReceiver(smsBroadcastReceiver, SmsRetrieverUtil.SMS_FILTER);
-        launchUrlInCustomTab(activity, session, authorizeUri);
     }
 
     private static void launchUrlInCustomTab(Activity activity, CustomTabsSession session, Uri uri) {
@@ -748,18 +721,8 @@ public final class ConnectSdk {
         if (!hasValidRedirectUrlCall(intent)) {
             return;
         }
-        safeUnregisterAndRemoveBroadcastReceiver();
         final String code = getCodeFromIntent(intent);
         getAccessTokenFromCode(code, callback);
-    }
-
-    private static void safeUnregisterAndRemoveBroadcastReceiver() {
-        try {
-            getContext().unregisterReceiver(smsBroadcastReceiver);
-        } catch (IllegalArgumentException ignored) {
-        } finally {
-            smsBroadcastReceiver = null;
-        }
     }
 
     /**
