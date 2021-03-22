@@ -143,7 +143,7 @@ public class ConnectUrlHelperTest {
                 "redirect-url://here",
                 locales,
                 url,
-                BrowserType.WEB_VIEW)
+                BrowserType.EXTERNAL_BROWSER)
                 .buildUpon()
                 .appendPath(ConnectUrlHelper.OAUTH_PATH)
                 .appendPath("authorize")
@@ -236,7 +236,7 @@ public class ConnectUrlHelperTest {
                 "redirect-url://here",
                 locales,
                 url,
-                BrowserType.WEB_VIEW);
+                BrowserType.EXTERNAL_BROWSER);
 
         assertThat(
                 authorizeUri

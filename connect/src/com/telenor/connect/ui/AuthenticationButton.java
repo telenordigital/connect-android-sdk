@@ -18,10 +18,6 @@ public interface AuthenticationButton {
 
     Claims getClaims();
 
-    int getCustomLoadingLayout();
-
-    View.OnClickListener getOnClickListener();
-
     void setAcrValues(String... acrValues);
 
     void setAcrValues(ArrayList<String> acrValues);
@@ -35,6 +31,4 @@ public interface AuthenticationButton {
     void setRequestCode(int requestCode);
 
     void setClaims(Claims claims);
-
-    void setCustomLoadingLayout(int customLoadingLayout);
 }
