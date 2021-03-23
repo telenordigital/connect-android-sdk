@@ -220,7 +220,7 @@ public class ConnectUrlHelperTest {
     }
 
     @Test
-    public void webViewBrowserTypeOnGetAuthorizeUriReturnsWebViewParam() {
+    public void externalBrowserTypeOnGetAuthorizeUriReturnsExternalBrowserParam() {
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host("connect.telenordigital.com")
@@ -241,7 +241,7 @@ public class ConnectUrlHelperTest {
         assertThat(
                 authorizeUri
                         .getQueryParameter("telenordigital_sdk_version")
-                        .endsWith("web-view"), is(true));
+                        .endsWith("external-browser"), is(true));
     }
 
     @Test
