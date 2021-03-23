@@ -5,13 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.browser.customtabs.CustomTabsCallback;
-import androidx.browser.customtabs.CustomTabsClient;
-import androidx.browser.customtabs.CustomTabsServiceConnection;
-import androidx.browser.customtabs.CustomTabsSession;
 import androidx.fragment.app.FragmentActivity;
 
 import android.text.TextUtils;
@@ -25,10 +20,8 @@ import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
 import com.telenor.connect.id.IdProvider;
 import com.telenor.connect.utils.ClaimsParameterFormatter;
-import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.CustomTabsHelper;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,23 +29,7 @@ import java.util.Map;
 
 class ConnectCustomTabLoginButton extends ConnectButton implements AuthenticationButton {
 
-    private static final Uri PRE_FETCH_URL
-            = Uri.parse(
-            ConnectUrlHelper
-                    .getConnectApiUrl()
-                    .newBuilder()
-                    .addPathSegment("id")
-                    .addPathSegment("android-sdk-prefetch-static-resources")
-                    .build()
-                    .uri()
-                    .toString()
-    );
-
-    private CustomTabsServiceConnection connection;
-    private boolean customTabsSupported = false;
-    private boolean serviceBound = false;
     private BrowserType browserType;
-    private CustomTabsSession session;
     private ArrayList<String> acrValues;
     private Map<String, String> loginParameters;
     private ArrayList<String> loginScopeTokens;
@@ -68,7 +45,6 @@ class ConnectCustomTabLoginButton extends ConnectButton implements Authenticatio
 
     protected void authenticate() {
         ConnectSdk.authenticate(
-                session,
                 getParameters(),
                 browserType,
                 getActivity(),
@@ -123,23 +99,7 @@ class ConnectCustomTabLoginButton extends ConnectButton implements Authenticatio
         if (TextUtils.isEmpty(packageNameToUse)) {
             return;
         }
-        connection = new WeakReferenceCustomTabsServiceConnection(new WeakReference<>(this));
-        serviceBound = CustomTabsClient.bindCustomTabsService(getContext(), packageNameToUse, connection);
-        boolean correctIntentFilter = contextIntentFilterMatchesRedirectUri(getContext());
-        customTabsSupported = serviceBound && correctIntentFilter;
-        browserType = customTabsSupported ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.EXTERNAL_BROWSER;
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (serviceBound) {
-            getContext().unbindService(connection);
-            serviceBound = false;
-        }
-        if (connection != null) {
-            connection = null;
-        }
+        browserType = contextIntentFilterMatchesRedirectUri(getContext()) ? BrowserType.CHROME_CUSTOM_TAB : BrowserType.EXTERNAL_BROWSER;
     }
 
     @Override
@@ -151,10 +111,6 @@ class ConnectCustomTabLoginButton extends ConnectButton implements Authenticatio
         }
     }
 
-    private void setSession(CustomTabsSession session) {
-        this.session = session;
-    }
-
     public ShowLoadingCallback getShowLoadingCallback() {
         return showLoadingCallback;
     }
@@ -162,7 +118,6 @@ class ConnectCustomTabLoginButton extends ConnectButton implements Authenticatio
     public void setShowLoadingCallback(ShowLoadingCallback showLoadingCallback) {
         this.showLoadingCallback = showLoadingCallback;
     }
-
 
     public ArrayList<String> getAcrValues() {
         return acrValues;
@@ -210,58 +165,5 @@ class ConnectCustomTabLoginButton extends ConnectButton implements Authenticatio
 
     public void setClaims(Claims claims) {
         this.claims = claims;
-    }
-
-    private static class WeakReferenceCustomTabsServiceConnection extends CustomTabsServiceConnection {
-
-        private final WeakReference<ConnectCustomTabLoginButton> weakButton;
-
-        WeakReferenceCustomTabsServiceConnection(WeakReference<ConnectCustomTabLoginButton> weakButton) {
-            this.weakButton = weakButton;
-        }
-
-        @Override
-        public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-            final ConnectCustomTabLoginButton connectCustomTabLoginButton = weakButton.get();
-            if (connectCustomTabLoginButton == null) {
-                return;
-            }
-            client.warmup(0);
-            final CustomTabsSession session = client.newSession(new WeakReferenceCustomTabsCallback(weakButton));
-            connectCustomTabLoginButton.setSession(session);
-            if (session != null) {
-                session.mayLaunchUrl(PRE_FETCH_URL, null, null);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-        }
-    }
-
-    private static class WeakReferenceCustomTabsCallback extends CustomTabsCallback {
-
-        private final WeakReference<ConnectCustomTabLoginButton> weakButton;
-
-        WeakReferenceCustomTabsCallback(WeakReference<ConnectCustomTabLoginButton> weakButton) {
-            this.weakButton = weakButton;
-        }
-
-        @Override
-        public void onNavigationEvent(int navigationEvent, Bundle extras) {
-            final ConnectCustomTabLoginButton connectCustomTabLoginButton = weakButton.get();
-            if (connectCustomTabLoginButton == null) {
-                return;
-            }
-            switch (navigationEvent) {
-                case CustomTabsCallback.TAB_HIDDEN:
-                    connectCustomTabLoginButton.setEnabled(true);
-                    return;
-                case CustomTabsCallback.TAB_SHOWN:
-                    connectCustomTabLoginButton.setEnabled(false);
-                    return;
-                default:
-            }
-        }
     }
 }
