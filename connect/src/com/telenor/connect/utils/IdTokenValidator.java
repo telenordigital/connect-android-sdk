@@ -1,6 +1,6 @@
 package com.telenor.connect.utils;
 
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
@@ -15,7 +15,7 @@ import java.util.Set;
 public class IdTokenValidator {
 
     public static void validate(final IdToken idToken, Date serverTimestamp) {
-        final ReadOnlyJWTClaimsSet idTokenClaimsSet;
+        final JWTClaimsSet idTokenClaimsSet;
 
         try {
             final SignedJWT signedJwt = SignedJWT.parse(idToken.getSerializedSignedJwt());
@@ -55,7 +55,7 @@ public class IdTokenValidator {
                             + " idTokenClaimsSet=" + idTokenClaimsSet.toJSONObject());
         }
 
-        final String authorizedParty = (String) idTokenClaimsSet.getCustomClaim("azp");
+        final String authorizedParty = (String) idTokenClaimsSet.getClaim("azp");
         if (idTokenClaimsSet.getAudience().size() > 1 && authorizedParty == null) {
             throw new ConnectException(
                     "ID token contains multiple audiences but no azp claim is present."
