@@ -20,7 +20,7 @@ import android.util.Log;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
@@ -499,7 +499,7 @@ public final class ConnectSdk {
 
         IdToken idToken = connectStore.getIdToken();
         if (idToken != null) {
-            final ReadOnlyJWTClaimsSet idTokenClaimsSet;
+            final JWTClaimsSet idTokenClaimsSet;
 
             try {
                 final SignedJWT signedJwt = SignedJWT.parse(idToken.getSerializedSignedJwt());

@@ -2,24 +2,33 @@ package com.telenor.connect.utils;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.ECDSASigner;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.id.IdToken;
 
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
+import org.bouncycastle.jcajce.provider.asymmetric.dstu.BCDSTU4145PrivateKey;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.robolectric.annotation.Config;
 
 import java.math.BigInteger;
+import java.security.interfaces.ECPrivateKey;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -31,6 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(PowerMockRunner.class)
 @Config(sdk = 18)
+@PowerMockIgnore("javax.crypto.*")
 @PrepareForTest({ConnectSdk.class, ConnectUrlHelper.class})
 public class IdTokenValidatorTest {
 
@@ -39,6 +49,8 @@ public class IdTokenValidatorTest {
     private static Date now;
     private static Date tenYearsIntoFuture;
     private static Date twoHoursAgo;
+
+    private static final String SHARED_SECRET_TEST_SIGNATURE = "secret01234567890ABCDEFGHIJKLMNO";
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -53,14 +65,16 @@ public class IdTokenValidatorTest {
         calendar.add(Calendar.HOUR, -2);
         twoHoursAgo = calendar.getTime();
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet();
-        claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
-        claimsSet.setAudience("connect-tests");
-        claimsSet.setExpirationTime(oneHourIntoFuture);
-        claimsSet.setIssueTime(now);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .issuer("https://connect.telenordigital.com/oauth")
+                .audience("connect-tests")
+                .expirationTime(oneHourIntoFuture)
+                .issueTime(now)
+                .build();
 
-        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
-        signedJWT.sign(new ECDSASigner(new BigInteger("123")));
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+        JWSSigner signer = new MACSigner(SHARED_SECRET_TEST_SIGNATURE);
+        signedJWT.sign(signer);
         normalSerializedSignedJwt = new IdToken(signedJWT.serialize());
     }
 
@@ -119,15 +133,17 @@ public class IdTokenValidatorTest {
         BDDMockito.given(ConnectSdk.getExpectedIssuer())
                 .willReturn("https://connect.telenordigital.com/oauth");
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet();
-        claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
-        claimsSet.setAudience("connect-tests");
-        claimsSet.setExpirationTime(oneHourIntoFuture);
-        claimsSet.setIssueTime(now);
-        claimsSet.setCustomClaim("azp", "NOT connect-tests");
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .issuer("https://connect.telenordigital.com/oauth")
+                .audience("connect-tests")
+                .expirationTime(oneHourIntoFuture)
+                .issueTime(now)
+                .claim("azp", "NOT connect-tests")
+                .build();
 
-        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
-        signedJWT.sign(new ECDSASigner(new BigInteger("123")));
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+        JWSSigner signer = new MACSigner(SHARED_SECRET_TEST_SIGNATURE);
+        signedJWT.sign(signer);
         IdToken idToken = new IdToken(signedJWT.serialize());
 
 
@@ -142,14 +158,16 @@ public class IdTokenValidatorTest {
         BDDMockito.given(ConnectSdk.getExpectedIssuer())
                 .willReturn("https://connect.telenordigital.com/oauth");
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet();
-        claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
-        claimsSet.setAudience("connect-tests");
-        claimsSet.setExpirationTime(twoHoursAgo);
-        claimsSet.setIssueTime(now);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .issuer("https://connect.telenordigital.com/oauth")
+                .audience("connect-tests")
+                .expirationTime(twoHoursAgo)
+                .issueTime(now)
+                .build();
 
-        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
-        signedJWT.sign(new ECDSASigner(new BigInteger("123")));
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+        JWSSigner signer = new MACSigner(SHARED_SECRET_TEST_SIGNATURE);
+        signedJWT.sign(signer);
         IdToken idToken = new IdToken(signedJWT.serialize());
 
         IdTokenValidator.validate(idToken, null);
@@ -163,14 +181,15 @@ public class IdTokenValidatorTest {
         BDDMockito.given(ConnectSdk.getExpectedIssuer())
                 .willReturn("https://connect.telenordigital.com/oauth");
 
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .issuer("https://connect.telenordigital.com/oauth")
+                .audience("connect-tests")
+                .expirationTime(oneHourIntoFuture)
+                .build();
 
-        JWTClaimsSet claimsSet = new JWTClaimsSet();
-        claimsSet.setIssuer("https://connect.telenordigital.com/oauth");
-        claimsSet.setAudience("connect-tests");
-        claimsSet.setExpirationTime(oneHourIntoFuture);
-
-        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), claimsSet);
-        signedJWT.sign(new ECDSASigner(new BigInteger("123")));
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+        JWSSigner signer = new MACSigner(SHARED_SECRET_TEST_SIGNATURE);
+        signedJWT.sign(signer);
         IdToken idToken = new IdToken(signedJWT.serialize());
 
         IdTokenValidator.validate(idToken, null);
