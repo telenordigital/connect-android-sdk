@@ -143,7 +143,7 @@ public class ConnectUrlHelperTest {
                 "redirect-url://here",
                 locales,
                 url,
-                BrowserType.WEB_VIEW)
+                BrowserType.EXTERNAL_BROWSER)
                 .buildUpon()
                 .appendPath(ConnectUrlHelper.OAUTH_PATH)
                 .appendPath("authorize")
@@ -220,7 +220,7 @@ public class ConnectUrlHelperTest {
     }
 
     @Test
-    public void webViewBrowserTypeOnGetAuthorizeUriReturnsWebViewParam() {
+    public void externalBrowserTypeOnGetAuthorizeUriReturnsExternalBrowserParam() {
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host("connect.telenordigital.com")
@@ -236,12 +236,12 @@ public class ConnectUrlHelperTest {
                 "redirect-url://here",
                 locales,
                 url,
-                BrowserType.WEB_VIEW);
+                BrowserType.EXTERNAL_BROWSER);
 
         assertThat(
                 authorizeUri
                         .getQueryParameter("telenordigital_sdk_version")
-                        .endsWith("web-view"), is(true));
+                        .endsWith("external-browser"), is(true));
     }
 
     @Test

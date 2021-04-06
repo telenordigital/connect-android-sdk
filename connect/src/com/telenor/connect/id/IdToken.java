@@ -1,6 +1,6 @@
 package com.telenor.connect.id;
 
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.telenor.connect.ConnectException;
 
@@ -31,7 +31,7 @@ public class IdToken {
 
     public IdToken(String serializedSignedJwt) {
         this.serializedSignedJwt = serializedSignedJwt;
-        ReadOnlyJWTClaimsSet jwtClaimsSet;
+        JWTClaimsSet jwtClaimsSet;
 
         try {
             jwtClaimsSet = SignedJWT.parse(serializedSignedJwt).getJWTClaimsSet();
@@ -42,7 +42,7 @@ public class IdToken {
 
         subject = jwtClaimsSet.getSubject();
         expirationDate = jwtClaimsSet.getExpirationTime();
-        final Map<String, Object> customClaims = jwtClaimsSet.getCustomClaims();
+        final Map<String, Object> customClaims = jwtClaimsSet.getClaims();
         authenticationUsername = customClaims.containsKey(AUTHENTICATION_USERNAME)
                 ? (String) customClaims.get(AUTHENTICATION_USERNAME) : null;
         name = customClaims.containsKey(NAME)

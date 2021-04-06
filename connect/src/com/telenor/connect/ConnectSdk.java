@@ -10,11 +10,9 @@ import android.content.pm.PackageManager;
 import android.net.Network;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.browser.customtabs.CustomTabsSession;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,9 +20,8 @@ import android.util.Log;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.telenor.connect.headerenrichment.HeFlowDecider;
 import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.headerenrichment.HeTokenResponse;
@@ -35,12 +32,6 @@ import com.telenor.connect.id.ConnectStore;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.UserInfo;
 import com.telenor.connect.id.IdProvider;
-import com.telenor.connect.sms.SmsBroadcastReceiver;
-import com.telenor.connect.sms.SmsHandler;
-import com.telenor.connect.sms.SmsPinParseUtil;
-import com.telenor.connect.sms.SmsRetrieverUtil;
-import com.telenor.connect.ui.ConnectActivity;
-import com.telenor.connect.ui.ConnectWebFragment;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
@@ -58,13 +49,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-import androidx.fragment.app.Fragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public final class ConnectSdk {
-    private static final int NO_CUSTOM_LAYOUT = -1;
     private static final int SESSION_TIMEOUT_MINUTES = 10;
     private static ArrayList<Locale> sLocales;
     private static ConnectStore connectStore;
@@ -78,7 +67,6 @@ public final class ConnectSdk {
     private static String redirectUri;
     private static IdProvider idProvider;
     private static boolean useStaging;
-    private static SmsBroadcastReceiver smsBroadcastReceiver;
     private static boolean doInstantVerificationOnButtonInitialize;
     private static int instantVerificationHappenedDuringSingleSession = 0;
     private static volatile String advertisingId;
@@ -107,11 +95,7 @@ public final class ConnectSdk {
     public static final String ACTION_LOGIN_STATE_CHANGED =
             "com.telenor.connect.ACTION_LOGIN_STATE_CHANGED";
 
-    public static final String EXTRA_CONNECT_TOKENS =
-            "com.telenor.connect.EXTRA_CONNECT_TOKENS";
-
     public static synchronized void authenticate(
-            final CustomTabsSession session,
             final Map<String, String> parameters,
             final BrowserType browserType,
             final Activity activity,
@@ -121,7 +105,7 @@ public final class ConnectSdk {
             @Override
             public void done() {
                 Uri authorizeUri = getAuthorizeUri(parameters, browserType);
-                launchChromeCustomTabAuthentication(session, authorizeUri, activity);
+                launchInCustomTab(activity, authorizeUri);
             }
         };
         HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging);
@@ -156,116 +140,28 @@ public final class ConnectSdk {
         return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, deviceId, failedToGetToken ? null : heTokenResponse.getToken());
     }
 
-    private static void launchChromeCustomTabAuthentication(
-            final CustomTabsSession session,
-            Uri authorizeUri,
-            final Activity activity) {
-        SmsRetrieverUtil.startSmsRetriever(getContext());
-        smsBroadcastReceiver = new SmsBroadcastReceiver(new SmsHandler() {
-            @Override
-            public void receivedSms(String messageBody) {
-                String pin = SmsPinParseUtil.findPin(messageBody);
-                if (pin == null) {
-                    return;
-                }
-                safeUnregisterAndRemoveBroadcastReceiver();
-                String url = ConnectUrlHelper.getSubmitPinUrl(pin);
-                Uri uri = Uri.parse(url);
-                launchUrlInCustomTab(activity, session, uri);
+    private static void launchInCustomTab(Context context, Uri uri) {
+        try {
+            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
+            Intent intent = customTabsIntent.intent;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                intent.putExtra(Intent.EXTRA_REFERRER,
+                        Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
             }
-        });
-        getContext().registerReceiver(smsBroadcastReceiver, SmsRetrieverUtil.SMS_FILTER);
-        launchUrlInCustomTab(activity, session, authorizeUri);
-    }
-
-    private static void launchUrlInCustomTab(Activity activity, CustomTabsSession session, Uri uri) {
-        if (activity == null) {
-            Log.e(ConnectUtils.LOG_TAG, "Failed to launch url in custom tab: activity is null.");
-            return;
+            customTabsIntent.launchUrl(context, uri);
         }
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(session);
-        CustomTabsIntent cctIntent = builder.build();
-        Intent intent = cctIntent.intent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            intent.putExtra(Intent.EXTRA_REFERRER,
-                    Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + activity.getPackageName()));
+        catch (ActivityNotFoundException e)
+        {
+            // This might typically happen when custom tabs are not available and
+            // extra fallback didn't work as expected. This can happen when, for example,
+            // user had disabled ALL browsers.
+            sendAnalyticsData(e);
         }
-        cctIntent.launchUrl(activity, HeFlowDecider.chooseFlow(uri, context));
-    }
-
-    public static synchronized void authenticate(
-            Activity activity,
-            int requestCode,
-            String... scopeTokens) {
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("scope", TextUtils.join(" ", scopeTokens));
-        authenticate(activity, parameters, requestCode);
-    }
-
-    public static synchronized void authenticate(
-            final Activity activity,
-            final Map<String, String> parameters,
-            final int requestCode) {
-        Validator.sdkInitialized();
-        authenticate(activity, parameters, NO_CUSTOM_LAYOUT, requestCode, null);
-    }
-
-    public static synchronized void authenticate(final Activity activity,
-                                                 final Map<String, String> parameters,
-                                                 final int customLoadingLayout,
-                                                 final int requestCode,
-                                                 final ShowLoadingCallback showLoadingCallback) {
-        Validator.sdkInitialized();
-        handleButtonClickedAnalytics();
-        HeTokenCallback heTokenCallback = new HeTokenCallback() {
-            @Override
-            public void done() {
-                Intent intent = getAuthIntent(parameters);
-                if (customLoadingLayout != NO_CUSTOM_LAYOUT) {
-                    intent.putExtra(ConnectUtils.CUSTOM_LOADING_SCREEN_EXTRA, customLoadingLayout);
-                }
-                activity.startActivityForResult(intent, requestCode);
-            }
-        };
-        HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging);
-    }
-
-    private static Intent getAuthIntent(Map<String, String> parameters) {
-        Intent intent = new Intent();
-        intent.setClass(getContext(), ConnectActivity.class);
-        intent.setAction(ConnectUtils.LOGIN_ACTION);
-        String mccMnc = getMccMnc();
-        if (!TextUtils.isEmpty(mccMnc) && wellKnownConfig != null &&
-                !(wellKnownConfig.getNetworkAuthenticationTargetIps().isEmpty()
-                        && wellKnownConfig.getNetworkAuthenticationTargetUrls().isEmpty())) {
-            parameters.put("login_hint", String.format("MCCMNC:%s", mccMnc));
+        catch (Exception e)
+        {
+            // Just in case.
+            sendAnalyticsData(e);
         }
-        String url = getAuthorizeUri(parameters, BrowserType.WEB_VIEW).toString();
-        intent.putExtra(ConnectUtils.LOGIN_AUTH_URI, url);
-        return intent;
-    }
-
-    /**
-     * @deprecated Undocumented feature that might be removed in the future.
-     *
-     * Get a {@code Fragment} that can be used for authorizing and getting a tokens.
-     * {@code Activity} that uses the {@code Fragment} must implement {@code ConnectCallback}.
-     *
-     * @param parameters authorization parameters
-     * @return authorization fragment
-     */
-    @Deprecated
-    public static Fragment getAuthFragment(Map<String, String> parameters) {
-        Validator.sdkInitialized();
-
-        final Fragment fragment = new ConnectWebFragment();
-        Intent authIntent = getAuthIntent(parameters);
-        String action = authIntent.getAction();
-        Bundle bundle = new Bundle(authIntent.getExtras());
-        bundle.putString(ConnectUrlHelper.ACTION_ARGUMENT, action);
-        fragment.setArguments(bundle);
-        fragment.setRetainInstance(true);
-        return fragment;
     }
 
     /**
@@ -603,7 +499,7 @@ public final class ConnectSdk {
 
         IdToken idToken = connectStore.getIdToken();
         if (idToken != null) {
-            final ReadOnlyJWTClaimsSet idTokenClaimsSet;
+            final JWTClaimsSet idTokenClaimsSet;
 
             try {
                 final SignedJWT signedJwt = SignedJWT.parse(idToken.getSerializedSignedJwt());
@@ -742,7 +638,7 @@ public final class ConnectSdk {
      * @param context of activity from where method is called
      */
     public static void openSelfServicePage(Context context) {
-        if (!isInitialized() || idProvider == IdProvider.CONNECT_ID) {
+        if (!isInitialized()) {
             return;
         }
 
@@ -758,27 +654,7 @@ public final class ConnectSdk {
                         .uri()
                         .toString()
         );
-        try {
-            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
-            Intent intent = customTabsIntent.intent;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                intent.putExtra(Intent.EXTRA_REFERRER,
-                        Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
-            }
-            customTabsIntent.launchUrl(context, selfServiceUri);
-        }
-        catch (ActivityNotFoundException e)
-        {
-            // This might typically happen when custom tabs are not available and
-            // extra fallback didn't work as expected. This can happen when, for example,
-            // user had disabled ALL browsers.
-            sendAnalyticsData(e);
-        }
-        catch (Exception e)
-        {
-            // Just in case.
-            sendAnalyticsData(e);
-        }
+        launchInCustomTab(context, selfServiceUri);
     }
 
     private static List<String> getLoginHints() {
@@ -830,18 +706,8 @@ public final class ConnectSdk {
         if (!hasValidRedirectUrlCall(intent)) {
             return;
         }
-        safeUnregisterAndRemoveBroadcastReceiver();
         final String code = getCodeFromIntent(intent);
         getAccessTokenFromCode(code, callback);
-    }
-
-    private static void safeUnregisterAndRemoveBroadcastReceiver() {
-        try {
-            getContext().unregisterReceiver(smsBroadcastReceiver);
-        } catch (IllegalArgumentException ignored) {
-        } finally {
-            smsBroadcastReceiver = null;
-        }
     }
 
     /**

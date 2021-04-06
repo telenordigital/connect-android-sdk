@@ -24,7 +24,6 @@ public class ConnectLoginButton extends ConstraintLayout implements Authenticati
     private View progressOverlay;
     private ConnectCustomTabLoginButton loginButton;
     private ProgressBar progressBar;
-    private View.OnClickListener loginClickListener;
 
     public ConnectLoginButton(Context context) {
         super(context);
@@ -43,12 +42,18 @@ public class ConnectLoginButton extends ConstraintLayout implements Authenticati
                 setLoading(false);
             }
         });
-        loginClickListener = loginButton.getOnClickListener();
         buttonLayout.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 setLoading(true);
-                loginClickListener.onClick(v);
+                loginButton.authenticate();
+            }
+        });
+        loginButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setLoading(true);
+                loginButton.authenticate();
             }
         });
         if (ConnectSdk.isDoInstantVerificationOnButtonInitialize()) {
@@ -109,16 +114,6 @@ public class ConnectLoginButton extends ConstraintLayout implements Authenticati
     }
 
     @Override
-    public int getCustomLoadingLayout() {
-        return loginButton.getCustomLoadingLayout();
-    }
-
-    @Override
-    public OnClickListener getOnClickListener() {
-        return loginButton.getOnClickListener();
-    }
-
-    @Override
     public void setAcrValues(String... acrValues) {
         loginButton.setAcrValues(acrValues);
     }
@@ -151,10 +146,5 @@ public class ConnectLoginButton extends ConstraintLayout implements Authenticati
     @Override
     public void setClaims(Claims claims) {
         loginButton.setClaims(claims);
-    }
-
-    @Override
-    public void setCustomLoadingLayout(int customLoadingLayout) {
-        loginButton.setCustomLoadingLayout(customLoadingLayout);
     }
 }

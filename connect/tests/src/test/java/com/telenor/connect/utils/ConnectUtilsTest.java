@@ -130,10 +130,9 @@ public class ConnectUtilsTest {
 
         verify(localBroadcastManager).sendBroadcast(argThat(new ArgumentMatcher<Intent>() {
             @Override
-            public boolean matches(Object argument) {
+            public boolean matches(Intent argument) {
                 return ((Intent) argument)
-                        .getBooleanExtra("com.telenor.connect.LOGIN_STATE", false)
-                        == newState;
+                        .getBooleanExtra("com.telenor.connect.LOGIN_STATE", false);
             }
         }));
     }
