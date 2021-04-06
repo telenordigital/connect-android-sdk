@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.panpf.bintray-publish'
+apply plugin: 'maven-publish'
 
 project.group = 'com.telenor.connect'
 
@@ -9,8 +9,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 30
-        versionName "2.5.4"
-        buildConfigField('String' , 'VERSION_NAME', '"2.5.4"')
+        versionName "2.6.0-alpha"
+        buildConfigField('String' , 'VERSION_NAME', '"2.6.0-alpha"')
     }
     sourceSets {
         main {
@@ -55,11 +55,30 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 }
 
-publish {
-    userOrg = 'telenordigital'
-    groupId = project.group
-    artifactId = 'connect-android-sdk'
-    publishVersion = android.getDefaultConfig().getVersionName()
-    desc = "Android SDK for CONNECT ID"
-    website = "https://portal.telenordigital.com"
+// Because the components are created only during the afterEvaluate phase, you must
+// configure your publications using the afterEvaluate() lifecycle method.
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                // Applies the component for the release build variant.
+                from components.release
+
+                // You can then customize attributes of the publication as shown below.
+                groupId = 'com.telenor.connect'
+                artifactId = 'final'
+                version = '2.6.0-alpha'
+            }
+            // Creates a Maven publication called “debug”.
+            debug(MavenPublication) {
+                // Applies the component for the debug build variant.
+                from components.debug
+
+                groupId = 'com.telenor.connect'
+                artifactId = 'final-debug'
+                version = '2.6.0-alpha'
+            }
+        }
+    }
 }
