@@ -3,14 +3,6 @@ package com.telenor.connect.id;
 import com.telenor.connect.R;
 
 public enum IdProvider {
-    CONNECT_ID(R.string.brand_name_connect,
-            R.string.subscribers_name_connect,
-            R.string.network_name_connect,
-            R.drawable.ic_telenorid_logo,
-            "connect.telenordigital.com",
-            "connect.staging.telenordigital.com",
-            null,
-            null),
     TELENOR_ID(R.string.brand_name_telenorid,
             R.string.subscribers_name_telenorid,
             R.string.network_name_telenorid,

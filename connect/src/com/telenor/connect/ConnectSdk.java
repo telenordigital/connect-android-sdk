@@ -638,7 +638,7 @@ public final class ConnectSdk {
      * @param context of activity from where method is called
      */
     public static void openSelfServicePage(Context context) {
-        if (!isInitialized() || idProvider == IdProvider.CONNECT_ID) {
+        if (!isInitialized()) {
             return;
         }
 
