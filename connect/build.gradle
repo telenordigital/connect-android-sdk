@@ -9,8 +9,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 30
-        versionName "2.6.0-alpha"
-        buildConfigField('String' , 'VERSION_NAME', '"2.6.0-alpha"')
+        versionName "2.6.0-beta"
+        buildConfigField('String' , 'VERSION_NAME', '"2.6.0-beta"')
     }
     sourceSets {
         main {
@@ -68,7 +68,7 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.telenor.connect'
                 artifactId = 'final'
-                version = '2.6.0-alpha'
+                version = '2.6.0-beta'
             }
             // Creates a Maven publication called “debug”.
             debug(MavenPublication) {
@@ -77,7 +77,7 @@ afterEvaluate {
 
                 groupId = 'com.telenor.connect'
                 artifactId = 'final-debug'
-                version = '2.6.0-alpha'
+                version = '2.6.0-beta'
             }
         }
     }
