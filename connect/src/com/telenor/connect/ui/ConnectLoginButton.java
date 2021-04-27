@@ -24,6 +24,7 @@ public class ConnectLoginButton extends ConstraintLayout implements Authenticati
     private View progressOverlay;
     private ConnectCustomTabLoginButton loginButton;
     private ProgressBar progressBar;
+    private View.OnClickListener customOnClickListener;
 
     public ConnectLoginButton(Context context) {
         super(context);
@@ -36,25 +37,20 @@ public class ConnectLoginButton extends ConstraintLayout implements Authenticati
         progressOverlay = findViewById(R.id.com_telenor_connect_login_button_overlay);
         progressBar = findViewById(R.id.com_telenor_connect_login_button_progress_bar);
         loginButton = findViewById(R.id.com_telenor_connect_login_button);
-        loginButton.setShowLoadingCallback(new ShowLoadingCallback() {
-            @Override
-            public void stop() {
-                setLoading(false);
+        loginButton.setShowLoadingCallback(() -> setLoading(false));
+        buttonLayout.setOnClickListener(v -> {
+            if (customOnClickListener != null) {
+                customOnClickListener.onClick(v);
             }
+            setLoading(true);
+            loginButton.authenticate();
         });
-        buttonLayout.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setLoading(true);
-                loginButton.authenticate();
+        loginButton.setOnClickListener(v -> {
+            if (customOnClickListener != null) {
+                customOnClickListener.onClick(v);
             }
-        });
-        loginButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setLoading(true);
-                loginButton.authenticate();
-            }
+            setLoading(true);
+            loginButton.authenticate();
         });
         if (ConnectSdk.isDoInstantVerificationOnButtonInitialize()) {
             ConnectSdk.runInstantVerification();
@@ -146,5 +142,13 @@ public class ConnectLoginButton extends ConstraintLayout implements Authenticati
     @Override
     public void setClaims(Claims claims) {
         loginButton.setClaims(claims);
+    }
+
+    public void setCustomOnClickListener(OnClickListener onClickListener) {
+        customOnClickListener = onClickListener;
+    }
+
+    public View.OnClickListener getCustomOnClickListener() {
+        return customOnClickListener;
     }
 }
