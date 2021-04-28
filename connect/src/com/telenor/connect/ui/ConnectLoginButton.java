@@ -24,7 +24,7 @@ public class ConnectLoginButton extends ConstraintLayout implements Authenticati
     private View progressOverlay;
     private ConnectCustomTabLoginButton loginButton;
     private ProgressBar progressBar;
-    private View.OnClickListener customOnClickListener;
+    private View.OnClickListener onClickListener;
 
     public ConnectLoginButton(Context context) {
         super(context);
@@ -38,20 +38,12 @@ public class ConnectLoginButton extends ConstraintLayout implements Authenticati
         progressBar = findViewById(R.id.com_telenor_connect_login_button_progress_bar);
         loginButton = findViewById(R.id.com_telenor_connect_login_button);
         loginButton.setShowLoadingCallback(() -> setLoading(false));
-        buttonLayout.setOnClickListener(v -> {
-            if (customOnClickListener != null) {
-                customOnClickListener.onClick(v);
-            }
+        onClickListener = view -> {
             setLoading(true);
             loginButton.authenticate();
-        });
-        loginButton.setOnClickListener(v -> {
-            if (customOnClickListener != null) {
-                customOnClickListener.onClick(v);
-            }
-            setLoading(true);
-            loginButton.authenticate();
-        });
+        };
+        buttonLayout.setOnClickListener(onClickListener);
+        loginButton.setOnClickListener(onClickListener);
         if (ConnectSdk.isDoInstantVerificationOnButtonInitialize()) {
             ConnectSdk.runInstantVerification();
         }
@@ -144,11 +136,7 @@ public class ConnectLoginButton extends ConstraintLayout implements Authenticati
         loginButton.setClaims(claims);
     }
 
-    public void setCustomOnClickListener(OnClickListener onClickListener) {
-        customOnClickListener = onClickListener;
-    }
-
-    public View.OnClickListener getCustomOnClickListener() {
-        return customOnClickListener;
+    public View.OnClickListener getOnClickListener() {
+        return onClickListener;
     }
 }
