@@ -5,6 +5,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
+
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.utils.ConnectUtils;
 
@@ -13,8 +15,6 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.Date;
-
-import androidx.annotation.RequiresApi;
 
 public class GetHeaderEnrichmentGifTask extends AsyncTask<Void, Void, HeTokenResponse> {
     private final String url;

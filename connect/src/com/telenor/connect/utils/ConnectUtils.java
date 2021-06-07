@@ -2,6 +2,7 @@ package com.telenor.connect.utils;
 
 import android.content.Intent;
 import android.net.Uri;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.telenor.connect.ConnectCallback;
