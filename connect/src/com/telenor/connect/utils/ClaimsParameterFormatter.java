@@ -1,11 +1,11 @@
 package com.telenor.connect.utils;
 
+import androidx.annotation.NonNull;
+
 import com.telenor.connect.id.Claims;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import androidx.annotation.NonNull;
 
 public class ClaimsParameterFormatter {
 

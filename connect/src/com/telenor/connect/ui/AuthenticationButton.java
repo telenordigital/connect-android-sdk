@@ -2,8 +2,6 @@ package com.telenor.connect.ui;
 
 import com.telenor.connect.id.Claims;
 
-import android.view.View;
-
 import java.util.ArrayList;
 import java.util.Map;
 

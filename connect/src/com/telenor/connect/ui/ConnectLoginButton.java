@@ -2,17 +2,15 @@ package com.telenor.connect.ui;
 
 import android.content.Context;
 import android.content.Intent;
-
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
-import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.Claims;
 
 import java.util.ArrayList;

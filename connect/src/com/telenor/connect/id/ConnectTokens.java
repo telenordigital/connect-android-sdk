@@ -1,11 +1,11 @@
 package com.telenor.connect.id;
 
+import androidx.annotation.Nullable;
+
 import com.telenor.connect.utils.Validator;
 
 import java.util.Calendar;
 import java.util.Date;
-
-import androidx.annotation.Nullable;
 
 public class ConnectTokens {
 

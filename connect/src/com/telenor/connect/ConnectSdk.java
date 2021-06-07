@@ -10,12 +10,12 @@ import android.content.pm.PackageManager;
 import android.net.Network;
 import android.net.Uri;
 import android.os.Build;
-
-import androidx.annotation.NonNull;
-import androidx.browser.customtabs.CustomTabsIntent;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
@@ -23,15 +23,15 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.telenor.connect.headerenrichment.HeLogic;
-import com.telenor.connect.headerenrichment.ShowLoadingCallback;
-import com.telenor.connect.headerenrichment.HeTokenResponse;
 import com.telenor.connect.headerenrichment.HeTokenCallback;
+import com.telenor.connect.headerenrichment.HeTokenResponse;
+import com.telenor.connect.headerenrichment.ShowLoadingCallback;
 import com.telenor.connect.id.AccessTokenCallback;
 import com.telenor.connect.id.ConnectIdService;
 import com.telenor.connect.id.ConnectStore;
+import com.telenor.connect.id.IdProvider;
 import com.telenor.connect.id.IdToken;
 import com.telenor.connect.id.UserInfo;
-import com.telenor.connect.id.IdProvider;
 import com.telenor.connect.utils.ConnectUrlHelper;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;

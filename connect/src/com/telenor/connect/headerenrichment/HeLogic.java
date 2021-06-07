@@ -9,14 +9,14 @@ import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
+
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.id.IdProvider;
 import com.telenor.connect.utils.ConnectUrlHelper;
 
 import java.util.Date;
 import java.util.Map;
-
-import androidx.annotation.RequiresApi;
 
 public class HeLogic {
     public static final boolean canNotDirectNetworkTraffic = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
