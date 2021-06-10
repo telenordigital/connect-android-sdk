@@ -2,6 +2,7 @@ package com.telenor.connect.id;
 
 import androidx.annotation.Nullable;
 
+import com.telenor.connect.ConnectException;
 import com.telenor.connect.utils.Validator;
 
 import java.util.Calendar;
@@ -16,7 +17,7 @@ public class ConnectTokens {
     private final String scope;
     private final String tokenType;
 
-    public ConnectTokens(ConnectTokensTO connectTokensTO, @Nullable Date serverTimestamp) {
+    public ConnectTokens(ConnectTokensTO connectTokensTO, @Nullable Date serverTimestamp) throws ConnectException {
         Validator.validateTokens(connectTokensTO, serverTimestamp);
 
         accessToken = connectTokensTO.getAccessToken();

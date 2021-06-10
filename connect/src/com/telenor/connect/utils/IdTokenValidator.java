@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class IdTokenValidator {
 
-    public static void validate(final IdToken idToken, Date serverTimestamp) {
+    public static void validate(final IdToken idToken, Date serverTimestamp) throws ConnectException {
         final JWTClaimsSet idTokenClaimsSet;
 
         try {

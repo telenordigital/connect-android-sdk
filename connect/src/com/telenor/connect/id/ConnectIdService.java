@@ -8,6 +8,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 import com.telenor.connect.ConnectCallback;
+import com.telenor.connect.ConnectException;
 import com.telenor.connect.ConnectNotSignedInException;
 import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.HeadersDateUtil;
@@ -84,7 +85,13 @@ public class ConnectIdService {
                     public void onResponse(Call<ConnectTokensTO> call, Response<ConnectTokensTO> response) {
                         if (response.isSuccessful()) {
                             Date serverTimestamp = HeadersDateUtil.extractDate(response.headers());
-                            ConnectTokens connectTokens = new ConnectTokens(response.body(), serverTimestamp);
+                            ConnectTokens connectTokens;
+                            try {
+                                connectTokens = new ConnectTokens(response.body(), serverTimestamp);
+                            } catch (ConnectException exception) {
+                                onFailure(call, exception);
+                                return;
+                            }
                             connectStore.set(connectTokens);
                             connectStore.clearSessionStateParam();
                             currentTokens = connectTokens;
@@ -264,7 +271,13 @@ public class ConnectIdService {
                     public void onResponse(Call<ConnectTokensTO> call, Response<ConnectTokensTO> response) {
                         if (response.isSuccessful()) {
                             Date serverTimestamp = HeadersDateUtil.extractDate(response.headers());
-                            ConnectTokens connectTokens = new ConnectTokens(response.body(), serverTimestamp);
+                            ConnectTokens connectTokens;
+                            try {
+                                connectTokens = new ConnectTokens(response.body(), serverTimestamp);
+                            } catch (ConnectException exception) {
+                                onFailure(call, exception);
+                                return;
+                            }
                             connectStore.update(connectTokens);
                             currentTokens = connectTokens;
                             callback.success(connectTokens.getAccessToken());
