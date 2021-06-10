@@ -33,7 +33,7 @@ public class Validator {
         }
     }
 
-    public static void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) {
+    public static void validateTokens(ConnectTokensTO tokens, Date serverTimestamp) throws ConnectException {
         Validator.notNullOrEmpty(tokens.getAccessToken(), "access_token");
         Validator.notNullOrEmpty(tokens.getTokenType(), "token_type");
         if (tokens.getIdToken() != null) {
