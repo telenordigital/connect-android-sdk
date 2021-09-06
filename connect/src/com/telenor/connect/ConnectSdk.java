@@ -594,8 +594,8 @@ public final class ConnectSdk {
             return false;
         }
 
-        final boolean startsWithCorrect = data.toString().startsWith(getRedirectUri());
-        if (!startsWithCorrect) {
+        final boolean startsWithCorrectCustomScheme = data.toString().startsWith(getRedirectUri());
+        if (!startsWithCorrectCustomScheme && !isIntentUriScheme(data.toString())) {
             return false;
         }
 
@@ -610,6 +610,32 @@ public final class ConnectSdk {
             return false;
         }
         return true;
+    }
+
+    private static boolean isIntentUriScheme(String intentDataUri) {
+        final Uri parsedRedirectUri = Uri.parse(getRedirectUri());
+        final String parsedRedirectUriFragment = parsedRedirectUri.getFragment();
+        final String parsedRedirectUriHost = parsedRedirectUri.getHost();
+
+        String finalUrl = null;
+        if (parsedRedirectUriFragment != null && !parsedRedirectUriFragment.isEmpty()) {
+            final String[] fragmentParts = parsedRedirectUriFragment.split(";");
+            String fragmentScheme = "";
+            for (String fragmentPart : fragmentParts) {
+                if (fragmentPart.startsWith("scheme")) {
+                    String[] scheme = fragmentPart.split("=");
+                    if (scheme.length == 2) {
+                        fragmentScheme = scheme[1];
+                        break;
+                    }
+                }
+            }
+            final Uri.Builder builder = new Uri.Builder();
+            builder.scheme(fragmentScheme)
+                    .authority(parsedRedirectUriHost);
+            finalUrl = builder.build().toString();
+        }
+        return intentDataUri != null && finalUrl != null && intentDataUri.startsWith(finalUrl);
     }
 
     public static boolean hasErrorRedirectUrlCall(Intent intent) {
