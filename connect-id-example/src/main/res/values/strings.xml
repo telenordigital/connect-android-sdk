@@ -5,6 +5,9 @@
     <!-- Use this strings in case if you want to target new frontend -->
     <string name="connect_client_id">telenordigital-exampletelenorid-android</string>
     <string name="connect_redirect_uri">telenordigital-exampletelenorid-android://oauth2callback</string>
+    <!-- Use this redirect uri to check the intent scheme
+    <string name="connect_redirect_uri">intent://oauth2callback#Intent;scheme=telenordigital-exampletelenorid-android;package=com.telenor.connect.connectidexample;end</string>
+    -->
     <string name="connect_redirect_uri_scheme">telenordigital-exampletelenorid-android</string>
 
     <!-- Use this strings in case if you want to target old frontend -->
