@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 
 import com.telenor.connect.ConnectSdk;
 import com.telenor.connect.R;
+import com.telenor.connect.id.IdProvider;
 
 public class ConnectAboutTextView extends ConnectTextView {
 
@@ -47,6 +48,10 @@ public class ConnectAboutTextView extends ConnectTextView {
 
     public ConnectAboutTextView(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
+        if (ConnectSdk.getIdProvider() == IdProvider.GRAMEENPHONE_ID
+                || ConnectSdk.getIdProvider() == IdProvider.TNPK_ID) {
+            return;
+        }
         initControls();
         initVisuals(context);
     }

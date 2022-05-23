@@ -26,7 +26,23 @@ public enum IdProvider {
             "signin.dtac-id.com",
             "signin.dtac-id-staging.com",
             "manage.dtac-id.com",
-            "manage.dtac-id-staging.com");
+            "manage.dtac-id-staging.com"),
+    GRAMEENPHONE_ID(0,
+            0,
+            0,
+            0,
+            "signin.grameenphone-id.com",
+            "signin.grameenphone-id-staging.com",
+            null,
+            null),
+    TNPK_ID(0,
+            0,
+            0,
+            0,
+            "signin.tnpk-id.com",
+            "signin.tnpk-id-staging.com",
+            null,
+            null);
 
     private final int nameKey;
     private final int subscribersKey;

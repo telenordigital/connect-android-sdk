@@ -77,6 +77,9 @@ public class ConnectUrlHelper {
     }
 
     public static HttpUrl getSelfServiceUrl(IdProvider provider, List<String> loginHints, String locales, boolean useStaging) {
+        if (provider == IdProvider.GRAMEENPHONE_ID || provider == IdProvider.TNPK_ID) {
+            return null;
+        }
         HttpUrl.Builder builder = new HttpUrl.Builder();
         builder.scheme("https")
                .host(provider.getSelfServiceUrl(useStaging))
