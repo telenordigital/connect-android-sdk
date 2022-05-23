@@ -313,6 +313,19 @@ public final class ConnectSdk {
         return redirectUri;
     }
 
+    public static Uri getAuthorizeUriForWebview(ArrayList<String> acrValues, ArrayList<String> scopeTokens, Map<String, String> extraLoginParameters) {
+        Validator.sdkInitialized();
+
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("acr_values", TextUtils.join(" ", acrValues));
+        parameters.put("scope", TextUtils.join(" ", scopeTokens));
+        if (extraLoginParameters != null && !extraLoginParameters.isEmpty()) {
+            parameters.putAll(extraLoginParameters);
+        }
+
+        return getAuthorizeUri(parameters, BrowserType.WEB_VIEW);
+    }
+
     public static ArrayList<String> getUiLocales() {
         ArrayList<String> locales = new ArrayList<>();
         if (ConnectSdk.getLocales() != null && !ConnectSdk.getLocales().isEmpty()) {
