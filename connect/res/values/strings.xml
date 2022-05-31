@@ -4,6 +4,8 @@
     <string name="brand_name_gpid" translatable="false">GP ID</string>
     <string name="brand_name_connect" translatable="false">CONNECT</string>
     <string name="brand_name_dtacid" translatable="false">DTAC ID</string>
+    <string name="brand_name_grameenphone_id" translatable="false">Grameenphone</string>
+    <string name="brand_name_tnpk_id" translatable="false">TNPK ID</string>
 
     <string name="network_name_telenorid" translatable="false">Telenor</string>
     <string name="network_name_gpid" translatable="false">Grameenphone</string>
