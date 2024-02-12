@@ -18,13 +18,14 @@ public class SignInActivity extends AppCompatActivity {
 
     ConnectLoginButton loginButton;
     Button selfServiceButton;
+    String scopes = "tnn.ids openid offline_access";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
         loginButton = findViewById(R.id.login_button);
-        loginButton.setLoginScopeTokens("profile openid email phone");
+        loginButton.setLoginScopeTokens(scopes);
         selfServiceButton = findViewById(R.id.selfServiceButton);
         selfServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,7 +39,7 @@ public class SignInActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), new ConnectCallback() {
+        ConnectSdk.handleRedirectUriCallIfPresent(getIntent(), scopes, new ConnectCallback() {
             @Override
             public void onSuccess(Object successData) {
                 goToSignedInActivity();

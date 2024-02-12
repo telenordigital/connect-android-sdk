@@ -14,9 +14,14 @@ import com.telenor.connect.headerenrichment.HeLogic;
 import com.telenor.connect.id.IdProvider;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import okhttp3.HttpUrl;
 
@@ -24,8 +29,8 @@ public class ConnectUrlHelper {
 
     public static final String ACTION_ARGUMENT = "com.telenor.connect.ACTION_ARGUMENT";
     public static final String OAUTH_PATH = "oauth";
+    public static final String CONNECT_PATH = "connect";
     private static final String HE_TOKEN_API_BASE_PATH = "v2/extapi/v1/header-enrichment-token/";
-    private static final String HE_TOKEN_API_BASE_PATH_R1 = "r1/extapi/v1/header-enrichment-token/";
 
     public static String getPageUrl(Bundle arguments) {
         if (ConnectUtils.LOGIN_ACTION.equals(arguments.getString(ACTION_ARGUMENT))) {
@@ -39,7 +44,7 @@ public class ConnectUrlHelper {
     }
 
     public static synchronized Uri getAuthorizeUri(
-            Map<String, String> parameters, BrowserType browserType, String deviceId, String heToken) {
+            Map<String, String> parameters, BrowserType browserType, String deviceId, String heToken, String encryptedCodeChallenge) {
         if (ConnectSdk.getClientId() == null) {
             throw new ConnectException("Client ID not specified in application manifest.");
         }
@@ -56,6 +61,9 @@ public class ConnectUrlHelper {
         if (deviceId != null) {
             parameters.put("telenordigital_did", deviceId);
         }
+        parameters.put("code_challenge", encryptedCodeChallenge);
+        parameters.put("code_challenge_method", "S256");
+
         handlePromptAndLogSessionId(parameters);
         parameters.put("state", ConnectSdk.getConnectStore().generateSessionStateParam());
         return ConnectUrlHelper.getAuthorizeUriStem(
@@ -65,7 +73,7 @@ public class ConnectUrlHelper {
                 ConnectSdk.getUiLocales(),
                 getConnectApiUrl(), browserType)
                 .buildUpon()
-                .appendPath(OAUTH_PATH)
+                .appendPath(CONNECT_PATH)
                 .appendPath("authorize")
                 .build();
     }
@@ -78,9 +86,6 @@ public class ConnectUrlHelper {
     }
 
     public static HttpUrl getSelfServiceUrl(IdProvider provider, List<String> loginHints, String locales, boolean useStaging) {
-        if (provider == IdProvider.GRAMEENPHONE_ID || provider == IdProvider.TNPK_ID) {
-            return null;
-        }
         HttpUrl.Builder builder = new HttpUrl.Builder();
         builder.scheme("https")
                .host(provider.getSelfServiceUrl(useStaging))
@@ -143,11 +148,8 @@ public class ConnectUrlHelper {
 
     public static String getHeApiUrl(IdProvider provider, boolean useStaging, String logSessionId) {
         HttpUrl connectApiSchemeAndHost = ConnectUrlHelper.getConnectApiUrl(provider, useStaging);
-        String hePath = (provider == IdProvider.GRAMEENPHONE_ID || provider == IdProvider.TNPK_ID)
-                ? HE_TOKEN_API_BASE_PATH_R1
-                : HE_TOKEN_API_BASE_PATH;
         return connectApiSchemeAndHost
-                + hePath
+                + HE_TOKEN_API_BASE_PATH
                 + logSessionId;
     }
 

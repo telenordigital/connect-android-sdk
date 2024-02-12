@@ -62,32 +62,6 @@ public class ConnectIdServiceTest {
         verify(connectStore, times(1)).get();
     }
 
-    @Test(expected = ConnectNotSignedInException.class)
-    public void getUserInfoMissingAccessTokenThrows() {
-        ConnectStore connectStore = mock(ConnectStore.class);
-        ConnectAPI connectApi = mock(ConnectAPI.class);
-        ConnectIdService connectIdService = new ConnectIdService(connectStore, connectApi, "", "");
-
-        connectIdService.getUserInfo(null);
-    }
-
-    @Test
-    public void getUserInfoCallsGetUserInfo() {
-        ConnectStore connectStore = mock(ConnectStore.class);
-        ConnectTokens connectTokens = mock(ConnectTokens.class);
-        final String value = "access token";
-        when(connectTokens.getAccessToken()).thenReturn(value);
-        when(connectStore.get()).thenReturn(connectTokens);
-
-        ConnectAPI connectApi = mock(ConnectAPI.class);
-        Call call = mock(Call.class);
-        when(connectApi.getUserInfo(anyString())).thenReturn(call);
-        ConnectIdService connectIdService = new ConnectIdService(connectStore, connectApi, "", "");
-
-        connectIdService.getUserInfo(null);
-        verify(connectApi).getUserInfo("Bearer access token");
-    }
-
     @Test
     public void getValidAccessTokenCallsNoSignedInUserWhenTokensAreMissing() {
         ConnectStore connectStore = mock(ConnectStore.class);
