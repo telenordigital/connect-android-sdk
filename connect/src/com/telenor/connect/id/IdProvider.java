@@ -7,42 +7,12 @@ public enum IdProvider {
             R.string.subscribers_name_telenorid,
             R.string.network_name_telenorid,
             R.drawable.ic_telenorid_logo,
+            "id.telenor.no",
+            "id-test.telenor.no",
             "signin.telenorid.com",
             "signin.telenorid-staging.com",
             "manage.telenorid.com",
-            "manage.telenorid-staging.com"),
-    GP_ID(R.string.brand_name_gpid,
-            R.string.subscribers_name_gpid,
-            R.string.network_name_gpid,
-            R.drawable.ic_gpid_logo,
-            "signin.gp-id.com",
-            "signin.gp-id-staging.com",
-    "manage.gp-id.com",
-    "manage.gp-id-staging.com"),
-    DTAC_ID(R.string.brand_name_dtacid,
-            R.string.subscribers_name_dtacid,
-            R.string.network_name_dtacid,
-            R.drawable.ic_dtacid_logo,
-            "signin.dtac-id.com",
-            "signin.dtac-id-staging.com",
-            "manage.dtac-id.com",
-            "manage.dtac-id-staging.com"),
-    GRAMEENPHONE_ID(R.string.brand_name_grameenphone_id,
-            0,
-            0,
-            0,
-            "signin.grameenphone-id.com",
-            "signin.grameenphone-id-staging.com",
-            null,
-            null),
-    TNPK_ID(R.string.brand_name_tnpk_id,
-            0,
-            0,
-            0,
-            "signin.tnpk-id.com",
-            "signin.tnpk-id-staging.com",
-            null,
-            null);
+            "manage.telenorid-staging.com");
 
     private final int nameKey;
     private final int subscribersKey;
@@ -51,11 +21,17 @@ public enum IdProvider {
 
     private final String productionUrl;
     private final String stagingUrl;
+    private final String legacyProductionUrl;
+    private final String legacyStagingUrl;
     private final String productionSelfServiceUrl;
     private final String stagingSelfServiceUrl;
 
     public String getUrl(boolean useStaging) {
         return useStaging ? this.stagingUrl : this.productionUrl;
+    }
+
+    public String getLegacyUrl(boolean useStaging) {
+        return useStaging ? this.legacyStagingUrl : this.legacyProductionUrl;
     }
 
     public String getSelfServiceUrl(boolean useStaging) {
@@ -84,6 +60,8 @@ public enum IdProvider {
                int logoKey,
                String productionUrl,
                String stagingUrl,
+               String legacyProductionUrl,
+               String legacyStagingUrl,
                String productionSelfServiceUrl,
                String stagingSelfServiceUrl
     ) {
@@ -93,6 +71,8 @@ public enum IdProvider {
         this.logoKey = logoKey;
         this.productionUrl = productionUrl;
         this.stagingUrl = stagingUrl;
+        this.legacyProductionUrl = legacyProductionUrl;
+        this.legacyStagingUrl = legacyStagingUrl;
         this.productionSelfServiceUrl = productionSelfServiceUrl;
         this.stagingSelfServiceUrl = stagingSelfServiceUrl;
     }

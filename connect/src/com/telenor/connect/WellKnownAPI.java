@@ -16,7 +16,7 @@ import retrofit2.http.Headers;
 public interface WellKnownAPI {
 
     @Headers("Content-Type: application/json")
-    @GET("/oauth/.well-known/openid-configuration")
+    @GET("/.well-known/openid-configuration")
     Call<WellKnownConfig> getWellKnownConfig();
 
     class WellKnownConfig implements Parcelable {

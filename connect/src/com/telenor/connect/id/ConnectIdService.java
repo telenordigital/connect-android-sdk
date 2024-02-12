@@ -74,12 +74,16 @@ public class ConnectIdService {
 
     public void getAccessTokenFromCode(
             final String authCode,
+            final String codeChallenge,
+            final String scopes,
             final ConnectCallback callback) {
-        connectApi.getAccessTokens(
+        connectApi.getAccessTokenFromCode(
                 "authorization_code",
                 authCode,
                 redirectUrl,
-                clientId)
+                clientId,
+                codeChallenge,
+                scopes)
                 .enqueue(new Callback<ConnectTokensTO>() {
                     @Override
                     public void onResponse(Call<ConnectTokensTO> call, Response<ConnectTokensTO> response) {
@@ -137,46 +141,8 @@ public class ConnectIdService {
     }
 
     private void revokeTokens(Context context) {
-        String accessToken = getAccessToken();
-        if (!TextUtils.isEmpty(accessToken)) {
-            revokeAccessToken(accessToken);
-        }
-        String refreshToken = getRefreshToken();
-        if (!TextUtils.isEmpty(refreshToken)) {
-            revokeRefreshToken(refreshToken);
-        }
-
         clearTokensAndNotify();
         clearCookies(context);
-    }
-
-    private void revokeAccessToken(String accessToken) {
-        revokeToken(accessToken, "access");
-    }
-
-    private void revokeRefreshToken(String refreshToken) {
-        revokeToken(refreshToken, "refresh");
-    }
-
-    private void revokeToken(final String token, final String descriptor) {
-        connectApi.revokeToken(
-                clientId,
-                token)
-                .enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        if (!response.isSuccessful()) {
-                            Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke " + descriptor +
-                                    " token on API. token=" + token);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable error) {
-                        Log.e(ConnectUtils.LOG_TAG, "Failed to call revoke " + descriptor +
-                                " token on API. token=" + token , error);
-                    }
-                });
     }
 
     private void clearCookies(Context context) {
@@ -190,70 +156,42 @@ public class ConnectIdService {
     }
 
     public void logOut(final Context context) {
-        final String accessToken = getAccessToken();
-        final String refreshToken = getRefreshToken();
+        final IdToken idToken = getIdToken();
 
-        if (accessToken == null || refreshToken == null) {
+        if (idToken == null) {
             Log.w(ConnectUtils.LOG_TAG, "Trying to log out when user is already logged out.");
             revokeTokens(context);
             return;
         }
 
-        updateTokens(new AccessTokenCallback() {
+        callLogOutApiEndpoint(idToken.getSerializedSignedJwt(), new ConnectCallback() {
             @Override
-            public void success(String accessToken) {
-                callLogOutApiEndpoint(accessToken, new ConnectCallback() {
-                    @Override
-                    public void onSuccess(Object successData) {
-                        revokeTokens(context);
-                    }
-
-                    @Override
-                    public void onError(Object errorData) {
-                        revokeTokens(context);
-                    }
-                });
-            }
-
-            @Override
-            public void unsuccessfulResult(Response response, boolean userDataRemoved) {
-                Log.w(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint. Revoking tokens." +
-                        " response=" + response);
+            public void onSuccess(Object successData) {
                 revokeTokens(context);
             }
 
             @Override
-            public void failure(Call<ConnectTokensTO> call, Throwable error) {
-                Log.w(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint. Revoking tokens." +
-                        " error=" + error);
-                revokeTokens(context);
-            }
-
-            @Override
-            public void noSignedInUser() {
-                Log.w(ConnectUtils.LOG_TAG, "Failed to call logOut endpoint." +
-                        " No signed in user. Revoking any remaining tokens.");
+            public void onError(Object errorData) {
                 revokeTokens(context);
             }
         });
     }
 
-    private void callLogOutApiEndpoint(final String accessToken, final ConnectCallback callback) {
-        String auth = "Bearer " + accessToken;
-        connectApi.logOut(auth).enqueue(new Callback<Void>() {
+    private void callLogOutApiEndpoint(final String serializedSignedJwt, final ConnectCallback callback) {
+        connectApi.logOut(serializedSignedJwt).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     callback.onSuccess(null);
                 } else {
-                    Log.e(ConnectUtils.LOG_TAG, "Failed to call logout with access token on API. accessToken=" + accessToken);
+                    Log.e(ConnectUtils.LOG_TAG, "Failed to call logout with id token on API. accessToken=" + serializedSignedJwt);
                     callback.onError(null);
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable error) {
-                Log.e(ConnectUtils.LOG_TAG, "Failed to call logout with access token on API. accessToken=" + accessToken , error);
+                Log.e(ConnectUtils.LOG_TAG, "Failed to call logout with access id on API. accessToken=" + serializedSignedJwt , error);
                 callback.onError(error);
             }
         });
@@ -297,6 +235,44 @@ public class ConnectIdService {
                 });
     }
 
+    public void updateLegacyTokens(final AccessTokenCallback callback) {
+        final String refreshToken = getRefreshToken();
+        if (refreshToken == null) {
+            callback.noSignedInUser();
+            return;
+        }
+        connectApi.refreshLegacyAccessTokens("refresh_token", refreshToken,
+                clientId).enqueue(new Callback<ConnectTokensTO>() {
+            @Override
+            public void onResponse(Call<ConnectTokensTO> call, Response<ConnectTokensTO> response) {
+                if (response.isSuccessful()) {
+                    Date serverTimestamp = HeadersDateUtil.extractDate(response.headers());
+                    ConnectTokens connectTokens;
+                    try {
+                        connectTokens = new ConnectTokens(response.body(), serverTimestamp);
+                    } catch (ConnectException exception) {
+                        onFailure(call, exception);
+                        return;
+                    }
+                    connectStore.update(connectTokens);
+                    currentTokens = connectTokens;
+                    callback.success(connectTokens.getAccessToken());
+                } else {
+                    boolean signOutUser = response.code() >= 400 && response.code() < 500;
+                    if (signOutUser) {
+                        clearTokensAndNotify();
+                    }
+                    callback.unsuccessfulResult(response, signOutUser);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ConnectTokensTO> call, Throwable error) {
+                callback.failure(call, error);
+            }
+        });
+    }
+
     private ConnectTokens retrieveTokens() {
         if (currentTokens == null) {
             currentTokens = connectStore.get();
@@ -309,16 +285,5 @@ public class ConnectIdService {
             idToken = connectStore.getIdToken();
         }
         return idToken;
-    }
-
-    public void getUserInfo(Callback<UserInfo> userInfoCallback)
-            throws ConnectNotSignedInException {
-        String accessToken = getAccessToken();
-        if (accessToken == null) {
-            throw new ConnectNotSignedInException(
-                    "No user is signed in. accessToken=null");
-        }
-        final String auth = "Bearer " + accessToken;
-        connectApi.getUserInfo(auth).enqueue(userInfoCallback);
     }
 }
