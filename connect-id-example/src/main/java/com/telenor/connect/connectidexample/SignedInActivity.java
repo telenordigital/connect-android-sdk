@@ -3,6 +3,7 @@ package com.telenor.connect.connectidexample;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -27,11 +28,43 @@ public class SignedInActivity extends Activity {
         }
 
         Button logoutButton = findViewById(R.id.logout_button);
+        Button refreshButton = findViewById(R.id.refresh_button);
+
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ConnectSdk.logout();
                 goToLogin();
+            }
+        });
+
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ConnectSdk.updateTokens(new AccessTokenCallback() {
+                    @Override
+                    public void success(String accessToken) {
+                        Log.d("result", "Tokens were successfully updated: " + accessToken);
+                    }
+
+                    @Override
+                    public void unsuccessfulResult(Response response, boolean userDataRemoved) {
+                        Log.d("result", "Tokens were not updated");
+                        Log.d("response", response.toString());
+                    }
+
+                    @Override
+                    public void failure(Call<ConnectTokensTO> call, Throwable error) {
+                        Log.d("result", "Tokens fetch had failed");
+                        Log.d("call", call.request().toString());
+                        error.printStackTrace();
+                    }
+
+                    @Override
+                    public void noSignedInUser() {
+                        Log.d("result", "No signed in user");
+                    }
+                });
             }
         });
 
