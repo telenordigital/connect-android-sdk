@@ -3,12 +3,12 @@
     <string name="connect_selfservice_button">Open self service link</string>
 
     <!-- Use this strings in case if you want to target new frontend -->
-    <string name="connect_client_id">telenordigital-exampletelenorid-android</string>
-    <string name="connect_redirect_uri">telenordigital-exampletelenorid-android://oauth2callback</string>
+    <string name="connect_client_id">tnn-example-android</string>
+    <string name="connect_redirect_uri">telenorid-example-android://authcallback/</string>
     <!-- Use this redirect uri to check the intent scheme
     <string name="connect_redirect_uri">intent://oauth2callback#Intent;scheme=telenordigital-exampletelenorid-android;package=com.telenor.connect.connectidexample;end</string>
     -->
-    <string name="connect_redirect_uri_scheme">telenordigital-exampletelenorid-android</string>
+    <string name="connect_redirect_uri_scheme">telenorid-example-android</string>
 
     <!-- Use this strings in case if you want to target old frontend -->
     <!--

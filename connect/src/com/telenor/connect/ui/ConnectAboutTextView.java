@@ -48,10 +48,6 @@ public class ConnectAboutTextView extends ConnectTextView {
 
     public ConnectAboutTextView(final Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        if (ConnectSdk.getIdProvider() == IdProvider.GRAMEENPHONE_ID
-                || ConnectSdk.getIdProvider() == IdProvider.TNPK_ID) {
-            return;
-        }
         initControls();
         initVisuals(context);
     }
