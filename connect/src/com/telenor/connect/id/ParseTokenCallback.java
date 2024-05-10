@@ -12,9 +12,11 @@ import java.util.Map;
 public class ParseTokenCallback implements ConnectCallback {
 
     private final ConnectCallback callback;
+    private final String scopes;
 
-    public ParseTokenCallback(ConnectCallback callback) {
+    public ParseTokenCallback(ConnectCallback callback, String scopes) {
         this.callback = callback;
+        this.scopes = scopes;
     }
 
     @Override
@@ -24,7 +26,7 @@ public class ParseTokenCallback implements ConnectCallback {
         if (ConnectSdk.isConfidentialClient()) {
             callback.onSuccess(successData);
         } else {
-            ConnectSdk.getAccessTokenFromCode(authCodeData.get("code"), callback);
+            ConnectSdk.getAccessTokenFromCode(authCodeData.get("code"), scopes, callback);
         }
     }
 

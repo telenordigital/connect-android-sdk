@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -37,6 +38,9 @@ import com.telenor.connect.utils.ConnectUtils;
 import com.telenor.connect.utils.RestHelper;
 import com.telenor.connect.utils.Validator;
 
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import retrofit2.Call;
@@ -76,6 +81,7 @@ public final class ConnectSdk {
     private static volatile long tsTokenResponseReceived;
     private static volatile String logSessionId;
     private static volatile Date logSessionIdSetTime;
+    private static volatile String codeChallenge;
 
     /**
      * The key for the client ID in the Android manifest.
@@ -101,14 +107,45 @@ public final class ConnectSdk {
             final Activity activity,
             final ShowLoadingCallback showLoadingCallback) {
         handleButtonClickedAnalytics();
+
+        codeChallenge = getRandomString();
+        String encryptedCodeChallenge = encodeCodeChallenge(codeChallenge);
+
         HeTokenCallback heTokenCallback = new HeTokenCallback() {
             @Override
             public void done() {
-                Uri authorizeUri = getAuthorizeUri(parameters, browserType);
+                Uri authorizeUri = getAuthorizeUri(parameters, browserType, encryptedCodeChallenge);
                 launchInCustomTab(activity, authorizeUri);
             }
         };
         HeLogic.handleHeToken(parameters, showLoadingCallback, heTokenCallback, logSessionId, idProvider, useStaging);
+    }
+
+    private final static String ALLOWED_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    private static String getRandomString()  {
+        final int sizeOfRandomString = 64;
+        final Random random = new Random();
+        final StringBuilder sb = new StringBuilder(sizeOfRandomString);
+        for (int i = 0; i < sizeOfRandomString; ++i) {
+            sb.append(ALLOWED_CHARACTERS.charAt(random.nextInt(ALLOWED_CHARACTERS.length())));
+        }
+        return sb.toString();
+    }
+
+    private static String encodeCodeChallenge(String codeChallenge) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            // StandardCharsets.US_ASCII cannot be used due to a minimum support API level
+            byte[] asciiChallenge = codeChallenge.getBytes(Charset.forName("US-ASCII"));
+            byte[] encodedHash = digest.digest(asciiChallenge);
+            byte[] base64encodedResult = Base64.encode(encodedHash, Base64.URL_SAFE);
+            return new String(base64encodedResult)
+                    .replace("\n", "")
+                    .replace("=", "");
+        } catch (NoSuchAlgorithmException e) {
+            throw new ConnectException("An error occurred while encoding code challenge");
+        }
     }
 
     private static void handleButtonClickedAnalytics() {
@@ -129,7 +166,7 @@ public final class ConnectSdk {
         return calendar.getTime();
     }
 
-    private static Uri getAuthorizeUri(Map<String, String> parameters, BrowserType browserType) {
+    private static Uri getAuthorizeUri(Map<String, String> parameters, BrowserType browserType, String encryptedCodeChallenge) {
         boolean failedToGetToken = HeLogic.failedToGetToken();
         HeTokenResponse heTokenResponse = HeLogic.getHeTokenResponse();
 
@@ -137,7 +174,7 @@ public final class ConnectSdk {
         if (connectStore != null) {
             deviceId = connectStore.handleDeviceId();
         }
-        return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, deviceId, failedToGetToken ? null : heTokenResponse.getToken());
+        return ConnectUrlHelper.getAuthorizeUri(parameters, browserType, deviceId, failedToGetToken ? null : heTokenResponse.getToken(), encryptedCodeChallenge);
     }
 
     private static void launchInCustomTab(Context context, Uri uri) {
@@ -192,10 +229,10 @@ public final class ConnectSdk {
         return connectIdService.getAccessTokenExpirationTime();
     }
 
-    public static synchronized void getAccessTokenFromCode(String code, final ConnectCallback callback) {
+    public static synchronized void getAccessTokenFromCode(String code, String scopes, final ConnectCallback callback) {
         Validator.sdkInitialized();
         tsRedirectUrlInvoked = System.currentTimeMillis();
-        connectIdService.getAccessTokenFromCode(code, new ConnectCallback() {
+        connectIdService.getAccessTokenFromCode(code, codeChallenge, scopes, new ConnectCallback() {
             @Override
             public void onSuccess(Object successData) {
                 tsTokenResponseReceived = System.currentTimeMillis();
@@ -229,6 +266,12 @@ public final class ConnectSdk {
             Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data, wellKnownConfig is null.");
             return;
         }
+
+        if (analyticsEndpoint == null) {
+            Log.e(ConnectUtils.LOG_TAG, "Failed to send analytics data, analytics endpoint is null.");
+            return;
+        }
+
         TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         String carrierName = manager != null ? manager.getNetworkOperatorName() : null;
         boolean accessTokenIsEmpty = getAccessToken() == null || getAccessToken().isEmpty();
@@ -313,19 +356,6 @@ public final class ConnectSdk {
         return redirectUri;
     }
 
-    public static Uri getAuthorizeUriForWebview(ArrayList<String> acrValues, ArrayList<String> scopeTokens, Map<String, String> extraLoginParameters) {
-        Validator.sdkInitialized();
-
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("acr_values", TextUtils.join(" ", acrValues));
-        parameters.put("scope", TextUtils.join(" ", scopeTokens));
-        if (extraLoginParameters != null && !extraLoginParameters.isEmpty()) {
-            parameters.putAll(extraLoginParameters);
-        }
-
-        return getAuthorizeUri(parameters, BrowserType.WEB_VIEW);
-    }
-
     public static ArrayList<String> getUiLocales() {
         ArrayList<String> locales = new ArrayList<>();
         if (ConnectSdk.getLocales() != null && !ConnectSdk.getLocales().isEmpty()) {
@@ -348,7 +378,7 @@ public final class ConnectSdk {
         if (getWellKnownConfig() != null) {
             return getWellKnownConfig().getIssuer();
         }
-        return ConnectUrlHelper.getConnectApiUrl(idProvider, useStaging) + ConnectUrlHelper.OAUTH_PATH;
+        return ConnectUrlHelper.getConnectApiUrl(idProvider, useStaging).toString();
     }
 
     public static List<String> getExpectedAudiences() {
@@ -384,6 +414,51 @@ public final class ConnectSdk {
         useStaging = useStagingEnvironment;
         idProvider = provider;
         loadConnectConfig(context);
+        connectStore = new ConnectStore(context);
+
+        String apiUrl = ConnectUrlHelper.getConnectApiUrl(provider, useStaging).toString();
+        connectIdService = new ConnectIdService(
+                connectStore,
+                RestHelper.getConnectApi(apiUrl),
+                clientId,
+                redirectUri);
+
+        lastSeenWellKnownConfigStore = new WellKnownConfigStore(context);
+        wellKnownConfig = lastSeenWellKnownConfigStore.get();
+        validateWellKnownConfigIdp();
+
+        setRandomLogSessionId();
+        boolean noSignedInUser = connectIdService.getAccessToken() == null;
+        boolean noStoredWellKnownConfig = wellKnownConfig == null;
+        if (noSignedInUser || noStoredWellKnownConfig) {
+            updateWellKnownConfig(apiUrl);
+        }
+        HeLogic.initializeNetworks(context);
+        initializeAdvertisingId(context);
+        connectStore.handleDeviceId();
+        isInitialized = true;
+        doInstantVerificationOnButtonInitialize = automaticallyInitializeInstantVerification;
+        tsSdkInitialization = System.currentTimeMillis();
+    }
+
+    public static synchronized void sdkInitialize(Context applicationContext,
+                                                  IdProvider provider,
+                                                  boolean useStagingEnvironment,
+                                                  boolean automaticallyInitializeInstantVerification,
+                                                  boolean isConfidentialClient,
+                                                  String newClientId,
+                                                  String newRedirectUri)
+    {
+        context = applicationContext;
+        Validator.notNull(context, "context");
+
+        useStaging = useStagingEnvironment;
+        idProvider = provider;
+
+        confidentialClient = isConfidentialClient;
+        clientId = newClientId;
+        redirectUri = newRedirectUri;
+
         connectStore = new ConnectStore(context);
 
         String apiUrl = ConnectUrlHelper.getConnectApiUrl(provider, useStaging).toString();
@@ -463,6 +538,11 @@ public final class ConnectSdk {
         connectIdService.updateTokens(callback);
     }
 
+    public static void updateLegacyTokens(AccessTokenCallback callback) {
+        Validator.sdkInitialized();
+        connectIdService.updateLegacyTokens(callback);
+    }
+
     private static void loadConnectConfig(Context context) {
         ApplicationInfo ai = getApplicationInfo(context);
         if (ai == null || ai.metaData == null) {
@@ -508,8 +588,10 @@ public final class ConnectSdk {
     // Cleaning of invalid idp configuration must be ensured.
     private static void validateWellKnownConfigIdp() {
         // We expect the current current selected id provider to be the issuer
-        final String expectedIssuer = ConnectUrlHelper.getConnectApiUrl(idProvider, useStaging) + ConnectUrlHelper.OAUTH_PATH;
-
+        String expectedIssuer = ConnectUrlHelper.getConnectApiUrl(idProvider, useStaging).toString();
+        if (expectedIssuer.endsWith("/")) {
+            expectedIssuer = expectedIssuer.substring(0, expectedIssuer.length() - 1);
+        }
         IdToken idToken = connectStore.getIdToken();
         if (idToken != null) {
             final JWTClaimsSet idTokenClaimsSet;
@@ -525,7 +607,7 @@ public final class ConnectSdk {
             }
 
             final String issuer = idTokenClaimsSet.getIssuer();
-            if (!expectedIssuer.equals(issuer)) {
+            if (!expectedIssuer.equals(issuer) && !(expectedIssuer + "/oauth").equals(issuer)) {
                 wellKnownConfig = null;
                 lastSeenWellKnownConfigStore.clearSynchronously();
                 connectStore.clearSynchronously();
@@ -536,7 +618,7 @@ public final class ConnectSdk {
 
         if (wellKnownConfig != null) {
             String wellKnownConfigIssuer = wellKnownConfig.getIssuer();
-            if (!expectedIssuer.equals(wellKnownConfigIssuer)) {
+            if (!expectedIssuer.equals(wellKnownConfigIssuer) && !(expectedIssuer + "/oauth").equals(wellKnownConfigIssuer)) {
                 wellKnownConfig = null;
                 lastSeenWellKnownConfigStore.clearSynchronously();
                 connectStore.clearSynchronously();
@@ -575,20 +657,6 @@ public final class ConnectSdk {
     public static IdToken getIdToken() {
         Validator.sdkInitialized();
         return connectIdService.getIdToken();
-    }
-
-    /**
-     * Fetches the logged in user's info from the /oauth/userinfo endpoint.
-     * See http://docs.telenordigital.com/apis/connect/id/authentication.html#authorization-server-user-information
-     * for more details on the scope and claims preconditions needed in order to get the info
-     * needed.
-     *
-     * @param userInfoCallback the callback that will be called on after the response is received
-     * @throws ConnectNotInitializedException if no user is signed in.
-     */
-    public static void getUserInfo(Callback<UserInfo> userInfoCallback) {
-        Validator.sdkInitialized();
-        connectIdService.getUserInfo(userInfoCallback);
     }
 
     /**
@@ -741,12 +809,12 @@ public final class ConnectSdk {
      * @see #getAccessTokenFromCode
      */
     public static void handleRedirectUriCallIfPresent(
-            Intent intent, ConnectCallback callback) {
+            Intent intent, String scopes, ConnectCallback callback) {
         if (!hasValidRedirectUrlCall(intent)) {
             return;
         }
         final String code = getCodeFromIntent(intent);
-        getAccessTokenFromCode(code, callback);
+        getAccessTokenFromCode(code, scopes, callback);
     }
 
     /**

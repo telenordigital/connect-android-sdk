@@ -34,13 +34,15 @@ public class ParseTokenCallbackTest {
     @Rule
     public PowerMockRule rule = new PowerMockRule(); // needed to activate PowerMock
 
+    private String scopes = "";
+
     @Test
     public void onErrorCallsCallback() {
         mockStatic(ConnectSdk.class);
         given(ConnectSdk.isInitialized()).willReturn(true);
 
         ConnectCallback connectCallback = mock(ConnectCallback.class);
-        ParseTokenCallback parseTokenCallback = new ParseTokenCallback(connectCallback);
+        ParseTokenCallback parseTokenCallback = new ParseTokenCallback(connectCallback, scopes);
         Map<String, String> errorData = new HashMap<>();
         errorData.put("something", "something else");
 
@@ -54,16 +56,16 @@ public class ParseTokenCallbackTest {
         given(ConnectSdk.isInitialized()).willReturn(true);
         given(ConnectSdk.isConfidentialClient()).willReturn(false);
         doNothing().when(ConnectSdk.class);
-        ConnectSdk.getAccessTokenFromCode(anyString(), isA(ConnectCallback.class));
+        ConnectSdk.getAccessTokenFromCode(anyString(), scopes, isA(ConnectCallback.class));
 
         ConnectCallback connectCallback = mock(ConnectCallback.class);
-        ParseTokenCallback callback = new ParseTokenCallback(connectCallback);
+        ParseTokenCallback callback = new ParseTokenCallback(connectCallback, scopes);
         Map<String, String> successData = new HashMap<>();
 
         callback.onSuccess(successData);
         verifyStatic(ConnectSdk.class, times(1));
         ConnectSdk.isConfidentialClient();
-        ConnectSdk.getAccessTokenFromCode(anyString(), isA(ConnectCallback.class));
+        ConnectSdk.getAccessTokenFromCode(anyString(), scopes, isA(ConnectCallback.class));
     }
 
     @Test
@@ -73,7 +75,7 @@ public class ParseTokenCallbackTest {
         given(ConnectSdk.isConfidentialClient()).willReturn(true);
 
         ConnectCallback connectCallback = mock(ConnectCallback.class);
-        ParseTokenCallback parseTokenCallback = new ParseTokenCallback(connectCallback);
+        ParseTokenCallback parseTokenCallback = new ParseTokenCallback(connectCallback, scopes);
         Map<String, String> successData = new HashMap<>();
         successData.put("something", "something else");
 
